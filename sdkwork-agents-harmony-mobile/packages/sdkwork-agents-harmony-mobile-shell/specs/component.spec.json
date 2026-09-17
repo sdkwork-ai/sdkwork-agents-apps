@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-agents-harmony-mobile-shell",
+    "displayName": "SDKWork Agents HarmonyOS Mobile Shell",
+    "version": "0.1.0",
+    "type": "arkts-package",
+    "root": "apps/sdkwork-agents-harmony-mobile/packages/sdkwork-agents-harmony-mobile-shell",
+    "domain": "agents",
+    "capability": "shell",
+    "surface": "app",
+    "languages": [
+      "arkts"
+    ],
+    "generated": false,
+    "manifests": [
+      "oh-package.json5",
+      "specs/component.spec.json"
+    ]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "path": "../../../../../sdkwork-specs/HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "purpose": "HarmonyOS mobile application root architecture."
+    },
+    {
+      "file": "APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "purpose": "Cross-client package taxonomy and dependency direction."
+    },
+    {
+      "file": "FRONTEND_SPEC.md",
+      "path": "../../../../../sdkwork-specs/FRONTEND_SPEC.md",
+      "purpose": "Frontend package layering and SDK injection boundaries."
+    }
+  ],
+  "contracts": {
+    "layerRole": "frontend-shell",
+    "publicExports": [
+      "Index.ets"
+    ],
+    "sdkClients": [],
+    "sdkDependencies": [],
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": []
+  },
+  "verification": {
+    "commands": [
+      "node ../sdkwork-specs/tools/check-frontend-composition.mjs --root ."
+    ]
+  }
+}

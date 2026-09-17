@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork_agents_flutter_mobile_agents",
+    "displayName": "sdkwork_agents_flutter_mobile_agents",
+    "version": "0.1.0",
+    "type": "dart-package",
+    "root": "apps/sdkwork-agents-flutter-mobile/packages/sdkwork_agents_flutter_mobile_agents",
+    "domain": "agents",
+    "capability": "agents",
+    "surface": "app",
+    "languages": [
+      "dart"
+    ],
+    "generated": false,
+    "manifests": [
+      "pubspec.yaml",
+      "specs/component.spec.json"
+    ]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "FLUTTER_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "path": "../../../../../sdkwork-specs/FLUTTER_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "purpose": "Flutter mobile application root architecture."
+    },
+    {
+      "file": "APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "purpose": "Cross-client package taxonomy and dependency direction."
+    },
+    {
+      "file": "APP_FLUTTER_UI_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_FLUTTER_UI_SPEC.md",
+      "purpose": "Flutter UI package rules."
+    },
+    {
+      "file": "PAGINATION_SPEC.md",
+      "path": "../../../../../sdkwork-specs/PAGINATION_SPEC.md",
+      "purpose": "Interactive list pagination."
+    },
+    {
+      "file": "I18N_SPEC.md",
+      "path": "../../../../../sdkwork-specs/I18N_SPEC.md",
+      "purpose": "Runtime locale configuration and message catalog rules."
+    }
+  ],
+  "contracts": {
+    "layerRole": "frontend-feature",
+    "publicExports": [
+      "."
+    ],
+    "sdkClients": [
+      "SdkworkAppClient"
+    ],
+    "sdkDependencies": [
+      "sdkwork-agents-app-sdk"
+    ],
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": [],
+    "providedPorts": [
+      {
+        "name": "agentsFlutterCatalogScreens",
+        "export": "."
+      },
+      {
+        "name": "agentsFlutterRoutes",
+        "export": "."
+      }
+    ],
+    "requiredPorts": [
+      {
+        "name": "agentsAppSdkClients",
+        "package": "sdkwork_agents_flutter_mobile_core",
+        "export": "."
+      },
+      {
+        "name": "agentsFlutterCommons",
+        "package": "sdkwork_agents_flutter_mobile_commons",
+        "export": "."
+      }
+    ]
+  },
+  "verification": {
+    "commands": [
+      "flutter analyze apps/sdkwork-agents-flutter-mobile/packages/sdkwork_agents_flutter_mobile_agents"
+    ]
+  }
+}

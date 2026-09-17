@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-agents-harmony-mobile-agents",
+    "displayName": "SDKWork Agents HarmonyOS Mobile Agents",
+    "version": "0.1.0",
+    "type": "arkts-package",
+    "root": "apps/sdkwork-agents-harmony-mobile/packages/sdkwork-agents-harmony-mobile-agents",
+    "domain": "agents",
+    "capability": "agents",
+    "surface": "app",
+    "languages": [
+      "arkts"
+    ],
+    "generated": false,
+    "manifests": [
+      "oh-package.json5",
+      "specs/component.spec.json"
+    ]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "path": "../../../../../sdkwork-specs/HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "purpose": "HarmonyOS mobile application root architecture."
+    },
+    {
+      "file": "APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "purpose": "Cross-client package taxonomy and dependency direction."
+    },
+    {
+      "file": "APP_HARMONY_NATIVE_UI_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_HARMONY_NATIVE_UI_SPEC.md",
+      "purpose": "Harmony native ArkUI capability package rules."
+    },
+    {
+      "file": "PAGINATION_SPEC.md",
+      "path": "../../../../../sdkwork-specs/PAGINATION_SPEC.md",
+      "purpose": "Interactive list pagination."
+    },
+    {
+      "file": "I18N_SPEC.md",
+      "path": "../../../../../sdkwork-specs/I18N_SPEC.md",
+      "purpose": "Runtime locale and message catalog rules."
+    }
+  ],
+  "contracts": {
+    "layerRole": "frontend-feature",
+    "publicExports": [
+      "Index.ets"
+    ],
+    "sdkClients": [],
+    "sdkDependencies": [
+      "sdkwork-agents-app-sdk"
+    ],
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": [],
+    "providedPorts": [
+      {
+        "name": "agentsHarmonyCatalogViews",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyRoutes",
+        "export": "Index.ets"
+      }
+    ],
+    "requiredPorts": [
+      {
+        "name": "agentsAppSdkClient",
+        "package": "@sdkwork/sdkwork-agents-harmony-mobile-core",
+        "export": "src/main/ets/sdk/AgentsAppSdkClient.ets"
+      },
+      {
+        "name": "agentsHarmonyCommons",
+        "package": "@sdkwork/sdkwork-agents-harmony-mobile-commons",
+        "export": "Index.ets"
+      }
+    ]
+  },
+  "verification": {
+    "commands": [
+      "node ../sdkwork-specs/tools/check-frontend-composition.mjs --root ."
+    ]
+  }
+}

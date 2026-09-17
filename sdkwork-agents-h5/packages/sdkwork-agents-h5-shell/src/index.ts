@@ -1,0 +1,7 @@
+export {
+  AGENT_MARKET_ROUTE,
+  AGENT_MARKET_SEARCH_ROUTE,
+  CHAT_ROUTE,
+  CREATE_AGENT_ROUTE,
+  MY_AGENTS_ROUTE,
+} from "./moduleRegistry";

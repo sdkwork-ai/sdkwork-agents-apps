@@ -1,0 +1,76 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# sdkwork-agents-apps 仓库根忽略规则
+#
+# 本仓库原为 sdkwork-agents 仓库的 apps/ 子树，独立成仓库后原父仓库的
+# .gitignore 不再对本仓库生效，故此处平移了父仓库规则中适用于本子树的部分
+# （路径前缀 apps/ 已去除），并补齐 Flutter / HarmonyOS 产物规则。
+# ─────────────────────────────────────────────────────────────────────────────
+
+# --- 环境变量文件 ---
+.env
+.env.*
+!.env.example
+!.env.*.example
+!sdkwork-agents-h5/.env.standalone.*
+!sdkwork-agents-h5/.env.cloud.*
+
+# --- 依赖目录 ---
+node_modules/
+**/node_modules/
+**/.pnpm-store/
+
+# --- 构建产物 ---
+dist/
+**/dist/
+build/
+**/build/
+coverage/
+**/coverage/
+artifacts/
+**/artifacts/
+**/test-results/
+*.tsbuildinfo
+**/.cache/
+.turbo/
+**/.turbo/
+
+# --- Flutter / Dart ---
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# --- HarmonyOS / DevEco ---
+**/oh_modules/
+**/.hvigor/
+**/.cxx/
+
+# --- Python ---
+**/__pycache__/
+*.pyc
+
+# --- 本地配置与运行时状态 ---
+*.local.toml
+config/*.local.toml
+**/.runtime/
+**/.sdkwork/local/
+**/.sdkwork/secrets/
+**/.sdkwork/cache/
+**/.sdkwork/tmp/
+**/.sdkwork/dart/pub-cache/
+**/.sdkwork/manual-backups/
+**/*.bootstrap.local.json
+
+# --- 数据库与日志 ---
+*.log
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.revert-merge

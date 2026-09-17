@@ -1,0 +1,15 @@
+{
+  "name": "entry",
+  "version": "0.1.0",
+  "description": "SDKWork Agents HarmonyOS entry and composition module",
+  "main": "",
+  "author": "SDKWork",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@sdkwork/sdkwork-agents-harmony-mobile-core": "file:../packages/sdkwork-agents-harmony-mobile-core",
+    "@sdkwork/sdkwork-agents-harmony-mobile-commons": "file:../packages/sdkwork-agents-harmony-mobile-commons",
+    "@sdkwork/sdkwork-agents-harmony-mobile-shell": "file:../packages/sdkwork-agents-harmony-mobile-shell",
+    "@sdkwork/sdkwork-agents-harmony-mobile-host": "file:../packages/sdkwork-agents-harmony-mobile-host",
+    "@sdkwork/sdkwork-agents-harmony-mobile-agents": "file:../packages/sdkwork-agents-harmony-mobile-agents"
+  }
+}

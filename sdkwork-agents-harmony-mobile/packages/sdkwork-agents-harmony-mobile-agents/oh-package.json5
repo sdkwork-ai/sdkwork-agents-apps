@@ -1,0 +1,9 @@
+{
+  "name": "@sdkwork/sdkwork-agents-harmony-mobile-agents",
+  "version": "0.1.0",
+  "description": "SDKWork Agents HarmonyOS mobile agents capability: agent catalog, creation, and conversation screens.",
+  "main": "src/main/ets/Index.ets",
+  "author": "SDKWork",
+  "license": "Apache-2.0",
+  "dependencies": {}
+}
