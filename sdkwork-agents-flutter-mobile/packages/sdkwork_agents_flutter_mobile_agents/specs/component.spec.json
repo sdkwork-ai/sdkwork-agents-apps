@@ -67,6 +67,10 @@
       {
         "name": "agentsFlutterRoutes",
         "export": "."
+      },
+      {
+        "name": "agentsFlutterAssistantProvisioner",
+        "export": "."
       }
     ],
     "requiredPorts": [
@@ -78,6 +82,11 @@
       {
         "name": "agentsFlutterCommons",
         "package": "sdkwork_agents_flutter_mobile_commons",
+        "export": "."
+      },
+      {
+        "name": "agentsFlutterRouteIds",
+        "package": "sdkwork_agents_flutter_mobile_shell",
         "export": "."
       }
     ]

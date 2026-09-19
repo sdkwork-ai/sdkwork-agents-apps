@@ -1,5 +1,7 @@
 import 'package:sdkwork_agents_flutter_mobile_core/sdkwork_agents_flutter_mobile_core.dart';
 
+import '../auth_session.dart';
+
 typedef SdkClients = AgentsAppSdkClients;
 
 const String _configuredAppApiBaseUrl = String.fromEnvironment(
@@ -35,6 +37,8 @@ SdkClients createSdkClients({
   return createAgentsAppSdkClients(
     appApiBaseUrl: appApiBaseUrl ?? _configuredAppApiBaseUrl,
     authToken: authToken,
-    accessToken: accessToken,
+    // Fall back to the root session so a token installed after launch is picked
+    // up on the next bootstrap without every caller threading it through.
+    accessToken: accessToken ?? AgentsAuthSession.accessToken,
   );
 }

@@ -15,7 +15,7 @@ class AgentsApp extends StatelessWidget {
       child: MaterialApp(
         title: 'SDKWork Agents',
         theme: ThemeData(colorSchemeSeed: const Color(0xFF0F766E)),
-        home: const AuthGate(),
+        home: AuthGate(runtime: runtime),
       ),
     );
   }

@@ -1,8 +1,12 @@
 {
+  // Workspace packages expose TypeScript sources through their `exports` maps, so
+  // their sources are type-checked here too; `@sdkwork/utils` uses ES2022 APIs
+  // (`Array.prototype.at`). The runtime bundle is downlevelled to es2019 by
+  // `scripts/build-runtime.mjs`.
   "compilerOptions": {
-    "target": "ES2021",
+    "target": "ES2022",
     "lib": [
-      "ES2021",
+      "ES2022",
       "DOM"
     ],
     "module": "ESNext",

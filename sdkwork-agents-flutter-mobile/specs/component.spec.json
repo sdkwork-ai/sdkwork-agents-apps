@@ -52,6 +52,9 @@
     }
   ],
   "contracts": {
+    "publicExports": [
+      "lib/main.dart"
+    ],
     "sdkDependencies": [
       {
         "workspace": "sdkwork-agents-app-sdk",
@@ -63,11 +66,14 @@
     ],
     "sdkClients": [
       "SdkworkAppClient"
-    ]
+    ],
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": []
   },
   "verification": {
     "commands": [
-      "flutter analyze"
+      "flutter analyze",
+      "node scripts/flutter-mobile-runtime-contract.test.mjs"
     ]
   }
 }

@@ -1,12 +1,41 @@
 {
   "pages": [
-    "pages/home/index",
+    "pages/conversation/index",
     "pages/agents/index",
+    "pages/library/index",
+    "pages/automation/index",
+    "pages/projects/index",
+    "pages/home/index",
     "pages/agents-h5/index"
+  ],
+  "subPackages": [
+    {
+      "root": "agents-sessions",
+      "pages": [
+        "pages/conversation/history"
+      ]
+    }
   ],
   "window": {
     "navigationBarTitleText": "SDKWork Agents",
-    "navigationBarBackgroundColor": "#0f766e",
-    "navigationBarTextStyle": "white"
-  }
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f8fafc"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#64748b",
+    "selectedColor": "#0f766e",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/conversation/index", "text": "任务" },
+      { "pagePath": "pages/agents/index", "text": "专家" },
+      { "pagePath": "pages/library/index", "text": "资料库" },
+      { "pagePath": "pages/automation/index", "text": "自动化" },
+      { "pagePath": "pages/projects/index", "text": "项目" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
 }

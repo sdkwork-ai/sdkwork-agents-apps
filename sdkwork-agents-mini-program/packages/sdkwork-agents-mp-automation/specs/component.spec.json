@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-agents-mp-automation",
+    "displayName": "sdkwork-agents-mp-automation",
+    "version": "0.1.0",
+    "type": "typescript-package",
+    "root": "apps/sdkwork-agents-mini-program/packages/sdkwork-agents-mp-automation",
+    "domain": "agents",
+    "capability": "automation",
+    "surface": "app",
+    "languages": [
+      "typescript"
+    ],
+    "generated": false,
+    "manifests": [
+      "package.json",
+      "specs/component.spec.json"
+    ]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "MINI_PROGRAM_APP_ARCHITECTURE_SPEC.md",
+      "path": "../../../../../sdkwork-specs/MINI_PROGRAM_APP_ARCHITECTURE_SPEC.md",
+      "purpose": "Mini program application root architecture."
+    },
+    {
+      "file": "APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "purpose": "Cross-client package taxonomy and dependency direction."
+    },
+    {
+      "file": "APP_MINI_PROGRAM_UI_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_MINI_PROGRAM_UI_SPEC.md",
+      "purpose": "Mini program UI package rules."
+    },
+    {
+      "file": "PAGINATION_SPEC.md",
+      "path": "../../../../../sdkwork-specs/PAGINATION_SPEC.md",
+      "purpose": "Interactive list pagination."
+    },
+    {
+      "file": "I18N_SPEC.md",
+      "path": "../../../../../sdkwork-specs/I18N_SPEC.md",
+      "purpose": "Runtime locale configuration and message catalog rules."
+    }
+  ],
+  "contracts": {
+    "layerRole": "frontend-feature",
+    "publicExports": [
+      "."
+    ],
+    "sdkClients": [],
+    "sdkDependencies": [
+      "sdkwork-agents-app-sdk"
+    ],
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": [],
+    "providedPorts": [
+      {
+        "name": "agentsMpAutomationService",
+        "export": "."
+      },
+      {
+        "name": "agentsMpAutomationRoutes",
+        "export": "."
+      }
+    ],
+    "requiredPorts": [
+      {
+        "name": "agentsSdkClient",
+        "package": "@sdkwork/agents-mp-core",
+        "export": "./sdk"
+      },
+      {
+        "name": "agentsMpShell",
+        "package": "@sdkwork/agents-mp-shell",
+        "export": "."
+      }
+    ]
+  },
+  "verification": {
+    "commands": [
+      "pnpm --filter @sdkwork/agents-mini-program typecheck"
+    ]
+  }
+}

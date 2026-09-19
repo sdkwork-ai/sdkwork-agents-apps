@@ -54,7 +54,22 @@
     "sdkClients": [],
     "sdkDependencies": [],
     "dependencyApiExports": [],
-    "dependencyApiSurfaces": []
+    "dependencyApiSurfaces": [],
+    "providedPorts": [
+      {
+        "name": "agentsFlutterShellMessages",
+        "export": "."
+      },
+      {
+        "name": "agentsFlutterDesignTokens",
+        "export": "."
+      },
+      {
+        "name": "agentsFlutterScreenStates",
+        "export": "."
+      }
+    ],
+    "requiredPorts": []
   },
   "verification": {
     "commands": [

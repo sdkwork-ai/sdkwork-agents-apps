@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-agents-h5-library",
+    "displayName": "SDKWork Agents H5 Library",
+    "version": "0.1.0",
+    "type": "typescript-package",
+    "root": "apps/sdkwork-agents-h5/packages/sdkwork-agents-h5-library",
+    "domain": "agents",
+    "capability": "library",
+    "surface": "app",
+    "languages": ["typescript", "react"],
+    "generated": false,
+    "status": "active",
+    "manifests": ["package.json", "specs/component.spec.json"]
+  },
+  "canonicalSpecs": [
+    { "file": "APP_H5_ARCHITECTURE_SPEC.md", "path": "../../../../../sdkwork-specs/APP_H5_ARCHITECTURE_SPEC.md", "purpose": "H5 application root and package taxonomy." },
+    { "file": "APP_MOBILE_REACT_UI_SPEC.md", "path": "../../../../../sdkwork-specs/APP_MOBILE_REACT_UI_SPEC.md", "purpose": "H5 mobile React feature boundaries and host adapters." },
+    { "file": "APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md", "path": "../../../../../sdkwork-specs/APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md", "purpose": "Cross-client route identity and package taxonomy." },
+    { "file": "COMPONENT_SPEC.md", "path": "../../../../../sdkwork-specs/COMPONENT_SPEC.md", "purpose": "Component contract shape." },
+    { "file": "DRIVE_SPEC.md", "path": "../../../../../sdkwork-specs/DRIVE_SPEC.md", "purpose": "Drive-owned file and library resource semantics." },
+    { "file": "I18N_SPEC.md", "path": "../../../../../sdkwork-specs/I18N_SPEC.md", "purpose": "Authored fragment layout and locale injection." }
+  ],
+  "contracts": {
+    "layerRole": "frontend-feature",
+    "publicExports": ["."],
+    "providedPorts": [
+      { "name": "agentsH5LibraryView", "export": "." },
+      { "name": "agentsH5LibraryService", "export": "." },
+      { "name": "agentsH5LibraryPort", "export": "." }
+    ],
+    "requiredPorts": [
+      { "name": "agentsH5Commons", "package": "@sdkwork/agents-h5-commons", "export": "." },
+      { "name": "agentsH5Shell", "package": "@sdkwork/agents-h5-shell", "export": "." }
+    ],
+    "runtimeEntrypoints": ["src/services/LibraryService.ts"],
+    "routeManifest": null,
+    "sdkClients": [],
+    "sdkDependencies": [],
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": [],
+    "events": [],
+    "configKeys": []
+  },
+  "verification": { "commands": ["pnpm --dir apps/sdkwork-agents-h5 typecheck"] }
+}

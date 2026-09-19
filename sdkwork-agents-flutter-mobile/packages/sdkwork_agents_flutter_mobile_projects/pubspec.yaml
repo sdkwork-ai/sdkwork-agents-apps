@@ -1,0 +1,23 @@
+name: sdkwork_agents_flutter_mobile_projects
+description: SDKWork Agents Flutter mobile projects capability package
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sdkwork_agents_flutter_mobile_core:
+    path: ../sdkwork_agents_flutter_mobile_core
+  sdkwork_agents_flutter_mobile_commons:
+    path: ../sdkwork_agents_flutter_mobile_commons
+  sdkwork_agents_flutter_mobile_shell:
+    path: ../sdkwork_agents_flutter_mobile_shell
+  sdkwork_agents_app_sdk:
+    path: ../../../../sdks/sdkwork-agents-app-sdk/sdkwork-agents-app-sdk-flutter/generated/server-openapi
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

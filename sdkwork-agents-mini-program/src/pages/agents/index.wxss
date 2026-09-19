@@ -1,63 +1,41 @@
-page {
-  background: #141414;
-}
+/* Shared app-bar / search / status / card styles live in app.wxss. */
 
-.page {
-  min-height: 100vh;
-  padding: 24rpx 32rpx 48rpx;
-}
-
-.header {
+.segments {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 6rpx;
   margin-bottom: 24rpx;
+  border-radius: 38rpx;
+  background: #f1f5f9;
 }
 
-.subtitle {
-  color: #9ca3af;
-  font-size: 24rpx;
-}
-
-.link {
-  color: #60a5fa;
-  font-size: 24rpx;
-}
-
-.status {
-  color: #d1d5db;
-  font-size: 28rpx;
-  padding: 48rpx 0;
+.segment {
+  flex: 1;
+  height: 64rpx;
+  line-height: 64rpx;
   text-align: center;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: #64748b;
 }
 
-.status.error {
-  color: #f87171;
-}
-
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-}
-
-.card {
-  background: #1f2937;
-  border-radius: 16rpx;
-  padding: 24rpx;
-}
-
-.name {
-  display: block;
-  color: #f9fafb;
-  font-size: 30rpx;
+.segment.is-active {
+  background: #ffffff;
+  color: #0f766e;
   font-weight: 600;
-  margin-bottom: 8rpx;
 }
 
-.desc {
-  display: block;
-  color: #9ca3af;
-  font-size: 24rpx;
-  line-height: 1.5;
+.load-more {
+  margin: 16rpx 0 32rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  border-radius: 40rpx;
+  background: #ffffff;
+  border: 1rpx solid #e2e8f0;
+  color: #0f766e;
+  font-size: 26rpx;
+}
+
+.load-more.is-disabled {
+  color: #94a3b8;
 }

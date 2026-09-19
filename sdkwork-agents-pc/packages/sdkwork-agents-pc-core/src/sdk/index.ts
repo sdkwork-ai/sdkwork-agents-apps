@@ -6,5 +6,6 @@ export * from "./memoryAppSdkClient";
 export * from "./modelsAppSdkClient";
 export * from "./promptsAppSdkClient";
 export * from "./runtimeEnv";
+export * from "./uploadDeclaration";
 export * from "./voiceAppSdkClient";
 export * from "./pagination";

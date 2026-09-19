@@ -1,4 +1,8 @@
-<view class="container">
-  <text class="title">{{title}}</text>
-  <button class="entry" bindtap="openAgents">打开智能体中心</button>
+<view class="home">
+  <view class="home-avatar">
+    <text class="home-avatar-glyph">∞</text>
+  </view>
+  <text class="home-title">{{title}}</text>
+  <text class="home-hint">{{hasSession ? '会话已就绪' : '尚未接入 IAM 登录，登录完成后即可进入'}}</text>
+  <view class="home-entry" bindtap="onEnter">进入</view>
 </view>

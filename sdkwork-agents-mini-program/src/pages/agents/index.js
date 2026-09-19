@@ -1,85 +1,124 @@
-const DEFAULT_APP_API_BASE_URL = "http://127.0.0.1:8095/app/v3/api";
+const runtime = require("../../runtime/agents-app");
 
-function resolveAppApiBaseUrl() {
-  const app = getApp();
-  const configured =
-    typeof app?.globalData?.agentsAppApiBaseUrl === "string" &&
-    app.globalData.agentsAppApiBaseUrl.trim();
-  return configured || DEFAULT_APP_API_BASE_URL;
+/** Page path of the H5 full-version bridge (`app.agents.catalog.editor`). */
+const AGENTS_H5_PAGE_URL = "/pages/agents-h5/index";
+const PAGE_SIZE = 20;
+
+function resolveCatalogCopy() {
+  const fragments = runtime.agentsMpCatalogFragments;
+  const active = fragments[runtime.getAgentsMpShellLocale()];
+  const fallback = fragments["zh-CN"] || {};
+  const translate = (key) => active?.[key] ?? fallback[key] ?? key;
+  return {
+    title: translate("agents.catalog.title"),
+    loading: translate("agents.catalog.loading"),
+    empty: translate("agents.catalog.empty"),
+    loadFailed: translate("agents.catalog.loadFailed"),
+    loadMore: translate("agents.catalog.loadMore"),
+    myAgents: runtime.translateAgentsMpShellText("agents.mobile.tab.myAgents"),
+    market: runtime.translateAgentsMpShellText("agents.mobile.tab.market"),
+  };
 }
 
 /**
- * Resolves the catalog service from the mini program runtime bundle.
+ * Experts tab (`app.agents.catalog.list`).
  *
- * The SDK client is created by the runtime and injected into the capability
- * package service; this page never constructs transport or maps records.
+ * The listing is the Agents catalog in either `mine` or `market` scope; the
+ * page renders view rows only and maps records through the capability service.
  */
-function resolveAgentCatalogService() {
-  const runtime = require("../../runtime/agents-app");
-  runtime.bootstrapAgentsMiniProgram({ appApiBaseUrl: resolveAppApiBaseUrl() });
-  const client = runtime.getAgentsMpSdkClient();
-  return runtime.createAgentCatalogService(client);
-}
-
 Page({
   data: {
+    t: {},
+    statusBarHeight: 24,
+    headerHeight: 68,
+    bottomInset: 52,
+    scope: "mine",
     agents: [],
     loading: true,
-    error: "",
     loadingMore: false,
+    errorMessage: "",
     page: 1,
     hasMore: false,
   },
+
   onLoad() {
+    const insets = runtime.getAgentsMpWindowInsets();
+    this.setData({
+      t: resolveCatalogCopy(),
+      statusBarHeight: insets.statusBarHeight,
+      headerHeight: insets.headerHeight,
+      bottomInset: 52 + insets.safeAreaBottom,
+    });
+    this.services = runtime.getAgentsMpRuntimeServices();
     this.loadAgents();
   },
+
+  onShow() {
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar) {
+      tabBar.setActive("experts");
+    }
+  },
+
   onPullDownRefresh() {
     this.loadAgents(() => wx.stopPullDownRefresh());
   },
-  loadAgents(done) {
-    this.setData({ loading: true, error: "", page: 1, hasMore: false });
-    this.fetchAgentPage(1, false, done);
+
+  onScopeChange(event) {
+    const { scope } = event.currentTarget.dataset;
+    if (scope === this.data.scope) {
+      return;
+    }
+    this.setData({ scope, agents: [], page: 1, hasMore: false });
+    this.loadAgents();
   },
+
+  loadAgents(done) {
+    this.setData({ loading: true, errorMessage: "", page: 1, hasMore: false });
+    this.fetchPage(1, false, done);
+  },
+
   loadMoreAgents() {
     if (this.data.loadingMore || !this.data.hasMore) {
       return;
     }
-    this.fetchAgentPage(this.data.page + 1, true);
+    this.fetchPage(this.data.page + 1, true);
   },
-  fetchAgentPage(page, append, done) {
-    if (append) {
-      this.setData({ loadingMore: true, error: "" });
-    } else {
-      this.setData({ loading: true, error: "" });
-    }
+
+  fetchPage(page, append, done) {
     const finish = (patch) => {
       this.setData(patch);
-      if (typeof done === "function") {
-        done();
-      }
+      if (typeof done === "function") done();
     };
-    try {
-      const catalog = resolveAgentCatalogService();
-      catalog
-        .loadPage(page, 20)
-        .then((result) => {
-          const agents = append ? this.data.agents.concat(result.items) : result.items;
-          finish({
-            agents,
-            loading: false,
-            loadingMore: false,
-            error: "",
-            page: result.page,
-            hasMore: result.hasMore,
-          });
-        })
-        .catch((error) => {
-          const message = error?.message ? String(error.message) : String(error);
-          finish({ loading: false, loadingMore: false, error: message });
+    this.setData(append ? { loadingMore: true } : { loading: true });
+
+    this.services.catalog
+      .loadPage(page, PAGE_SIZE, this.data.scope)
+      .then((result) => {
+        const items = result.items.map((agent) => ({
+          id: agent.id,
+          name: agent.name,
+          description: agent.description,
+        }));
+        finish({
+          agents: append ? this.data.agents.concat(items) : items,
+          loading: false,
+          loadingMore: false,
+          errorMessage: "",
+          page: result.page,
+          hasMore: result.hasMore,
         });
-    } catch (error) {
-      const message = error?.message ? String(error.message) : String(error);
-      finish({ loading: false, loadingMore: false, error: message });
-    }
+      })
+      .catch(() => {
+        finish({
+          loading: false,
+          loadingMore: false,
+          errorMessage: this.data.t.loadFailed,
+        });
+      });
+  },
+
+  onOpenFullVersion() {
+    wx.navigateTo({ url: AGENTS_H5_PAGE_URL });
   },
 });

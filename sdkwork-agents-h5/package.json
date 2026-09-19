@@ -29,8 +29,12 @@
   },
   "dependencies": {
     "@sdkwork/agents-h5-agents": "workspace:*",
-    "@sdkwork/agents-h5-core": "workspace:*",
+    "@sdkwork/agents-h5-automation": "workspace:*",
     "@sdkwork/agents-h5-commons": "workspace:*",
+    "@sdkwork/agents-h5-conversation": "workspace:*",
+    "@sdkwork/agents-h5-core": "workspace:*",
+    "@sdkwork/agents-h5-library": "workspace:*",
+    "@sdkwork/agents-h5-projects": "workspace:*",
     "@sdkwork/agents-h5-shell": "workspace:*",
     "@sdkwork/sdk-common": "workspace:*",
     "clsx": "catalog:",

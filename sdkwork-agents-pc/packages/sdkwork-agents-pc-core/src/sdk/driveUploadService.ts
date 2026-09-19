@@ -9,6 +9,17 @@ import {
   getDriveAppSdkClientWithSession,
   type SdkworkAgentsDriveAppClient,
 } from "./driveAppSdkClient";
+import {
+  AGENTS_AVATAR_UPLOAD,
+  AGENTS_CREATIVE_AUDIO_UPLOAD,
+  AGENTS_CREATIVE_IMAGE_UPLOAD,
+  AGENTS_CREATIVE_VIDEO_UPLOAD,
+  AGENTS_SESSION_ATTACHMENT_UPLOAD,
+  AGENTS_SESSION_IMAGE_UPLOAD,
+  AGENTS_SESSION_VIDEO_UPLOAD,
+  AGENTS_SESSION_VOICE_UPLOAD,
+  AGENTS_UPLOAD_SOURCE,
+} from "./uploadDeclaration";
 
 export type AgentsMediaKind = "image" | "video" | "audio" | "voice" | "document" | "archive" | "other";
 
@@ -72,66 +83,70 @@ interface UploadPolicy {
 }
 
 const MEBIBYTE = 1024 * 1024;
+/**
+ * `appResourceType`/`scene`/`source` come from the application upload declaration
+ * (`DRIVE_SPEC.md` section 18); only the transport-side sizing stays local.
+ */
 const UPLOAD_POLICIES: Record<AgentsDriveUploadPurpose, UploadPolicy> = {
   "agent-avatar": {
-    appResourceType: "agent-avatar",
+    appResourceType: AGENTS_AVATAR_UPLOAD.appResourceType,
     kind: "image",
     maxBytes: 10 * MEBIBYTE,
     profile: "avatar",
-    scene: "agent-profile",
+    scene: AGENTS_AVATAR_UPLOAD.scene,
   },
   "agent-chat-attachment": {
-    appResourceType: "agent-session-attachment",
+    appResourceType: AGENTS_SESSION_ATTACHMENT_UPLOAD.appResourceType,
     kind: "other",
     maxBytes: 100 * MEBIBYTE,
     profile: "attachment",
-    scene: "agent-chat",
+    scene: AGENTS_SESSION_ATTACHMENT_UPLOAD.scene,
     libraryMarker: true,
   },
   "agent-chat-image": {
-    appResourceType: "agent-session-image",
+    appResourceType: AGENTS_SESSION_IMAGE_UPLOAD.appResourceType,
     kind: "image",
     maxBytes: 25 * MEBIBYTE,
     profile: "image",
-    scene: "agent-chat",
+    scene: AGENTS_SESSION_IMAGE_UPLOAD.scene,
     libraryMarker: true,
   },
   "agent-chat-video": {
-    appResourceType: "agent-session-video",
+    appResourceType: AGENTS_SESSION_VIDEO_UPLOAD.appResourceType,
     kind: "video",
     maxBytes: 500 * MEBIBYTE,
     profile: "video",
-    scene: "agent-chat",
+    scene: AGENTS_SESSION_VIDEO_UPLOAD.scene,
     libraryMarker: true,
   },
   "agent-chat-voice": {
-    appResourceType: "agent-session-voice",
+    appResourceType: AGENTS_SESSION_VOICE_UPLOAD.appResourceType,
     kind: "voice",
     maxBytes: 50 * MEBIBYTE,
     profile: "audio",
-    scene: "agent-chat",
+    scene: AGENTS_SESSION_VOICE_UPLOAD.scene,
     libraryMarker: true,
   },
   "agent-creative-image": {
-    appResourceType: "agent-creative-image",
+    appResourceType: AGENTS_CREATIVE_IMAGE_UPLOAD.appResourceType,
     kind: "image",
     maxBytes: 25 * MEBIBYTE,
     profile: "image",
-    scene: "agent-creative",
+    scene: AGENTS_CREATIVE_IMAGE_UPLOAD.scene,
   },
   "agent-creative-audio": {
-    appResourceType: "agent-creative-audio",
+    appResourceType: AGENTS_CREATIVE_AUDIO_UPLOAD.appResourceType,
     kind: "audio",
     maxBytes: 50 * MEBIBYTE,
     profile: "audio",
-    scene: "agent-creative",
+    scene: AGENTS_CREATIVE_AUDIO_UPLOAD.scene,
   },
   "agent-creative-video": {
-    appResourceType: "agent-creative-video",
+    appResourceType: AGENTS_CREATIVE_VIDEO_UPLOAD.appResourceType,
     kind: "video",
     maxBytes: 500 * MEBIBYTE,
     profile: "video",
-    scene: "agent-creative",
+    scene: AGENTS_CREATIVE_VIDEO_UPLOAD.scene,
   },
 };
 
@@ -171,7 +186,7 @@ export class AgentsDriveUploadService {
       appResourceType: policy.appResourceType,
       appResourceId: resourceId,
       scene: policy.scene,
-      source: "agents-pc",
+      source: AGENTS_UPLOAD_SOURCE,
       uploadProfileCode: policy.profile,
       retention: { mode: "long_term" },
       signal: request.signal,

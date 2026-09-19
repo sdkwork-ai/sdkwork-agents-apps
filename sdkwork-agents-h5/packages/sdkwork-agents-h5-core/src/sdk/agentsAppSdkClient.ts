@@ -1,9 +1,13 @@
 import {
   createClient,
   completeAgentTurn,
+  completeAgentTurnStream,
   type CompleteAgentTurnResult,
+  type CreateAgentTurnRequest,
   type SdkworkAppClient as GeneratedSdkworkAgentsAppClient,
   type SdkworkAppConfig,
+  type TurnRichToolEvent,
+  type TurnStreamHandlers,
 } from "@sdkwork/agents-app-sdk";
 import { resolveBaseUrl, readRuntimeEnv } from "@sdkwork/sdk-common";
 import type { Interceptors } from "@sdkwork/sdk-common";
@@ -93,17 +97,21 @@ export type {
   AgentSessionRecord,
   AgentSessionRuntimeBindingRecord,
   AgentSessionRuntimeBindingStatus,
+  AgentTaskRecord,
   AgentEngineCatalog,
   AgentEngineCatalogEngine,
   AgentEngineModelCatalogEntry,
   CreateAgentProviderBindingRequest,
   CreateAgentRequest,
   CreateAgentSessionRuntimeBindingRequest,
+  CreateAgentTurnRequest,
   McpServerMarketplaceRecord,
   PageInfo,
+  TurnRichToolEvent,
+  TurnStreamHandlers,
   UpdateAgentRequest,
   UpdateAgentSessionRuntimeBindingRequest,
 } from "@sdkwork/agents-app-sdk";
 
-export { completeAgentTurn };
+export { completeAgentTurn, completeAgentTurnStream };
 export type { CompleteAgentTurnResult };

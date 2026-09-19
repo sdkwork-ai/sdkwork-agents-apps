@@ -1,0 +1,39 @@
+name: sdkwork_agents_flutter_mobile_conversation
+description: SDKWork Agents Flutter mobile conversation capability package
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # `crypto` supplies the SHA-256 used for the turn/session payload hash. The
+  # Agents app API requires `payloadHash` in the `sha256:<hex>` form on every
+  # idempotent write, and the PC/H5/mini program roots send a real digest, so
+  # this root must not substitute a lookalike checksum.
+  crypto: ^3.0.0
+  # `generateSecureHexId` supplies the idempotency keys. Every root binds a
+  # client-supplied id as its dedup key, so the generator must not be
+  # reinvented per package.
+  sdkwork_common_flutter: ^1.1.0
+  sdkwork_agents_flutter_mobile_core:
+    path: ../sdkwork_agents_flutter_mobile_core
+  sdkwork_agents_flutter_mobile_commons:
+    path: ../sdkwork_agents_flutter_mobile_commons
+  sdkwork_agents_flutter_mobile_shell:
+    path: ../sdkwork_agents_flutter_mobile_shell
+  sdkwork_agents_app_sdk:
+    path: ../../../../sdks/sdkwork-agents-app-sdk/sdkwork-agents-app-sdk-flutter/generated/server-openapi
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+# Point the shared commons at the in-workspace checkout. Overrides are only
+# honoured in the root package's manifest; the root `pubspec.yaml` carries the
+# same entry, and this block keeps the package self-documenting in isolation.
+dependency_overrides:
+  sdkwork_common_flutter:
+    path: ../../../../../sdkwork-sdk-commons/sdkwork-sdk-common-flutter

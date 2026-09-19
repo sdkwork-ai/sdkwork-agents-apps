@@ -2,6 +2,11 @@
 ///
 /// API DTOs come from the generated Dart app SDK; this file owns view models
 /// only.
+library;
+
+/// Which slice of the catalog a screen is showing.
+enum AgentsCatalogScope { mine, market }
+
 class AgentsCatalogItem {
   const AgentsCatalogItem({
     required this.id,

@@ -1,1 +1,177 @@
-page { background: #f8fafc; }
+/*
+ * Shared mobile shell styles.
+ *
+ * Only layout that every tab page repeats lives here (custom app bar, status
+ * banner, list/status primitives, tab-bar clearance). Capability-specific
+ * styling stays in each page's own wxss.
+ */
+page {
+  background: #f8fafc;
+}
+
+.app-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-bottom: 1rpx solid #e2e8f0;
+}
+
+.app-bar-inner {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  padding: 0 24rpx;
+}
+
+.app-bar-titles {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.app-bar-titles-left {
+  align-items: flex-start;
+  padding-left: 12rpx;
+}
+
+.app-bar-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 40rpx;
+}
+
+.app-bar-subtitle {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+}
+
+.app-bar-subtitle-text {
+  font-size: 22rpx;
+  color: #64748b;
+  line-height: 30rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.app-bar-chevron {
+  margin-left: 4rpx;
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+.icon-button {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f1f5f9;
+}
+
+.icon-glyph {
+  font-size: 32rpx;
+  color: #0f766e;
+}
+
+.banner {
+  margin: 16rpx 32rpx 0;
+  padding: 16rpx 24rpx;
+  border-radius: 12rpx;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 24rpx;
+}
+
+.status {
+  padding: 96rpx 32rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #64748b;
+}
+
+.status-error {
+  color: #dc2626;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  border-radius: 16rpx;
+  background: #ffffff;
+  border: 1rpx solid #e2e8f0;
+}
+
+.card-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.card-subtitle {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+}
+
+.card-row .card-title {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.card-badge {
+  margin-left: 16rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 22rpx;
+}
+
+.content {
+  padding: 24rpx 32rpx 0;
+}
+
+.search {
+  margin-bottom: 24rpx;
+}
+
+.search-input {
+  height: 76rpx;
+  padding: 0 24rpx;
+  border-radius: 38rpx;
+  background: #ffffff;
+  border: 1rpx solid #e2e8f0;
+  font-size: 28rpx;
+  color: #0f172a;
+}
+
+.status-note {
+  padding: 24rpx 0;
+  font-size: 24rpx;
+}

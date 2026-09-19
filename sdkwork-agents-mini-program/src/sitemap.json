@@ -1,0 +1,9 @@
+{
+  "desc": "SDKWork Agents mini program sitemap.",
+  "rules": [
+    {
+      "action": "disallow",
+      "page": "*"
+    }
+  ]
+}

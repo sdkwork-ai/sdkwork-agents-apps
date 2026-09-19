@@ -1,0 +1,30 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="status">{{t.loading}}</view>
+  <view wx:elif="{{errorMessage}}" class="status status-error">{{errorMessage}}</view>
+  <view wx:elif="{{sessions.length === 0}}" class="status">{{t.empty}}</view>
+
+  <view wx:else class="list">
+    <view
+      wx:for="{{sessions}}"
+      wx:key="id"
+      class="session"
+      data-id="{{item.id}}"
+      data-title="{{item.title}}"
+      bindtap="onSelect"
+    >
+      <view class="session-main">
+        <text class="session-title">{{item.title}}</text>
+        <text class="session-time">{{item.updatedAtText}}</text>
+      </view>
+      <view class="session-actions">
+        <view
+          class="session-action"
+          data-id="{{item.id}}"
+          data-title="{{item.title}}"
+          catchtap="onRename"
+        >{{t.rename}}</view>
+        <view class="session-action session-action-danger" data-id="{{item.id}}" catchtap="onDelete">{{t.delete}}</view>
+      </view>
+    </view>
+  </view>
+</view>

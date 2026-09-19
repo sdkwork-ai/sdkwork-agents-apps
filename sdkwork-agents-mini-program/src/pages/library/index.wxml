@@ -1,0 +1,39 @@
+<view class="page" style="padding-bottom: {{bottomInset}}px;">
+  <view class="app-bar" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
+    <view class="app-bar-inner">
+      <view class="app-bar-titles app-bar-titles-left">
+        <text class="app-bar-title">{{t.title}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content" style="margin-top: {{headerHeight}}px;">
+    <view class="search">
+      <input
+        class="search-input"
+        value="{{query}}"
+        placeholder="{{t.searchPlaceholder}}"
+        bindinput="onSearchInput"
+      />
+    </view>
+
+    <view wx:if="{{errorMessage}}" class="banner">{{errorMessage}}</view>
+    <view wx:elif="{{loading}}" class="status">{{t.loading}}</view>
+    <view wx:elif="{{viewFiles.length === 0}}" class="status">{{t.empty}}</view>
+
+    <view wx:else class="list">
+      <view
+        wx:for="{{viewFiles}}"
+        wx:key="id"
+        class="card"
+        data-id="{{item.id}}"
+        bindtap="onOpen"
+      >
+        <text class="card-title">{{item.name}}</text>
+        <text wx:if="{{item.meta}}" class="card-subtitle">{{item.meta}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{truncatedText}}" class="status status-note">{{truncatedText}}</view>
+  </view>
+</view>

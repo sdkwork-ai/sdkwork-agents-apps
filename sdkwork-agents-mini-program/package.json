@@ -23,14 +23,18 @@
     "_sdkwork:verify": "pnpm run _sdkwork:check && pnpm run _sdkwork:test && pnpm run _sdkwork:build",
     "_sdkwork:clean": "node -e \"const fs=require('node:fs'); for(const path of ['dist','.cache']) fs.rmSync(path,{recursive:true,force:true})\""
   },
-    "dependencies": {
-      "@sdkwork/agents-mp-core": "workspace:*",
-      "@sdkwork/agents-mp-host": "workspace:*",
-      "@sdkwork/agents-mp-commons": "workspace:*",
-      "@sdkwork/agents-mp-shell": "workspace:*",
-      "@sdkwork/agents-mp-agents": "workspace:*",
-      "@sdkwork/sdk-common": "workspace:*"
-    },
+  "dependencies": {
+    "@sdkwork/agents-mp-core": "workspace:*",
+    "@sdkwork/agents-mp-host": "workspace:*",
+    "@sdkwork/agents-mp-commons": "workspace:*",
+    "@sdkwork/agents-mp-shell": "workspace:*",
+    "@sdkwork/agents-mp-agents": "workspace:*",
+    "@sdkwork/agents-mp-conversation": "workspace:*",
+    "@sdkwork/agents-mp-library": "workspace:*",
+    "@sdkwork/agents-mp-projects": "workspace:*",
+    "@sdkwork/agents-mp-automation": "workspace:*",
+    "@sdkwork/sdk-common": "workspace:*"
+  },
   "devDependencies": {
     "esbuild": "^0.25.10",
     "miniprogram-api-typings": "^4.1.0",

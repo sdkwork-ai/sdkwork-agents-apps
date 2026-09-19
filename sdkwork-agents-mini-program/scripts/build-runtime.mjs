@@ -54,7 +54,11 @@ await esbuild.build({
   outfile: path.join(runtimeDir, "agents-app.js"),
   platform: "browser",
   format: "cjs",
-  target: "es2019",
+  // The devtools run the bundle as ES6+ (`project.config.json` sets `es6: true`),
+  // so the target tracks the language level the runtime actually executes.
+  // es2020 keeps BigInt literals from `@sdkwork/utils` intact instead of emitting
+  // code that esbuild warns may crash.
+  target: "es2020",
   minifySyntax: true,
   minifyWhitespace: true,
   minifyIdentifiers: false,

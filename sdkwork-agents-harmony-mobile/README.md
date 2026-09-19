@@ -55,9 +55,9 @@ Static verification runs today, without the HarmonyOS toolchain (from this
 directory):
 
 ```bash
-node ../../sdkwork-specs/tools/check-apps-directory-index.mjs --root ../..
-node ../../sdkwork-specs/tools/check-frontend-composition.mjs --root ../..
-node ../../sdkwork-specs/tools/check-component-port-bindings.mjs --root ../..
+node ../../../sdkwork-specs/tools/check-apps-directory-index.mjs --root ../..
+node ../../../sdkwork-specs/tools/check-frontend-composition.mjs --root ../..
+node ../../../sdkwork-specs/tools/check-component-port-bindings.mjs --root ../..
 node --test tests/harmony-surface-contract.test.mjs
 ```
 

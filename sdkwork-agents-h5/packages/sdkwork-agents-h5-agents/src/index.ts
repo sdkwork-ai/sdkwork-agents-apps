@@ -43,7 +43,14 @@ export {
   configureAgentChatService,
   createSdkworkAgentChatService,
 } from "./services/AgentChatService";
-export type { ChatMessage } from "./services/AgentChatService";
+export type {
+  AgentTurnWireProtocol,
+  ChatMessage,
+  ChatMessageListPage,
+  ChatMessageSort,
+  ChatSessionSummary,
+  ChatToolCall,
+} from "./services/AgentChatService";
 export { loadSkillCatalogPageByCategory } from "./services/SkillPresetCatalogService";
 export { configureKnowledgeSelectionAdapter } from "./services/knowledgeSelectionAdapter";
 export { createKnowledgebaseSelectionAdapter } from "./services/createKnowledgebaseSelectionAdapter";

@@ -74,20 +74,33 @@ export function resolveAgentsMpHasMore(response: unknown): boolean {
   return totalPages > 0 && page < totalPages;
 }
 
+/**
+ * Visibility scope of a catalog listing.
+ *
+ * `mine` is the caller's own agents and `market` is the published catalog — the
+ * same two entries the PC, H5, and Flutter experts tabs offer
+ * (`API_SPEC.md` / `AGENTS_DOMAIN_SPEC.md`).
+ */
+export type AgentCatalogScope = "mine" | "market";
+
 export interface AgentCatalogService {
-  loadPage(page: number, pageSize?: number): Promise<AgentsMpCatalogPage>;
+  loadPage(page: number, pageSize?: number, scope?: AgentCatalogScope): Promise<AgentsMpCatalogPage>;
 }
 
 export function createAgentCatalogService(client: SdkworkAgentsAppClient): AgentCatalogService {
   return {
-    async loadPage(page: number, pageSize: number = DEFAULT_PAGE_SIZE): Promise<AgentsMpCatalogPage> {
+    async loadPage(
+      page: number,
+      pageSize: number = DEFAULT_PAGE_SIZE,
+      scope: AgentCatalogScope = "mine",
+    ): Promise<AgentsMpCatalogPage> {
       if (!Number.isInteger(page) || page < 1) {
         throw new Error("page must be a positive integer");
       }
       if (!Number.isInteger(pageSize) || pageSize < 1) {
         throw new Error("pageSize must be a positive integer");
       }
-      const response = await client.ai.agents.list({ page, pageSize });
+      const response = await client.ai.agents.list({ page, pageSize, scope });
       const items = extractAgentsMpItems(response)
         .map(mapAgentsMpCatalogItem)
         .filter((item): item is AgentsMpCatalogItem => item !== null);

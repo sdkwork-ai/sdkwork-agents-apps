@@ -49,7 +49,26 @@
     "sdkClients": [],
     "sdkDependencies": [],
     "dependencyApiExports": [],
-    "dependencyApiSurfaces": []
+    "dependencyApiSurfaces": [],
+    "providedPorts": [
+      {
+        "name": "agentsFlutterRouteIds",
+        "export": "."
+      },
+      {
+        "name": "agentsFlutterMobileTabs",
+        "export": "."
+      },
+      {
+        "name": "agentsFlutterShellFrame",
+        "export": "."
+      },
+      {
+        "name": "agentsFlutterAuthGate",
+        "export": "."
+      }
+    ],
+    "requiredPorts": []
   },
   "verification": {
     "commands": [

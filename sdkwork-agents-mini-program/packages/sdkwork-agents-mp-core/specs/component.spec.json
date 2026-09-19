@@ -39,26 +39,38 @@
     "publicExports": [
       "."
     ],
-    "sdkDependencies": [
-      {
-        "workspace": "sdkwork-agents-app-sdk",
-        "surface": "app-api",
-        "credentialMode": "authenticated-app-api"
-      }
-    ],
-    "sdkClients": [
-      "@sdkwork/agents-app-sdk"
-    ],
+  "sdkDependencies": [
+    {
+      "workspace": "sdkwork-agents-app-sdk",
+      "surface": "app-api",
+      "credentialMode": "authenticated-app-api"
+    },
+    {
+      "workspace": "sdkwork-drive-app-sdk",
+      "surface": "app-api",
+      "credentialMode": "authenticated-app-api"
+    }
+  ],
+  "sdkClients": [
+    "@sdkwork/agents-app-sdk",
+    "@sdkwork/drive-app-sdk"
+  ],
     "permissionComposition": {
       "inheritanceMode": "module-catalog-with-overrides",
-      "moduleCatalogRefs": [
-        {
-          "moduleId": "agents",
-          "manifestRef": "../../../../specs/iam.module.manifest.json",
-          "inheritPermissions": true,
-          "inheritRoles": true
-        }
-      ],
+    "moduleCatalogRefs": [
+      {
+        "moduleId": "agents",
+        "manifestRef": "../../../../specs/iam.module.manifest.json",
+        "inheritPermissions": true,
+        "inheritRoles": true
+      },
+      {
+        "moduleId": "drive",
+        "manifestRef": "../../../../../sdkwork-iam/iam/modules/drive/iam.module.manifest.json",
+        "inheritPermissions": true,
+        "inheritRoles": true
+      }
+    ],
       "bootstrapAccessTokenScope": {
         "inheritFrom": "sdkwork.app.config.json#backend.accessTokenPermissionScope",
         "supplement": [],

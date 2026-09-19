@@ -18,6 +18,14 @@ dependencies:
     path: packages/sdkwork_agents_flutter_mobile_shell
   sdkwork_agents_flutter_mobile_agents:
     path: packages/sdkwork_agents_flutter_mobile_agents
+  sdkwork_agents_flutter_mobile_conversation:
+    path: packages/sdkwork_agents_flutter_mobile_conversation
+  sdkwork_agents_flutter_mobile_library:
+    path: packages/sdkwork_agents_flutter_mobile_library
+  sdkwork_agents_flutter_mobile_projects:
+    path: packages/sdkwork_agents_flutter_mobile_projects
+  sdkwork_agents_flutter_mobile_automation:
+    path: packages/sdkwork_agents_flutter_mobile_automation
 
 dev_dependencies:
   flutter_test:

@@ -2,7 +2,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import type { SdkworkAgentsDriveAppClient } from '@sdkwork/agents-pc-core/sdk';
-import { AgentsDriveUploadService } from '@sdkwork/agents-pc-core/sdk';
+import {
+  AGENTS_CREATIVE_AUDIO_UPLOAD,
+  AGENTS_CREATIVE_IMAGE_UPLOAD,
+  AGENTS_CREATIVE_VIDEO_UPLOAD,
+  AGENTS_SESSION_IMAGE_UPLOAD,
+  AgentsDriveUploadService,
+} from '@sdkwork/agents-pc-core/sdk';
 
 function createClient(state: 'completed' | 'uploading' = 'completed'): SdkworkAgentsDriveAppClient {
   return {
@@ -12,7 +18,7 @@ function createClient(state: 'completed' | 'uploading' = 'completed'): SdkworkAg
         appResourceId: string;
       }) => {
         assert.equal(profile, 'image');
-        assert.equal(request.appResourceType, 'agent-session-image');
+        assert.equal(request.appResourceType, AGENTS_SESSION_IMAGE_UPLOAD.appResourceType);
         assert.equal(request.appResourceId, 'agent-1:session-1');
         return {
           uploadItem: {
@@ -80,9 +86,9 @@ test('rejects invalid media before calling Drive', async () => {
 
 test('uses media-specific Drive profiles for creative uploads', async () => {
   const expected = [
-    ['agent-creative-image', 'image', 'agent-creative-image', 'image/png'],
-    ['agent-creative-audio', 'audio', 'agent-creative-audio', 'audio/mpeg'],
-    ['agent-creative-video', 'video', 'agent-creative-video', 'video/mp4'],
+    ['agent-creative-image', 'image', AGENTS_CREATIVE_IMAGE_UPLOAD.appResourceType, 'image/png'],
+    ['agent-creative-audio', 'audio', AGENTS_CREATIVE_AUDIO_UPLOAD.appResourceType, 'audio/mpeg'],
+    ['agent-creative-video', 'video', AGENTS_CREATIVE_VIDEO_UPLOAD.appResourceType, 'video/mp4'],
   ] as const;
 
   for (const [purpose, profile, appResourceType, mimeType] of expected) {

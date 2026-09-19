@@ -1,0 +1,84 @@
+<view class="page">
+  <view class="app-bar" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
+    <view class="app-bar-inner">
+      <view class="icon-button" bindtap="onOpenHistory">
+        <text class="icon-glyph">☰</text>
+      </view>
+      <view class="app-bar-titles" bindtap="onOpenHistory">
+        <text class="app-bar-title">SDKWork Agents</text>
+        <view class="app-bar-subtitle">
+          <text class="app-bar-subtitle-text">{{sessionTitle || t.newSession}}</text>
+          <text class="app-bar-chevron">›</text>
+        </view>
+      </view>
+      <view class="icon-button" bindtap="onNewSession">
+        <text class="icon-glyph">＋</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{errorMessage}}" class="banner">{{errorMessage}}</view>
+
+  <scroll-view
+    class="transcript"
+    scroll-y
+    scroll-top="{{scrollTop}}"
+    style="height: {{listHeight}}px;"
+  >
+    <view wx:if="{{!hasMessages}}" class="empty">
+      <view class="empty-avatar">
+        <text class="empty-avatar-glyph">∞</text>
+      </view>
+      <text class="empty-greeting">{{t.greeting}}</text>
+      <text class="empty-hint">{{t.hint}}</text>
+    </view>
+
+    <view wx:else class="messages">
+      <block wx:for="{{messages}}" wx:key="id">
+        <view id="{{item.anchor}}" class="row {{item.isUser ? 'row-user' : 'row-assistant'}}">
+          <view wx:if="{{item.hasReasoning}}" class="reasoning">
+            <text class="reasoning-title">{{t.reasoningTitle}}</text>
+            <text class="reasoning-body">{{item.reasoning}}</text>
+          </view>
+
+          <view wx:if="{{item.hasTools}}" class="tools">
+            <view
+              wx:for="{{item.toolCalls}}"
+              wx:for-item="tool"
+              wx:key="id"
+              class="tool"
+            >
+              <text class="tool-name">{{tool.name || 'tool'}}</text>
+              <text class="tool-status tool-status-{{tool.status}}">{{tool.statusText}}</text>
+            </view>
+          </view>
+
+          <view class="bubble">
+            <text class="bubble-text">{{item.text}}</text>
+            <text wx:if="{{item.streaming}}" class="bubble-cursor">▍</text>
+          </view>
+
+          <text wx:if="{{item.error}}" class="bubble-error">{{item.error}}</text>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view class="composer" style="bottom: {{composerBottom}}px;">
+    <view class="composer-mic" bindtap="onMicTap">
+      <text class="composer-mic-glyph">◉</text>
+    </view>
+    <input
+      class="composer-input"
+      value="{{input}}"
+      placeholder="{{t.placeholder}}"
+      confirm-type="send"
+      bindinput="onInput"
+      bindconfirm="onSend"
+    />
+    <view
+      class="composer-send {{sending ? 'is-disabled' : ''}}"
+      bindtap="onSend"
+    >{{sending ? t.loading : t.send}}</view>
+  </view>
+</view>
