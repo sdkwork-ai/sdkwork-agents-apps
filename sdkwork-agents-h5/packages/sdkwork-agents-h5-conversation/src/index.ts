@@ -34,6 +34,26 @@ export type {
 export type { ConversationVoicePort } from "./services/conversationVoicePort";
 export type { ConversationComposerAction } from "./components/ConversationComposer";
 
+export {
+  AGENTS_OPEN_TOKEN_PLAN_EVENT,
+  configureConversationBilling,
+  hasConversationBilling,
+  requestAgentsTokenPlan,
+} from "./services/conversationBilling";
+
+export { ConversationFailureCard } from "./components/ConversationFailureCard";
+export type { ConversationFailureCardProps } from "./components/ConversationFailureCard";
+
+export {
+  classifyConversationFailure,
+  isInsufficientBalanceFailure,
+  INSUFFICIENT_BALANCE_CODE,
+} from "./utils/conversationFailure";
+export type {
+  ConversationFailureKind,
+  ConversationFailureLike,
+} from "./utils/conversationFailure";
+
 export { conversationRouteContributions } from "./routes/conversationRouteContributions";
 
 export {
@@ -53,6 +73,7 @@ export type {
 
 export type {
   ConversationMessage,
+  ConversationMessageFailure,
   ConversationMessagePage,
   ConversationMessageRole,
   ConversationScope,

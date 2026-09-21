@@ -14,6 +14,7 @@ import {
 } from "../services/ConversationService";
 import { getConversationPort, isConversationPortConfigured } from "../services/conversationPort";
 import { translateAgentsConversationText } from "../i18n";
+import { classifyConversationFailure } from "../utils/conversationFailure";
 import type {
   ConversationMessage,
   ConversationScope,
@@ -282,6 +283,34 @@ export function useConversationController(
             );
           },
           onError: (failure) => {
+            // A wallet shortfall is the one common failure the user can fix, so
+            // it is attached as structured state and rendered as an actionable
+            // card. Everything else keeps the plain localized message.
+            const kind = classifyConversationFailure(failure);
+            if (kind === 'insufficient_balance') {
+              const balanceText = translateAgentsConversationText(
+                'agents.conversation.error.insufficientBalance',
+              );
+              setMessages((current) =>
+                current.map((message) =>
+                  message.id === assistantMessage.id
+                    ? {
+                        ...message,
+                        streaming: false,
+                        failure: {
+                          kind,
+                          text: balanceText,
+                          code: failure.code,
+                          traceId: failure.traceId,
+                          action: failure.action,
+                        },
+                      }
+                    : message,
+                ),
+              );
+              setError(balanceText);
+              return;
+            }
             setMessages((current) =>
               current.map((message) =>
                 message.id === assistantMessage.id

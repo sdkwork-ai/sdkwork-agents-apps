@@ -51,6 +51,8 @@ export const agentsConversationChatZhCn = {
   "agents.conversation.error.loadSessions": "会话列表加载失败",
   "agents.conversation.error.loadMessages": "消息加载失败",
   "agents.conversation.error.sessionRequired": "请先创建会话",
+  "agents.conversation.error.insufficientBalance": "账户余额不足，无法完成本次请求，请充值后重试",
+  "agents.conversation.error.buyCredits": "购买 Token Plan",
 } as const;
 
 export type AgentsConversationChatMessageKey = keyof typeof agentsConversationChatZhCn;

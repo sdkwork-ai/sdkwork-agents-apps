@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { ChatMessage, ChatToolCall } from '@sdkwork/agents-pc-chat';
 import { MarkdownRenderer, cn } from '@sdkwork/agents-pc-commons';
 import { TypingIndicator } from './TypingIndicator';
+import { ChatFailureCard } from './ChatFailureCard';
 
 interface BotMessageItemProps {
   message: ChatMessage;
@@ -268,7 +269,9 @@ export const BotMessageItem: React.FC<BotMessageItemProps> = ({
           </div>
         )}
 
-        {showTypingIndicator ? (
+        {message.failure ? (
+          <ChatFailureCard failure={message.failure} />
+        ) : showTypingIndicator ? (
           <TypingIndicator />
         ) : (
           <MarkdownRenderer

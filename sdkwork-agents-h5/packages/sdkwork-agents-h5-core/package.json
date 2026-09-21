@@ -25,6 +25,7 @@
     "@sdkwork/agents-app-sdk": "workspace:*",
     "@sdkwork/drive-app-sdk": "workspace:*",
     "@sdkwork/iam-contracts": "workspace:*",
+    "@sdkwork/iam-credential-entry": "workspace:*",
     "@sdkwork/knowledgebase-app-sdk": "workspace:*",
     "@sdkwork/voice-app-sdk": "workspace:*",
     "@sdkwork/skills-app-sdk": "workspace:*",

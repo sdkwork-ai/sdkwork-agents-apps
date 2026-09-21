@@ -42,6 +42,7 @@
     "@sdkwork/drive-app-sdk": "workspace:*",
     "@sdkwork/generations-app-sdk": "workspace:*",
     "@sdkwork/iam-contracts": "workspace:*",
+    "@sdkwork/iam-credential-entry": "workspace:*",
     "@sdkwork/knowledgebase-app-sdk": "workspace:*",
     "@sdkwork/memory-app-sdk": "workspace:*",
     "@sdkwork/models-app-sdk": "workspace:*",

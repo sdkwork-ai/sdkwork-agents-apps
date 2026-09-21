@@ -51,4 +51,7 @@ export const agentsConversationChatEnUs = {
   "agents.conversation.error.loadSessions": "Failed to load sessions",
   "agents.conversation.error.loadMessages": "Failed to load messages",
   "agents.conversation.error.sessionRequired": "Create a session first",
+  "agents.conversation.error.insufficientBalance":
+    "Insufficient account balance for this request. Please top up and retry.",
+  "agents.conversation.error.buyCredits": "Buy Token Plan",
 } as const;

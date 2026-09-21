@@ -159,13 +159,30 @@ function resolveSystemPrompt(model: string, scope: ConversationScope): string {
 
 function toSendFailure(error: unknown): ConversationSendFailure {
   if (error instanceof Error) {
-    const problem = (error as { problem?: { i18nKey?: string; code?: number | string } }).problem;
+    const problem = (
+      error as {
+        problem?: {
+          i18nKey?: string;
+          code?: number | string;
+          failedStage?: string;
+          action?: { kind?: string; href?: string; label?: string };
+        };
+      }
+    ).problem;
     return {
       message: error.message,
       i18nKey: problem?.i18nKey,
       code: problem?.code,
       httpStatus: (error as { httpStatus?: number }).httpStatus,
       traceId: (error as { traceId?: string }).traceId,
+      failedStage: problem?.failedStage,
+      action: problem?.action?.kind
+        ? {
+            kind: problem.action.kind,
+            href: problem.action.href,
+            label: problem.action.label,
+          }
+        : undefined,
     };
   }
   return { message: "Agents conversation request failed." };

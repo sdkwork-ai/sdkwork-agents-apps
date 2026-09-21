@@ -33,6 +33,22 @@ export interface ConversationMessage {
   streaming?: boolean;
   /** Localized failure text when the turn did not complete. */
   error?: string;
+  /**
+   * Structured, actionable failure. Set only when the UI must offer an action
+   * (currently a wallet shortfall → funding entry point); a plain `error` string
+   * is used for everything else so no button appears for infrastructure faults.
+   */
+  failure?: ConversationMessageFailure;
+}
+
+/** Actionable failure attached to a conversation message. */
+export interface ConversationMessageFailure {
+  kind: 'insufficient_balance' | 'generic';
+  /** Localized, already-resolved message text. */
+  text: string;
+  code?: number | string;
+  traceId?: string;
+  action?: { kind?: string; href?: string; label?: string };
 }
 
 export interface ConversationSession {
@@ -98,4 +114,8 @@ export interface ConversationSendFailure {
   code?: number | string;
   httpStatus?: number;
   traceId?: string;
+  /** Machine stage reported by the gateway (e.g. `billing_precharge`). */
+  failedStage?: string;
+  /** Funding action the backend asks the client to surface. */
+  action?: { kind?: string; href?: string; label?: string };
 }

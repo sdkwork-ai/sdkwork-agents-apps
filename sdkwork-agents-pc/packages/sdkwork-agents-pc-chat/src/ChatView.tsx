@@ -22,6 +22,7 @@ import {
 } from "@sdkwork/agents-pc-core/sdk/driveUploadService";
 import { uuid } from "@sdkwork/utils";
 import { trimSessionTitle } from './utils/sessionTitleUtils';
+import { classifyChatFailure } from './utils/chatFailure';
 import { reconcileTranscriptWithServer } from './utils/transcriptReconcile';
 
 import { Sidebar } from "./components/Sidebar";
@@ -812,29 +813,61 @@ export const ChatView = ({
               mappedKey && i18n.exists(mappedKey)
                 ? String(i18n.t(mappedKey))
                 : t("sendErrorFallback");
-            const hint =
-              failure.httpStatus !== undefined && failure.httpStatus >= 500
-                ? t("retryHint")
-                : "";
-            const errorText = `${translated}${hint}`.trim();
-            setSessions((prev) =>
-              prev.map((s) => {
-                if (s.id === activeSessionId) {
+            // A wallet shortfall is the one common failure the user can fix, so
+            // it gets a structured card with a funding action instead of an
+            // inert warning line. Everything else keeps the retry hint.
+            const failureKind = classifyChatFailure(failure);
+            if (failureKind === 'insufficient_balance') {
+              const balanceText = i18n.exists('errors.result.40201')
+                ? String(i18n.t('errors.result.40201'))
+                : translated;
+              setSessions((prev) =>
+                prev.map((s) => {
+                  if (s.id !== activeSessionId) return s;
                   return {
                     ...s,
                     messages: s.messages.map((m) =>
                       m.id === modelMessageId
                         ? {
                             ...m,
-                            text: m.text + `\n\n**⚠️ ${errorText}**`,
+                            failure: {
+                              kind: failureKind,
+                              text: balanceText,
+                              code: failure.code,
+                              traceId: failure.traceId,
+                              action: failure.action,
+                            },
                           }
                         : m,
                     ),
                   };
-                }
-                return s;
-              }),
-            );
+                }),
+              );
+            } else {
+              const hint =
+                failure.httpStatus !== undefined && failure.httpStatus >= 500
+                  ? t("retryHint")
+                  : "";
+              const errorText = `${translated}${hint}`.trim();
+              setSessions((prev) =>
+                prev.map((s) => {
+                  if (s.id === activeSessionId) {
+                    return {
+                      ...s,
+                      messages: s.messages.map((m) =>
+                        m.id === modelMessageId
+                          ? {
+                              ...m,
+                              text: m.text + `\n\n**⚠️ ${errorText}**`,
+                            }
+                          : m,
+                      ),
+                    };
+                  }
+                  return s;
+                }),
+              );
+            }
           }
           // A rejected request can still settle a preflight hold, so refresh
           // the balance before the next attempt.

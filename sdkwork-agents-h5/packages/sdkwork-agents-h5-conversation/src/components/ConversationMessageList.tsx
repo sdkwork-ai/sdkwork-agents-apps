@@ -4,6 +4,7 @@ import { Check, Copy, Loader2, Bot, Wrench } from "lucide-react";
 import { cn } from "@sdkwork/agents-h5-commons";
 
 import { translateAgentsConversationText } from "../i18n";
+import { ConversationFailureCard } from "./ConversationFailureCard";
 import type { ConversationMessage, ConversationToolCall } from "../types";
 
 export interface ConversationMessageListProps {
@@ -137,7 +138,9 @@ function AssistantMessage({ message }: { message: ConversationMessage }) {
           {(message.toolCalls ?? []).map((call) => (
             <ToolCallCard key={call.id} call={call} />
           ))}
-          {message.error ? (
+          {message.failure ? (
+            <ConversationFailureCard failure={message.failure} />
+          ) : message.error ? (
             <p className="mt-2 text-[12px] text-[var(--color-danger,#dc2626)]">{message.error}</p>
           ) : null}
         </div>

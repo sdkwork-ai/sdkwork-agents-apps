@@ -3,6 +3,16 @@ import { trimSessionTitle } from '../utils/sessionTitleUtils';
 import type { AgentsDriveMediaResource } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
 import { createSdkworkChatRequestContext } from '@sdkwork/agents-pc-core/session';
 
+/** Funding action attached to a self-healable problem (e.g. insufficient balance). */
+export interface ChatProblemAction {
+  /** Machine kind, e.g. `recharge` or `membership`. */
+  kind: string;
+  /** Optional locale-independent route the host should open. */
+  href?: string;
+  /** Optional human label override supplied by the backend. */
+  label?: string;
+}
+
 export interface ChatSendFailure {
   /** Fallback display message (the SDK error message, already safe). */
   message: string;
@@ -12,6 +22,13 @@ export interface ChatSendFailure {
   code?: number | string;
   httpStatus?: number;
   traceId?: string;
+  /**
+   * Machine stage reported by the gateway (e.g. `billing_precharge`). Kept so
+   * the UI can distinguish a funding shortfall from an upstream outage.
+   */
+  failedStage?: string;
+  /** Optional funding action the backend asks the client to surface. */
+  action?: ChatProblemAction;
 }
 
 export interface ChatAgentScope {
@@ -313,15 +330,33 @@ function resolveSystemPrompt(model: string, scope: ChatAgentScope): string {
 
 function toChatSendFailure(error: unknown): ChatSendFailure {
   if (error instanceof Error) {
-    const problem = (error as { problem?: { i18nKey?: string; code?: number | string } }).problem;
+    const problem = (
+      error as {
+        problem?: {
+          i18nKey?: string;
+          code?: number | string;
+          failedStage?: string;
+          action?: { kind?: string; href?: string; label?: string };
+        };
+      }
+    ).problem;
     const httpStatus = (error as { httpStatus?: number }).httpStatus;
     const traceId = (error as { traceId?: string }).traceId;
+    const action = problem?.action?.kind
+      ? {
+          kind: problem.action.kind,
+          href: problem.action.href,
+          label: problem.action.label,
+        }
+      : undefined;
     return {
       message: error.message,
       i18nKey: problem?.i18nKey,
       code: problem?.code,
       httpStatus,
       traceId,
+      failedStage: problem?.failedStage,
+      action,
     };
   }
   return { message: 'Agents chat request failed.' };

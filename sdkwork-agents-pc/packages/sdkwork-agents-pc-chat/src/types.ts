@@ -40,6 +40,25 @@ export interface ChatMessage {
   mediaResources?: import('@sdkwork/agents-pc-core/sdk/driveUploadService').AgentsDriveMediaResource[];
   feedback?: 'up' | 'down';
   feedbackVersion?: string;
+  /**
+   * Structured failure attached when the turn ended in an error the user must
+   * act on. Kept separate from `text` (where a plain message is appended) so the
+   * UI can render an actionable card — e.g. a recharge button for a wallet
+   * shortfall — instead of an inert warning line.
+   */
+  failure?: ChatMessageFailure;
+}
+
+/** Actionable failure attached to a chat message. */
+export interface ChatMessageFailure {
+  kind: 'insufficient_balance' | 'generic';
+  /** Localized, already-resolved message text. */
+  text: string;
+  /** Backend problem code, retained for diagnostics/reporting. */
+  code?: number | string;
+  traceId?: string;
+  /** Optional funding entry point supplied by the backend. */
+  action?: { kind?: string; href?: string; label?: string };
 }
 
 export interface ChatSession {

@@ -8,6 +8,7 @@ function resolveViteEnvironment(mode: string | undefined, processEnv = process.e
 }
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createSdkworkCredentialEntryBootstrapVitePlugin } from "@sdkwork/iam-credential-entry/vite";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
@@ -17,18 +18,27 @@ const repoRoot = path.resolve(appRoot, "../..");
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, appRoot, "");
-  const define: Record<string, string> = {};
   const accessToken = env.SDKWORK_ACCESS_TOKEN ?? process.env.SDKWORK_ACCESS_TOKEN;
-  if (mode === "development" && accessToken) {
-    define["process.env.SDKWORK_ACCESS_TOKEN"] = JSON.stringify(accessToken);
-  }
+  // The bootstrap credential reaches the renderer only through the IAM Vite
+  // plugin below (dev-server HTML injection as
+  // `globalThis.__SDKWORK_CREDENTIAL_ENTRY_BOOTSTRAP_ACCESS_TOKEN__`).
+  // `define['process.env.SDKWORK_ACCESS_TOKEN']` is NOT a valid handoff: Vite 6
+  // client dev transforms do not guarantee ordinary define replacement reaches
+  // linked source packages (IAM_CREDENTIAL_ENTRY_SPEC.md section 2/4/5).
   return {
     build: {
       outDir: resolveBrowserDistOutDir(resolveViteEnvironment(mode, process.env)),
       emptyOutDir: true,
     },
-    define,
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      createSdkworkCredentialEntryBootstrapVitePlugin({
+        accessToken,
+        environment: resolveViteEnvironment(mode, process.env),
+        repoRoot,
+      }),
+      react(),
+      tailwindcss(),
+    ],
     resolve: {
       alias: {
       },

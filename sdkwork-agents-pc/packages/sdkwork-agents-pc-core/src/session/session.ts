@@ -1,3 +1,4 @@
+import { readBootstrapAccessTokenFromProcessEnv } from '@sdkwork/iam-credential-entry';
 import type { IamAppContext } from '@sdkwork/iam-contracts';
 import type { AuthTokenManager, AuthTokens, Interceptors, RequestConfig } from '@sdkwork/sdk-common';
 import {
@@ -544,8 +545,26 @@ export function createSdkworkChatSessionTokenManager(
       : currentSession
   );
   const readCurrentSession = () => readConfiguredSession() ?? readAppSdkSessionTokens();
+  // Bootstrap credential-entry fallback. Before any interactive login session
+  // exists, the only legitimate Access-Token source is the private bootstrap
+  // artifact resolved by the shared IAM credential-entry workflow
+  // (IAM_CREDENTIAL_ENTRY_SPEC §4/§5, APP_SDK_INTEGRATION_SPEC §4).
+  //
+  // This manager is a *session* manager: it must never become an independent
+  // credential store, but it also must not be the single point that makes a
+  // credential-entry (`access-token-only`) dispatch impossible. Generated SDK
+  // transports read `tokenManager.getAccessToken()` and fail before dispatch
+  // when it is empty, so without this fallback every protected surface throws
+  // `access-token-only request requires Access-Token before request dispatch`
+  // even when the process environment carries a valid bootstrap token.
+  const readBootstrapAccessToken = () => {
+    const token = readBootstrapAccessTokenFromProcessEnv();
+    return normalizeToken(token);
+  };
   const resolveManagedAccessToken = () => (
-    resolveAppSdkAccessToken(readCurrentSession()) ?? transientAccessToken
+    resolveAppSdkAccessToken(readCurrentSession())
+    ?? transientAccessToken
+    ?? readBootstrapAccessToken()
   );
   const isExpired = () => {
     const expiresAt = readCurrentSession()?.expiresAt;

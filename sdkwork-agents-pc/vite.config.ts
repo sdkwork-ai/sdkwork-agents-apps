@@ -8,52 +8,26 @@ function resolveViteEnvironment(mode: string | undefined, processEnv = process.e
 }
 import path from 'node:path';
 
+import { createSdkworkCredentialEntryBootstrapVitePlugin } from '@sdkwork/iam-credential-entry/vite';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { defineConfig, type Plugin } from 'vite';
-
-function serializeCredentialEntryBootstrapForInlineScript(token: string): string {
-  return JSON.stringify(token)
-    .replaceAll('<', '\\u003c')
-    .replaceAll('>', '\\u003e')
-    .replaceAll('&', '\\u0026');
-}
-
-function createAgentsCredentialEntryBootstrapPlugin(
-  mode: string,
-  accessToken: string,
-): Plugin | undefined {
-  if (mode !== 'development' || !accessToken) {
-    return undefined;
-  }
-
-  return {
-    name: 'sdkwork-agents-iam-credential-entry-bootstrap',
-    apply: 'serve',
-    transformIndexHtml: {
-      order: 'pre',
-      handler: (html) => ({
-        html,
-        tags: [
-          {
-            tag: 'script',
-            children:
-              'globalThis.__SDKWORK_CREDENTIAL_ENTRY_BOOTSTRAP_ACCESS_TOKEN__ = '
-              + `${serializeCredentialEntryBootstrapForInlineScript(accessToken)};`,
-            injectTo: 'head-prepend',
-          },
-        ],
-      }),
-    },
-  };
-}
+import { defineConfig } from 'vite';
 
 export default defineConfig(({ mode }) => {
   const credentialEntryBootstrapAccessToken = process.env.SDKWORK_ACCESS_TOKEN ?? '';
 
   return {
     plugins: [
-      createAgentsCredentialEntryBootstrapPlugin(mode, credentialEntryBootstrapAccessToken),
+      // The bootstrap credential reaches the renderer only through the shared
+      // IAM plugin (dev-server HTML injection as
+      // `globalThis.__SDKWORK_CREDENTIAL_ENTRY_BOOTSTRAP_ACCESS_TOKEN__`).
+      // Applications MUST NOT fork the serialization or lifecycle gating
+      // (IAM_CREDENTIAL_ENTRY_SPEC.md section 2/4/5).
+      createSdkworkCredentialEntryBootstrapVitePlugin({
+        accessToken: credentialEntryBootstrapAccessToken,
+        environment: resolveViteEnvironment(mode, process.env),
+        repoRoot: path.resolve(__dirname, '../..'),
+      }),
       react(),
       tailwindcss(),
     ],

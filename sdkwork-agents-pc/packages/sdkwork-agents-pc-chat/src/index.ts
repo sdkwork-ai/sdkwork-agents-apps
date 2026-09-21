@@ -51,6 +51,22 @@ export {
 export type { WireProtocolId } from './hooks/useWireProtocol';
 export { ChatBalanceAlert } from './components/ChatBalanceAlert';
 export type { ChatBalanceAlertProps } from './components/ChatBalanceAlert';
-export type { ChatMessage, ChatSession, ChatToolCall, ChatToolStreamEvent, MessageRole } from './types';
+export { ChatFailureCard } from './components/ChatFailureCard';
+export type { ChatFailureCardProps } from './components/ChatFailureCard';
+export {
+  classifyChatFailure,
+  isInsufficientBalanceFailure,
+  INSUFFICIENT_BALANCE_CODE,
+  INSUFFICIENT_BALANCE_HTTP_STATUS,
+} from './utils/chatFailure';
+export type { ChatFailureKind, ChatFailureLike } from './utils/chatFailure';
+export type {
+  ChatMessage,
+  ChatMessageFailure,
+  ChatSession,
+  ChatToolCall,
+  ChatToolStreamEvent,
+  MessageRole,
+} from './types';
 export type { ChatViewProps } from './ChatView';
 export type { ChatPcSession } from './session';
