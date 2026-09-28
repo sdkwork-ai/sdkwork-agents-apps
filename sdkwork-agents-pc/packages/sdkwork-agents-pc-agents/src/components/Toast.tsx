@@ -22,7 +22,10 @@ function toastClassName(type: ToastType): string {
   return `px-4 py-2 rounded-full shadow-lg text-sm font-medium text-white flex items-center gap-2 ${
     type === 'success' ? 'bg-[#00b42a]' :
     type === 'error' ? 'bg-red-500' :
-    'bg-[#2b2b2d] border border-white/10'
+    // The neutral variant keeps white copy in both themes, so it needs a surface
+    // that stays dark in both: a hardcoded dark pill would float off-theme on the
+    // light console, and a light pill would make its own text unreadable.
+    'bg-slate-800 border border-slate-700 dark:bg-[#2b2b2d] dark:border-white/10'
   }`;
 }
 

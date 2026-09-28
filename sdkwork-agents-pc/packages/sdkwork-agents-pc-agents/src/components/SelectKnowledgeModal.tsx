@@ -92,17 +92,17 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-[#1e1e1e] rounded-2xl shadow-2xl flex flex-col z-[101] overflow-hidden border border-white/10"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl flex flex-col z-[101] overflow-hidden border border-slate-300 dark:border-white/10"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#202020] shrink-0">
+            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#202020] shrink-0">
               <div>
-                <h2 className="text-xl font-bold text-gray-100 mb-1">关联知识库</h2>
-                <p className="text-xs text-gray-400">选择要挂载到智能体的结构化语料，增强其生成质量和事实准确性。</p>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-gray-100 mb-1">关联知识库</h2>
+                <p className="text-xs text-slate-500 dark:text-gray-400">选择要挂载到智能体的结构化语料，增强其生成质量和事实准确性。</p>
               </div>
               <button
                 onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
               >
                 <X size={20} />
               </button>
@@ -110,7 +110,7 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
 
             <div className="flex flex-1 min-h-0">
               {/* Sidebar: Tabs */}
-              <div className="w-[180px] bg-[#151515] border-r border-white/5 py-5 flex flex-col shrink-0">
+              <div className="w-[180px] bg-slate-100 dark:bg-[#151515] border-r border-slate-200 dark:border-white/5 py-5 flex flex-col shrink-0">
                 <div className="px-4 space-y-1.5 flex-1">
                   {[
                     { id: 'all', name: '全部空间' },
@@ -124,7 +124,7 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                         "w-full flex items-center px-4 py-3 rounded-xl text-[14px] font-medium transition-all text-left",
                         activeTab === tab.id 
                           ? "bg-blue-600/10 border border-blue-500/30 text-blue-400 shadow-sm" 
-                          : "text-gray-400 hover:bg-white/5 hover:text-gray-200 border border-transparent"
+                          : "text-slate-500 dark:text-gray-400 hover:bg-slate-900/5 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-gray-200 border border-transparent"
                       )}
                     >
                       {tab.name}
@@ -134,30 +134,30 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
               </div>
 
               {/* Object List */}
-              <div className="flex-1 flex flex-col bg-[#1a1a1a] min-w-0">
-                <div className="p-6 pb-4 shrink-0 border-b border-white/5 flex items-center justify-between">
+              <div className="flex-1 flex flex-col bg-slate-50 dark:bg-[#1a1a1a] min-w-0">
+                <div className="p-6 pb-4 shrink-0 border-b border-slate-200 dark:border-white/5 flex items-center justify-between">
                   <div className="relative w-72">
                     <input 
                       type="text" 
                       placeholder="搜索知识库名称或描述..." 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-[#202020] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-gray-200 outline-none focus:border-blue-500 transition-colors shadow-inner"
+                      className="w-full bg-slate-50 dark:bg-[#202020] border border-slate-300 dark:border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none focus:border-blue-500 transition-colors shadow-inner"
                     />
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-gray-500" size={16} />
                   </div>
-                  <div className="text-[13px] text-gray-500 font-medium">
+                  <div className="text-[13px] text-slate-500 dark:text-gray-500 font-medium">
                     共 {filteredKbs.length} 个项目
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
                   {loading ? (
-                    <div className="text-gray-500 text-sm text-center py-20 flex flex-col items-center justify-center gap-3">
+                    <div className="text-slate-500 dark:text-gray-500 text-sm text-center py-20 flex flex-col items-center justify-center gap-3">
                       <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                       正在加载知识库列表...
                     </div>
                   ) : error ? (
-                    <div className="text-gray-400 text-sm text-center py-20 flex flex-col items-center justify-center gap-4">
+                    <div className="text-slate-500 dark:text-gray-400 text-sm text-center py-20 flex flex-col items-center justify-center gap-4">
                       <p>{error}</p>
                       <button
                         type="button"
@@ -168,8 +168,8 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                       </button>
                     </div>
                   ) : filteredKbs.length === 0 ? (
-                    <div className="text-gray-500 text-sm text-center py-32 flex flex-col items-center justify-center">
-                      <Database size={32} className="mb-4 text-gray-600 opacity-50" />
+                    <div className="text-slate-500 dark:text-gray-500 text-sm text-center py-32 flex flex-col items-center justify-center">
+                      <Database size={32} className="mb-4 text-slate-400 dark:text-gray-600 opacity-50" />
                       未找到符合条件的知识库
                     </div>
                   ) : (
@@ -181,10 +181,10 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                             key={kb.id}
                             onClick={() => handleSelect(kb.id)}
                             className={cn(
-                              "relative group bg-[#252528] rounded-xl border p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col h-full",
+                              "relative group bg-slate-100 dark:bg-[#252528] rounded-xl border p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col h-full",
                               isSelected 
                                 ? "border-blue-500 shadow-md shadow-blue-500/10 bg-blue-500/5" 
-                                : "border-white/5 hover:border-white/20 hover:bg-[#2a2a2d]"
+                                : "border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-200 dark:hover:bg-[#2a2a2d]"
                             )}
                           >
                             {isSelected && (
@@ -194,14 +194,14 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                             )}
                             
                             <div className="flex items-start gap-4 mb-4">
-                              <div className="w-12 h-12 rounded-xl bg-[#2a2a2d] border border-white/5 flex items-center justify-center text-2xl shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                              <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-[#2a2a2d] border border-slate-200 dark:border-white/5 flex items-center justify-center text-2xl shadow-inner shrink-0 group-hover:scale-105 transition-transform">
                                 {kb.logo}
                               </div>
                               <div className="flex-1 min-w-0 pr-6">
-                                <h3 className={cn("text-base font-semibold mb-1 truncate", isSelected ? "text-blue-400" : "text-gray-100 group-hover:text-white transition-colors")}>
+                                <h3 className={cn("text-base font-semibold mb-1 truncate", isSelected ? "text-blue-400" : "text-slate-900 dark:text-gray-100 group-hover:text-slate-900 dark:hover:text-white transition-colors")}>
                                   {kb.name}
                                 </h3>
-                                <div className="text-xs text-gray-500 flex items-center gap-1.5 flex-wrap">
+                                <div className="text-xs text-slate-500 dark:text-gray-500 flex items-center gap-1.5 flex-wrap">
                                   <span className={cn("px-1.5 py-0.5 rounded uppercase tracking-wider text-[10px]", kb.type === 'team' ? 'bg-[#00b42a]/10 text-[#00b42a]' : 'bg-purple-500/10 text-purple-400')}>
                                     {kb.type}
                                   </span>
@@ -209,11 +209,11 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                               </div>
                             </div>
                             
-                            <p className="text-[13px] text-gray-400 leading-relaxed mb-4 flex-1 line-clamp-2">
+                            <p className="text-[13px] text-slate-500 dark:text-gray-400 leading-relaxed mb-4 flex-1 line-clamp-2">
                               {kb.description || '暂无描述'}
                             </p>
                             
-                            <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-500">
+                            <div className="mt-auto pt-3 border-t border-slate-200 dark:border-white/5 flex items-center justify-between text-xs text-slate-500 dark:text-gray-500">
                               <div className="flex items-center gap-1.5">
                                 <FileText size={14} /> {kb.count} 篇文档
                               </div>
@@ -232,7 +232,7 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                         type="button"
                         disabled={loadingMore}
                         onClick={() => void loadKbs(nextCursor, true)}
-                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-white/5 hover:bg-white/10 text-gray-300 transition-colors disabled:opacity-50"
+                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-gray-300 transition-colors disabled:opacity-50"
                       >
                         {loadingMore ? '加载中...' : '加载更多'}
                       </button>
@@ -243,14 +243,14 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="p-5 border-t border-white/5 bg-[#202020] flex items-center justify-between shrink-0">
-              <div className="text-sm text-gray-400">
+            <div className="p-5 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#202020] flex items-center justify-between shrink-0">
+              <div className="text-sm text-slate-500 dark:text-gray-400">
                 已选中 <span className="text-blue-400 font-semibold">{currentSelection.length}</span> 个知识库
               </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={onClose}
-                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/10 transition-colors"
+                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-900/10 dark:hover:bg-white/10 transition-colors"
                 >
                   取消
                 </button>

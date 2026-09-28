@@ -199,7 +199,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     editable: !disabled && !isTyping,
     editorProps: {
       attributes: {
-        class: 'w-full h-full bg-transparent outline-none text-[15px] text-gray-200 font-sans leading-relaxed',
+        class: 'w-full h-full bg-transparent outline-none text-[15px] text-slate-800 dark:text-gray-200 font-sans leading-relaxed',
       },
     },
     onUpdate: ({ editor }: { editor: Editor }) => {
@@ -364,7 +364,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
   return (
     <div 
-      className="shrink-0 px-2.5 pb-2.5 pt-3 flex flex-col bg-[#1e1e1e] relative"
+      className="shrink-0 px-2.5 pb-2.5 pt-3 flex flex-col bg-white dark:bg-[#1e1e1e] relative"
       style={{ 
         height: resizable ? `${height}px` : 'auto', 
         minHeight: resizable ? '120px' : `${defaultHeight}px`,
@@ -374,27 +374,27 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       {/* Drag Handle */}
       {resizable && (
         <div 
-          className="absolute top-0 left-0 right-0 h-3 cursor-ns-resize hover:bg-white/5 transition-colors z-10 flex items-center justify-center group"
+          className="absolute top-0 left-0 right-0 h-3 cursor-ns-resize hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors z-10 flex items-center justify-center group"
           onMouseDown={handleMouseDown}
         >
-          <div className="w-10 h-1 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="w-10 h-1 rounded-full bg-slate-900/20 dark:bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       )}
 
       {/* AI Style Input Container */}
-      <div className={`bg-[#2b2b2d] rounded-2xl flex flex-col shadow-sm transition-all focus-within:bg-[#2f2f33] h-full relative ${disabled || isTyping ? 'opacity-70' : ''}`}>
+      <div className={`bg-slate-200 dark:bg-[#2b2b2d] rounded-2xl flex flex-col shadow-sm transition-all focus-within:bg-slate-100 dark:focus-within:bg-[#2f2f33] h-full relative ${disabled || isTyping ? 'opacity-70' : ''}`}>
         
         {/* Reply Preview */}
         {replyingTo && (
-          <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5 rounded-t-2xl shrink-0">
+          <div className="flex items-center justify-between px-4 py-2 bg-slate-900/5 dark:bg-white/5 border-b border-slate-200 dark:border-white/5 rounded-t-2xl shrink-0">
             <div className="flex items-center gap-2 min-w-0">
-              <Reply size={14} className="text-gray-400 shrink-0" />
-              <span className="text-[12px] text-gray-400 font-medium shrink-0">{t('chat.messageInput.replyPrefix', { name: replyingTo.senderName })}</span>
-              <span className="text-[12px] text-gray-500 truncate">{replyingTo.content}</span>
+              <Reply size={14} className="text-slate-500 dark:text-gray-400 shrink-0" />
+              <span className="text-[12px] text-slate-500 dark:text-gray-400 font-medium shrink-0">{t('chat.messageInput.replyPrefix', { name: replyingTo.senderName })}</span>
+              <span className="text-[12px] text-slate-500 dark:text-gray-500 truncate">{replyingTo.content}</span>
             </div>
             <button 
               onClick={onCancelReply}
-              className="text-gray-500 hover:text-gray-300 transition-colors shrink-0 ml-2"
+              className="text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 transition-colors shrink-0 ml-2"
             >
               <X size={14} />
             </button>
@@ -403,7 +403,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
         {/* Text Area */}
         <div 
-          className={cn("flex-1 overflow-y-auto custom-scrollbar px-4 py-3 relative flex flex-col transition-colors", isDragOver ? "bg-[#3a3a3a]" : "")}
+          className={cn("flex-1 overflow-y-auto custom-scrollbar px-4 py-3 relative flex flex-col transition-colors", isDragOver ? "bg-slate-300 dark:bg-[#3a3a3a]" : "")}
           onKeyDownCapture={handleKeyDown}
           onPaste={handlePaste}
           onDragOver={handleDragOver}
@@ -411,9 +411,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           onDrop={handleDrop}
         >
           {isDragOver && (
-            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#1e1e1e]/80 backdrop-blur-sm shadow-inner rounded-lg m-2 border-2 border-dashed border-indigo-500/50">
+            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-[#1e1e1e]/80 backdrop-blur-sm shadow-inner rounded-lg m-2 border-2 border-dashed border-indigo-500/50">
                <ArrowUp size={32} className="text-indigo-400 mb-2 animate-bounce" />
-               <p className="text-gray-200 font-medium">{t('chat.messageInput.dropToSend')}</p>
+               <p className="text-slate-800 dark:text-gray-200 font-medium">{t('chat.messageInput.dropToSend')}</p>
             </div>
           )}
           <EditorContent editor={editor} className="h-full" />
@@ -438,7 +438,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               title={t('chat.messageInput.actions.sendFile')}
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled || isTyping}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Paperclip size={18} />
             </motion.button>
@@ -486,7 +486,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 }
               }}
               disabled={disabled || isTyping}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Scissors size={18} />
             </motion.button>
@@ -498,7 +498,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 whileTap={{ scale: 0.9 }}
                 title={t('chat.messageInput.actions.emoji')}
                 disabled={disabled || isTyping}
-                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${showEmojiPicker ? 'text-[#00b42a] bg-[#00b42a]/10' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'}`}
+                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${showEmojiPicker ? 'text-[#00b42a] bg-[#00b42a]/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 hover:bg-slate-900/5 dark:hover:bg-white/5'}`}
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               >
                 <Smile size={18} />
@@ -532,7 +532,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               title={t('chat.messageInput.actions.history')}
               onClick={onHistoryClick}
               disabled={disabled || isTyping}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Clock size={18} />
             </motion.button>
@@ -542,7 +542,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               title={isRecording ? t('chat.messageInput.actions.stopRecording') : t('chat.messageInput.actions.recordVoice')}
               onClick={toggleVoiceRecording}
               disabled={disabled || isTyping}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative ${isRecording ? 'text-[#00b42a] bg-[#00b42a]/10 hover:bg-[#00b42a]/20' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'}`}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative ${isRecording ? 'text-[#00b42a] bg-[#00b42a]/10 hover:bg-[#00b42a]/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 hover:bg-slate-900/5 dark:hover:bg-white/5'}`}
             >
               <Mic size={18} className={isRecording ? 'animate-pulse' : ''} />
               {isRecording && <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#00b42a] text-white text-[11px] px-2 py-0.5 rounded shadow-sm whitespace-nowrap">{voiceDuration}s</div>}
@@ -566,7 +566,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               title={t('chat.messageInput.actions.send')}
               onClick={handleSend}
               disabled={disabled || isEmpty}
-              className="w-8 h-8 rounded-full bg-[#00b42a] hover:bg-[#009a24] disabled:bg-white/10 disabled:text-gray-500 flex items-center justify-center text-white transition-colors shadow-sm"
+              className="w-8 h-8 rounded-full bg-[#00b42a] hover:bg-[#009a24] disabled:bg-slate-900/10 dark:disabled:bg-white/10 disabled:text-slate-500 dark:disabled:text-gray-500 flex items-center justify-center text-white transition-colors shadow-sm"
             >
               <ArrowUp size={18} strokeWidth={2.5} />
             </motion.button>

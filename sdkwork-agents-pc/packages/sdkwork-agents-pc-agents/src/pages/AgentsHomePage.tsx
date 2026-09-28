@@ -25,7 +25,7 @@ import {
 import '../home.css';
 import { AgentChatView } from './AgentChatView';
 
-type AgentCatalogScope = 'market' | 'mine';
+export type AgentCatalogScope = 'market' | 'mine';
 
 interface AgentCatalogState {
   hasMore: boolean;
@@ -104,49 +104,49 @@ function AgentCreateDialog({ agent, onClose, onSaved, open }: AgentCreateDialogP
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
-      <div aria-labelledby="create-agent-title" aria-modal="true" className="w-full max-w-lg overflow-hidden rounded-2xl border border-white/[0.09] bg-[#1b1b1e] shadow-2xl shadow-black/50" onMouseDown={(event) => event.stopPropagation()} role="dialog">
-        <div className="flex items-center justify-between border-b border-white/[0.07] px-6 py-5">
+      <div aria-labelledby="create-agent-title" aria-modal="true" className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 dark:border-white/[0.09] bg-white dark:bg-[#1b1b1e] shadow-2xl shadow-black/50" onMouseDown={(event) => event.stopPropagation()} role="dialog">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-6 py-5">
           <div>
-            <h2 className="font-semibold text-zinc-100" id="create-agent-title">{agent ? '编辑 Agent' : '创建 Agent'}</h2>
-            <p className="mt-1 text-xs text-zinc-500">{agent ? '更新 Agent 的基础配置。' : '建立可复用的 Agent 基础配置。'}</p>
+            <h2 className="font-semibold text-slate-900 dark:text-zinc-100" id="create-agent-title">{agent ? '编辑 Agent' : '创建 Agent'}</h2>
+            <p className="mt-1 text-xs text-slate-500 dark:text-zinc-500">{agent ? '更新 Agent 的基础配置。' : '建立可复用的 Agent 基础配置。'}</p>
           </div>
-          <button aria-label="关闭" className="rounded-lg p-2 text-zinc-500 transition hover:bg-white/[0.06] hover:text-white" onClick={onClose} type="button">
+          <button aria-label="关闭" className="rounded-lg p-2 text-slate-500 dark:text-zinc-500 transition hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white" onClick={onClose} type="button">
             <X size={18} />
           </button>
         </div>
 
         <div className="space-y-5 px-6 py-6">
           <label className="block">
-            <span className="mb-2 block text-sm font-medium text-zinc-300">名称</span>
-            <input autoFocus className="w-full rounded-xl border border-white/[0.08] bg-black/20 px-4 py-3 text-sm text-zinc-100 outline-none placeholder:text-zinc-700 focus:border-cyan-500/50" onChange={(event) => setName(event.target.value)} placeholder="例如：产品研究助手" value={name} />
+            <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-zinc-300">名称</span>
+            <input autoFocus className="w-full rounded-xl border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-black/20 px-4 py-3 text-sm text-slate-900 dark:text-zinc-100 outline-none placeholder:text-slate-400 dark:placeholder:text-zinc-700 focus:border-cyan-500/50" onChange={(event) => setName(event.target.value)} placeholder="例如：产品研究助手" value={name} />
           </label>
 
           <div>
-            <span className="mb-2 block text-sm font-medium text-zinc-300">运行类型</span>
+            <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-zinc-300">运行类型</span>
             <div className="grid grid-cols-2 gap-3">
               {([
                 { id: 'normal', icon: Bot, label: '普通 Agent', description: '在当前工作区中运行' },
                 { id: 'independent', icon: Server, label: '独立 Agent', description: '使用独立运行环境' },
               ] as const).map(({ id, icon: Icon, label, description: typeDescription }) => (
-                <button className={`rounded-xl border p-4 text-left transition ${type === id ? 'border-cyan-400/50 bg-cyan-400/[0.08]' : 'border-white/[0.07] bg-black/10 hover:border-white/[0.14]'}`} key={id} onClick={() => setType(id)} type="button">
-                  <Icon className={type === id ? 'text-cyan-400' : 'text-zinc-500'} size={19} />
-                  <span className="mt-3 block text-sm font-medium text-zinc-200">{label}</span>
-                  <span className="mt-1 block text-xs text-zinc-600">{typeDescription}</span>
+                <button className={`rounded-xl border p-4 text-left transition ${type === id ? 'border-cyan-400/50 bg-cyan-400/[0.08]' : 'border-slate-200 dark:border-white/[0.07] bg-black/10 hover:border-slate-300 dark:hover:border-white/[0.14]'}`} key={id} onClick={() => setType(id)} type="button">
+                  <Icon className={type === id ? 'text-cyan-400' : 'text-slate-500 dark:text-zinc-500'} size={19} />
+                  <span className="mt-3 block text-sm font-medium text-slate-800 dark:text-zinc-200">{label}</span>
+                  <span className="mt-1 block text-xs text-slate-400 dark:text-zinc-600">{typeDescription}</span>
                 </button>
               ))}
             </div>
           </div>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-medium text-zinc-300">简介</span>
-            <textarea className="h-24 w-full resize-none rounded-xl border border-white/[0.08] bg-black/20 px-4 py-3 text-sm text-zinc-100 outline-none placeholder:text-zinc-700 focus:border-cyan-500/50" onChange={(event) => setDescription(event.target.value)} placeholder="描述这个 Agent 擅长解决的问题" value={description} />
+            <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-zinc-300">简介</span>
+            <textarea className="h-24 w-full resize-none rounded-xl border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-black/20 px-4 py-3 text-sm text-slate-900 dark:text-zinc-100 outline-none placeholder:text-slate-400 dark:placeholder:text-zinc-700 focus:border-cyan-500/50" onChange={(event) => setDescription(event.target.value)} placeholder="描述这个 Agent 擅长解决的问题" value={description} />
           </label>
 
           {error && <p className="text-sm text-rose-300">{error}</p>}
         </div>
 
-        <div className="flex justify-end gap-3 border-t border-white/[0.07] bg-black/10 px-6 py-4">
-          <button className="rounded-xl px-4 py-2.5 text-sm text-zinc-400 transition hover:bg-white/[0.05] hover:text-white" onClick={onClose} type="button">取消</button>
+        <div className="flex justify-end gap-3 border-t border-slate-200 dark:border-white/[0.07] bg-black/10 px-6 py-4">
+          <button className="rounded-xl px-4 py-2.5 text-sm text-slate-500 dark:text-zinc-400 transition hover:bg-slate-900/[0.05] dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-white" onClick={onClose} type="button">取消</button>
           <button className="rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-[#071014] transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50" disabled={!name.trim() || creating} onClick={() => void saveAgent()} type="button">
             {creating ? '保存中…' : '保存'}
           </button>
@@ -168,8 +168,39 @@ function AgentAvatar({ agent, index }: { agent: AgentConfig; index: number }) {
   );
 }
 
-export function AgentsHomePage() {
-  const [scope, setScope] = useState<AgentCatalogScope>('market');
+export interface AgentsHomePageProps {
+  /**
+   * Catalog scope shown first. Defaults to `market` so the standalone Agent
+   * Studio keeps its discovery-first home; the user console passes `mine`
+   * because that surface exists to manage the caller's own agents.
+   */
+  initialScope?: AgentCatalogScope;
+  /**
+   * Delegates the create action to the embedding host instead of opening the
+   * local dialog. Hosts that own URL routing (e.g. the user console routing to
+   * its full creation flow) pass this; omitting it keeps the self-contained
+   * inline dialog the standalone app relies on.
+   */
+  onCreateRequest?: () => void;
+  /** Same delegation contract as {@link AgentsHomePageProps.onCreateRequest}, for the edit action. */
+  onEditRequest?: (agent: AgentConfig) => void;
+  /**
+   * Drops the conversation entry point entirely.
+   *
+   * A host that already provides agent conversations elsewhere (the Cloud Router
+   * console sits next to a full workbench) turns this on so management stays the
+   * only job of this surface — and so the chat transport is never bound here.
+   */
+  hideConversation?: boolean;
+}
+
+export function AgentsHomePage({
+  initialScope = 'market',
+  onCreateRequest,
+  onEditRequest,
+  hideConversation = false,
+}: AgentsHomePageProps = {}) {
+  const [scope, setScope] = useState<AgentCatalogScope>(initialScope);
   const [marketCategory, setMarketCategory] = useState<AgentMarketCategoryId>('all');
   const [catalog, setCatalog] = useState<AgentCatalogState>(EMPTY_CATALOG);
   const [query, setQuery] = useState('');
@@ -231,11 +262,27 @@ export function AgentsHomePage() {
     }
   };
 
+  const createAgent = useCallback(() => {
+    if (onCreateRequest) {
+      onCreateRequest();
+      return;
+    }
+    setCreateModalOpen(true);
+  }, [onCreateRequest]);
+
+  const editAgent = useCallback((agent: AgentConfig) => {
+    if (onEditRequest) {
+      onEditRequest(agent);
+      return;
+    }
+    setEditingAgent(agent);
+  }, [onEditRequest]);
+
   const visibleAgents = scope === 'market'
     ? filterMarketAgents(catalog.items, marketCategory)
     : catalog.items;
 
-  if (chatAgent?.id) {
+  if (!hideConversation && chatAgent?.id) {
     return (
       <AgentChatView
         agentId={chatAgent.id}
@@ -247,22 +294,22 @@ export function AgentsHomePage() {
   }
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#111113] text-zinc-100">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-[#111113] text-slate-900 dark:text-zinc-100">
       <ToastContainer />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,0.11),transparent_56%)]" />
 
-      <header className="relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-white/[0.07] px-4 py-4 sm:px-7 sm:py-5">
+      <header className="relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-white/[0.07] px-4 py-4 sm:px-7 sm:py-5">
         <div>
           <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase text-cyan-400">
             <Sparkles size={14} />
             Agent Studio
           </div>
           <h1 className="text-2xl font-semibold">Agent 工作台</h1>
-          <p className="mt-1 text-sm text-zinc-500">发现、创建并配置你的智能 Agent。</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-zinc-500">发现、创建并配置你的智能 Agent。</p>
         </div>
         <button
           className="flex items-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-[#071014] shadow-lg shadow-cyan-500/15 transition hover:bg-cyan-400"
-          onClick={() => setCreateModalOpen(true)}
+          onClick={createAgent}
           type="button"
         >
           <Plus size={17} />
@@ -271,10 +318,10 @@ export function AgentsHomePage() {
       </header>
 
       <div className="sdkwork-agents-home-layout relative z-10 flex min-h-0 flex-1 flex-col md:flex-row">
-        <aside className="sdkwork-agents-home-sidebar flex w-full shrink-0 border-b border-white/[0.06] bg-black/10 p-3 md:w-56 md:flex-col md:border-b-0 md:border-r md:p-4">
-          <p className="hidden px-3 pb-2 pt-1 text-[11px] font-semibold uppercase text-zinc-600 md:block">Agent 列表</p>
+        <aside className="sdkwork-agents-home-sidebar flex w-full shrink-0 border-b border-slate-200 dark:border-white/[0.06] bg-black/10 p-3 md:w-56 md:flex-col md:border-b-0 md:border-r md:p-4">
+          <p className="hidden px-3 pb-2 pt-1 text-[11px] font-semibold uppercase text-slate-400 dark:text-zinc-600 md:block">Agent 列表</p>
           <button
-            className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition ${scope === 'market' ? 'bg-white/[0.07] text-white' : 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300'}`}
+            className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition ${scope === 'market' ? 'bg-slate-900/[0.07] dark:bg-white/[0.07] text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-500 hover:bg-slate-900/[0.04] dark:hover:bg-white/[0.04] hover:text-slate-700 dark:hover:text-zinc-300'}`}
             onClick={() => setScope('market')}
             type="button"
           >
@@ -282,14 +329,14 @@ export function AgentsHomePage() {
             发现 Agent
           </button>
           <button
-            className={`ml-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition md:ml-0 md:mt-1 ${scope === 'mine' ? 'bg-white/[0.07] text-white' : 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300'}`}
+            className={`ml-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition md:ml-0 md:mt-1 ${scope === 'mine' ? 'bg-slate-900/[0.07] dark:bg-white/[0.07] text-slate-900 dark:text-white' : 'text-slate-500 dark:text-zinc-500 hover:bg-slate-900/[0.04] dark:hover:bg-white/[0.04] hover:text-slate-700 dark:hover:text-zinc-300'}`}
             onClick={() => setScope('mine')}
             type="button"
           >
             <Bot className={scope === 'mine' ? 'text-cyan-400' : ''} size={18} />
             我的 Agent
           </button>
-          <div className="mt-auto hidden rounded-xl border border-white/[0.06] bg-white/[0.025] p-3 text-xs leading-5 text-zinc-500 md:block">
+          <div className="mt-auto hidden rounded-xl border border-slate-200 dark:border-white/[0.06] bg-slate-900/[0.025] dark:bg-white/[0.025] p-3 text-xs leading-5 text-slate-500 dark:text-zinc-500 md:block">
             Agent 能力由 SDKWork Agents App SDK 提供，配置保存后可在各客户端复用。
           </div>
         </aside>
@@ -298,12 +345,12 @@ export function AgentsHomePage() {
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold">{scope === 'market' ? '发现 Agent' : '我的 Agent'}</h2>
-              <p className="mt-1 text-sm text-zinc-500">{scope === 'market' ? '浏览可用的 Agent 能力。' : '管理你创建的 Agent。'}</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-zinc-500">{scope === 'market' ? '浏览可用的 Agent 能力。' : '管理你创建的 Agent。'}</p>
             </div>
             <label className="relative block w-full max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-600" size={16} />
               <input
-                className="w-full rounded-xl border border-white/[0.08] bg-black/20 py-2.5 pl-10 pr-4 text-sm text-zinc-200 outline-none transition placeholder:text-zinc-700 focus:border-cyan-500/50 focus:bg-black/30"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-black/20 py-2.5 pl-10 pr-4 text-sm text-slate-800 dark:text-zinc-200 outline-none transition placeholder:text-slate-400 dark:placeholder:text-zinc-700 focus:border-cyan-500/50 focus:bg-slate-50 dark:focus:bg-black/30"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="搜索 Agent"
                 type="search"
@@ -317,7 +364,7 @@ export function AgentsHomePage() {
               {AGENT_MARKET_CATEGORIES.map((category) => (
                 <button
                   aria-pressed={marketCategory === category.id}
-                  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${marketCategory === category.id ? 'border-cyan-400/40 bg-cyan-400/[0.09] text-cyan-300' : 'border-white/[0.07] bg-white/[0.025] text-zinc-500 hover:border-white/[0.13] hover:text-zinc-300'}`}
+                  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${marketCategory === category.id ? 'border-cyan-400/40 bg-cyan-400/[0.09] text-cyan-300' : 'border-slate-200 dark:border-white/[0.07] bg-slate-900/[0.025] dark:bg-white/[0.025] text-slate-500 dark:text-zinc-500 hover:border-slate-300 dark:hover:border-white/[0.13] hover:text-slate-700 dark:hover:text-zinc-300'}`}
                   key={category.id}
                   onClick={() => setMarketCategory(category.id)}
                   type="button"
@@ -331,7 +378,7 @@ export function AgentsHomePage() {
           {error && (
             <div className="mb-5 flex flex-col items-start justify-between gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200 sm:flex-row sm:items-center">
               <span>{error}</span>
-              <button className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs font-semibold hover:text-white" onClick={() => void loadPage(1, false)} type="button">
+              <button className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs font-semibold hover:text-slate-900 dark:hover:text-white" onClick={() => void loadPage(1, false)} type="button">
                 <RefreshCw size={14} /> 重试
               </button>
             </div>
@@ -339,41 +386,41 @@ export function AgentsHomePage() {
 
           {loading ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 6 }, (_, index) => <div className="h-48 animate-pulse rounded-2xl border border-white/[0.05] bg-white/[0.025]" key={index} />)}
+              {Array.from({ length: 6 }, (_, index) => <div className="h-48 animate-pulse rounded-2xl border border-slate-200 dark:border-white/[0.05] bg-slate-900/[0.025] dark:bg-white/[0.025]" key={index} />)}
             </div>
           ) : visibleAgents.length === 0 ? (
-            <div className="flex min-h-72 flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.09] bg-white/[0.02] text-center">
-              <Bot className="mb-4 text-zinc-700" size={38} />
-              <p className="font-medium text-zinc-300">没有找到 Agent</p>
-              <p className="mt-1 text-sm text-zinc-600">{scope === 'mine' ? '创建第一个 Agent，开始配置专属能力。' : '尝试调整搜索关键词。'}</p>
+            <div className="flex min-h-72 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 dark:border-white/[0.09] bg-slate-900/[0.02] dark:bg-white/[0.02] text-center">
+              <Bot className="mb-4 text-slate-400 dark:text-zinc-700" size={38} />
+              <p className="font-medium text-slate-700 dark:text-zinc-300">没有找到 Agent</p>
+              <p className="mt-1 text-sm text-slate-400 dark:text-zinc-600">{scope === 'mine' ? '创建第一个 Agent，开始配置专属能力。' : '尝试调整搜索关键词。'}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {visibleAgents.map((agent, index) => (
-                <article className="group flex min-h-52 flex-col rounded-2xl border border-white/[0.07] bg-[#19191c]/90 p-5 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-[#1d1d20]" key={agent.id ?? `${agent.name}-${index}`}>
+                <article className="group flex min-h-52 flex-col rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white/95 dark:bg-[#19191c]/90 p-5 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-slate-50 dark:hover:bg-[#1d1d20]" key={agent.id ?? `${agent.name}-${index}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="h-12 w-12 overflow-hidden rounded-xl text-white shadow-lg shadow-black/20">
                       <AgentAvatar agent={agent} index={index} />
                     </div>
                     {scope === 'mine' && agent.id && (
                       <div className="flex opacity-0 transition group-hover:opacity-100">
-                        <button aria-label={`编辑 ${agent.name}`} className="rounded-lg p-2 text-zinc-500 hover:bg-white/[0.06] hover:text-cyan-300" onClick={() => setEditingAgent(agent)} type="button">
+                        <button aria-label={`编辑 ${agent.name}`} className="rounded-lg p-2 text-slate-500 dark:text-zinc-500 hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06] hover:text-cyan-300" onClick={() => editAgent(agent)} type="button">
                           <Edit3 size={15} />
                         </button>
-                        <button aria-label={`删除 ${agent.name}`} className="rounded-lg p-2 text-zinc-500 hover:bg-rose-500/10 hover:text-rose-300" onClick={() => void handleDelete(agent)} type="button">
+                        <button aria-label={`删除 ${agent.name}`} className="rounded-lg p-2 text-slate-500 dark:text-zinc-500 hover:bg-rose-500/10 hover:text-rose-300" onClick={() => void handleDelete(agent)} type="button">
                           <Trash2 size={15} />
                         </button>
                       </div>
                     )}
                   </div>
-                  <h3 className="mt-4 truncate font-semibold text-zinc-100">{agent.name}</h3>
-                  <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-zinc-500">{agent.description || '尚未添加描述'}</p>
-                  <div className="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-4 text-xs text-zinc-600">
+                  <h3 className="mt-4 truncate font-semibold text-slate-900 dark:text-zinc-100">{agent.name}</h3>
+                  <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-slate-500 dark:text-zinc-500">{agent.description || '尚未添加描述'}</p>
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-200 dark:border-white/[0.06] pt-4 text-xs text-slate-400 dark:text-zinc-600">
                     <span className="flex items-center gap-1.5"><Users size={13} /> {agent.users || '0'}</span>
                     {agent.id ? (
                       <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-1 text-zinc-400 hover:text-cyan-300" onClick={() => setChatAgent(agent)} type="button">对话 <ChevronRight size={13} /></button>
-                        {scope === 'mine' && <button className="flex items-center gap-1 text-zinc-400 hover:text-cyan-300" onClick={() => setEditingAgent(agent)} type="button">配置 <ChevronRight size={13} /></button>}
+                        {!hideConversation && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-cyan-300" onClick={() => setChatAgent(agent)} type="button">对话 <ChevronRight size={13} /></button>}
+                        {scope === 'mine' && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-cyan-300" onClick={() => editAgent(agent)} type="button">配置 <ChevronRight size={13} /></button>}
                       </div>
                     ) : (
                       <span>{agent.author || 'SDKWork'}</span>
@@ -386,7 +433,7 @@ export function AgentsHomePage() {
 
           {catalog.hasMore && !loading && (
             <div className="flex justify-center py-8">
-              <button className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-5 py-2.5 text-sm text-zinc-400 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-50" disabled={loadingMore} onClick={() => void loadPage(catalog.page + 1, true)} type="button">
+              <button className="rounded-xl border border-slate-200 dark:border-white/[0.08] bg-slate-900/[0.03] dark:bg-white/[0.03] px-5 py-2.5 text-sm text-slate-500 dark:text-zinc-400 transition hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white disabled:opacity-50" disabled={loadingMore} onClick={() => void loadPage(catalog.page + 1, true)} type="button">
                 {loadingMore ? '加载中…' : '加载更多'}
               </button>
             </div>

@@ -1,0 +1,116 @@
+@layer base {
+  .sdkwork-agents-console {
+    container-type: size;
+    font-family: var(--font-sans);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sdk-color-brand-primary: #22d3ee;
+  }
+
+  .sdkwork-agents-console :where(button, input, textarea, select) {
+    font: inherit;
+  }
+
+  .sdkwork-agents-console :where(button, input, textarea, select, a):focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
+}
+
+/* Module switcher.
+   The embedding host already owns global navigation, so this strip is a compact
+   in-page tab rail rather than a second sidebar. Colours follow the host's
+   light/dark mode through the `.dark` ancestor the portal toggles. */
+.sdkwork-agents-console .sdkwork-agents-console-nav {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+  overflow-x: auto;
+  padding: 0.5rem 0.75rem 0;
+  border-bottom: 1px solid var(--sdk-color-border-default, #e2e8f0);
+  background: var(--sdk-color-surface-panel, #fff);
+}
+
+.dark .sdkwork-agents-console .sdkwork-agents-console-nav {
+  border-bottom-color: rgba(255, 255, 255, 0.07);
+  background: #1e1e1e;
+}
+
+.sdkwork-agents-console .sdkwork-agents-console-nav-item {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.9rem;
+  border: 0;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.sdkwork-agents-console .sdkwork-agents-console-nav-item:hover {
+  background: rgba(15, 23, 42, 0.05);
+  color: #1e293b;
+}
+
+.sdkwork-agents-console .sdkwork-agents-console-nav-item.is-active {
+  background: var(--sdk-color-surface-panel, #fff);
+  color: #0f172a;
+  box-shadow: inset 0 -2px 0 0 #22d3ee;
+}
+
+.dark .sdkwork-agents-console .sdkwork-agents-console-nav-item {
+  color: #a1a1aa;
+}
+
+.dark .sdkwork-agents-console .sdkwork-agents-console-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4f4f5;
+}
+
+.dark .sdkwork-agents-console .sdkwork-agents-console-nav-item.is-active {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fafafa;
+  box-shadow: inset 0 -2px 0 0 #22d3ee;
+}
+
+.sdkwork-agents-console ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.sdkwork-agents-console ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sdkwork-agents-console ::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #d1d5db;
+}
+
+.sdkwork-agents-console ::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+.dark .sdkwork-agents-console ::-webkit-scrollbar-thumb {
+  background-color: #333;
+}
+
+.dark .sdkwork-agents-console ::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+.sdkwork-agents-console,
+.sdkwork-agents-console * {
+  scrollbar-color: #d1d5db transparent;
+  scrollbar-width: thin;
+}
+
+.dark .sdkwork-agents-console,
+.dark .sdkwork-agents-console * {
+  scrollbar-color: #333 transparent;
+}

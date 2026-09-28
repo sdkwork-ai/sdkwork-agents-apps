@@ -25,5 +25,8 @@
   "settings": "设置",
   "customProvider": "自定义 LLM Provider",
   "tokenPlan": "Token Plan 购买",
-  "close": "关闭"
+  "close": "关闭",
+  "agentsConsoleNavLabel": "智能体控制台",
+  "agentsConsoleModuleManage": "我的智能体",
+  "agentsConsoleModuleEditor": "创建智能体"
 }

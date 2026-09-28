@@ -32,10 +32,24 @@ function mergeCapabilitySnapshots<T extends { id: string }>(
     .filter((item): item is T => Boolean(item));
 }
 
-interface CreateAgentViewProps {
+export interface CreateAgentViewProps {
   onBack: () => void;
   initialAgentId?: string;
+  /**
+   * Capability panels the embedding deployment cannot serve.
+   *
+   * A host whose app-api composition omits the owning capability passes the
+   * matching ids here and the panel is not rendered at all. Hiding is the
+   * honest option: the catalog call behind these panels is bound to the Agents
+   * app-api origin, so an unserved owner fails at request time and the user
+   * gets an error they can do nothing about. Omitted/empty keeps every panel,
+   * which is what the standalone Agent Studio does.
+   */
+  hiddenCapabilities?: readonly CreateAgentCapability[];
 }
+
+/** Capability panels that a host may not be able to serve. */
+export type CreateAgentCapability = 'knowledgebase' | 'voice';
 
 interface TestMessage {
   id: string;
@@ -69,21 +83,21 @@ function createAgentWelcomeTestMessage(content: string): TestMessage {
 const AccordionSection: React.FC<SectionProps> = ({ title, icon, defaultExpanded = false, children, extra }) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   return (
-    <div className="border-b border-white/5 bg-transparent overflow-hidden group transition-all">
+    <div className="border-b border-slate-200 dark:border-white/5 bg-transparent overflow-hidden group transition-all">
       <button 
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-3.5 shrink-0 bg-transparent hover:bg-white/5 transition-colors relative"
+        className="w-full flex items-center justify-between p-3.5 shrink-0 bg-transparent hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors relative"
         style={{ borderBottom: expanded ? '1px solid rgba(255,255,255,0.05)' : '1px solid transparent' }}
       >
         <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded flex items-center justify-center bg-white/5 border border-white/5 shadow-inner">
+          <div className="w-6 h-6 rounded flex items-center justify-center bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/5 shadow-inner">
             {icon}
           </div>
-          <h3 className="font-medium text-[13px] text-gray-200">{title}</h3>
+          <h3 className="font-medium text-[13px] text-slate-800 dark:text-gray-200">{title}</h3>
         </div>
         <div className="flex items-center gap-3">
           {extra && <div onClick={e => e.stopPropagation()}>{extra}</div>}
-          <motion.div animate={{ rotate: expanded ? 180 : 0 }} className="text-gray-500">
+          <motion.div animate={{ rotate: expanded ? 180 : 0 }} className="text-slate-500 dark:text-gray-500">
             <ChevronDown size={14} />
           </motion.div>
         </div>
@@ -115,7 +129,13 @@ const CapabilityBlock: React.FC<{
   items: { id: string; name: string; icon?: ReactNode; desc?: string }[];
   onRemove: (id: string) => void;
   emptyText: string;
-}> = ({ title, icon, iconColorClass, onEdit, items, onRemove, emptyText }) => {
+  /** Renders nothing at all when the embedding host cannot serve this capability. */
+  hidden?: boolean;
+}> = ({ title, icon, iconColorClass, onEdit, items, onRemove, emptyText, hidden = false }) => {
+  if (hidden) {
+    return null;
+  }
+
   return (
     <AccordionSection
       title={title}
@@ -123,10 +143,10 @@ const CapabilityBlock: React.FC<{
       defaultExpanded={false}
       extra={
         <div className="flex items-center gap-2">
-          {items.length > 0 && <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded-full text-gray-400 leading-none">{items.length}</span>}
+          {items.length > 0 && <span className="text-[10px] bg-slate-900/10 dark:bg-white/10 px-1.5 py-0.5 rounded-full text-slate-500 dark:text-gray-400 leading-none">{items.length}</span>}
           <button 
             onClick={(e) => { e.stopPropagation(); onEdit(); }}
-            className="text-[11px] font-medium bg-[#242426] hover:bg-white/10 text-gray-300 px-2.5 py-1 rounded border border-white/5 transition-colors relative z-10"
+            className="text-[11px] font-medium bg-slate-100 dark:bg-[#242426] hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-gray-300 px-2.5 py-1 rounded border border-slate-200 dark:border-white/5 transition-colors relative z-10"
           >
             {items.length > 0 ? '管理' : '添加'}
           </button>
@@ -135,7 +155,7 @@ const CapabilityBlock: React.FC<{
     >
       <div className="bg-transparent">
         {items.length > 0 ? (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-slate-200 dark:divide-white/5">
             <AnimatePresence initial={false}>
               {items.map(item => (
                 <motion.div 
@@ -145,21 +165,21 @@ const CapabilityBlock: React.FC<{
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.15 }}
                   key={item.id} 
-                  className="flex items-center justify-between p-3 group/item hover:bg-white/5 transition-colors overflow-hidden"
+                  className="flex items-center justify-between p-3 group/item hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors overflow-hidden"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${iconColorClass} bg-[#2A2A2D] border border-white/5`}>
+                    <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${iconColorClass} bg-slate-200 dark:bg-[#2A2A2D] border border-slate-200 dark:border-white/5`}>
                       {item.icon || icon}
                     </div>
                     <div className="flex-1 min-w-0 pr-2">
-                      <div className="text-[12px] text-gray-200 truncate font-medium">{item.name}</div>
-                      {item.desc && <div className="text-[10px] text-gray-500 truncate mt-0.5">{item.desc}</div>}
+                      <div className="text-[12px] text-slate-800 dark:text-gray-200 truncate font-medium">{item.name}</div>
+                      {item.desc && <div className="text-[10px] text-slate-500 dark:text-gray-500 truncate mt-0.5">{item.desc}</div>}
                     </div>
                   </div>
                   <button 
                     onClick={() => onRemove(item.id)}
                     title="移除"
-                    className="text-gray-500 hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-opacity p-1 rounded hover:bg-white/5"
+                    className="text-slate-500 dark:text-gray-500 hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-opacity p-1 rounded hover:bg-slate-900/5 dark:hover:bg-white/5"
                   >
                     <X size={14} />
                   </button>
@@ -168,7 +188,7 @@ const CapabilityBlock: React.FC<{
             </AnimatePresence>
           </div>
         ) : (
-          <div className="text-[12px] text-gray-500 text-center py-3 px-3 leading-relaxed bg-[#161618]">
+          <div className="text-[12px] text-slate-500 dark:text-gray-500 text-center py-3 px-3 leading-relaxed bg-slate-50 dark:bg-[#161618]">
             {emptyText}
           </div>
         )}
@@ -177,7 +197,7 @@ const CapabilityBlock: React.FC<{
   );
 };
 
-export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initialAgentId }) => {
+export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hiddenCapabilities, initialAgentId }) => {
   const [prompt, setPrompt] = useState('你是一个专业的代码助手...');
   const [name, setName] = useState('新智能体');
   const [desc, setDesc] = useState('这是一个新创建的智能体');
@@ -252,6 +272,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
   const selectedKbsData = kbSnapshots.filter(kb => selectedKnowledgeIds.includes(kb.id));
   const selectedToolsData = toolSnapshots.filter(t => selectedToolIds.includes(t.id));
   const selectedSkillsData = skillSnapshots.filter(s => selectedSkillIds.includes(s.id));
+  const hiddenCapabilitySet = new Set(hiddenCapabilities ?? []);
   
   const [testMessages, setTestMessages] = useState<TestMessage[]>(() => [
     createAgentWelcomeTestMessage(DEFAULT_AGENT_WELCOME_MESSAGE),
@@ -519,13 +540,13 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="flex flex-col flex-1 min-w-0 min-h-0 bg-[#1e1e1e] text-gray-200"
+      className="flex flex-col flex-1 min-w-0 min-h-0 bg-white dark:bg-[#1e1e1e] text-slate-800 dark:text-gray-200"
     >
       {/* Header */}
-      <div className="h-14 border-b border-white/5 flex items-center justify-between px-4 shrink-0 bg-[#202020]">
+      <div className="h-14 border-b border-slate-200 dark:border-white/5 flex items-center justify-between px-4 shrink-0 bg-slate-50 dark:bg-[#202020]">
         <button 
           onClick={onBack}
-          className="flex items-center gap-1 text-gray-400 hover:text-gray-200 transition-colors"
+          className="flex items-center gap-1 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 transition-colors"
         >
           <ChevronLeft size={20} />
           <span className="text-sm">返回</span>
@@ -533,7 +554,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
         
         <div className="flex items-center gap-3">
           <button 
-            className="px-4 py-1.5 rounded text-sm text-gray-300 hover:bg-white/5 transition-colors disabled:opacity-50" 
+            className="px-4 py-1.5 rounded text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50" 
             onClick={handleSaveDraft}
             disabled={saving || publishing}
           >
@@ -554,13 +575,13 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
       <div className="flex flex-1 min-h-0 overflow-hidden">
         
         {/* Column 1: System Prompt (Left - 1.5/5 = 30%) */}
-        <div className="w-[30%] shrink-0 border-r border-white/5 flex flex-col min-h-0 bg-[#1e1e1e]">
+        <div className="w-[30%] shrink-0 border-r border-slate-200 dark:border-white/5 flex flex-col min-h-0 bg-white dark:bg-[#1e1e1e]">
           {/* Persona / System Prompt */}
-          <div className="flex flex-col flex-1 min-h-0 border-b border-white/5">
-            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-[#202020]/50 sticky top-0">
+          <div className="flex flex-col flex-1 min-h-0 border-b border-slate-200 dark:border-white/5">
+            <div className="p-4 border-b border-slate-200 dark:border-white/5 flex items-center justify-between bg-slate-50/70 dark:bg-[#202020]/50 sticky top-0">
               <div className="flex items-center gap-2">
                 <Brain size={16} className="text-purple-500" />
-                <h3 className="font-medium text-sm text-gray-200">人设与回复逻辑</h3>
+                <h3 className="font-medium text-sm text-slate-800 dark:text-gray-200">人设与回复逻辑</h3>
               </div>
               <button 
                 onClick={handleOptimizePrompt}
@@ -572,18 +593,18 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
               </button>
             </div>
             <div className="flex-1 flex flex-col min-h-0 relative">
-              <div className="h-9 border-b border-white/5 flex items-center gap-3 px-3 bg-[#1C1C1E]">
-                 <button className="text-[11px] text-gray-400 hover:text-gray-200 flex items-center gap-1 px-1.5 py-1 rounded hover:bg-white/5 transition-colors"><TerminalSquare size={12}/>变量 ( {'{{var}}'} )</button>
-                 <button className="text-[11px] text-gray-400 hover:text-gray-200 flex items-center gap-1 px-1.5 py-1 rounded hover:bg-white/5 transition-colors"><Brackets size={12}/>常用片段</button>
-                 <button className="text-[11px] text-gray-400 hover:text-gray-200 flex items-center gap-1 px-1.5 py-1 rounded hover:bg-white/5 transition-colors"><FileText size={12}/>模版库</button>
+              <div className="h-9 border-b border-slate-200 dark:border-white/5 flex items-center gap-3 px-3 bg-white dark:bg-[#1C1C1E]">
+                 <button className="text-[11px] text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 flex items-center gap-1 px-1.5 py-1 rounded hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors"><TerminalSquare size={12}/>变量 ( {'{{var}}'} )</button>
+                 <button className="text-[11px] text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 flex items-center gap-1 px-1.5 py-1 rounded hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors"><Brackets size={12}/>常用片段</button>
+                 <button className="text-[11px] text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 flex items-center gap-1 px-1.5 py-1 rounded hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors"><FileText size={12}/>模版库</button>
               </div>
               <textarea 
                 placeholder="在此定义智能体的角色背景、技能组、工作流及约束条件。优秀的提示词是智能体灵魂..." 
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
-                className="flex-1 w-full bg-[#18181A] text-[13px] text-gray-300 outline-none focus:bg-[#1C1C1E] resize-none custom-scrollbar transition-all leading-loose p-4 border-0"
+                className="flex-1 w-full bg-white dark:bg-[#18181A] text-[13px] text-slate-700 dark:text-gray-300 outline-none focus:bg-white dark:focus:bg-[#1C1C1E] resize-none custom-scrollbar transition-all leading-loose p-4 border-0"
               />
-              <div className="py-2 px-4 text-[11px] text-gray-500 flex justify-between bg-[#1C1C1E] border-t border-white/5 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+              <div className="py-2 px-4 text-[11px] text-slate-500 dark:text-gray-500 flex justify-between bg-white dark:bg-[#1C1C1E] border-t border-slate-200 dark:border-white/5 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
                 <span>Shift + Enter 换行</span>
                 <span>{prompt.length} 字符</span>
               </div>
@@ -594,18 +615,18 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
         </div>
 
         {/* Column 2: Configuration (Middle - 1.5/5 = 30%) */}
-        <div className="w-[30%] shrink-0 overflow-y-auto custom-scrollbar bg-[#161618] border-r border-white/5">
+        <div className="w-[30%] shrink-0 overflow-y-auto custom-scrollbar bg-slate-50 dark:bg-[#161618] border-r border-slate-200 dark:border-white/5">
           <div className="flex flex-col">
             
             {/* Basic Info */}
-            <div className="bg-transparent border-b border-white/5 p-4 flex gap-3 items-center cursor-pointer hover:bg-white/5 transition-colors shadow-sm" onClick={() => setIsEditModalOpen(true)}>
-              <Avatar src={resolveAgentDisplayAvatar()} alt={name} className="w-12 h-12 rounded-lg bg-[#2b2b2d] shadow-sm shrink-0" />
+            <div className="bg-transparent border-b border-slate-200 dark:border-white/5 p-4 flex gap-3 items-center cursor-pointer hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors shadow-sm" onClick={() => setIsEditModalOpen(true)}>
+              <Avatar src={resolveAgentDisplayAvatar()} alt={name} className="w-12 h-12 rounded-lg bg-slate-200 dark:bg-[#2b2b2d] shadow-sm shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <div className="text-[15px] font-semibold text-gray-200 truncate pr-4">{name}</div>
+                  <div className="text-[15px] font-semibold text-slate-800 dark:text-gray-200 truncate pr-4">{name}</div>
                   <button className="text-[11px] text-blue-400 font-medium bg-blue-500/10 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">编辑</button>
                 </div>
-                <div className="text-[12px] text-gray-400 line-clamp-2 leading-relaxed">{desc}</div>
+                <div className="text-[12px] text-slate-500 dark:text-gray-400 line-clamp-2 leading-relaxed">{desc}</div>
               </div>
             </div>
 
@@ -615,26 +636,26 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
               icon={<span className="text-blue-400"><Brain size={13} /></span>}
               defaultExpanded={true}
             >
-              <div className="space-y-4 p-4 bg-transparent border-t border-white/5">
+              <div className="space-y-4 p-4 bg-transparent border-t border-slate-200 dark:border-white/5">
                 <div 
                   ref={modelTriggerRef}
                   onClick={() => setIsModelPopoverOpen(true)}
-                  className="bg-[#1C1C1E] border border-white/10 rounded-lg p-2.5 flex items-center justify-between cursor-pointer hover:border-blue-500/40 transition-all group"
+                  className="bg-white dark:bg-[#1C1C1E] border border-slate-300 dark:border-white/10 rounded-lg p-2.5 flex items-center justify-between cursor-pointer hover:border-blue-500/40 transition-all group"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-7 h-7 rounded-md bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 border border-blue-500/20 group-hover:scale-105 transition-transform">
                       <Brain size={13} />
                     </div>
                     <div>
-                      <div className="text-[13px] font-medium text-gray-200 leading-none mb-1">{model}</div>
-                      <div className="text-[10px] text-gray-500 leading-none">点击切换模型引擎</div>
+                      <div className="text-[13px] font-medium text-slate-800 dark:text-gray-200 leading-none mb-1">{model}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-gray-500 leading-none">点击切换模型引擎</div>
                     </div>
                   </div>
-                  <div className="text-[11px] bg-white/5 px-2 py-0.5 rounded text-blue-400 font-medium">更改</div>
+                  <div className="text-[11px] bg-slate-900/5 dark:bg-white/5 px-2 py-0.5 rounded text-blue-400 font-medium">更改</div>
                 </div>
                 <div>
                   <div className="flex justify-between text-[11px] font-medium mb-2">
-                    <span className="text-gray-400">温度 (Temperature)</span>
+                    <span className="text-slate-500 dark:text-gray-400">温度 (Temperature)</span>
                     <span className="text-blue-400 bg-blue-500/10 px-1.5 rounded">{temperature}</span>
                   </div>
                   <input 
@@ -644,7 +665,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                     onChange={e => setTemperature(parseFloat(e.target.value))}
                     className="w-full accent-blue-500 cursor-pointer"
                   />
-                  <div className="flex justify-between text-[10px] text-gray-500 mt-1">
+                  <div className="flex justify-between text-[10px] text-slate-500 dark:text-gray-500 mt-1">
                     <span>确定性、严谨</span>
                     <span>创造性、发散</span>
                   </div>
@@ -658,15 +679,15 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
               icon={<span className="text-indigo-400"><Database size={13} /></span>}
               defaultExpanded={true}
             >
-              <div className="bg-transparent divide-y divide-white/5 border-t border-white/5">
-                <div className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+              <div className="bg-transparent divide-y divide-slate-200 dark:divide-white/5 border-t border-slate-200 dark:border-white/5">
+                <div className="p-4 flex items-center justify-between hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors">
                   <div>
-                    <div className="text-[13px] font-medium text-gray-200 mb-0.5">连续性长记忆</div>
-                    <div className="text-[11px] text-gray-500 max-w-[280px] leading-relaxed">自动提取并持久化用户习惯、偏好和事实经验。</div>
+                    <div className="text-[13px] font-medium text-slate-800 dark:text-gray-200 mb-0.5">连续性长记忆</div>
+                    <div className="text-[11px] text-slate-500 dark:text-gray-500 max-w-[280px] leading-relaxed">自动提取并持久化用户习惯、偏好和事实经验。</div>
                   </div>
                   <button 
                     onClick={() => setMemoryEnabled(!memoryEnabled)}
-                    className={`w-9 h-5 rounded-full relative transition-colors shrink-0 ${memoryEnabled ? 'bg-blue-600' : 'bg-[#2A2A2D] border border-white/10'}`}
+                    className={`w-9 h-5 rounded-full relative transition-colors shrink-0 ${memoryEnabled ? 'bg-blue-600' : 'bg-slate-200 dark:bg-[#2A2A2D] border border-slate-300 dark:border-white/10'}`}
                   >
                     <motion.div 
                       layout
@@ -684,14 +705,14 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden bg-[#1C1C1E]"
+                      className="overflow-hidden bg-white dark:bg-[#1C1C1E]"
                     >
                       <div className="p-4 flex flex-col gap-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-[12px] text-gray-400">记忆变量提取</span>
+                          <span className="text-[12px] text-slate-500 dark:text-gray-400">记忆变量提取</span>
                           <span className="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-1 rounded cursor-pointer hover:bg-blue-500/20 transition-colors">查看数据库</span>
                         </div>
-                        <div className="text-[11px] text-gray-500 leading-relaxed bg-blue-500/5 p-2 rounded border border-blue-500/10">
+                        <div className="text-[11px] text-slate-500 dark:text-gray-500 leading-relaxed bg-blue-500/5 p-2 rounded border border-blue-500/10">
                           <span className="text-blue-400 mr-1">TIPS:</span> 启用后，智能体将使用专属向量空间存储相关话题和碎片知识，减少上下文窗口浪费。
                         </div>
                       </div>
@@ -711,6 +732,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
               items={selectedVoicesData.map(v => ({ id: v.id, name: v.name, desc: v.description }))}
               onRemove={id => setSelectedVoiceIds(prev => prev.filter(x => x !== id))}
               emptyText="暂未配置发音人，智能体将无法使用语音交互。"
+              hidden={hiddenCapabilitySet.has('voice')}
             />
 
             <CapabilityBlock
@@ -721,6 +743,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
               items={selectedKbsData.map(k => ({ id: k.id, name: k.name, desc: k.description }))}
               onRemove={id => setSelectedKnowledgeIds(prev => prev.filter(x => x !== id))}
               emptyText="暂无私有数据挂载。配置知识库可提供垂直领域经验。"
+              hidden={hiddenCapabilitySet.has('knowledgebase')}
             />
 
             {/* Extended Capabilities: Plugins & Skills */}
@@ -730,28 +753,28 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
               defaultExpanded={false}
               extra={
                 <div className="flex items-center gap-2">
-                  {(selectedToolIds.length + selectedSkillIds.length) > 0 && <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded-full text-gray-400 leading-none">{selectedToolIds.length + selectedSkillIds.length}</span>}
+                  {(selectedToolIds.length + selectedSkillIds.length) > 0 && <span className="text-[10px] bg-slate-900/10 dark:bg-white/10 px-1.5 py-0.5 rounded-full text-slate-500 dark:text-gray-400 leading-none">{selectedToolIds.length + selectedSkillIds.length}</span>}
                 </div>
               }
             >
               <div className="bg-transparent flex flex-col pt-0">
                 
                 {/* Tools & MCP Group */}
-                <div className="border-t border-white/5">
+                <div className="border-t border-slate-200 dark:border-white/5">
                   <div className="flex items-center justify-between px-4 pt-4 pb-2">
                     <div className="flex items-center gap-2">
                       <Wrench size={12} className="text-emerald-400" />
-                      <span className="text-[12px] font-medium text-gray-300">工具库与 MCP</span>
+                      <span className="text-[12px] font-medium text-slate-700 dark:text-gray-300">工具库与 MCP</span>
                     </div>
                     <button 
                       onClick={(e) => { e.stopPropagation(); setIsToolsModalOpen(true); }}
-                      className="text-[10px] font-medium bg-[#242426] hover:bg-white/10 text-gray-300 px-2 py-0.5 rounded border border-white/5 transition-colors"
+                      className="text-[10px] font-medium bg-slate-100 dark:bg-[#242426] hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-gray-300 px-2 py-0.5 rounded border border-slate-200 dark:border-white/5 transition-colors"
                     >
                       + 添加
                     </button>
                   </div>
                   {selectedToolsData.length > 0 ? (
-                    <div className="divide-y divide-white/5 px-2 pb-2">
+                    <div className="divide-y divide-slate-200 dark:divide-white/5 px-2 pb-2">
                       <AnimatePresence initial={false}>
                         {selectedToolsData.map(item => (
                           <motion.div 
@@ -761,21 +784,21 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.15 }}
                             key={item.id} 
-                            className="flex items-center justify-between p-2 rounded-lg group/item hover:bg-white/5 transition-colors overflow-hidden"
+                            className="flex items-center justify-between p-2 rounded-lg group/item hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors overflow-hidden"
                           >
                             <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-emerald-400 bg-[#2A2A2D] border border-white/5">
+                              <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-emerald-400 bg-slate-200 dark:bg-[#2A2A2D] border border-slate-200 dark:border-white/5">
                                 {item.icon || <Wrench size={12} />}
                               </div>
                               <div className="flex-1 min-w-0 pr-2">
-                                <div className="text-[12px] text-gray-200 truncate font-medium">{item.name}</div>
-                                {item.description && <div className="text-[10px] text-gray-500 truncate mt-0.5">{item.description}</div>}
+                                <div className="text-[12px] text-slate-800 dark:text-gray-200 truncate font-medium">{item.name}</div>
+                                {item.description && <div className="text-[10px] text-slate-500 dark:text-gray-500 truncate mt-0.5">{item.description}</div>}
                               </div>
                             </div>
                             <button 
                               onClick={() => setSelectedToolIds(prev => prev.filter(x => x !== item.id))}
                               title="移除"
-                              className="text-gray-500 hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-opacity p-1 rounded hover:bg-white/5"
+                              className="text-slate-500 dark:text-gray-500 hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-opacity p-1 rounded hover:bg-slate-900/5 dark:hover:bg-white/5"
                             >
                               <X size={14} />
                             </button>
@@ -784,28 +807,28 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                       </AnimatePresence>
                     </div>
                   ) : (
-                    <div className="text-[11px] text-gray-500 text-center py-3 px-4 mx-2 mb-3 bg-[#161618] rounded-lg border border-white/5 border-dashed">
+                    <div className="text-[11px] text-slate-500 dark:text-gray-500 text-center py-3 px-4 mx-2 mb-3 bg-slate-50 dark:bg-[#161618] rounded-lg border border-slate-200 dark:border-white/5 border-dashed">
                       未启用外部交互能力
                     </div>
                   )}
                 </div>
 
                 {/* Agent Skills Group */}
-                <div className="border-t border-white/5">
+                <div className="border-t border-slate-200 dark:border-white/5">
                   <div className="flex items-center justify-between px-4 pt-4 pb-2">
                     <div className="flex items-center gap-2">
                       <Layers size={12} className="text-cyan-400" />
-                      <span className="text-[12px] font-medium text-gray-300">Agent Skills</span>
+                      <span className="text-[12px] font-medium text-slate-700 dark:text-gray-300">Agent Skills</span>
                     </div>
                     <button 
                       onClick={(e) => { e.stopPropagation(); setIsSkillsModalOpen(true); }}
-                      className="text-[10px] font-medium bg-[#242426] hover:bg-white/10 text-gray-300 px-2 py-0.5 rounded border border-white/5 transition-colors"
+                      className="text-[10px] font-medium bg-slate-100 dark:bg-[#242426] hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-gray-300 px-2 py-0.5 rounded border border-slate-200 dark:border-white/5 transition-colors"
                     >
                       + 添加
                     </button>
                   </div>
                   {selectedSkillsData.length > 0 ? (
-                    <div className="divide-y divide-white/5 px-2 pb-2">
+                    <div className="divide-y divide-slate-200 dark:divide-white/5 px-2 pb-2">
                       <AnimatePresence initial={false}>
                         {selectedSkillsData.map(item => (
                           <motion.div 
@@ -815,21 +838,21 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.15 }}
                             key={item.id} 
-                            className="flex items-center justify-between p-2 rounded-lg group/item hover:bg-white/5 transition-colors overflow-hidden"
+                            className="flex items-center justify-between p-2 rounded-lg group/item hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors overflow-hidden"
                           >
                             <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-cyan-400 bg-[#2A2A2D] border border-white/5">
+                              <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-cyan-400 bg-slate-200 dark:bg-[#2A2A2D] border border-slate-200 dark:border-white/5">
                                 {item.icon || <Layers size={12} />}
                               </div>
                               <div className="flex-1 min-w-0 pr-2">
-                                <div className="text-[12px] text-gray-200 truncate font-medium">{item.name}</div>
-                                {item.description && <div className="text-[10px] text-gray-500 truncate mt-0.5">{item.description}</div>}
+                                <div className="text-[12px] text-slate-800 dark:text-gray-200 truncate font-medium">{item.name}</div>
+                                {item.description && <div className="text-[10px] text-slate-500 dark:text-gray-500 truncate mt-0.5">{item.description}</div>}
                               </div>
                             </div>
                             <button 
                               onClick={() => setSelectedSkillIds(prev => prev.filter(x => x !== item.id))}
                               title="移除"
-                              className="text-gray-500 hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-opacity p-1 rounded hover:bg-white/5"
+                              className="text-slate-500 dark:text-gray-500 hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-opacity p-1 rounded hover:bg-slate-900/5 dark:hover:bg-white/5"
                             >
                               <X size={14} />
                             </button>
@@ -838,7 +861,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                       </AnimatePresence>
                     </div>
                   ) : (
-                    <div className="text-[11px] text-gray-500 text-center py-3 px-4 mx-2 mb-3 bg-[#161618] rounded-lg border border-white/5 border-dashed">
+                    <div className="text-[11px] text-slate-500 dark:text-gray-500 text-center py-3 px-4 mx-2 mb-3 bg-slate-50 dark:bg-[#161618] rounded-lg border border-slate-200 dark:border-white/5 border-dashed">
                       未配置高级心智流或预设技能
                     </div>
                   )}
@@ -850,18 +873,18 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
             {/* Advanced Settings */}
             <AccordionSection 
               title="高级配置" 
-              icon={<span className="text-gray-400"><AlertCircle size={13} /></span>}
+              icon={<span className="text-slate-500 dark:text-gray-400"><AlertCircle size={13} /></span>}
               defaultExpanded={false}
             >
-              <div className="bg-transparent divide-y divide-white/5">
-                <div className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+              <div className="bg-transparent divide-y divide-slate-200 dark:divide-white/5">
+                <div className="p-4 flex items-center justify-between hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors">
                   <div>
-                    <div className="text-[13px] font-medium text-gray-200 mb-0.5">严格 JSON 输出</div>
-                    <div className="text-[11px] text-gray-500 max-w-[200px]">强制化模型回复格式。</div>
+                    <div className="text-[13px] font-medium text-slate-800 dark:text-gray-200 mb-0.5">严格 JSON 输出</div>
+                    <div className="text-[11px] text-slate-500 dark:text-gray-500 max-w-[200px]">强制化模型回复格式。</div>
                   </div>
                   <button 
                     onClick={() => setJsonMode(!jsonMode)}
-                    className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ml-4 border border-white/10 ${jsonMode ? 'bg-orange-500' : 'bg-[#2A2A2D]'}`}
+                    className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ml-4 border border-slate-300 dark:border-white/10 ${jsonMode ? 'bg-orange-500' : 'bg-slate-200 dark:bg-[#2A2A2D]'}`}
                   >
                     <motion.div 
                       layout
@@ -881,18 +904,18 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
               icon={<span className="text-pink-400"><MessageSquare size={13} /></span>}
               defaultExpanded={true}
             >
-              <div className="p-4 space-y-4 bg-transparent border-t border-white/5">
+              <div className="p-4 space-y-4 bg-transparent border-t border-slate-200 dark:border-white/5">
                 <div>
-                  <label className="block text-[11px] font-medium text-gray-400 mb-1.5">开场白 (Welcome Message)</label>
+                  <label className="block text-[11px] font-medium text-slate-500 dark:text-gray-400 mb-1.5">开场白 (Welcome Message)</label>
                   <textarea 
                     value={welcomeMessage}
                     onChange={e => setWelcomeMessage(e.target.value)}
-                    className="w-full bg-[#1C1C1E] border border-white/5 rounded-lg p-2.5 text-[12px] text-gray-300 outline-none focus:border-blue-500/50 resize-none h-20 transition-all custom-scrollbar"
+                    className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-white/5 rounded-lg p-2.5 text-[12px] text-slate-700 dark:text-gray-300 outline-none focus:border-blue-500/50 resize-none h-20 transition-all custom-scrollbar"
                     placeholder="请输入智能体初次见面的自我介绍..."
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium text-gray-400 mb-1.5">预设快捷提问 (Starter Prompts)</label>
+                  <label className="block text-[11px] font-medium text-slate-500 dark:text-gray-400 mb-1.5">预设快捷提问 (Starter Prompts)</label>
                   <div className="space-y-1.5">
                     {suggestedPrompts.map((p, i) => (
                       <div key={i} className="flex gap-1.5">
@@ -903,12 +926,12 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                             newP[i] = e.target.value;
                             setSuggestedPrompts(newP);
                           }}
-                          className="flex-1 bg-[#1C1C1E] border border-white/5 rounded-md px-2.5 py-1.5 text-[12px] text-gray-300 outline-none focus:border-blue-500/50 transition-all h-8"
+                          className="flex-1 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-white/5 rounded-md px-2.5 py-1.5 text-[12px] text-slate-700 dark:text-gray-300 outline-none focus:border-blue-500/50 transition-all h-8"
                           placeholder="例如：如何使用这个功能？"
                         />
                         <button 
                           onClick={() => setSuggestedPrompts(prev => prev.filter((_, idx) => idx !== i))}
-                          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-400 transition-colors bg-[#1C1C1E] border border-white/5 rounded-md"
+                          className="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-gray-500 hover:text-red-400 transition-colors bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-white/5 rounded-md"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -916,7 +939,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                     ))}
                     <button 
                       onClick={() => setSuggestedPrompts(prev => [...prev, ''])}
-                      className="w-full py-1.5 border border-dashed border-white/10 rounded-md text-[11px] text-gray-500 hover:text-gray-300 hover:border-white/20 transition-all bg-[#1C1C1E]/50 hover:bg-[#1C1C1E]"
+                      className="w-full py-1.5 border border-dashed border-slate-300 dark:border-white/10 rounded-md text-[11px] text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 hover:border-slate-300 dark:hover:border-white/20 transition-all bg-white/70 dark:bg-[#1C1C1E]/50 hover:bg-white dark:hover:bg-[#1C1C1E]"
                     >
                       + 添加一条快捷问题
                     </button>
@@ -929,11 +952,11 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
         </div>
 
         {/* Column 3: Test Chat (Right - 2/5 = 40%) */}
-        <div className="w-[40%] shrink-0 border-l border-white/5 flex flex-col min-h-0 bg-[#1e1e1e] relative">
+        <div className="w-[40%] shrink-0 border-l border-slate-200 dark:border-white/5 flex flex-col min-h-0 bg-white dark:bg-[#1e1e1e] relative">
           {/* Test Chat Header */}
-          <div className="h-14 border-b border-white/5 flex items-center justify-between px-5 shrink-0 bg-[#202020]">
+          <div className="h-14 border-b border-slate-200 dark:border-white/5 flex items-center justify-between px-5 shrink-0 bg-slate-50 dark:bg-[#202020]">
             <div className="flex items-center gap-3">
-              <span className="text-[15px] font-medium text-gray-200 flex items-center gap-2"><PlayCircle size={16} className="text-green-500"/>预览与调试</span>
+              <span className="text-[15px] font-medium text-slate-800 dark:text-gray-200 flex items-center gap-2"><PlayCircle size={16} className="text-green-500"/>预览与调试</span>
               {isTyping && (
                 <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#00b42a]/10 border border-[#00b42a]/20 text-[#00b42a] text-[11px]">
                   <span className="relative flex h-1.5 w-1.5">
@@ -945,14 +968,14 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
               )}
             </div>
             <div className="flex items-center gap-4">
-              <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer hover:text-gray-200">
+              <label className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-gray-400 cursor-pointer hover:text-slate-800 dark:hover:text-gray-200">
                 <input type="checkbox" checked={debugMode} onChange={e => setDebugMode(e.target.checked)} className="accent-blue-500 w-3 h-3" />
                 显示思考过程
               </label>
-              <div className="w-px h-3 bg-white/10"></div>
+              <div className="w-px h-3 bg-slate-900/10 dark:bg-white/10"></div>
               <button 
                 onClick={handleRestartTest}
-                className="text-gray-400 hover:text-red-400 transition-colors flex items-center gap-1.5 text-xs font-medium"
+                className="text-slate-500 dark:text-gray-400 hover:text-red-400 transition-colors flex items-center gap-1.5 text-xs font-medium"
                 title="清空记录并重置"
               >
                 <Trash2 size={14} />
@@ -962,10 +985,10 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
           </div>
           
           {/* Test Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar bg-[#1a1a1a]">
+          <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar bg-slate-50 dark:bg-[#1a1a1a]">
             {testMessages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-4">
-                <Bot size={48} className="text-gray-600 opacity-50" />
+              <div className="h-full flex flex-col items-center justify-center text-slate-500 dark:text-gray-500 space-y-4">
+                <Bot size={48} className="text-slate-400 dark:text-gray-600 opacity-50" />
                 <p className="text-sm">对话已清空，发送消息开始测试</p>
               </div>
             ) : (
@@ -980,21 +1003,21 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                     <Avatar 
                       src={msg.role === 'user' ? DEFAULT_TEST_USER_AVATAR : resolveAgentDisplayAvatar()}
                       alt={msg.role} 
-                      className="w-9 h-9 rounded-lg shrink-0 mt-1 bg-[#2b2b2d]" 
+                      className="w-9 h-9 rounded-lg shrink-0 mt-1 bg-slate-200 dark:bg-[#2b2b2d]" 
                     />
                     <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} max-w-[80%]`}>
                       <div className="flex items-center gap-2 mb-1.5 px-1">
-                        <span className="text-[12px] font-medium text-gray-400">
+                        <span className="text-[12px] font-medium text-slate-500 dark:text-gray-400">
                           {msg.role === 'user' ? '你' : name}
                         </span>
-                        <span className="text-[11px] text-gray-600">{msg.time}</span>
+                        <span className="text-[11px] text-slate-400 dark:text-gray-600">{msg.time}</span>
                       </div>
                       
                       <div className="relative group/bubble">
                         <div className={`rounded-2xl px-4 py-2.5 text-[14px] leading-relaxed whitespace-pre-wrap ${
                           msg.role === 'user' 
                             ? 'bg-[#00b42a] text-white rounded-tr-sm shadow-sm' 
-                            : 'bg-[#2b2b2d] text-gray-200 rounded-tl-sm border border-white/5 shadow-sm'
+                            : 'bg-slate-200 dark:bg-[#2b2b2d] text-slate-800 dark:text-gray-200 rounded-tl-sm border border-slate-200 dark:border-white/5 shadow-sm'
                         }`}>
                           {msg.content}
                         </div>
@@ -1004,7 +1027,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                           <div className="absolute -right-10 top-2 opacity-0 group-hover/bubble:opacity-100 transition-opacity flex flex-col gap-1">
                             <button 
                               onClick={() => handleCopy(msg.id, msg.content)}
-                              className="p-1.5 rounded-md text-gray-400 hover:text-gray-200 hover:bg-white/10 transition-colors"
+                              className="p-1.5 rounded-md text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 hover:bg-slate-900/10 dark:hover:bg-white/10 transition-colors"
                               title="复制"
                             >
                               {copiedId === msg.id ? <Check size={14} className="text-[#00b42a]" /> : <Copy size={14} />}
@@ -1028,13 +1051,13 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
                 <Avatar 
                   src={resolveAgentDisplayAvatar()}
                   alt="assistant" 
-                  className="w-9 h-9 rounded-lg shrink-0 mt-1 bg-[#2b2b2d]" 
+                  className="w-9 h-9 rounded-lg shrink-0 mt-1 bg-slate-200 dark:bg-[#2b2b2d]" 
                 />
                 <div className="flex flex-col items-start">
                   <div className="flex items-center gap-2 mb-1.5 px-1">
-                    <span className="text-[12px] font-medium text-gray-400">{name}</span>
+                    <span className="text-[12px] font-medium text-slate-500 dark:text-gray-400">{name}</span>
                   </div>
-                  <div className="bg-[#2b2b2d] rounded-2xl rounded-tl-sm px-4 py-3.5 border border-white/5 shadow-sm">
+                  <div className="bg-slate-200 dark:bg-[#2b2b2d] rounded-2xl rounded-tl-sm px-4 py-3.5 border border-slate-200 dark:border-white/5 shadow-sm">
                     <div className="flex gap-1 items-center h-2">
                       <motion.div className="w-1.5 h-1.5 bg-gray-400 rounded-full" animate={{ y: [0, -4, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0 }} />
                       <motion.div className="w-1.5 h-1.5 bg-gray-400 rounded-full" animate={{ y: [0, -4, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }} />
@@ -1048,7 +1071,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
           </div>
 
           {/* Test Chat Input */}
-          <div className="bg-[#1e1e1e]">
+          <div className="bg-white dark:bg-[#1e1e1e]">
             {suggestedPrompts.length > 0 && testMessages.length <= 1 && (
               <div className="px-5 pb-2 pt-1 flex gap-2 flex-wrap min-h-[36px]">
                 {suggestedPrompts.filter(p => p).map((p, i) => (

@@ -67,18 +67,18 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex w-[480px] flex-col overflow-hidden rounded-xl border border-white/10 bg-[#222] shadow-2xl"
+        className="flex w-[480px] flex-col overflow-hidden rounded-xl border border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-[#222] shadow-2xl"
       >
-        <div className="flex items-center justify-between border-b border-white/5 bg-[#1a1a1a] p-4">
-          <h3 className="font-medium text-gray-200">编辑基础信息</h3>
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#1a1a1a] p-4">
+          <h3 className="font-medium text-slate-800 dark:text-gray-200">编辑基础信息</h3>
         </div>
         <div className="space-y-4 p-6">
           <div className="mb-2 flex flex-col items-center justify-center">
-            <label className="group relative flex h-20 w-20 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-white/10 bg-[#181818] transition-colors hover:bg-white/5">
+            <label className="group relative flex h-20 w-20 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-[#181818] transition-colors hover:bg-slate-900/5 dark:hover:bg-white/5">
               {tempAvatarPreview && !tempAvatarPreview.startsWith('drive://') ? (
                 <img src={tempAvatarPreview} alt="智能体头像" className="h-full w-full object-cover" />
               ) : (
-                <Bot size={32} className="text-gray-500" />
+                <Bot size={32} className="text-slate-500 dark:text-gray-500" />
               )}
               <input
                 type="file"
@@ -88,34 +88,34 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
                 onChange={handleAvatarChange}
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="absolute bottom-1 z-10 rounded-full bg-black/60 px-2 py-0.5 text-[10px] text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 group-hover:text-gray-200">
+              <div className="absolute bottom-1 z-10 rounded-full bg-black/60 px-2 py-0.5 text-[10px] text-slate-500 dark:text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 group-hover:text-slate-800 dark:group-hover:text-gray-200">
                 {uploadingAvatar ? '上传中' : '更换'}
               </div>
             </label>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm text-gray-400">智能体名称</label>
+            <label className="mb-1.5 block text-sm text-slate-500 dark:text-gray-400">智能体名称</label>
             <input
               type="text"
               value={tempName}
               onChange={(event) => setTempName(event.target.value)}
-              className="w-full rounded-lg border border-white/5 bg-[#181818] px-3 py-2.5 text-sm text-gray-200 outline-none transition-colors focus:border-white/20"
+              className="w-full rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#181818] px-3 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors focus:border-slate-300 dark:focus:border-white/20"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm text-gray-400">简介</label>
+            <label className="mb-1.5 block text-sm text-slate-500 dark:text-gray-400">简介</label>
             <textarea
               value={tempDesc}
               onChange={(event) => setTempDesc(event.target.value)}
-              className="custom-scrollbar h-20 w-full resize-none rounded-lg border border-white/5 bg-[#181818] px-3 py-2.5 text-sm text-gray-200 outline-none transition-colors focus:border-white/20"
+              className="custom-scrollbar h-20 w-full resize-none rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#181818] px-3 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors focus:border-slate-300 dark:focus:border-white/20"
             />
           </div>
         </div>
-        <div className="flex justify-end gap-2 border-t border-white/5 bg-[#1a1a1a] p-4">
+        <div className="flex justify-end gap-2 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#1a1a1a] p-4">
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-white/5 px-4 py-2 text-sm text-gray-300 hover:bg-white/10"
+            className="rounded bg-slate-900/5 dark:bg-white/5 px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-900/10 dark:hover:bg-white/10"
           >
             取消
           </button>

@@ -7,6 +7,10 @@ export {
 } from "./pages/agentCatalog";
 export { AgentChatView } from "./pages/AgentChatView";
 export { CreateAgentView } from "./pages/CreateAgentView";
+export type {
+  CreateAgentCapability,
+  CreateAgentViewProps,
+} from "./pages/CreateAgentView";
 export { CreateAgentModal } from "./components/CreateAgentModal";
 export { ToastContainer, toast } from "./components/Toast";
 export { agentService, configureAgentService, createSdkworkAgentService, parseAgentCatalogSnapshot } from "./services/AgentService";

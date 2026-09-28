@@ -25,5 +25,8 @@
   "settings": "Settings",
   "customProvider": "Custom LLM Provider",
   "tokenPlan": "Buy Token Plan",
-  "close": "Close"
+  "close": "Close",
+  "agentsConsoleNavLabel": "Agents console",
+  "agentsConsoleModuleManage": "My agents",
+  "agentsConsoleModuleEditor": "Create agent"
 }

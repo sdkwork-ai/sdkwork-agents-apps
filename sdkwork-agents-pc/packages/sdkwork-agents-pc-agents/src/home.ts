@@ -1,4 +1,8 @@
 export { AgentsHomePage } from './pages/AgentsHomePage';
+export type {
+  AgentCatalogScope,
+  AgentsHomePageProps,
+} from './pages/AgentsHomePage';
 export {
   AGENT_MARKET_CATEGORIES,
   filterMarketAgents,
