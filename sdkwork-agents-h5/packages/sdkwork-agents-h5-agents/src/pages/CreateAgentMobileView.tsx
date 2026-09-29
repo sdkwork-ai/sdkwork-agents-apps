@@ -21,6 +21,7 @@ import {
 import { createDefaultAvatar } from '../services/DefaultAvatarService';
 import { toast } from '../components/Toast';
 import { t } from '../copy/mobileAgentTexts';
+import { agentsH5DriveUploadService } from '@sdkwork/agents-h5-core/sdk/driveUploadService';
 
 export interface CreateAgentMobileViewProps {
   /** Agent id to edit; when omitted the view creates a new agent. */
@@ -51,6 +52,8 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
   const [description, setDescription] = useState('');
   const [persona, setPersona] = useState('');
   const [avatar, setAvatar] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarDirty, setAvatarDirty] = useState(false);
   const [model, setModel] = useState('');
   const [modelLabel, setModelLabel] = useState('');
   const [temperature, setTemperature] = useState(PRESET_TEMPERATURE);
@@ -79,6 +82,8 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
       setDescription(agent.description ?? '');
       setPersona(agent.systemPrompt ?? '');
       setAvatar(agent.avatar ?? '');
+      setAvatarFile(null);
+      setAvatarDirty(false);
       setModel(agent.model ?? '');
       setModelLabel(agent.model ?? '');
       setTemperature(agent.temperature ?? PRESET_TEMPERATURE);
@@ -131,8 +136,11 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
   const handleAvatarSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setAvatar(url);
+    // Local object URL is a transient preview only (`DRIVE_SPEC.md` section 9);
+    // the real upload happens after the agent is persisted, with the agent id.
+    setAvatarFile(file);
+    setAvatarDirty(true);
+    setAvatar(URL.createObjectURL(file));
     notify(t('agents.mobile.form.avatar.uploaded'), 'success');
   };
 
@@ -150,7 +158,9 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
   const buildConfig = (): AgentConfig => ({
     name: name.trim(),
     description: description.trim(),
-    avatar: avatar || undefined,
+    // A freshly picked avatar is uploaded after the agent is persisted
+    // (`DRIVE_SPEC.md` section 18.3), so it never travels in the config.
+    avatar: avatarDirty ? undefined : (avatar || undefined),
     type: 'normal',
     systemPrompt: persona.trim() || undefined,
     model: model || undefined,
@@ -182,6 +192,21 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
         agent = await agentService.updateAgent(initialAgentId, config);
       } else {
         agent = await agentService.createAgent(config);
+      }
+      if (avatarFile && agent.id) {
+        // Persist first, upload second, then attach the Drive reference
+        // (`DRIVE_SPEC.md` section 18.3 draft-then-attach flow).
+        try {
+          const media = await agentsH5DriveUploadService.upload({
+            file: avatarFile,
+            purpose: 'agent-avatar',
+            resourceId: agent.id,
+          });
+          agent = await agentService.updateAgent(agent.id, { avatar: media.uri });
+        } catch (uploadError) {
+          console.error('Failed to upload agent avatar', uploadError);
+          notify(t('agents.mobile.form.toast.updateFailed'), 'error');
+        }
       }
       if (publish && agent.id) {
         try {

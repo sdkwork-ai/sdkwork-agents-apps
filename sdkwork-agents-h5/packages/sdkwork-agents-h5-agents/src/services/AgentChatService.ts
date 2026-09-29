@@ -12,6 +12,7 @@ import {
 } from "@sdkwork/agents-h5-core/sdk/agentsAppSdkClient";
 import { sha256Hash, uuid } from "@sdkwork/utils";
 import { MAX_LIST_PAGE_SIZE, toOffsetPageInfo, type OffsetPageInfo } from "@sdkwork/agents-h5-core/sdk/pagination";
+import type { AgentsH5DriveMediaResource } from "@sdkwork/agents-h5-core/sdk/driveUploadService";
 
 import { resolveChatRuntimeModel } from "./RuntimeCatalogService";
 import { sortSessionItems } from "./sessionMessageOrdering";
@@ -36,6 +37,8 @@ export interface ChatMessage {
   reasoning?: string;
   /** Tool/skill/MCP invocations performed within this turn. */
   toolCalls?: ChatToolCall[];
+  /** Drive-backed media attached to this message (uploads and history reads). */
+  mediaResources?: AgentsH5DriveMediaResource[];
   createdAt: string;
 }
 
@@ -58,6 +61,31 @@ export type ChatMessageSort = "sequence" | "-sequence";
 /** Matches the bounded server context window for one interactive session page. */
 const SESSION_ITEM_PAGE_SIZE = 50;
 
+/** Maps persisted Drive references on a session item into renderable media resources. */
+function toDriveMediaResources(record: AgentSessionItemRecord): AgentsH5DriveMediaResource[] | undefined {
+  const resources = (record.driveRefs ?? [])
+    .filter((resource) => resource.status === "active")
+    .map((resource): AgentsH5DriveMediaResource => ({
+      id: resource.mediaResourceId ?? `${resource.driveSpaceId}:${resource.driveNodeId}`,
+      kind: resource.resourceRole === "image"
+        ? "image"
+        : resource.resourceRole === "audio"
+          ? "audio"
+          : "other",
+      source: "drive",
+      uri: `drive://spaces/${resource.driveSpaceId}/nodes/${resource.driveNodeId}`,
+      metadata: {
+        driveSpaceId: resource.driveSpaceId,
+        driveNodeId: resource.driveNodeId,
+        drive: {
+          spaceId: resource.driveSpaceId,
+          nodeId: resource.driveNodeId,
+        },
+      },
+    }));
+  return resources.length > 0 ? resources : undefined;
+}
+
 function toChatMessage(record: AgentSessionItemRecord): ChatMessage {
   if (!record.itemId) {
     throw new Error("Agent session item did not include itemId.");
@@ -77,6 +105,7 @@ function toChatMessage(record: AgentSessionItemRecord): ChatMessage {
     id: record.itemId,
     role,
     content: record.content ?? "",
+    mediaResources: toDriveMediaResources(record),
     createdAt: record.createdAt,
   };
 }
@@ -318,12 +347,13 @@ export class AgentChatService {
     modelId?: string,
     systemPrompt?: string,
     wireProtocol?: AgentTurnWireProtocol,
+    media?: AgentsH5DriveMediaResource | AgentsH5DriveMediaResource[],
   ): Promise<ChatMessage> {
     const completion = await completeAgentTurn(
       this.getClient(),
       agentId,
       sessionId,
-      await this.buildTurnBody(content, modelId, systemPrompt, wireProtocol),
+      await this.buildTurnBody(content, modelId, systemPrompt, wireProtocol, media),
     );
     const assistantRecord = findAssistantOutput(completion.items);
     if (!assistantRecord) {
@@ -348,12 +378,13 @@ export class AgentChatService {
     onReasoning?: (reasoning: string) => void,
     onToolEvent?: (event: TurnRichToolEvent) => void,
     wireProtocol?: AgentTurnWireProtocol,
+    media?: AgentsH5DriveMediaResource | AgentsH5DriveMediaResource[],
   ): Promise<ChatMessage> {
     const completion = await completeAgentTurnStream(
       this.getClient(),
       agentId,
       sessionId,
-      await this.buildTurnBody(content, modelId, systemPrompt, wireProtocol),
+      await this.buildTurnBody(content, modelId, systemPrompt, wireProtocol, media),
       { onDelta, onReasoning, onToolEvent },
     );
     const assistantRecord = findAssistantOutput(completion.items);
@@ -368,18 +399,33 @@ export class AgentChatService {
     modelId?: string,
     systemPrompt?: string,
     wireProtocol?: AgentTurnWireProtocol,
+    media?: AgentsH5DriveMediaResource | AgentsH5DriveMediaResource[],
   ): Promise<CreateAgentTurnRequest> {
+    const mediaResources = media ? (Array.isArray(media) ? media : [media]) : [];
     const requestId = uuid();
+    const driveRefs = mediaResources.map((item) => {
+      const driveSpaceId = item.metadata.driveSpaceId ?? item.metadata.drive?.spaceId;
+      const driveNodeId = item.metadata.driveNodeId ?? item.metadata.drive?.nodeId;
+      if (!driveSpaceId || !driveNodeId) {
+        throw new Error("Drive attachment is missing driveSpaceId or driveNodeId.");
+      }
+      return {
+        resourceRole: item.kind === "image" ? "image" as const : item.kind === "audio" ? "audio" as const : "attachment" as const,
+        driveSpaceId,
+        driveNodeId,
+      };
+    });
     // Resolve the runtime model id for the turn request. No local provider
     // binding or API key is required: chat turns route through the cloudrouter
     // account-pool gateway using the caller's auth token (sessions that
     // already carry a runtime binding keep the local binding chain).
     const runtimeModel = await resolveChatRuntimeModel(modelId, this.getClient());
-    const contentType = "text/plain";
+    const contentType = mediaResources[0]?.mimeType ?? "text/plain";
     const payloadHash = `sha256:${sha256Hash(JSON.stringify({
       content: content.trim(),
       contentType,
       requestedModelId: runtimeModel.id,
+      driveRefs,
     }))}`;
     return {
       content: content.trim(),
@@ -387,6 +433,7 @@ export class AgentChatService {
       turnMode: "interactive" as const,
       ...(systemPrompt ? { systemPrompt: systemPrompt.trim() } : {}),
       ...(wireProtocol ? { wireProtocol } : {}),
+      ...(driveRefs.length > 0 ? { driveRefs } : {}),
       requestedAt: new Date().toISOString(),
       idempotencyKey: requestId,
       payloadHash,

@@ -16,6 +16,7 @@ import { DEFAULT_AGENT_CONFIG } from '../components/AgentDefaults';
 import { createDefaultAvatar } from '../services/DefaultAvatarService';
 import { VoiceConfig } from '../services/VoiceService';
 import type { KnowledgeBase } from '../services/KnowledgeSelectionService';
+import { agentsH5DriveUploadService } from '@sdkwork/agents-h5-core/sdk/driveUploadService';
 
 function mergeCapabilitySnapshots<T extends { id: string }>(
   previous: T[],
@@ -181,6 +182,9 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
   const [name, setName] = useState('新智能体');
   const [desc, setDesc] = useState('这是一个新创建的智能体');
   const [avatar, setAvatar] = useState('');
+  // Short-lived delivery URL for a Drive-backed avatar; `avatar` keeps the
+  // durable drive URI that is persisted with the agent config.
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('');
   const [agentType, setAgentType] = useState<AgentConfig['type']>('normal');
   const [model, setModel] = useState(DEFAULT_AGENT_CONFIG.model);
   const [temperature, setTemperature] = useState(DEFAULT_AGENT_CONFIG.temperature);
@@ -299,6 +303,15 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
         setDesc(agent.description || '');
         setPrompt(agent.systemPrompt ?? '');
         setAvatar(agent.avatar || '');
+        setAvatarPreviewUrl('');
+        const persistedAvatar = agent.avatar ?? '';
+        if (persistedAvatar.startsWith('drive://')) {
+          agentsH5DriveUploadService.resolvePreviewUrl(persistedAvatar)
+            .then((url) => setAvatarPreviewUrl(url))
+            .catch(() => {
+              // A node the caller cannot read stays on the default avatar.
+            });
+        }
         setAgentType(agent.type);
         setModel(agent.model || DEFAULT_AGENT_CONFIG.model);
         setTemperature(agent.temperature ?? DEFAULT_AGENT_CONFIG.temperature);
@@ -327,7 +340,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
     };
   }, [initialAgentId, onBack]);
 
-  const resolveAgentDisplayAvatar = () => avatar || DEFAULT_AGENT_AVATAR;
+  const resolveAgentDisplayAvatar = () => avatarPreviewUrl || avatar || DEFAULT_AGENT_AVATAR;
 
   const buildCurrentAgentConfig = (agentId?: string): AgentConfig => ({
     ...(agentId ? { id: agentId } : {}),
@@ -431,7 +444,17 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
     scrollToBottom();
   }, [testMessages, isTyping]);
 
-  const handleTestSend = async (content: string) => {
+  const handleTestSend = async (
+    content: string,
+    type?: 'text' | 'image' | 'file' | 'voice' | 'video',
+    extraInfo?: { file?: File },
+  ) => {
+    // The preview-turn API accepts text only (no Drive attachment refs), so a
+    // picked file is refused instead of silently sending a local blob URL.
+    if (extraInfo?.file || (type && type !== 'text')) {
+      toast('预览会话暂不支持文件附件，请在正式会话中发送', 'error');
+      return;
+    }
     if (!content.trim() || isTyping) return;
     
     const newMsg: TestMessage = { 
@@ -1056,15 +1079,27 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
       </div>
 
       <EditBasicInfoModal
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
         initialName={name}
         initialDesc={desc}
-        initialAvatar={avatar}
-        onSave={(newName, newDesc, newAvatar) => {
+        initialAvatar={avatarPreviewUrl || avatar}
+        onUploadAvatar={async (file) => {
+          const persisted = await ensurePersistedAgentForRuntime();
+          if (!persisted.id) throw new Error('Persisted Agent id is required for avatar upload.');
+          return agentsH5DriveUploadService.upload({
+            file,
+            purpose: 'agent-avatar',
+            resourceId: persisted.id,
+          });
+        }}
+        onSave={(newName, newDesc, newAvatar, newAvatarUri) => {
            setName(newName);
            setDesc(newDesc);
-           if (newAvatar) setAvatar(newAvatar);
+           // The Drive URI is the durable identity; the short-lived delivery
+           // URL stays display-only.
+           setAvatar(newAvatarUri ?? newAvatar);
+           setAvatarPreviewUrl(newAvatarUri ? newAvatar : '');
            setIsEditModalOpen(false);
            toast('基础信息已更新', 'success');
         }}

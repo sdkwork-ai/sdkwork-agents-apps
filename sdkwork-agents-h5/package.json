@@ -13,7 +13,7 @@
     "dev:standalone": "pnpm exec sdkwork-app dev --root ../.. --deployment-profile standalone",
     "dev:cloud": "pnpm exec sdkwork-app dev --root ../.. --deployment-profile cloud",
     "stop": "pnpm exec sdkwork-app stop --root ../..",
-    "test": "pnpm run test:iam-contract && pnpm run test:conversation",
+    "test": "pnpm run test:iam-contract && pnpm run test:conversation && pnpm run test:upload-declaration",
     "check": "pnpm typecheck && pnpm test && pnpm build",
     "verify": "pnpm check",
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
@@ -26,7 +26,8 @@
     "build:test:cloud": "node ../../../sdkwork-specs/tools/build-browser-client.mjs --app-root . --environment test --deployment-profile cloud",
     "build:staging:cloud": "node ../../../sdkwork-specs/tools/build-browser-client.mjs --app-root . --environment staging --deployment-profile cloud",
     "build:demo:cloud": "node ../../../sdkwork-specs/tools/build-browser-client.mjs --app-root . --environment demo --deployment-profile cloud",
-    "build:prod:cloud": "node ../../../sdkwork-specs/tools/build-browser-client.mjs --app-root . --environment prod --deployment-profile cloud"
+    "build:prod:cloud": "node ../../../sdkwork-specs/tools/build-browser-client.mjs --app-root . --environment prod --deployment-profile cloud",
+    "test:upload-declaration": "tsx --test tests/upload-declaration.test.ts"
   },
   "dependencies": {
     "@sdkwork/agents-h5-agents": "workspace:*",

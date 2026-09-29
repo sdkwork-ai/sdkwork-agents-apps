@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { ChevronLeft, Bot, Copy, Check } from "lucide-react";
+import { ChevronLeft, Bot, Copy, Check, Paperclip } from "lucide-react";
 
 import { Avatar } from "@sdkwork/agents-h5-commons";
 
@@ -9,6 +9,65 @@ import { toast } from "../components/Toast";
 import { agentService } from "../services/AgentService";
 import { agentChatService, type ChatMessage } from "../services/AgentChatService";
 import { createDefaultAvatar } from "../services/DefaultAvatarService";
+import {
+  agentsH5DriveUploadService,
+  type AgentsH5DriveMediaResource,
+} from "@sdkwork/agents-h5-core/sdk/driveUploadService";
+
+type ComposerAttachmentKind = "file" | "image" | "video" | "voice";
+
+function resolveUploadPurpose(kind: ComposerAttachmentKind): "agent-chat-attachment" | "agent-chat-image" | "agent-chat-video" | "agent-chat-voice" {
+  switch (kind) {
+    case "image":
+      return "agent-chat-image";
+    case "video":
+      return "agent-chat-video";
+    case "voice":
+      return "agent-chat-voice";
+    default:
+      return "agent-chat-attachment";
+  }
+}
+
+/** Hydrates short-lived delivery URLs for Drive-backed media so bubbles render. */
+function useDriveMediaUrlHydration(
+  messages: ChatMessage[],
+  patchMessage: (messageId: string, updater: (message: ChatMessage) => ChatMessage) => void,
+) {
+  useEffect(() => {
+    const pending: Array<{ messageId: string; resource: AgentsH5DriveMediaResource }> = [];
+    for (const message of messages) {
+      for (const resource of message.mediaResources ?? []) {
+        if (!resource.url && resource.uri.startsWith("drive://")) {
+          pending.push({ messageId: message.id, resource });
+        }
+      }
+    }
+    if (pending.length === 0) {
+      return;
+    }
+    let cancelled = false;
+    // Bounded per pass: history pages add at most one page of media at a time.
+    for (const entry of pending.slice(0, 20)) {
+      agentsH5DriveUploadService.resolvePreviewUrl(entry.resource.uri)
+        .then((url) => {
+          if (cancelled) return;
+          patchMessage(entry.messageId, (message) => ({
+            ...message,
+            mediaResources: (message.mediaResources ?? []).map((resource) =>
+              resource.id === entry.resource.id && !resource.url ? { ...resource, url } : resource),
+          }));
+        })
+        .catch(() => {
+          // A Drive node the caller cannot read stays unrendered; the drive
+          // URI in the transcript remains the durable identity.
+        });
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [messages, patchMessage]);
+}
 
 export interface AgentChatViewProps {
   agentId: string;
@@ -59,6 +118,47 @@ function formatTime(iso: string): string {
     return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+/** Renders text plus any Drive-backed media carried by the message bubble. */
+function ChatMessageBody({ message }: { message: ChatMessage }) {
+  const media = message.mediaResources ?? [];
+  return (
+    <div className="flex flex-col gap-2">
+      {message.content ? <p className="whitespace-pre-wrap">{message.content}</p> : null}
+      {media.map((resource) => {
+        if (resource.kind === "image" && resource.url) {
+          return (
+            <img
+              key={resource.id}
+              src={resource.url}
+              alt={resource.fileName ?? "图片附件"}
+              className="max-h-64 w-auto max-w-full rounded-xl"
+              loading="lazy"
+            />
+          );
+        }
+        if (resource.kind === "video" && resource.url) {
+          return (
+            <video key={resource.id} src={resource.url} controls className="max-h-64 w-auto max-w-full rounded-xl" />
+          );
+        }
+        if (resource.kind === "voice" || resource.kind === "audio") {
+          return resource.url ? (
+            <audio key={resource.id} src={resource.url} controls className="w-full" />
+          ) : (
+            <div key={resource.id} className="text-xs opacity-70">语音消息</div>
+          );
+        }
+        return (
+          <div key={resource.id} className="flex items-center gap-2 rounded-lg bg-black/20 px-3 py-2 text-xs">
+            <Paperclip size={12} className="shrink-0" />
+            <span className="truncate">{resource.fileName ?? resource.uri}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export const AgentChatView: React.FC<AgentChatViewProps> = ({
@@ -134,6 +234,14 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
+  const patchMessage = React.useCallback(
+    (messageId: string, updater: (message: ChatMessage) => ChatMessage) => {
+      setMessages((prev) => prev.map((message) => (message.id === messageId ? updater(message) : message)));
+    },
+    [],
+  );
+  useDriveMediaUrlHydration(messages, patchMessage);
+
   const loadOlderMessages = async () => {
     if (!sessionId || loadingOlder || !hasOlderMessages || oldestLoadedCursor === null) {
       return;
@@ -169,22 +277,58 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({
     }
   };
 
-  const handleSend = async (content: string) => {
-    if (!content.trim() || isTyping || !sessionId) {
+  const handleSend = async (
+    content: string,
+    type?: "text" | "image" | "file" | "voice" | "video",
+    extraInfo?: { file?: File; fileName?: string; mimeType?: string },
+  ) => {
+    if (isTyping || !sessionId) {
       return;
+    }
+    const attachment = extraInfo?.file;
+    if (!attachment && !content.trim()) {
+      return;
+    }
+
+    let media: AgentsH5DriveMediaResource | undefined;
+    if (attachment) {
+      // Real uploads go through the Drive uploader (`DRIVE_SPEC.md` section 9);
+      // the local preview URL from the composer never reaches the transcript.
+      try {
+        media = await agentsH5DriveUploadService.upload({
+          file: attachment,
+          purpose: resolveUploadPurpose((type ?? "file") as ComposerAttachmentKind),
+          resourceId: `agents-chat:${sessionId}`,
+        });
+      } catch (uploadError) {
+        const detail = uploadError instanceof Error && uploadError.message.trim()
+          ? uploadError.message
+          : "附件上传失败，请重试";
+        toast(detail, "error");
+        return;
+      }
     }
 
     const userMessage: ChatMessage = {
       id: `local-user-${Date.now()}`,
       role: "user",
-      content: content.trim(),
+      content: media ? "" : content.trim(),
+      mediaResources: media ? [media] : undefined,
       createdAt: new Date().toISOString(),
     };
     setMessages((prev) => trimMessages([...prev, userMessage]));
     setIsTyping(true);
 
     try {
-      const assistant = await agentChatService.sendMessage(agentId, sessionId, content.trim());
+      const assistant = await agentChatService.sendMessage(
+        agentId,
+        sessionId,
+        media ? "" : content.trim(),
+        undefined,
+        undefined,
+        undefined,
+        media,
+      );
       setMessages((prev) => trimMessages([...prev, assistant]));
     } catch (sendError) {
       setMessages((prev) => prev.filter((message) => message.id !== userMessage.id));
@@ -273,7 +417,7 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({
                         : "border border-[var(--color-border-color,rgba(255,255,255,0.1))] bg-[var(--color-chat-other-bg,#262626)] text-[var(--color-text-main,#f3f4f6)]"
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    <ChatMessageBody message={message} />
                     <div className="mt-2 flex items-center justify-between gap-3 text-[11px] text-[var(--color-text-sub,#9ca3af)]">
                       <span>{formatTime(message.createdAt)}</span>
                       {!isUser ? (

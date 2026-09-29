@@ -4,12 +4,15 @@ import { toast } from './Toast';
 import { agentService } from '../services/AgentService';
 import { ModalWrapper } from './ModalWrapper';
 import { DEFAULT_AGENT_CONFIG } from './AgentDefaults';
+import { agentsH5DriveUploadService } from '@sdkwork/agents-h5-core/sdk/driveUploadService';
 
 export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (agentId?: string) => void }> = ({ isOpen, onClose, onSuccess }) => {
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [type, setType] = useState<'normal' | 'independent'>('normal');
   const [creating, setCreating] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   // Reset state when modal opens/closes
   React.useEffect(() => {
@@ -17,6 +20,8 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
       setName('');
       setDesc('');
       setType('normal');
+      setAvatarPreview('');
+      setAvatarFile(null);
     }
   }, [isOpen]);
 
@@ -41,6 +46,16 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
                   description: desc,
                   type,
                 });
+                if (avatarFile && createdAgent.id) {
+                  // Persist first, upload second, then attach the Drive
+                  // reference (`DRIVE_SPEC.md` section 18.3).
+                  const media = await agentsH5DriveUploadService.upload({
+                    file: avatarFile,
+                    purpose: 'agent-avatar',
+                    resourceId: createdAgent.id,
+                  });
+                  await agentService.updateAgent(createdAgent.id, { avatar: media.uri });
+                }
                 toast(`智能体 "${name}" 创建成功`, 'success');
                 onSuccess(createdAgent.id);
               } catch (error) {
@@ -59,9 +74,16 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
         {/* Avatar Upload */}
         <div className="flex flex-col items-center justify-center">
           <label className="w-20 h-20 rounded-full bg-[#181818] border border-white/10 flex items-center justify-center cursor-pointer hover:bg-white/5 transition-colors group relative overflow-hidden mb-2">
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="头像预览" className="w-full h-full object-cover" />
+            ) : null}
             <input type="file" className="hidden" accept="image/*" onChange={(e) => {
-               if (e.target.files && e.target.files.length > 0) {
-                 toast('头像已更新', 'success');
+               const file = e.target.files?.[0];
+               if (file) {
+                 // Local object URL is a transient preview only; the upload
+                 // happens after the agent is persisted (section 18.3).
+                 setAvatarFile(file);
+                 setAvatarPreview(URL.createObjectURL(file));
                }
             }} />
             <Camera size={24} className="text-gray-400 group-hover:text-gray-200 transition-colors" />

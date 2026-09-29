@@ -4,14 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts",
-      "default": "./src/index.ts"
-    },
     "./sdk": "./src/sdk/index.ts",
     "./sdk/agentsAppSdkClient": "./src/sdk/agentsAppSdkClient.ts",
     "./sdk/driveAppSdkClient": "./src/sdk/driveAppSdkClient.ts",
+    "./sdk/driveUploadService": "./src/sdk/driveUploadService.ts",
+    "./sdk/uploadDeclaration": "./src/sdk/uploadDeclaration.ts",
     "./sdk/knowledgebaseAppSdkClient": "./src/sdk/knowledgebaseAppSdkClient.ts",
     "./sdk/skillsAppSdkClient": "./src/sdk/skillsAppSdkClient.ts",
     "./sdk/voiceAppSdkClient": "./src/sdk/voiceAppSdkClient.ts",
@@ -19,7 +16,12 @@
     "./modules": "./src/modules/index.ts",
     "./host": "./src/host/index.ts",
     "./session": "./src/session/index.ts",
-    "./composition": "./src/composition/index.ts"
+    "./composition": "./src/composition/index.ts",
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
   },
   "dependencies": {
     "@sdkwork/agents-app-sdk": "workspace:*",

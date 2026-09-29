@@ -9,19 +9,41 @@ export const EditBasicInfoModal: React.FC<{
   initialName: string;
   initialDesc: string;
   initialAvatar: string;
-  onSave: (name: string, desc: string, avatar: string) => void;
-}> = ({ isOpen, onClose, initialName, initialDesc, initialAvatar, onSave }) => {
+  onSave: (name: string, desc: string, avatar: string, avatarUri?: string) => void;
+  /** Uploads a picked avatar through the Drive uploader; returning the Drive
+   *  media resource keeps the persisted avatar a stable drive URI. */
+  onUploadAvatar?: (file: File) => Promise<{ uri: string; url?: string }>;
+}> = ({ isOpen, onClose, initialName, initialDesc, initialAvatar, onSave, onUploadAvatar }) => {
   const [tempName, setTempName] = useState(initialName);
   const [tempDesc, setTempDesc] = useState(initialDesc);
   const [tempAvatar, setTempAvatar] = useState(initialAvatar);
+  const [tempAvatarUri, setTempAvatarUri] = useState<string | undefined>(undefined);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   React.useEffect(() => {
     if (isOpen) {
       setTempName(initialName);
       setTempDesc(initialDesc);
       setTempAvatar(initialAvatar);
+      setTempAvatarUri(undefined);
     }
   }, [isOpen, initialName, initialDesc, initialAvatar]);
+
+  const handleAvatarFile = async (file: File) => {
+    if (!onUploadAvatar) return;
+    setAvatarUploading(true);
+    try {
+      const media = await onUploadAvatar(file);
+      setTempAvatar(media.url ?? media.uri);
+      setTempAvatarUri(media.uri);
+      toast('头像上传成功', 'success');
+    } catch (error) {
+      const detail = error instanceof Error && error.message.trim() ? error.message : '';
+      toast(detail || '头像上传失败，请重试', 'error');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -43,12 +65,11 @@ export const EditBasicInfoModal: React.FC<{
               ) : (
                 <Bot size={32} className="text-gray-500" />
               )}
-              <input type="file" className="hidden" accept="image/*" onChange={(e) => {
-                 if (e.target.files && e.target.files.length > 0) {
-                   const file = e.target.files[0];
-                   const url = URL.createObjectURL(file);
-                   setTempAvatar(url);
-                   toast('头像上传成功', 'success');
+              <input type="file" className="hidden" accept="image/*" disabled={avatarUploading} onChange={(e) => {
+                 const file = e.target.files?.[0];
+                 if (file) {
+                   void handleAvatarFile(file);
+                   e.target.value = '';
                  }
               }} />
               <div className="text-gray-400 group-hover:text-gray-200 transition-colors absolute z-10 bottom-1 text-[10px] bg-black/60 px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100">更换</div>
@@ -70,7 +91,7 @@ export const EditBasicInfoModal: React.FC<{
           <button 
             disabled={!tempName.trim()}
             onClick={() => {
-              onSave(tempName, tempDesc, tempAvatar);
+              onSave(tempName, tempDesc, tempAvatar, tempAvatarUri);
             }} 
             className="px-4 py-2 rounded bg-[#00b42a] hover:bg-[#009a24] disabled:bg-[#00b42a]/50 text-white transition-colors text-sm"
           >保存</button>

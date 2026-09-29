@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "appId": "sdkwork-agents",
+  "declarations": [
+    {
+      "appResourceType": "agent.avatar",
+      "appResourceIdKind": "entity",
+      "scene": "agent-profile",
+      "source": "sdkwork-agents-h5",
+      "uploadProfileCode": "avatar",
+      "retention": "long_term",
+      "purpose": "Agent profile avatar image uploaded from the mobile agent settings surface so the agent can be rendered with a stable portrait."
+    },
+    {
+      "appResourceType": "agent.session_attachment",
+      "appResourceIdKind": "entity",
+      "scene": "agent-chat",
+      "source": "sdkwork-agents-h5",
+      "uploadProfileCode": "attachment",
+      "retention": "long_term",
+      "purpose": "Generic file attached to an agent chat session from the mobile chat surface and indexed into the agent chat file library."
+    },
+    {
+      "appResourceType": "agent.session_image",
+      "appResourceIdKind": "entity",
+      "scene": "agent-chat",
+      "source": "sdkwork-agents-h5",
+      "uploadProfileCode": "image",
+      "retention": "long_term",
+      "purpose": "Image attached to an agent chat session from the mobile chat surface and indexed into the agent chat file library."
+    },
+    {
+      "appResourceType": "agent.session_video",
+      "appResourceIdKind": "entity",
+      "scene": "agent-chat",
+      "source": "sdkwork-agents-h5",
+      "uploadProfileCode": "video",
+      "retention": "long_term",
+      "purpose": "Video attached to an agent chat session from the mobile chat surface and indexed into the agent chat file library."
+    },
+    {
+      "appResourceType": "agent.session_voice",
+      "appResourceIdKind": "entity",
+      "scene": "agent-chat",
+      "source": "sdkwork-agents-h5",
+      "uploadProfileCode": "audio",
+      "retention": "long_term",
+      "purpose": "Voice recording attached to an agent chat session from the mobile chat surface and indexed into the agent chat file library."
+    }
+  ]
+}
