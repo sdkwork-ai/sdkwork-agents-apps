@@ -22,6 +22,10 @@ export interface AgentsConsoleModule {
    * agent it appends the agent id to the route and the module renders the editor
    * for it; without an id the same module renders the creation flow, so create
    * and edit can never drift into two different forms.
+   *
+   * It also marks the module as a *flow* rather than a *section*: the embed keeps
+   * it out of the module switcher and renders no switcher while it is active, so
+   * a host can mount it on its own full-bleed route with the form as the page.
    */
   editsAgent?: boolean;
 }

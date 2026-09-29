@@ -1,0 +1,17 @@
+/*
+ * Theming seam for the shared `UnifiedAgentModelSelector` inside the agent
+ * editor's "模型与策略" card.
+ *
+ * `@sdkwork/models-pc-picker` renders its trigger with a dark-surface text
+ * colour baked into the class (`color: #d9d9de`) because its own consumers are
+ * dark consoles. The editor's card is `bg-white` in light theme, where that
+ * grey is nearly invisible, and a parent's `color` cannot win against a colour
+ * declared on the element's own class.
+ *
+ * So the host pins the trigger to the surrounding text colour. Everything else
+ * the picker draws — the portalled menu, the custom-model dialog — is a floating
+ * dark surface by design and is left alone.
+ */
+.sdkwork-agent-model-panel .sdkwork-unified-model-trigger {
+  color: inherit;
+}

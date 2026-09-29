@@ -1,4 +1,4 @@
-import { Code2, Cpu, Globe } from "lucide-react";
+import { Code2, Globe } from "lucide-react";
 import { createElement } from "react";
 
 import {
@@ -14,16 +14,13 @@ import {
 } from "@sdkwork/agents-pc-core/sdk/pagination";
 
 import type { ToolItem } from "../components/SelectToolsModal";
+import { engineKeyToVendorLabel, type ModelCatalogItem } from "./modelCatalog";
 
-export interface ModelCatalogItem {
-  id: string;
-  label: string;
-  description: string;
-  providerId: string;
-  engineKey: string;
-  bindingId: string;
-  defaultForEngine: boolean;
-}
+// The catalog shape and its engine labels live in `./modelCatalog` so pure
+// adaptation code can use them without this module's SDK client. Re-exported
+// here because this is the module every existing caller reaches for.
+export type { ModelCatalogItem } from "./modelCatalog";
+export { engineKeyToVendorLabel };
 
 export interface McpCatalogPage {
   items: ToolItem[];
@@ -148,22 +145,4 @@ export async function loadAgentEngineToolItems(
 ): Promise<ToolItem[]> {
   const agentEngines = await client.ai.agents.agentEngines.list();
   return agentEngines.engines.map(mapAgentEngineRecord);
-}
-
-export function engineKeyToVendorLabel(engineKey: string): string {
-  const labels: Record<string, string> = {
-    codex: "OpenAI Codex",
-    "claude-code": "Anthropic",
-    gemini: "Google",
-    opencode: "OpenCode",
-    openclaw: "OpenClaw",
-    hermes: "Hermes",
-    "mimo-code": "MiMo Code",
-    rig: "Rig",
-  };
-  return labels[engineKey] ?? engineKey;
-}
-
-export function modelCatalogVendorIcon(_engineKey: string): React.ReactNode {
-  return createElement(Cpu, { size: 14 });
 }

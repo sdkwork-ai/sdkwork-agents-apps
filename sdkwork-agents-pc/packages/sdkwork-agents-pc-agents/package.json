@@ -38,6 +38,8 @@
     "@sdkwork/agents-pc-chat": "workspace:*",
     "@sdkwork/agents-pc-commons": "workspace:*",
     "@sdkwork/agents-pc-core": "workspace:*",
+    "@sdkwork/models-pc-picker": "workspace:*",
+    "@sdkwork/memory-pc-commons": "workspace:*",
     "@sdkwork/utils": "workspace:*",
     "@tiptap/core": "catalog:",
     "@tiptap/extension-placeholder": "catalog:",
@@ -48,6 +50,7 @@
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "react-i18next": "catalog:"
   }
 }

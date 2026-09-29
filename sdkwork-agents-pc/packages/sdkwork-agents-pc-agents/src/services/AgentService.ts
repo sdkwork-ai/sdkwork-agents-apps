@@ -1,5 +1,6 @@
 import {
   getAgentsAppSdkClientWithSession,
+  type AgentCompositionSlotRecord,
   type SdkworkAgentsAppClient,
 } from '@sdkwork/agents-pc-core/sdk/agentsAppSdkClient';
 import type {
@@ -9,10 +10,12 @@ import type {
   CreateAgentRequest,
   UpdateAgentRequest,
 } from '@sdkwork/agents-pc-core/sdk';
-import { syncAgentCompositionSlots } from './CompositionSlotSyncService';
+import { AGENT_MEMORY_SLOT_ID, syncAgentCompositionSlots } from './CompositionSlotSyncService';
+import { resolveAgentMemorySlotDirective } from './agentMemoryModel';
 import { createAgentBusinessId, createAgentExecutionId } from './businessIdentifiers';
 import {
   DEFAULT_LIST_PAGE_SIZE,
+  syncAllOffsetPages,
   toOffsetPageInfo,
   type OffsetPageInfo,
 } from '@sdkwork/agents-pc-core/sdk/pagination';
@@ -34,6 +37,16 @@ export interface AgentConfig {
   debugMode?: boolean;
   jsonMode?: boolean;
   memoryEnabled?: boolean;
+  /**
+   * Memory space attached to this agent (synced to the `slotKind: memory`
+   * composition slot).
+   *
+   * Resolved by the editor rather than by the API: when the user picks no
+   * memory, the editor attaches the user's default memory, which is the one
+   * `spaceType: personal` space Memory reserves for a principal. Absent means
+   * "no memory attached", which is what a disabled 连续性长记忆 produces.
+   */
+  memorySpaceId?: string;
   model?: string;
   temperature?: number;
   suggestedPrompts?: string[];
@@ -87,6 +100,13 @@ export interface AgentService {
     q?: string;
   }): Promise<AgentListPage>;
   getAgent(id: string): Promise<AgentConfig | null>;
+  /**
+   * The memory space attached to an agent, read from its composition slot.
+   *
+   * The attachment lives in Memory — the agent record only names it — so this is
+   * a second call and is therefore kept out of {@link getAgent}.
+   */
+  getAgentMemorySpaceId(agentId: string): Promise<string | undefined>;
   deleteAgent(id: string): Promise<void>;
   requestPreviewResponse(request: AgentPreviewResponseRequest): Promise<AgentPreviewResponse>;
   optimizePrompt(request: AgentPromptOptimizeRequest): Promise<AgentPromptOptimizeResult>;
@@ -726,7 +746,12 @@ class SdkworkAgentService implements AgentService {
       buildCreateAgentRequest(config, agentId),
     );
     const saved = normalizeAgentFromAgentRecord(response);
-    await syncAgentCompositionSlots(this.getAgentClient(), saved.id ?? agentId, saved);
+    await syncAgentCompositionSlots(
+      this.getAgentClient(),
+      saved.id ?? agentId,
+      saved,
+      resolveAgentMemorySlotDirective(config),
+    );
     return saved;
   }
 
@@ -742,8 +767,29 @@ class SdkworkAgentService implements AgentService {
       buildUpdateAgentRequest(id, mergedConfig),
     );
     const saved = normalizeAgentFromAgentRecord(response);
-    await syncAgentCompositionSlots(this.getAgentClient(), id, saved);
+    await syncAgentCompositionSlots(
+      this.getAgentClient(),
+      id,
+      saved,
+      resolveAgentMemorySlotDirective({ ...mergedConfig, ...config }),
+    );
     return saved;
+  }
+
+  /**
+   * The memory space currently attached to an agent, if any.
+   *
+   * Read from the composition slot rather than from the agent record, because the
+   * memory attachment lives in Memory: the agent only names the space. Loaded on
+   * demand by the editor, so agents listed or chatted with pay nothing for it.
+   */
+  async getAgentMemorySpaceId(agentId: string): Promise<string | undefined> {
+    const slots = await syncAllOffsetPages<AgentCompositionSlotRecord>(
+      (params) => this.getAgentClient().ai.agents.compositionSlots.list(agentId, params),
+      {},
+    );
+    const attached = slots.find((slot) => slot.slotId === AGENT_MEMORY_SLOT_ID)?.targetRef;
+    return attached?.trim() || undefined;
   }
 
   async publishAgent(id: string): Promise<void> {

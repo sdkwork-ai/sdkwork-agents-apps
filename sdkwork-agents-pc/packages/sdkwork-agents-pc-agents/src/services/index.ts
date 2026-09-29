@@ -1,4 +1,17 @@
 export { agentService, parseAgentCatalogSnapshot } from './AgentService';
+export {
+  AgentMemoryError,
+  AgentMemoryService,
+  DEFAULT_MEMORY_SPACE_TYPE,
+  MAX_CLONED_RECORDS,
+  USER_MEMORY_SPACE_TYPE_PREFIX,
+  agentMemoryService,
+  createUserMemorySpaceType,
+} from './AgentMemoryService';
+export type {
+  AgentMemoryOption,
+  CloneAgentMemoryResult,
+} from './AgentMemoryService';
 export { agentChatService } from './AgentChatService';
 export { agentProjectService } from './AgentProjectService';
 export type {

@@ -95,7 +95,23 @@ export function AgentsConsoleEmbed({
     findAgentsConsoleModuleById(target.moduleId)
     ?? modules.find((candidate) => candidate.id === target.moduleId)
     ?? modules[0];
-  const showModuleSwitcher = modules.length > 1;
+
+  /**
+   * Modules the switcher offers: the sections a user toggles between.
+   *
+   * An agent-editing module is a *flow*, not a section — it is entered from a
+   * create or configure action and left through its own back control. Listing it
+   * next to the list module would present "create" as a second view of "my
+   * agents" rather than as the thing the create button does.
+   */
+  const switcherModules = modules.filter((candidate) => !candidate.editsAgent);
+  /**
+   * A flow module renders the form and nothing else. A host that mounts it on its
+   * own full-bleed route then gets a page whose only controls are the form's own
+   * header, and a host that keeps it inside its shell does not get a tab strip
+   * wrapped around a form the user is already inside.
+   */
+  const showModuleSwitcher = !activeModule?.editsAgent && switcherModules.length > 1;
 
   const openEditor = useCallback(
     (nextAgentId?: string) => navigate({ moduleId: 'editor', agentId: nextAgentId }),
@@ -123,7 +139,7 @@ export function AgentsConsoleEmbed({
           className="sdkwork-agents-console-nav"
           role="tablist"
         >
-          {modules.map((candidate) => (
+          {switcherModules.map((candidate) => (
             <button
               aria-selected={candidate.id === activeModule.id}
               className={
@@ -142,7 +158,21 @@ export function AgentsConsoleEmbed({
         </nav>
       ) : null}
 
-      <div className="min-h-0 w-full flex-1">
+      {/*
+       * The content area is a flex *container*, not just a flex item.
+       *
+       * It already stretches to fill the space under the nav (`flex-1` on a column
+       * flex parent), but a module root that fills with `flex-1` needs this element
+       * to be a flex parent too, or its `flex-1` is inert: the root would fall back
+       * to content height instead of the height it was given. That showed up as a
+       * form shorter than the viewport — an empty band above the page background —
+       * or, on a shorter viewport, as a clipped bottom because the host frame clips.
+       * Modules that size themselves with `h-full` (the manager page) work either
+       * way, so `flex flex-col` here makes both conventions valid instead of picking
+       * one.
+       */}
+      <div className="flex min-h-0 w-full flex-1 flex-col">
+
         {activeModule.editsAgent ? (
           <CreateAgentView
             hiddenCapabilities={editorHiddenCapabilities}

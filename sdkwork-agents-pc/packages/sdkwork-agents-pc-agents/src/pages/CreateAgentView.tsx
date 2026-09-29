@@ -1,6 +1,11 @@
-import React, { useState, useRef, useEffect, ReactNode } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ChevronLeft, Save, Bot, Brain, Database, Settings2, Sparkles, Edit2, RotateCcw, Copy, Check, Trash2, Mic, Plug, Wand2, MessageSquare, AlertCircle, RefreshCw, ChevronDown, Wrench, Layers, TerminalSquare, Brackets, FileText, PlayCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import {
+  UnifiedAgentModelSelector,
+  type UnifiedAgentModelSelectorMessages,
+} from '@sdkwork/models-pc-picker';
 import { Avatar, IconButton } from '@sdkwork/agents-pc-commons';
 import { LazyMessageInput } from '../components/LazyMessageInput';
 import { agentsDriveUploadService } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
@@ -8,10 +13,22 @@ import { toast } from '../components/Toast';
 import { agentService, type AgentConfig } from '../services/AgentService';
 import { EditBasicInfoModal } from '../components/EditBasicInfoModal';
 import { SelectVoiceModal } from '../components/SelectVoiceModal';
-import { SelectModelPopover } from '../components/SelectModelPopover';
 import { SelectKnowledgeModal } from '../components/SelectKnowledgeModal';
 import { SelectToolsModal, type ToolItem } from '../components/SelectToolsModal';
 import { loadRuntimeModelCatalog, type ModelCatalogItem } from '../services/RuntimeCatalogService';
+import {
+  resolveActiveAgentModelProviderId,
+  resolveSelectedAgentModelOptionId,
+  toUnifiedAgentModelOptions,
+  toUnifiedAgentProviderOptions,
+} from '../services/agentModelSelectorCatalog';
+import { buildAgentModelSelectorMessages } from './agentModelSelectorMessages';
+import './agentModelPanelTheme.css';
+import {
+  MemorySpacePicker,
+  type MemoryPickerSpace,
+} from '@sdkwork/memory-pc-commons';
+import { agentMemoryService, MAX_CLONED_RECORDS } from '../services/AgentMemoryService';
 import { SelectSkillsModal, type SkillItem } from '../components/SelectSkillsModal';
 import { DEFAULT_AGENT_CONFIG } from '../components/AgentDefaults';
 import { createDefaultAvatar } from '../services/DefaultAvatarService';
@@ -30,6 +47,29 @@ function mergeCapabilitySnapshots<T extends { id: string }>(
   return selectedIds
     .map((id) => byId.get(id))
     .filter((item): item is T => Boolean(item));
+}
+
+/**
+ * Surfaces the server's problem detail when it has one.
+ *
+ * The Memory app-api answers a rejected write with a `detail`/`message` body;
+ * replacing that with a generic string would hide the only actionable part
+ * (quota reached, slug collision, owner mismatch). Non-Error throwables still
+ * fall back to text, because `throw "..."` shows up in the wild.
+ */
+function describeMemoryFailure(error: unknown): string {
+  if (error && typeof error === 'object') {
+    const candidate = error as { detail?: unknown; message?: unknown; error?: unknown };
+    for (const value of [candidate.detail, candidate.message, candidate.error]) {
+      if (typeof value === 'string' && value.trim()) {
+        return value;
+      }
+    }
+  }
+  if (typeof error === 'string' && error.trim()) {
+    return error;
+  }
+  return '未知错误';
 }
 
 export interface CreateAgentViewProps {
@@ -198,6 +238,7 @@ const CapabilityBlock: React.FC<{
 };
 
 export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hiddenCapabilities, initialAgentId }) => {
+  const { t } = useTranslation('common');
   const [prompt, setPrompt] = useState('你是一个专业的代码助手...');
   const [name, setName] = useState('新智能体');
   const [desc, setDesc] = useState('这是一个新创建的智能体');
@@ -216,11 +257,10 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  const [isModelPopoverOpen, setIsModelPopoverOpen] = useState(false);
+  const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
   const [isKnowledgeModalOpen, setIsKnowledgeModalOpen] = useState(false);
   const [isToolsModalOpen, setIsToolsModalOpen] = useState(false);
   const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
-  const modelTriggerRef = useRef<HTMLDivElement>(null);
   
   const [selectedVoiceIds, setSelectedVoiceIds] = useState<string[]>(DEFAULT_AGENT_CONFIG.voiceIds);
   const [selectedKnowledgeIds, setSelectedKnowledgeIds] = useState<string[]>(DEFAULT_AGENT_CONFIG.knowledgeBaseIds);
@@ -237,6 +277,14 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
   const [skillSnapshots, setSkillSnapshots] = useState<SkillItem[]>([]);
   const [availableModels, setAvailableModels] = useState<ModelCatalogItem[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
+  const [memoryOptions, setMemoryOptions] = useState<MemoryPickerSpace[]>([]);
+  const [memoriesLoading, setMemoriesLoading] = useState(false);
+  const [memoriesError, setMemoriesError] = useState('');
+  const [memoryBusyKey, setMemoryBusyKey] = useState<string | undefined>(undefined);
+  const [isMemoryPickerOpen, setIsMemoryPickerOpen] = useState(false);
+  // `null` means "the user named no memory", which is exactly the state the
+  // default memory is attached for.
+  const [chosenMemorySpaceId, setChosenMemorySpaceId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -267,6 +315,128 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
       cancelled = true;
     };
   }, []);
+
+  // Model selection is `sdkwork-models`' UI: the editor only adapts the runtime
+  // engine catalog to the picker's shape and feeds back the chosen model id.
+  // Deriving the four props from state (rather than storing them) keeps the
+  // picker's selection and the persisted `model` field from drifting apart.
+  const modelSelectorMessages = useMemo(
+    () => buildAgentModelSelectorMessages(t),
+    [t],
+  );
+  const modelProviderOptions = useMemo(
+    () => toUnifiedAgentProviderOptions(availableModels),
+    [availableModels],
+  );
+  const modelOptions = useMemo(
+    () => toUnifiedAgentModelOptions(
+      availableModels,
+      t('agentsConsoleModelSelector.defaultModelLabel', '默认模型'),
+    ),
+    [availableModels, t],
+  );
+  const selectedModelOptionId = useMemo(
+    () => resolveSelectedAgentModelOptionId(availableModels, model),
+    [availableModels, model],
+  );
+  const activeModelProviderId = useMemo(
+    () => resolveActiveAgentModelProviderId(availableModels, model, modelProviderOptions),
+    [availableModels, model, modelProviderOptions],
+  );
+  // The trigger's own label; falls back to the stored id so an agent whose model
+  // has been retired from the catalog still shows what it is bound to.
+  const selectedModelLabel = useMemo(
+    () => modelOptions.find((option) => option.id === selectedModelOptionId)?.label ?? model,
+    [model, modelOptions, selectedModelOptionId],
+  );
+  const selectedModelVendorLabel = useMemo(
+    () => modelOptions.find((option) => option.id === selectedModelOptionId)?.vendorName ?? '',
+    [modelOptions, selectedModelOptionId],
+  );
+
+  // Memory attachment. The user owns many memories and one of them is the
+  // default; the default is what an agent gets when the user names none, so the
+  // editor resolves the attachment here rather than persisting a "no choice"
+  // marker for the runtime to interpret.
+  const loadMemories = useCallback(async () => {
+    setMemoriesLoading(true);
+    setMemoriesError('');
+    try {
+      const memories = await agentMemoryService.listUserMemories();
+      setMemoryOptions(memories.map((memory) => ({
+        spaceId: memory.spaceId,
+        displayName: memory.displayName,
+        spaceType: memory.spaceType,
+        isDefault: memory.isDefault,
+      })));
+    } catch (error) {
+      console.error('Failed to load memories:', error);
+      // Deliberately not a toast: a host that does not serve the Memory app-api
+      // still renders this editor, and a failed memory catalog must not look
+      // like a failed agent editor.
+      setMemoriesError('无法加载记忆列表，请稍后重试。');
+    } finally {
+      setMemoriesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadMemories();
+  }, [loadMemories]);
+
+  const defaultMemorySpaceId = memoryOptions.find((memory) => memory.isDefault)?.spaceId;
+  const attachedMemorySpaceId = memoryEnabled
+    ? chosenMemorySpaceId ?? defaultMemorySpaceId
+    : undefined;
+  const attachedMemory = memoryOptions.find((memory) => memory.spaceId === attachedMemorySpaceId);
+
+  const handleAttachMemory = async (spaceId: string) => {
+    setMemoryBusyKey(spaceId);
+    try {
+      setChosenMemorySpaceId(spaceId);
+      setIsMemoryPickerOpen(false);
+      toast(`已挂接记忆：${memoryOptions.find((memory) => memory.spaceId === spaceId)?.displayName ?? spaceId}`, 'success');
+    } finally {
+      setMemoryBusyKey(undefined);
+    }
+  };
+
+  const handleCreateMemory = async (displayName: string) => {
+    setMemoryBusyKey('__create__');
+    try {
+      const created = await agentMemoryService.createMemory(displayName);
+      await loadMemories();
+      setChosenMemorySpaceId(created.spaceId);
+      setIsMemoryPickerOpen(false);
+      toast(`已新建并挂接记忆：${created.displayName}`, 'success');
+    } catch (error) {
+      console.error('Failed to create memory:', error);
+      setMemoriesError(`新建记忆失败：${describeMemoryFailure(error)}`);
+    } finally {
+      setMemoryBusyKey(undefined);
+    }
+  };
+
+  const handleCloneMemory = async (sourceSpaceId: string, displayName: string) => {
+    setMemoryBusyKey('__create__');
+    try {
+      const result = await agentMemoryService.cloneMemory(sourceSpaceId, displayName);
+      await loadMemories();
+      setChosenMemorySpaceId(result.space.spaceId);
+      setIsMemoryPickerOpen(false);
+      toast(
+        result.truncated
+          ? `已克隆并挂接「${result.space.displayName}」，但源记忆超过 ${MAX_CLONED_RECORDS} 条，仅复制了前 ${result.copiedRecords} 条`
+          : `已克隆并挂接「${result.space.displayName}」（${result.copiedRecords} 条记忆）`,
+        result.truncated ? 'error' : 'success',
+      );
+    } catch (error) {
+      console.error('Failed to clone memory:', error);
+      setMemoriesError(`克隆记忆失败：${describeMemoryFailure(error)}`);
+    } finally {
+      setMemoryBusyKey(undefined);
+    }
+  };
 
   const selectedVoicesData = voiceSnapshots.filter(v => selectedVoiceIds.includes(v.id));
   const selectedKbsData = kbSnapshots.filter(kb => selectedKnowledgeIds.includes(kb.id));
@@ -352,6 +522,22 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
         const nextWelcomeMessage = agent.welcomeMessage ?? DEFAULT_AGENT_WELCOME_MESSAGE;
         setWelcomeMessage(nextWelcomeMessage);
         setTestMessages([createAgentWelcomeTestMessage(nextWelcomeMessage)]);
+        // The attachment lives on a composition slot, not on the agent record,
+        // so it is fetched separately. A slot read failure must not abort the
+        // rest of the form: the user still gets an editable agent, and the
+        // memory panel simply shows the default.
+        if (agent.memoryEnabled !== false) {
+          try {
+            const memorySpaceId = await agentService.getAgentMemorySpaceId(agent.id);
+            if (!cancelled && memorySpaceId) {
+              setChosenMemorySpaceId(memorySpaceId);
+            }
+          } catch {
+            if (!cancelled) {
+              console.error('Failed to load agent memory attachment');
+            }
+          }
+        }
       } catch {
         if (cancelled) {
           return;
@@ -370,7 +556,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
     avatarPreviewUrl || (!avatar.startsWith('drive://') ? avatar : '') || DEFAULT_AGENT_AVATAR
   );
 
-  const buildCurrentAgentConfig = (agentId?: string): AgentConfig => ({
+  const buildCurrentAgentConfig = (agentId?: string, memorySpaceId?: string): AgentConfig => ({
     ...(agentId ? { id: agentId } : {}),
     name,
     description: desc,
@@ -382,6 +568,11 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
     debugMode,
     jsonMode,
     memoryEnabled,
+    // Only send a space when one is actually attached. `memoryEnabled: false`
+    // already means "detach"; sending an id alongside it would contradict
+    // itself, and an unresolvable catalog (Memory app-api not served here) must
+    // leave any existing attachment alone rather than delete it.
+    ...(memoryEnabled && memorySpaceId ? { memorySpaceId } : {}),
     model,
     temperature,
     suggestedPrompts,
@@ -390,6 +581,40 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
     skillIds: selectedSkillIds,
     mcpServerKeys: selectedMcpServerKeys,
   });
+
+  /**
+   * The memory this agent should be attached to once the form is saved.
+   *
+   * A user who never picks a memory gets the default one, so this is where "the
+   * default memory" stops being a UI concept and becomes a `space_id`. When the
+   * user owns no default yet it is created here: saving with memory switched on
+   * is the user asking for one, and an attachment naming a space Memory never
+   * provisioned would resolve to nothing at runtime.
+   *
+   * A failure here is deliberately non-fatal and returns `undefined`, which the
+   * save path turns into "leave the existing attachment alone": a Memory outage
+   * must not stop the user from saving the agent they were editing.
+   */
+  const resolveMemoryAttachmentForSave = async (): Promise<string | undefined> => {
+    if (!memoryEnabled) {
+      return undefined;
+    }
+    if (chosenMemorySpaceId) {
+      return chosenMemorySpaceId;
+    }
+    if (defaultMemorySpaceId) {
+      return defaultMemorySpaceId;
+    }
+    try {
+      const created = await agentMemoryService.ensureDefaultMemory();
+      setChosenMemorySpaceId(created.spaceId);
+      void loadMemories();
+      return created.spaceId;
+    } catch (error) {
+      console.error('Failed to provision the default memory:', error);
+      return undefined;
+    }
+  };
 
   const resolveMutableAgentId = (): string | undefined => {
     if (draftId) {
@@ -402,7 +627,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
   };
 
   const persistCurrentAgentConfig = async (agentId?: string): Promise<AgentConfig> => {
-    const config = buildCurrentAgentConfig(agentId);
+    const config = buildCurrentAgentConfig(agentId, await resolveMemoryAttachmentForSave());
     if (agentId) {
       const updatedAgent = await agentService.updateAgent(agentId, config);
       return {
@@ -637,21 +862,34 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
               defaultExpanded={true}
             >
               <div className="space-y-4 p-4 bg-transparent border-t border-slate-200 dark:border-white/5">
-                <div 
-                  ref={modelTriggerRef}
-                  onClick={() => setIsModelPopoverOpen(true)}
-                  className="bg-white dark:bg-[#1C1C1E] border border-slate-300 dark:border-white/10 rounded-lg p-2.5 flex items-center justify-between cursor-pointer hover:border-blue-500/40 transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-md bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 border border-blue-500/20 group-hover:scale-105 transition-transform">
-                      <Brain size={13} />
+                <div className="sdkwork-agent-model-panel bg-white dark:bg-[#1C1C1E] border border-slate-300 dark:border-white/10 rounded-lg p-2.5 flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-md bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 border border-blue-500/20">
+                    <Brain size={13} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-medium text-slate-800 dark:text-gray-200 leading-none mb-1 truncate" title={selectedModelLabel}>
+                      {selectedModelLabel}
                     </div>
-                    <div>
-                      <div className="text-[13px] font-medium text-slate-800 dark:text-gray-200 leading-none mb-1">{model}</div>
-                      <div className="text-[10px] text-slate-500 dark:text-gray-500 leading-none">点击切换模型引擎</div>
+                    <div className="text-[10px] text-slate-500 dark:text-gray-500 leading-none truncate">
+                      {modelsLoading
+                        ? '正在加载模型目录…'
+                        : selectedModelVendorLabel || '点击切换模型引擎'}
                     </div>
                   </div>
-                  <div className="text-[11px] bg-slate-900/5 dark:bg-white/5 px-2 py-0.5 rounded text-blue-400 font-medium">更改</div>
+                  <UnifiedAgentModelSelector
+                    activeProviderId={activeModelProviderId}
+                    fallbackLabel={model}
+                    messages={modelSelectorMessages}
+                    onOpenChange={setIsModelSelectorOpen}
+                    onSelectModelOption={(option) => {
+                      setModel(option.modelId);
+                      toast(`已切换模型引擎：${option.label}`, 'success');
+                    }}
+                    open={isModelSelectorOpen}
+                    options={modelOptions}
+                    providerOptions={modelProviderOptions}
+                    selectedModelOptionId={selectedModelOptionId}
+                  />
                 </div>
                 <div>
                   <div className="flex justify-between text-[11px] font-medium mb-2">
@@ -716,11 +954,62 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
                           <span className="text-blue-400 mr-1">TIPS:</span> 启用后，智能体将使用专属向量空间存储相关话题和碎片知识，减少上下文窗口浪费。
                         </div>
                       </div>
+                      <div className="px-4 pb-4 flex flex-col gap-2 border-t border-slate-200 dark:border-white/5">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-[12px] text-slate-500 dark:text-gray-400">关联记忆</div>
+                            <div className="text-[13px] font-medium text-slate-800 dark:text-gray-200 mt-0.5 truncate">
+                              {attachedMemory?.displayName
+                                ?? (memoriesLoading ? '加载中…' : '未挂接记忆')}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsMemoryPickerOpen(true);
+                              // A host whose Memory app-api was unreachable at mount
+                              // would otherwise open an empty picker with no way out.
+                              if (memoryOptions.length === 0 && !memoriesLoading) {
+                                void loadMemories();
+                              }
+                            }}
+                            className="shrink-0 text-[11px] px-2.5 py-1.5 rounded border border-slate-200 dark:border-white/10 text-slate-600 dark:text-gray-300 hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors"
+                          >
+                            选择记忆
+                          </button>
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-gray-500 leading-relaxed">
+                          {attachedMemory?.isDefault
+                            ? '当前挂接默认记忆：未指定其他记忆时，智能体默认使用它。'
+                            : chosenMemorySpaceId
+                              ? '已挂接指定记忆，将替代默认记忆。'
+                              : '未指定记忆时，智能体将自动挂接你的默认记忆。'}
+                        </div>
+                        {!memoriesLoading && memoryOptions.length === 0 && memoriesError && (
+                          <div className="text-[11px] leading-relaxed text-amber-600 dark:text-amber-400 bg-amber-500/5 p-2 rounded border border-amber-500/10">
+                            {memoriesError}
+                          </div>
+                        )}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             </AccordionSection>
+
+            <MemorySpacePicker
+              open={isMemoryPickerOpen}
+              onOpenChange={setIsMemoryPickerOpen}
+              spaces={memoryOptions}
+              attachedSpaceId={attachedMemorySpaceId}
+              loading={memoriesLoading}
+              errorMessage={memoriesError}
+              busyKey={memoryBusyKey}
+              onRetry={() => void loadMemories()}
+              onAttach={handleAttachMemory}
+              onCreate={(input) => void handleCreateMemory(input.displayName)}
+              onClone={(input) => void handleCloneMemory(input.sourceSpaceId, input.displayName)}
+            />
 
             {/* Capabilities Expansion -> Separate Blocks */}
             
@@ -1138,18 +1427,6 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
           setSelectedVoiceIds(ids);
           setVoiceSnapshots((prev) => mergeCapabilitySnapshots(prev, ids, items));
           toast(`配置成功：已关联 ${ids.length} 个发音人`, 'success');
-        }}
-      />
-      <SelectModelPopover
-        isOpen={isModelPopoverOpen}
-        onClose={() => setIsModelPopoverOpen(false)}
-        triggerElement={modelTriggerRef.current}
-        selectedModelId={model}
-        models={availableModels}
-        loading={modelsLoading}
-        onSave={(modelId) => {
-          setModel(modelId);
-          toast(`已切换模型引擎`, 'success');
         }}
       />
       <SelectKnowledgeModal
