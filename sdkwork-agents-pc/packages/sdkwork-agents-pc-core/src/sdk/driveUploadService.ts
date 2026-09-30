@@ -1,7 +1,6 @@
 import type {
   DriveUploaderProfile,
   DriveUploaderProgress,
-  MediaResource,
 } from "@sdkwork/drive-app-sdk";
 import { uuid } from "@sdkwork/utils";
 
@@ -32,7 +31,13 @@ export const CHAT_FILE_LIBRARY_PROPERTY_KEY = "agents.chat_file_library";
 const CHAT_FILE_LIBRARY_PROPERTY_VALUE = "1";
 const CHAT_FILE_LIBRARY_PROPERTY_VISIBILITY = "app_public";
 
-export interface AgentsDriveMediaResource extends MediaResource {
+/**
+ * Standalone media-resource shape carried by upload results.
+ *
+ * The Drive app API publishes no `MediaResource` model, so the interface is
+ * declared here instead of extending a nonexistent SDK export.
+ */
+export interface AgentsDriveMediaResource {
   id: string;
   kind: AgentsMediaKind;
   source: "drive";
