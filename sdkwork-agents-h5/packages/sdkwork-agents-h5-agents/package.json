@@ -13,6 +13,8 @@
   "dependencies": {
     "@sdkwork/agents-h5-commons": "workspace:*",
     "@sdkwork/agents-h5-core": "workspace:*",
+    "@sdkwork/drive-mobile-react-upload-image": "workspace:*",
+    "@sdkwork/drive-upload-image-core": "workspace:*",
     "@sdkwork/utils": "workspace:*",
     "@tiptap/extension-placeholder": "catalog:",
     "@tiptap/pm": "catalog:",

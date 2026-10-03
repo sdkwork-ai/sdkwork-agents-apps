@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
-import { Camera, Bot, Server } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Bot, Server } from 'lucide-react';
+import {
+  DriveUploadImage,
+  useDriveUploadImageController,
+  useDriveUploadImageSnapshot,
+} from 'sdkwork-drive-pc-upload-image';
 import { toast } from './Toast';
 import { agentService } from '../services/AgentService';
+import { createAgentAvatarUploadImageService } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
 import { ModalWrapper } from './ModalWrapper';
 import { DEFAULT_AGENT_CONFIG } from './AgentDefaults';
+
+const AVATAR_UPLOAD_COPY = {
+  pickImage: '上传头像',
+  replaceImage: '更换头像',
+  removeImage: '移除',
+  retryUpload: '重试',
+  uploading: '上传中',
+  uploadFailed: '上传失败',
+} as const;
 
 export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (agentId?: string) => void }> = ({ isOpen, onClose, onSuccess }) => {
   const [name, setName] = useState('');
@@ -11,25 +26,42 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
   const [type, setType] = useState<'normal' | 'independent'>('normal');
   const [creating, setCreating] = useState(false);
 
+  // Shared Drive image-upload service for the avatar field, from the declared
+  // `agent.avatar` upload intent (DRIVE_SPEC.md section 18).
+  const avatarUploadImageService = useMemo(() => createAgentAvatarUploadImageService(), []);
+  // The agent does not exist until 下一步 persists it, so every pick stays
+  // pending here and uploads with the created agent id (persist-first,
+  // section 18.3).
+  const avatarController = useDriveUploadImageController({
+    service: avatarUploadImageService,
+    resolveAppResourceId: () => null,
+    onFailed: (failure) => {
+      console.error('Avatar Drive upload failed', failure.error);
+      toast('头像上传失败，请检查登录状态和 Drive 服务', 'error');
+    },
+  });
+  const avatarSnapshot = useDriveUploadImageSnapshot(avatarController);
+
   // Reset state when modal opens/closes
   React.useEffect(() => {
     if (!isOpen) {
       setName('');
       setDesc('');
       setType('normal');
+      avatarController.clear();
     }
-  }, [isOpen]);
+  }, [isOpen, avatarController]);
 
   return (
-    <ModalWrapper 
-      isOpen={isOpen} 
-      onClose={onClose} 
+    <ModalWrapper
+      isOpen={isOpen}
+      onClose={onClose}
       title="创建智能体"
       width="w-[520px]"
       footer={
         <>
           <button onClick={onClose} className="px-4 py-2 rounded bg-slate-900/5 dark:bg-white/5 text-slate-700 dark:text-gray-300 hover:bg-slate-900/10 dark:hover:bg-white/10 transition-colors text-sm">取消</button>
-          <button 
+          <button
             disabled={!name.trim() || creating}
             className={`px-4 py-2 rounded text-white transition-colors text-sm flex items-center gap-1 ${name.trim() && !creating ? 'bg-[#00b42a] hover:bg-[#009a24]' : 'bg-[#00b42a]/50 cursor-not-allowed'}`}
             onClick={async () => {
@@ -41,6 +73,17 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
                   description: desc,
                   type,
                 });
+                if (createdAgent.id && avatarSnapshot.hasPending) {
+                  // Persist first, upload second, then attach the stable
+                  // drive uri to the created agent (section 18.3).
+                  const values = await avatarController.uploadPending({
+                    appResourceId: createdAgent.id,
+                  });
+                  const avatarUri = values[values.length - 1]?.uri;
+                  if (avatarUri) {
+                    await agentService.updateAgent(createdAgent.id, { avatar: avatarUri });
+                  }
+                }
                 toast(`智能体 "${name}" 创建成功`, 'success');
                 onSuccess(createdAgent.id);
               } catch (error) {
@@ -58,17 +101,13 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
       <div className="space-y-6">
         {/* Avatar Upload */}
         <div className="flex flex-col items-center justify-center">
-          <label className="w-20 h-20 rounded-full bg-slate-50 dark:bg-[#181818] border border-slate-300 dark:border-white/10 flex items-center justify-center cursor-pointer hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors group relative overflow-hidden mb-2">
-            <input type="file" className="hidden" accept="image/*" onChange={(e) => {
-               if (e.target.files && e.target.files.length > 0) {
-                 toast('头像已更新', 'success');
-               }
-            }} />
-            <Camera size={24} className="text-slate-500 dark:text-gray-400 group-hover:text-slate-800 dark:group-hover:text-gray-200 transition-colors" />
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-[11px] text-white">上传头像</span>
-            </div>
-          </label>
+          <DriveUploadImage
+            service={avatarUploadImageService}
+            controller={avatarController}
+            shape="circle"
+            sizePx={80}
+            copy={AVATAR_UPLOAD_COPY}
+          />
         </div>
 
         {/* Name */}

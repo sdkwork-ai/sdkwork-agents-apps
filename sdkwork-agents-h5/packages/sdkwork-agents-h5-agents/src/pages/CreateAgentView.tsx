@@ -16,7 +16,7 @@ import { DEFAULT_AGENT_CONFIG } from '../components/AgentDefaults';
 import { createDefaultAvatar } from '../services/DefaultAvatarService';
 import { VoiceConfig } from '../services/VoiceService';
 import type { KnowledgeBase } from '../services/KnowledgeSelectionService';
-import { agentsH5DriveUploadService } from '@sdkwork/agents-h5-core/sdk/driveUploadService';
+import { agentsH5DriveUploadService, createAgentAvatarUploadImageService } from '@sdkwork/agents-h5-core/sdk/driveUploadService';
 
 function mergeCapabilitySnapshots<T extends { id: string }>(
   previous: T[],
@@ -185,6 +185,9 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
   // Short-lived delivery URL for a Drive-backed avatar; `avatar` keeps the
   // durable drive URI that is persisted with the agent config.
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('');
+  // Shared Drive image-upload service for the avatar field; built once from
+  // the declared `agent.avatar` upload intent (DRIVE_SPEC.md section 18).
+  const avatarUploadImageService = React.useMemo(() => createAgentAvatarUploadImageService(), []);
   const [agentType, setAgentType] = useState<AgentConfig['type']>('normal');
   const [model, setModel] = useState(DEFAULT_AGENT_CONFIG.model);
   const [temperature, setTemperature] = useState(DEFAULT_AGENT_CONFIG.temperature);
@@ -1083,23 +1086,29 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, initia
         onClose={() => setIsEditModalOpen(false)}
         initialName={name}
         initialDesc={desc}
-        initialAvatar={avatarPreviewUrl || avatar}
-        onUploadAvatar={async (file) => {
+        initialAvatar={avatar}
+        avatarService={avatarUploadImageService}
+        avatarAppResourceId={() => draftId ?? undefined}
+        onEnsureAvatarAnchor={async () => {
           const persisted = await ensurePersistedAgentForRuntime();
-          if (!persisted.id) throw new Error('Persisted Agent id is required for avatar upload.');
-          return agentsH5DriveUploadService.upload({
-            file,
-            purpose: 'agent-avatar',
-            resourceId: persisted.id,
-          });
+          return persisted.id ?? null;
         }}
-        onSave={(newName, newDesc, newAvatar, newAvatarUri) => {
+        onSave={(newName, newDesc, newAvatar) => {
            setName(newName);
            setDesc(newDesc);
            // The Drive URI is the durable identity; the short-lived delivery
            // URL stays display-only.
-           setAvatar(newAvatarUri ?? newAvatar);
-           setAvatarPreviewUrl(newAvatarUri ? newAvatar : '');
+           if (newAvatar) {
+             setAvatar(newAvatar);
+             setAvatarPreviewUrl('');
+             if (newAvatar.startsWith('drive://')) {
+               agentsH5DriveUploadService.resolvePreviewUrl(newAvatar)
+                 .then((url) => setAvatarPreviewUrl(url))
+                 .catch(() => {
+                   // A node the caller cannot read stays on the default avatar.
+                 });
+             }
+           }
            setIsEditModalOpen(false);
            toast('基础信息已更新', 'success');
         }}

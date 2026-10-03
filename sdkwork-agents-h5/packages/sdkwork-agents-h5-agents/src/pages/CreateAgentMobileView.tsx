@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowLeft,
-  Camera,
   ChevronRight,
   X,
   Plus,
@@ -11,6 +10,12 @@ import {
   Zap,
   Check,
 } from 'lucide-react';
+import {
+  DriveUploadImage,
+  useDriveUploadImageController,
+  useDriveUploadImageSnapshot,
+} from '@sdkwork/drive-mobile-react-upload-image';
+import type { DriveUploadImageValue } from '@sdkwork/drive-upload-image-core';
 import { cn } from '@sdkwork/agents-h5-commons';
 import {
   agentService,
@@ -18,10 +23,33 @@ import {
   type AgentConfig,
   type ModelCatalogItem,
 } from '../services/AgentService';
-import { createDefaultAvatar } from '../services/DefaultAvatarService';
 import { toast } from '../components/Toast';
 import { t } from '../copy/mobileAgentTexts';
-import { agentsH5DriveUploadService } from '@sdkwork/agents-h5-core/sdk/driveUploadService';
+import { createAgentAvatarUploadImageService } from '@sdkwork/agents-h5-core/sdk/driveUploadService';
+
+const AVATAR_UPLOAD_COPY = {
+  pickImage: '上传头像',
+  replaceImage: '更换头像',
+  removeImage: '移除',
+  retryUpload: '重试',
+  uploading: '上传中',
+  uploadFailed: '上传失败',
+  chooseFromAlbum: '从相册选择',
+  takePhoto: '拍照',
+  cancel: '取消',
+} as const;
+
+/**
+ * Maps the persisted avatar string (a `drive://` uri, a legacy display url,
+ * or empty) onto the shared component's persist-safe value.
+ */
+function toAvatarUploadValue(avatar: string): DriveUploadImageValue | null {
+  if (!avatar) return null;
+  return {
+    uri: avatar,
+    source: avatar.startsWith('drive://') ? 'drive' : 'external',
+  };
+}
 
 export interface CreateAgentMobileViewProps {
   /** Agent id to edit; when omitted the view creates a new agent. */
@@ -52,8 +80,19 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
   const [description, setDescription] = useState('');
   const [persona, setPersona] = useState('');
   const [avatar, setAvatar] = useState('');
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarDirty, setAvatarDirty] = useState(false);
+  // Shared Drive image-upload service for the avatar field; built once from
+  // the declared `agent.avatar` upload intent (DRIVE_SPEC.md section 18).
+  const avatarUploadImageService = useMemo(() => createAgentAvatarUploadImageService(), []);
+  // Picks stay pending until 保存/发布 has persisted the agent; the upload
+  // then runs with the agent id (persist-first, section 18.3).
+  const avatarController = useDriveUploadImageController({
+    service: avatarUploadImageService,
+    resolveAppResourceId: () => null,
+    onFailed: (failure) => {
+      console.error('Failed to upload agent avatar', failure.error);
+    },
+  });
+  const avatarSnapshot = useDriveUploadImageSnapshot(avatarController);
   const [model, setModel] = useState('');
   const [modelLabel, setModelLabel] = useState('');
   const [temperature, setTemperature] = useState(PRESET_TEMPERATURE);
@@ -67,7 +106,6 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
   const [customModel, setCustomModel] = useState('');
 
   const [saving, setSaving] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadEditAgent = useCallback(async () => {
     if (!initialAgentId) return;
@@ -82,8 +120,9 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
       setDescription(agent.description ?? '');
       setPersona(agent.systemPrompt ?? '');
       setAvatar(agent.avatar ?? '');
-      setAvatarFile(null);
-      setAvatarDirty(false);
+      // Drops leftover pending/error picks; the controlled `value` re-seeds
+      // the persisted avatar.
+      avatarController.clear();
       setModel(agent.model ?? '');
       setModelLabel(agent.model ?? '');
       setTemperature(agent.temperature ?? PRESET_TEMPERATURE);
@@ -97,7 +136,7 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [initialAgentId, notify, onBack]);
+  }, [avatarController, initialAgentId, notify, onBack]);
 
   useEffect(() => {
     if (isEdit) {
@@ -133,17 +172,6 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notify]);
 
-  const handleAvatarSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    // Local object URL is a transient preview only (`DRIVE_SPEC.md` section 9);
-    // the real upload happens after the agent is persisted, with the agent id.
-    setAvatarFile(file);
-    setAvatarDirty(true);
-    setAvatar(URL.createObjectURL(file));
-    notify(t('agents.mobile.form.avatar.uploaded'), 'success');
-  };
-
   const addSuggestedPrompt = () => {
     const value = promptDraft.trim();
     if (!value) return;
@@ -158,9 +186,10 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
   const buildConfig = (): AgentConfig => ({
     name: name.trim(),
     description: description.trim(),
-    // A freshly picked avatar is uploaded after the agent is persisted
-    // (`DRIVE_SPEC.md` section 18.3), so it never travels in the config.
-    avatar: avatarDirty ? undefined : (avatar || undefined),
+    // A freshly picked avatar is still pending in the upload controller and
+    // is uploaded after the agent is persisted (`DRIVE_SPEC.md` section
+    // 18.3), so it never travels in the config.
+    avatar: avatarSnapshot.hasPending ? undefined : (avatar || undefined),
     type: 'normal',
     systemPrompt: persona.trim() || undefined,
     model: model || undefined,
@@ -193,16 +222,15 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
       } else {
         agent = await agentService.createAgent(config);
       }
-      if (avatarFile && agent.id) {
+      if (avatarSnapshot.hasPending && agent.id) {
         // Persist first, upload second, then attach the Drive reference
         // (`DRIVE_SPEC.md` section 18.3 draft-then-attach flow).
         try {
-          const media = await agentsH5DriveUploadService.upload({
-            file: avatarFile,
-            purpose: 'agent-avatar',
-            resourceId: agent.id,
-          });
-          agent = await agentService.updateAgent(agent.id, { avatar: media.uri });
+          const values = await avatarController.uploadPending({ appResourceId: agent.id });
+          const avatarUri = values[values.length - 1]?.uri;
+          if (avatarUri) {
+            agent = await agentService.updateAgent(agent.id, { avatar: avatarUri });
+          }
         } catch (uploadError) {
           console.error('Failed to upload agent avatar', uploadError);
           notify(t('agents.mobile.form.toast.updateFailed'), 'error');
@@ -306,26 +334,14 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
               <span className="text-[13px] font-medium text-[var(--color-text-sub,#6b7280)]">
                 {t('agents.mobile.form.avatar')}
               </span>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="relative w-16 h-16 rounded-2xl overflow-hidden bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10"
-              >
-                <img
-                  src={avatar || createDefaultAvatar('agent')}
-                  alt={t('agents.mobile.form.avatar')}
-                  className="w-full h-full object-cover"
-                />
-                <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 active:opacity-100 transition-opacity">
-                  <Camera className="w-5 h-5 text-white" />
-                </span>
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarSelect}
+              <DriveUploadImage
+                service={avatarUploadImageService}
+                controller={avatarController}
+                value={toAvatarUploadValue(avatar)}
+                sources={['album', 'camera']}
+                shape="rounded"
+                sizePx={64}
+                copy={AVATAR_UPLOAD_COPY}
               />
             </div>
 

@@ -38,6 +38,8 @@
     "@sdkwork/agents-pc-chat": "workspace:*",
     "@sdkwork/agents-pc-commons": "workspace:*",
     "@sdkwork/agents-pc-core": "workspace:*",
+    "@sdkwork/drive-upload-image-core": "workspace:*",
+    "sdkwork-drive-pc-upload-image": "workspace:*",
     "@sdkwork/models-pc-picker": "workspace:*",
     "@sdkwork/memory-pc-commons": "workspace:*",
     "@sdkwork/utils": "workspace:*",

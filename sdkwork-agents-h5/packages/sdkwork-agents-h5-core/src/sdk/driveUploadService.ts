@@ -2,6 +2,11 @@ import type {
   DriveUploaderProfile,
   DriveUploaderProgress,
 } from "@sdkwork/drive-app-sdk";
+import {
+  createDriveNodesImagePreviewReader,
+  createDriveUploadImageService,
+  type DriveUploadImageService,
+} from "@sdkwork/drive-upload-image-core";
 
 import {
   CHAT_FILE_LIBRARY_PROPERTY_KEY,
@@ -220,3 +225,23 @@ export class AgentsH5DriveUploadService {
 }
 
 export const agentsH5DriveUploadService = new AgentsH5DriveUploadService();
+
+/**
+ * Builds the shared Drive image-upload service behind the agent avatar field
+ * (`DRIVE_SPEC.md` section 18.3): the declared upload intent comes only from
+ * `AGENTS_H5_AVATAR_UPLOAD`, the composed uploader and the bounded preview
+ * reader share the same Drive client getter the `AgentsH5DriveUploadService`
+ * uses, and the resulting `DriveUploadImageService` is what avatar UI
+ * receives — it never composes `appResourceType`/`scene`/`source` inline and
+ * never sees the SDK client.
+ */
+export function createAgentAvatarUploadImageService(
+  getClient: () => SdkworkAgentsDriveAppClient = getDriveAppSdkClientWithSession,
+): DriveUploadImageService {
+  const client = getClient();
+  return createDriveUploadImageService({
+    uploader: client.uploader,
+    declaration: AGENTS_H5_AVATAR_UPLOAD,
+    previewReader: createDriveNodesImagePreviewReader(client.drive.nodes),
+  });
+}

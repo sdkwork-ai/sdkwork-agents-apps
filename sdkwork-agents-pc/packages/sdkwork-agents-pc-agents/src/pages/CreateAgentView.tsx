@@ -8,7 +8,7 @@ import {
 } from '@sdkwork/models-pc-picker';
 import { Avatar, IconButton } from '@sdkwork/agents-pc-commons';
 import { LazyMessageInput } from '../components/LazyMessageInput';
-import { agentsDriveUploadService } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
+import { agentsDriveUploadService, createAgentAvatarUploadImageService } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
 import { toast } from '../components/Toast';
 import { agentService, type AgentConfig } from '../services/AgentService';
 import { EditBasicInfoModal } from '../components/EditBasicInfoModal';
@@ -270,6 +270,10 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
   );
   const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>(DEFAULT_AGENT_CONFIG.skillIds);
   const [draftId, setDraftId] = useState<string | null>(initialAgentId || null);
+
+  // Shared Drive image-upload service for the avatar field; built once from
+  // the declared `agent.avatar` upload intent (DRIVE_SPEC.md section 18).
+  const avatarUploadImageService = useMemo(() => createAgentAvatarUploadImageService(), []);
   
   const [voiceSnapshots, setVoiceSnapshots] = useState<VoiceConfig[]>([]);
   const [kbSnapshots, setKbSnapshots] = useState<KnowledgeBase[]>([]);
@@ -1394,26 +1398,32 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
       </div>
 
       <EditBasicInfoModal
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
         initialName={name}
         initialDesc={desc}
         initialAvatar={avatar}
-        initialAvatarPreview={avatarPreviewUrl}
-        onUploadAvatar={async (file) => {
+        avatarService={avatarUploadImageService}
+        avatarAppResourceId={() => draftId ?? undefined}
+        onEnsureAvatarAnchor={async () => {
           const persisted = await ensurePersistedAgentForRuntime();
-          if (!persisted.id) throw new Error('Persisted Agent id is required for avatar upload.');
-          return agentsDriveUploadService.upload({
-            file,
-            purpose: 'agent-avatar',
-            resourceId: persisted.id,
-          });
+          return persisted.id ?? null;
         }}
-        onSave={(newName, newDesc, newAvatar, newAvatarPreview) => {
+        onSave={(newName, newDesc, newAvatar) => {
            setName(newName);
            setDesc(newDesc);
-           if (newAvatar) setAvatar(newAvatar);
-           setAvatarPreviewUrl(newAvatarPreview || '');
+           if (newAvatar) {
+             setAvatar(newAvatar);
+             if (newAvatar.startsWith('drive://')) {
+               // The drive uri is the durable identity; the short-lived
+               // delivery URL stays display-only.
+               void agentsDriveUploadService.resolvePreviewUrl(newAvatar)
+                 .then((url) => setAvatarPreviewUrl(url))
+                 .catch(() => setAvatarPreviewUrl(''));
+             } else {
+               setAvatarPreviewUrl('');
+             }
+           }
            setIsEditModalOpen(false);
            toast('基础信息已更新', 'success');
         }}

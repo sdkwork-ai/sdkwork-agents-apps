@@ -1,20 +1,58 @@
 import React, { useEffect, useState } from 'react';
-import { Bot } from 'lucide-react';
 import { motion } from 'motion/react';
-
-import type { AgentsDriveMediaResource } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
+import {
+  DriveUploadImage,
+  useDriveUploadImageController,
+  useDriveUploadImageSnapshot,
+} from 'sdkwork-drive-pc-upload-image';
+import type {
+  DriveUploadImageService,
+  DriveUploadImageValue,
+} from '@sdkwork/drive-upload-image-core';
 
 import { toast } from './Toast';
+
+const AVATAR_UPLOAD_COPY = {
+  pickImage: '上传头像',
+  replaceImage: '更换头像',
+  removeImage: '移除',
+  retryUpload: '重试',
+  uploading: '上传中',
+  uploadFailed: '上传失败',
+} as const;
+
+/**
+ * Maps the modal's persisted avatar string (a `drive://` uri, a legacy
+ * display url, or empty) onto the shared component's persist-safe value.
+ */
+function toAvatarUploadValue(avatar: string): DriveUploadImageValue | null {
+  if (!avatar) return null;
+  return {
+    uri: avatar,
+    source: avatar.startsWith('drive://') ? 'drive' : 'external',
+  };
+}
 
 export interface EditBasicInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialName: string;
   initialDesc: string;
+  /** Persisted avatar: a `drive://` uri, a legacy display url, or empty. */
   initialAvatar: string;
-  initialAvatarPreview?: string;
-  onUploadAvatar: (file: File) => Promise<AgentsDriveMediaResource>;
-  onSave: (name: string, desc: string, avatar: string, avatarPreview?: string) => void;
+  /** Shared Drive image-upload service built by the host service layer. */
+  avatarService: DriveUploadImageService;
+  /**
+   * Entity anchor at pick time; a function returning null keeps the picked
+   * image pending for the persist-first flow (`DRIVE_SPEC.md` section 18.3).
+   */
+  avatarAppResourceId?: string | (() => string | null | undefined);
+  /**
+   * Persists the owning agent and returns its id; called on save when a
+   * picked avatar is still pending because no anchor existed at pick time.
+   */
+  onEnsureAvatarAnchor: () => Promise<string | null>;
+  onSave: (name: string, desc: string, avatar: string) => void;
 }
 
 export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
@@ -23,43 +61,65 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
   initialName,
   initialDesc,
   initialAvatar,
-  initialAvatarPreview,
-  onUploadAvatar,
+  avatarService,
+  avatarAppResourceId,
+  onEnsureAvatarAnchor,
   onSave,
 }) => {
   const [tempName, setTempName] = useState(initialName);
   const [tempDesc, setTempDesc] = useState(initialDesc);
   const [tempAvatar, setTempAvatar] = useState(initialAvatar);
-  const [tempAvatarPreview, setTempAvatarPreview] = useState(initialAvatarPreview || initialAvatar);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [anchoringAvatar, setAnchoringAvatar] = useState(false);
+
+  const avatarController = useDriveUploadImageController({
+    service: avatarService,
+    resolveAppResourceId: () =>
+      typeof avatarAppResourceId === 'function' ? avatarAppResourceId() : avatarAppResourceId ?? null,
+    onFailed: (failure) => {
+      console.error('Avatar Drive upload failed', failure.error);
+      toast('头像上传失败，请检查登录状态和 Drive 服务', 'error');
+    },
+    onUploaded: (values) => {
+      setTempAvatar(values[values.length - 1]?.uri ?? '');
+    },
+  });
+  const avatarSnapshot = useDriveUploadImageSnapshot(avatarController);
 
   useEffect(() => {
     if (!isOpen) return;
     setTempName(initialName);
     setTempDesc(initialDesc);
     setTempAvatar(initialAvatar);
-    setTempAvatarPreview(initialAvatarPreview || initialAvatar);
-  }, [isOpen, initialName, initialDesc, initialAvatar, initialAvatarPreview]);
+    // Drops leftover pending/error picks from an earlier session; the
+    // controlled `value` below re-seeds the persisted avatar.
+    avatarController.clear();
+  }, [isOpen, initialName, initialDesc, initialAvatar, avatarController]);
 
   if (!isOpen) return null;
 
-  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
-
-    setUploadingAvatar(true);
-    void onUploadAvatar(file)
-      .then((media) => {
-        setTempAvatar(media.uri ?? '');
-        setTempAvatarPreview(media.url ?? '');
-        toast('头像已通过 SDKWork Drive 上传', 'success');
-      })
-      .catch((error) => {
+  const handleSave = async (): Promise<void> => {
+    if (!tempName.trim() || avatarSnapshot.isUploading || anchoringAvatar) return;
+    let avatarForSave = tempAvatar;
+    if (avatarSnapshot.hasPending) {
+      // The agent did not exist when the image was picked: persist first,
+      // upload second, then keep the stable drive uri (section 18.3).
+      setAnchoringAvatar(true);
+      try {
+        const anchor = await onEnsureAvatarAnchor();
+        if (!anchor) {
+          throw new Error('Persisted Agent id is required for avatar upload.');
+        }
+        const values = await avatarController.uploadPending({ appResourceId: anchor });
+        avatarForSave = values[values.length - 1]?.uri ?? '';
+      } catch (error) {
         console.error('Avatar Drive upload failed', error);
         toast('头像上传失败，请检查登录状态和 Drive 服务', 'error');
-      })
-      .finally(() => setUploadingAvatar(false));
+        return;
+      } finally {
+        setAnchoringAvatar(false);
+      }
+    }
+    onSave(tempName, tempDesc, avatarForSave);
   };
 
   return (
@@ -74,24 +134,14 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
         </div>
         <div className="space-y-4 p-6">
           <div className="mb-2 flex flex-col items-center justify-center">
-            <label className="group relative flex h-20 w-20 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-[#181818] transition-colors hover:bg-slate-900/5 dark:hover:bg-white/5">
-              {tempAvatarPreview && !tempAvatarPreview.startsWith('drive://') ? (
-                <img src={tempAvatarPreview} alt="智能体头像" className="h-full w-full object-cover" />
-              ) : (
-                <Bot size={32} className="text-slate-500 dark:text-gray-500" />
-              )}
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                disabled={uploadingAvatar}
-                onChange={handleAvatarChange}
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="absolute bottom-1 z-10 rounded-full bg-black/60 px-2 py-0.5 text-[10px] text-slate-500 dark:text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 group-hover:text-slate-800 dark:group-hover:text-gray-200">
-                {uploadingAvatar ? '上传中' : '更换'}
-              </div>
-            </label>
+            <DriveUploadImage
+              service={avatarService}
+              controller={avatarController}
+              value={toAvatarUploadValue(tempAvatar)}
+              shape="circle"
+              sizePx={80}
+              copy={AVATAR_UPLOAD_COPY}
+            />
           </div>
           <div>
             <label className="mb-1.5 block text-sm text-slate-500 dark:text-gray-400">智能体名称</label>
@@ -121,11 +171,11 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
           </button>
           <button
             type="button"
-            disabled={!tempName.trim() || uploadingAvatar}
-            onClick={() => onSave(tempName, tempDesc, tempAvatar, tempAvatarPreview)}
+            disabled={!tempName.trim() || avatarSnapshot.isUploading || anchoringAvatar}
+            onClick={() => void handleSave()}
             className="rounded bg-[#00b42a] px-4 py-2 text-sm text-white transition-colors hover:bg-[#009a24] disabled:bg-[#00b42a]/50"
           >
-            保存
+            {avatarSnapshot.isUploading || anchoringAvatar ? '上传中' : '保存'}
           </button>
         </div>
       </motion.div>
