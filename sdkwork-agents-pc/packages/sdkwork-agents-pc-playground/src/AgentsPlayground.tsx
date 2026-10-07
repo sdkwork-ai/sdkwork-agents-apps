@@ -10,6 +10,7 @@
 //! host, and every playground capability lands here.
 
 import { AgentsWorkbench, type AgentsWorkbenchProps } from '@sdkwork/agents-pc/workbench';
+import '@sdkwork/agents-pc-commons/chat-markdown.css';
 
 export interface AgentsPlaygroundProps extends AgentsWorkbenchProps {
   /**

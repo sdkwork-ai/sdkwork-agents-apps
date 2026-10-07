@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@sdkwork/agents-pc": "workspace:*",
+    "@sdkwork/agents-pc-commons": "workspace:*",
     "react": "catalog:"
   }
 }
