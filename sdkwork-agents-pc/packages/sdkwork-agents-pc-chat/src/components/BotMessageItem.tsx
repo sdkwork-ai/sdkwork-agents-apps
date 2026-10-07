@@ -129,29 +129,52 @@ function mediaDoneLabel(kind: 'image' | 'video' | 'audio'): { key: string; fallb
   }
 }
 
+/** Stable list key for one generated media asset. */
+function mediaKey(media: { kind: string; url: string }, index: number): string {
+  return media.url ? `${media.kind}:${media.url}` : `${media.kind}:index-${index}`;
+}
+
 /** Renders one generated media asset inline below the tool card header. */
 const ToolMediaResult: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
   const { t: tCommon } = useTranslation('common');
-  if (!tool.media || tool.media.length === 0) return null;
+  const media = tool.media ?? [];
+  if (media.length === 0) return null;
+  const kinds = new Set(media.map((item) => item.kind));
+  const label = kinds.size === 1
+    ? mediaDoneLabel(media[0].kind)
+    : { key: 'toolDone.media', fallback: '媒体已生成' };
+  const images = media.filter((item) => item.kind === 'image');
+  const others = media.filter((item) => item.kind !== 'image');
   return (
     <div className="flex flex-col gap-1.5 px-2 pb-2">
-      {tool.media.map((media) => {
-        if (media.kind === 'image') {
-          return (
+      {images.length > 1 && (
+        <div className="grid grid-cols-2 gap-1.5">
+          {images.map((item, index) => (
             <img
-              key={media.url}
-              src={media.url}
-              alt={mediaDoneLabel('image').fallback}
+              key={mediaKey(item, index)}
+              src={item.url}
+              alt={tCommon('toolDone.image', { defaultValue: '图片已生成' })}
               loading="lazy"
-              className="max-h-72 w-auto max-w-full rounded-md border border-gray-200/80 object-contain dark:border-gray-700/80"
+              className="max-h-56 w-full rounded-md border border-gray-200/80 object-contain dark:border-gray-700/80"
             />
-          );
-        }
-        if (media.kind === 'video') {
+          ))}
+        </div>
+      )}
+      {images.length === 1 && (
+        <img
+          key={mediaKey(images[0], 0)}
+          src={images[0].url}
+          alt={tCommon('toolDone.image', { defaultValue: '图片已生成' })}
+          loading="lazy"
+          className="max-h-72 w-auto max-w-full rounded-md border border-gray-200/80 object-contain dark:border-gray-700/80"
+        />
+      )}
+      {others.map((item, index) => {
+        if (item.kind === 'video') {
           return (
             <video
-              key={media.url}
-              src={media.url}
+              key={mediaKey(item, index)}
+              src={item.url}
               controls
               preload="metadata"
               className="max-h-72 w-full max-w-full rounded-md border border-gray-200/80 bg-black dark:border-gray-700/80"
@@ -159,13 +182,17 @@ const ToolMediaResult: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
           );
         }
         return (
-          <audio key={media.url} src={media.url} controls className="w-full" preload="metadata" />
+          <audio
+            key={mediaKey(item, index)}
+            src={item.url}
+            controls
+            className="w-full"
+            preload="metadata"
+          />
         );
       })}
       <span className="text-[11px] text-emerald-600 dark:text-emerald-400">
-        {tCommon(mediaDoneLabel(tool.media[0].kind).key, {
-          defaultValue: mediaDoneLabel(tool.media[0].kind).fallback,
-        })}
+        {tCommon(label.key, { defaultValue: label.fallback })}
       </span>
     </div>
   );

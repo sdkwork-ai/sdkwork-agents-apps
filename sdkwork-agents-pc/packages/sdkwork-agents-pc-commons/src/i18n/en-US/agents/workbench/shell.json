@@ -72,5 +72,14 @@
   "agentsConsoleModelSelector.useSystemDefaultPlaceholder": "Use system default",
   "agentsConsoleModelSelector.vendorLabel": "Vendor",
   "agentsConsoleModelSelector.vendorPlaceholder": "For example: openai-compatible",
-  "agentsConsoleModelSelector.vendorRequired": "Enter a vendor."
+  "agentsConsoleModelSelector.vendorRequired": "Enter a vendor.",
+  "toolCall": "Tool call",
+  "toolFailed": "Failed",
+  "toolProgress.image": "Generating image…",
+  "toolProgress.video": "Generating video…",
+  "toolProgress.audio": "Synthesizing audio…",
+  "toolDone.image": "Image generated",
+  "toolDone.video": "Video generated",
+  "toolDone.audio": "Audio generated",
+  "toolDone.media": "Media generated"
 }

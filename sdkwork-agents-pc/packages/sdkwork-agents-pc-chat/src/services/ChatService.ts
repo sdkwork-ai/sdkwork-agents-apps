@@ -88,7 +88,12 @@ export interface ChatAgentConfig {
   description: string;
   type: 'normal';
   model: string;
-  systemPrompt: string;
+  /**
+   * Explicit prompt override only. The built-in chat agent's canonical
+   * system prompt is owned server-side (`agent.chat.default` normalization
+   * at the turn boundary), so clients never send a default boilerplate.
+   */
+  systemPrompt?: string;
   welcomeMessage: string;
 }
 
@@ -230,7 +235,6 @@ function defaultAgent(model: string): ChatAgentConfig {
     description: 'SDKWork Agents PC built-in conversational assistant.',
     type: 'normal',
     model,
-    systemPrompt: 'You are SDKWork Agents. Provide accurate, concise, secure, and useful answers.',
     welcomeMessage: 'How can I help?',
   };
 }
@@ -321,11 +325,13 @@ async function resolveSession(
   return resolved;
 }
 
-function resolveSystemPrompt(model: string, scope: ChatAgentScope): string {
-  if (scope.systemPrompt?.trim()) {
-    return scope.systemPrompt.trim();
-  }
-  return defaultAgent(model).systemPrompt;
+/**
+ * Resolves the turn system prompt: only an explicitly configured scope prompt
+ * is sent. The built-in chat agent's canonical prompt is normalized
+ * server-side, so no client boilerplate is injected here.
+ */
+function resolveSystemPrompt(scope: ChatAgentScope): string | undefined {
+  return scope.systemPrompt?.trim() || undefined;
 }
 
 function toChatSendFailure(error: unknown): ChatSendFailure {
@@ -564,7 +570,7 @@ export class ChatService {
       const content = latest.text
         || latest.mediaResources?.map((item) => item.fileName ?? item.id).join(', ')
         || 'Attachment';
-      const systemPrompt = resolveSystemPrompt(options.model, resolvedScope);
+      const systemPrompt = resolveSystemPrompt(resolvedScope);
       // The sink contract is delta-shaped, but the cloudrouter account-pool path
       // can answer in one terminal frame with zero deltas. Track whether any
       // delta reached the renderer so the terminal content can be published

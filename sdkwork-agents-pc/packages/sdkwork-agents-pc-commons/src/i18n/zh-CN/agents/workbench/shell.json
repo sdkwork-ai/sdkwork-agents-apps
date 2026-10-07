@@ -72,5 +72,14 @@
   "agentsConsoleModelSelector.useSystemDefaultPlaceholder": "使用系统默认值",
   "agentsConsoleModelSelector.vendorLabel": "模型厂商",
   "agentsConsoleModelSelector.vendorPlaceholder": "例如：openai-compatible",
-  "agentsConsoleModelSelector.vendorRequired": "请输入模型厂商。"
+  "agentsConsoleModelSelector.vendorRequired": "请输入模型厂商。",
+  "toolCall": "工具调用",
+  "toolFailed": "执行失败",
+  "toolProgress.image": "图片生成中…",
+  "toolProgress.video": "视频生成中…",
+  "toolProgress.audio": "音频合成中…",
+  "toolDone.image": "图片已生成",
+  "toolDone.video": "视频已生成",
+  "toolDone.audio": "音频已生成",
+  "toolDone.media": "媒体已生成"
 }
