@@ -3,7 +3,6 @@ import { Component, type FC, type ReactNode } from 'react';
 import { cn } from './classNames';
 import { MarkdownRenderer as MarkdownRendererCore } from './MarkdownRendererImpl';
 import type { MarkdownRendererProps } from './MarkdownRenderer.types';
-import './chat-markdown.css';
 
 export { cn };
 export type { MarkdownRendererProps } from './MarkdownRenderer.types';

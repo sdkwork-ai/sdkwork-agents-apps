@@ -22,8 +22,11 @@ import {
   type SdkworkSkillsAppClient,
 } from '@sdkwork/agents-pc-core/sdk/skillsAppSdkClient';
 import {
+  configureAssetsAppSdkClientProvider,
   configureDriveAppSdkClientProvider,
+  resetAssetsAppSdkClient,
   resetDriveAppSdkClient,
+  type SdkworkAgentsAssetsAppClient,
   type SdkworkAgentsDriveAppClient,
 } from '@sdkwork/agents-pc-core/sdk';
 import {
@@ -126,8 +129,10 @@ test('Creative and Canvas use Generations SDK operations and stable UI message i
     const videoUrl = await CanvasService.generateVideo('画布视频', () => undefined);
     assert.equal(imageUrl, 'https://media.example.test/image-generation');
     assert.equal(videoUrl, 'https://media.example.test/video-generation');
-    assert.equal(calls[0], 'images.textToImage');
-    assert.equal(calls[1], 'images.textToImage');
+    // The stub logs the operation marker plus the captured body/params so the
+    // contract can also pin the idempotency key riding along.
+    assert.match(calls[0] ?? '', /^images\.textToImage:/);
+    assert.match(calls[1] ?? '', /^images\.textToImage:/);
     assert.equal(calls[2], 'videos.textToVideo');
 
     // Command options ride along: the view builds generationConfig and
@@ -141,9 +146,9 @@ test('Creative and Canvas use Generations SDK operations and stable UI message i
             return { generation: record('image-generation', 'image') };
           },
         },
+        get: async (generationId: string) => record(generationId, 'image'),
+        results: { list: async (generationId: string) => resultPage(generationId) },
       },
-      get: async (generationId: string) => record(generationId, 'image'),
-      results: { list: async (generationId: string) => resultPage(generationId) },
     } as unknown as SdkworkGenerationsAppClient;
     configureGenerationsAppSdkClientProvider(() => capturingClient);
     await CreativeService.generateContent('生成图片', 'image', () => undefined, undefined, {
@@ -164,11 +169,10 @@ test('Creative and Canvas use Generations SDK operations and stable UI message i
   }
 });
 
-test('Assets maps Drive SDK records without local or provider mock media', async () => {
+test('Assets maps the assets SDK catalog records without local mock media', async () => {
   const client = {
-    drive: {
-      assets: {
-        list: async () => ({
+    assets: {
+      list: async () => ({
           items: [{
             assetId: 'asset-1',
             assetKind: 'image',
@@ -188,18 +192,17 @@ test('Assets maps Drive SDK records without local or provider mock media', async
             updatedAt: '2026-07-30T10:00:00Z',
           }],
           pageInfo: { mode: 'offset', page: 1, pageSize: 200, hasMore: false },
-        }),
-      },
+      }),
     },
-  } as unknown as SdkworkAgentsDriveAppClient;
-  configureDriveAppSdkClientProvider(() => client);
+  } as unknown as SdkworkAgentsAssetsAppClient;
+  configureAssetsAppSdkClientProvider(() => client);
   try {
     const groups = await AssetsService.getAssetGroups();
     assert.equal(groups.length, 1);
     assert.equal(groups[0].items[0].imageUrl, 'https://media.example.test/asset-1');
     assert.equal(groups[0].items[0].type, 'image');
   } finally {
-    resetDriveAppSdkClient();
+    resetAssetsAppSdkClient();
   }
 });
 
