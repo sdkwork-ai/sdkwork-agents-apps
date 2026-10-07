@@ -107,8 +107,8 @@ export function resetModelsAppSdkClient(): void {
 }
 
 export type {
-  AiModelsListParams,
   AppModelCatalogGroup,
   AppModelCatalogItem,
   AppModelCatalogPage,
 } from "@sdkwork/models-app-sdk";
+

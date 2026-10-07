@@ -52,8 +52,8 @@ function record(id: string, modality: 'image' | 'video'): GenerationRecord {
   };
 }
 
-function createGenerationsClient(calls: string[]): SdkworkGenerationsAppClient {
-  const resultPage = (generationId: string) => ({
+function resultPage(generationId: string) {
+  return {
     items: [{
       id: `${generationId}-result`,
       generationId,
@@ -65,7 +65,10 @@ function createGenerationsClient(calls: string[]): SdkworkGenerationsAppClient {
       createdAt: '2026-07-30T00:00:01Z',
     }],
     pageInfo: { mode: 'cursor', hasMore: false },
-  });
+  };
+}
+
+function createGenerationsClient(calls: string[]): SdkworkGenerationsAppClient {
   return {
     generations: {
       images: {

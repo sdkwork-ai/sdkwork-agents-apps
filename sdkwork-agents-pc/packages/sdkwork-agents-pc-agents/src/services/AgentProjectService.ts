@@ -244,7 +244,7 @@ export class AgentProjectService {
 
     const prompts = getPromptsAppSdkClientWithSession().prompts;
     const templateKey = `agents.${project.projectId}.instructions`;
-    const templatePage = await prompts.templates.list({ limit: 200 });
+    const templatePage = await prompts.templates.list({ pageSize: 200 });
     const templates = (templatePage as unknown as PromptTemplatePage).items;
     let template = templates.find((record) => record.key === templateKey);
     if (!template) {

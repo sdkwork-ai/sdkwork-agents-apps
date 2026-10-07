@@ -13,6 +13,7 @@ export type {
   CloneAgentMemoryResult,
 } from './AgentMemoryService';
 export { agentChatService } from './AgentChatService';
+export type { AgentTurnWireProtocol } from './AgentChatService';
 export { agentProjectService } from './AgentProjectService';
 export type {
   AgentMemorySpaceOption,

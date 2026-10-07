@@ -3,6 +3,23 @@ import {
   agentProjectService,
   agentService,
 } from '@sdkwork/agents-pc-agents/services';
+import type { AgentTurnWireProtocol } from '@sdkwork/agents-pc-agents/services';
+
+/**
+ * Narrows the chat port's wire-protocol string to the canonical union the
+ * turn API accepts; an unrecognized value degrades to `undefined` (the
+ * server-side `chat_completions` default) instead of failing the request.
+ */
+const WIRE_PROTOCOL_VALUES: readonly AgentTurnWireProtocol[] = [
+  'chat_completions',
+  'anthropic_messages',
+  'google_content',
+  'openai_responses',
+];
+
+function asWireProtocol(value: string | undefined): AgentTurnWireProtocol | undefined {
+  return WIRE_PROTOCOL_VALUES.find((protocol) => protocol === value);
+}
 import { agentsDriveUploadService } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
 import { configureChatAgentPort, configureProjectPort } from '@sdkwork/agents-pc-chat';
 
@@ -29,10 +46,10 @@ export function configureAgentsWorkbenchPorts(): void {
     listMessages: (agentId, sessionId) => agentChatService.listMessages(agentId, sessionId),
     resolveMediaPreviewUrl: (driveUri) => agentsDriveUploadService.resolvePreviewUrl(driveUri),
     sendMessage: (agentId, sessionId, content, model, media, systemPrompt, wireProtocol) =>
-      agentChatService.sendMessage(agentId, sessionId, content, model, media, systemPrompt, wireProtocol),
+      agentChatService.sendMessage(agentId, sessionId, content, model, media, systemPrompt, asWireProtocol(wireProtocol)),
     sendMessageStream: (agentId, sessionId, content, model, media, onDelta, systemPrompt, onReasoning, onToolEvent, wireProtocol) =>
       agentChatService.sendMessageStream(
-        agentId, sessionId, content, model, media, onDelta, systemPrompt, onReasoning, onToolEvent, wireProtocol,
+        agentId, sessionId, content, model, media, onDelta, systemPrompt, onReasoning, onToolEvent, asWireProtocol(wireProtocol),
       ),
   });
   configureProjectPort({

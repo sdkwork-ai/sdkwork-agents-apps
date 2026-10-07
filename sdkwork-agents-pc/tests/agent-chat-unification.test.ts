@@ -48,6 +48,10 @@ function createChatAgentPort(overrides: Partial<ChatAgentPort>): ChatAgentPort {
     }),
     listMessages: async () => [],
     resolveMediaPreviewUrl: async (driveUri) => driveUri,
+    sendMessage: async (agentId, _sessionId, _content, _model) => ({
+      id: 'assistant-1',
+      content: `reply:${agentId}`,
+    }),
     sendMessageStream: async (agentId, _sessionId, _content, _model, _media, onDelta) => {
       onDelta(`reply:${agentId}`);
       return { id: 'assistant-1', content: `reply:${agentId}` };

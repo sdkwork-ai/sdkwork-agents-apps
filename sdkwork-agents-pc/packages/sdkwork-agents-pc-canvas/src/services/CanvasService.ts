@@ -155,12 +155,13 @@ export class CanvasService {
     return '生成任务已进入队列...';
   }
 
-  static async generateImage(prompt: string, ratio: string, onProgress: (p: number, msg: string) => void): Promise<string> {
+  static async generateImage(prompt: string, ratio: string, onProgress: (p: number, msg: string) => void, model?: string): Promise<string> {
     const generationsService = await loadGenerationsService();
     const command = await generationsService.create({
       modality: 'image',
       operationType: 'text_to_image',
       prompt,
+      model: model ? creativeModelCatalogService.resolveSelection('image', model) : undefined,
       parameters: { aspectRatio: ratio },
     });
     const record = await generationsService.waitForCompletion(command.generation, {
