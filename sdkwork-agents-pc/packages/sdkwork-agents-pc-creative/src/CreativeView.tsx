@@ -20,6 +20,90 @@ function createDefaultCreativeSession(): CreativeSession {
   return { id: 'default', title: '默认创作', messages: [] };
 }
 
+/** Shape of the media resources the creative input box uploads through Drive. */
+interface CreativeMediaResourceLike {
+  id?: string;
+  uri?: string;
+  url?: string;
+  kind?: string;
+  mimeType?: string;
+  fileName?: string;
+}
+
+function compactCreativeRecord(record: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(record).filter(([, value]) => (
+      value !== undefined
+      && value !== null
+      && value !== ''
+      && (!(Array.isArray(value)) || value.length > 0)
+      && (!(typeof value === 'object' && !Array.isArray(value)) || Object.keys(value).length > 0)
+    )),
+  );
+}
+
+function toCreativeReference(resource: CreativeMediaResourceLike): Record<string, string> {
+  return compactCreativeRecord({
+    // Vendors fetch the presigned download URL; the Drive node id rides along
+    // for server-side asset resolution.
+    url: resource.url || resource.uri,
+    assetId: resource.id,
+    mimeType: resource.mimeType,
+    name: resource.fileName,
+  }) as Record<string, string>;
+}
+
+/**
+ * Translate the creative input-box settings into generations command
+ * parameters. Aspect ratio / resolution / duration / count reach the vendor
+ * adapters through `parameters.generationConfig`; uploaded reference media
+ * reaches them through `parameters.referenceImages` / `referenceVideos`.
+ */
+function buildCreativeCommandOptions(
+  _prompt: string,
+  _mode: string,
+  settings?: Record<string, unknown>,
+): { commandParameters?: Record<string, unknown>; commandInputAssetIds?: string[] } {
+  const mediaResources = (Array.isArray(settings?.mediaResources)
+    ? settings?.mediaResources
+    : []) as CreativeMediaResourceLike[];
+  if (mediaResources.length === 0 && !settings) {
+    return {};
+  }
+  const imageResources = mediaResources.filter((resource) => (
+    (resource.kind ?? 'image') === 'image' && Boolean(resource.url || resource.uri)
+  ));
+  const videoResources = mediaResources.filter((resource) => (
+    resource.kind === 'video' && Boolean(resource.url || resource.uri)
+  ));
+  const audioResource = mediaResources.find((resource) => (
+    (resource.kind === 'audio' || resource.kind === 'voice') && Boolean(resource.url || resource.uri)
+  ));
+  const generationConfig = compactCreativeRecord({
+    aspectRatio: settings?.ratio,
+    resolution: settings?.resolution,
+    durationSeconds: settings?.duration,
+    imageCount: settings?.count,
+    videoMode: settings?.videoMode,
+    size: settings?.imageWidth && settings?.imageHeight
+      ? `${settings.imageWidth}x${settings.imageHeight}`
+      : undefined,
+  });
+  const commandParameters = compactCreativeRecord({
+    generationConfig,
+    referenceImages: imageResources.map(toCreativeReference),
+    referenceVideos: videoResources.map(toCreativeReference),
+    audioUrl: audioResource?.url || audioResource?.uri,
+  });
+  const commandInputAssetIds = imageResources
+    .map((resource) => resource.id)
+    .filter((id): id is string => Boolean(id?.trim()));
+  return {
+    ...(Object.keys(commandParameters).length > 0 ? { commandParameters } : {}),
+    ...(commandInputAssetIds.length > 0 ? { commandInputAssetIds } : {}),
+  };
+}
+
 export interface CreativeViewProps {
   /** Default modality selected in the generation dialog (`image`, `video`, `agent`, …). */
   defaultCreationMode?: string;
@@ -291,6 +375,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
         // Reference images change the operation (image_edit / image_to_video)
         // rather than only decorating it.
         hasReferenceImages: Array.isArray(settings?.refImages) && settings.refImages.length > 0,
+        ...buildCreativeCommandOptions(text, mode, settings),
       });
     } catch (error) {
       if (assistantMessageId) {

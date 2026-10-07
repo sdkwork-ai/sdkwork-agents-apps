@@ -76,6 +76,7 @@ function toRemoteDefinition(item: RemoteCreativeModelItem, modality: CreativeMod
     desc: item.description || item.capabilityIntro || `由 ${item.vendorCode} 提供的模型`,
     lifecycle: toLifecycle(item.releaseStage, item.shelfState),
     replacementModelId: item.replacementModel || null,
+    vendorCode: item.vendorCode,
     source: 'remote',
     order: index,
   };

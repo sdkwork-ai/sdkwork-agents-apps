@@ -215,15 +215,14 @@ export class AgentsGenerationsService {
       throw new Error("Generation prompt is required.");
     }
     const session = readAppSdkSessionTokens();
-    const tenantId = resolveAppSdkTenantId(session);
-    if (!tenantId) {
+    // API_SPEC §10.0/§14: tenant/organization are session context, not body
+    // fields. The app-api boundary rejects bodies carrying context selectors,
+    // so the session tenant check stays a guard and only the credentials
+    // select the tenant on the wire.
+    if (!resolveAppSdkTenantId(session)) {
       throw new Error("An authenticated tenant context is required for generation.");
     }
     const body = {
-      tenantId,
-      ...(resolveAppSdkOrganizationId(session)
-        ? { organizationId: resolveAppSdkOrganizationId(session) }
-        : {}),
       prompt,
       ...(input.model?.trim() ? { model: input.model.trim() } : {}),
       ...(input.inputAssetIds?.length ? { inputAssetIds: [...input.inputAssetIds] } : {}),

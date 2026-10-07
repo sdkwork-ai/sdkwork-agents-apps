@@ -69,8 +69,8 @@ function createGenerationsClient(calls: string[]): SdkworkGenerationsAppClient {
   return {
     generations: {
       images: {
-        textToImage: async () => {
-          calls.push('images.textToImage');
+        textToImage: async (_body: unknown, params: unknown) => {
+          calls.push(`images.textToImage:${JSON.stringify({ _body, params })}`);
           return { generation: record('image-generation', 'image') };
         },
       },
@@ -123,11 +123,38 @@ test('Creative and Canvas use Generations SDK operations and stable UI message i
     const videoUrl = await CanvasService.generateVideo('画布视频', () => undefined);
     assert.equal(imageUrl, 'https://media.example.test/image-generation');
     assert.equal(videoUrl, 'https://media.example.test/video-generation');
-    assert.deepEqual(calls, [
-      'images.textToImage',
-      'images.textToImage',
-      'videos.textToVideo',
-    ]);
+    assert.equal(calls[0], 'images.textToImage');
+    assert.equal(calls[1], 'images.textToImage');
+    assert.equal(calls[2], 'videos.textToVideo');
+
+    // Command options ride along: the view builds generationConfig and
+    // reference entries; the service merges the catalog vendor code on top.
+    const bodies: Array<Record<string, unknown>> = [];
+    const capturingClient = {
+      generations: {
+        images: {
+          textToImage: async (body: Record<string, unknown>) => {
+            bodies.push(body);
+            return { generation: record('image-generation', 'image') };
+          },
+        },
+      },
+      get: async (generationId: string) => record(generationId, 'image'),
+      results: { list: async (generationId: string) => resultPage(generationId) },
+    } as unknown as SdkworkGenerationsAppClient;
+    configureGenerationsAppSdkClientProvider(() => capturingClient);
+    await CreativeService.generateContent('生成图片', 'image', () => undefined, undefined, {
+      commandParameters: {
+        generationConfig: { aspectRatio: '16:9', imageCount: 2 },
+        referenceImages: [{ url: 'https://media.example.test/ref.png', assetId: 'node-1' }],
+      },
+      commandInputAssetIds: ['node-1'],
+    });
+    assert.deepEqual(bodies[0]?.parameters, {
+      generationConfig: { aspectRatio: '16:9', imageCount: 2 },
+      referenceImages: [{ url: 'https://media.example.test/ref.png', assetId: 'node-1' }],
+    });
+    assert.deepEqual(bodies[0]?.inputAssetIds, ['node-1']);
   } finally {
     resetGenerationsAppSdkClient();
     clearAppSdkSessionTokens();

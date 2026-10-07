@@ -86,6 +86,34 @@ async function toCreativeSession(record: GenerationRecord): Promise<CreativeSess
   };
 }
 
+/**
+ * Caller-provided generation dispatch options. `commandParameters` lands in the
+ * generations command `parameters` object (vendor routing, generation config,
+ * reference media); `commandInputAssetIds` carries Drive node ids for surfaces
+ * that resolve assets server-side.
+ */
+export interface CreativeGenerationOptions {
+  hasReferenceImages?: boolean;
+  commandParameters?: Record<string, unknown>;
+  commandInputAssetIds?: string[];
+}
+
+/** Drop blank entries so absent settings never widen the command payload. */
+function compactCreativeCommandParameters(
+  record: Record<string, unknown>,
+): Record<string, unknown> | undefined {
+  const compacted = Object.fromEntries(
+    Object.entries(record).filter(([, value]) => (
+      value !== undefined
+      && value !== null
+      && (!(Array.isArray(value)) || value.length > 0)
+      && (!(typeof value === 'string') || value.trim().length > 0)
+      && (!(typeof value === 'object') || Object.keys(value as Record<string, unknown>).length > 0)
+    )),
+  );
+  return Object.keys(compacted).length > 0 ? compacted : undefined;
+}
+
 export class CreativeService {
   static async getSessions(): Promise<CreativeSession[]> {
     try {
@@ -106,7 +134,7 @@ export class CreativeService {
     mode: string,
     onUpdate: (message: CreativeMessage) => void,
     model?: string,
-    options: { hasReferenceImages?: boolean } = {},
+    options: CreativeGenerationOptions = {},
   ): Promise<CreativeMessage> {
     const generationsService = await loadGenerationsService();
     // The mode is preserved. It used to be collapsed by
@@ -132,6 +160,17 @@ export class CreativeService {
     const resolvedModelLabel = resolvedModel
       ? creativeModelCatalogService.getDefinition(modality, resolvedModel)?.label ?? resolvedModel
       : undefined;
+    // The command body carries the bare model id; the catalog vendor code must
+    // ride along as `parameters.vendor`, or the backend vendor resolution
+    // falls back to the modality default and non-OpenAI models are dispatched
+    // to the wrong upstream.
+    const resolvedVendorCode = resolvedModel
+      ? creativeModelCatalogService.getDefinition(modality, resolvedModel)?.vendorCode
+      : undefined;
+    const commandParameters = compactCreativeCommandParameters({
+      ...(resolvedVendorCode ? { vendor: resolvedVendorCode } : {}),
+      ...options.commandParameters,
+    });
     const pendingMessage: CreativeMessage = {
       id: uuid(),
       role: 'assistant',
@@ -151,6 +190,10 @@ export class CreativeService {
       operationType: dispatch.operationType,
       prompt,
       ...(resolvedModel ? { model: resolvedModel } : {}),
+      ...(commandParameters ? { parameters: commandParameters } : {}),
+      ...(options.commandInputAssetIds?.length
+        ? { inputAssetIds: options.commandInputAssetIds }
+        : {}),
     });
     const record = await generationsService.waitForCompletion(command.generation, {
       onStatus(current) {

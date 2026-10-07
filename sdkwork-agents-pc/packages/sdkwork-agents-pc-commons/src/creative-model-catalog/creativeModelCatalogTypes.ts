@@ -41,6 +41,12 @@ export interface CreativeModelDefinition {
   lifecycle: CreativeModelLifecycle;
   /** Preferred replacement when this model is deprecated or retired. */
   replacementModelId?: string | null;
+  /**
+   * Catalog vendor code (`kuaishou`, `bytedance`, ...). Generation commands
+   * forward it as `parameters.vendor` so the backend dispatches to the right
+   * vendor adapter instead of the modality default.
+   */
+  vendorCode?: string | null;
   source: CreativeModelSource;
   /** Display order hint; static entries keep catalog order, remote entries follow server order. */
   order: number;
