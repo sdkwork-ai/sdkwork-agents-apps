@@ -818,6 +818,10 @@ export const ChatView = ({
             // inert warning line. Everything else keeps the retry hint.
             const failureKind = classifyChatFailure(failure);
             if (failureKind === 'insufficient_balance') {
+              // Re-read the host balance right away so the composer alert
+              // reflects the shortfall that just failed the turn instead of
+              // waiting for the next poll tick.
+              refreshBalance();
               const balanceText = i18n.exists('errors.result.40201')
                 ? String(i18n.t('errors.result.40201'))
                 : translated;

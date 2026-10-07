@@ -177,7 +177,8 @@ function mergeReasoningIntoAssistantMessages(
         call.media = extractToolMedia(call.name ?? "", resultContent);
       } else {
         call.status = "error";
-        call.error = resultContent ?? result.status;
+        call.error = resultContent
+          ?? (typeof result.status === "string" ? result.status : undefined);
       }
       continue;
     }

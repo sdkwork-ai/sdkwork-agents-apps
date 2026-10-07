@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatToolStreamEvent } from '../types';
+import type { ChatMessage, ChatToolCall, ChatToolStreamEvent } from '../types';
 import { trimSessionTitle } from '../utils/sessionTitleUtils';
 import type { AgentsDriveMediaResource } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
 import { createSdkworkChatRequestContext } from '@sdkwork/agents-pc-core/session';
@@ -159,6 +159,8 @@ export interface ChatAgentPort {
     /** Reasoning/thinking text for this assistant turn (collapsible block). */
     reasoning?: string;
     mediaResources?: AgentsDriveMediaResource[];
+    /** Persisted tool/skill/MCP invocation cards for assistant turns. */
+    toolCalls?: ChatToolCall[];
   }>>;
   resolveMediaPreviewUrl(driveUri: string): Promise<string>;
   sendMessage(
