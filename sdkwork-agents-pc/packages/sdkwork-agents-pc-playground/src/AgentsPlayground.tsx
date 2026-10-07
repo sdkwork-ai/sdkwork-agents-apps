@@ -13,9 +13,8 @@ import { AgentsWorkbench, type AgentsWorkbenchProps } from '@sdkwork/agents-pc/w
 
 export interface AgentsPlaygroundProps extends AgentsWorkbenchProps {
   /**
-   * Tabs hidden by the embedding host. Defaults to hiding `presentation`
-   * (a local demo surface with no backend integration), mirroring the
-   * canonical Cloud Router playground composition.
+   * Tabs hidden by the embedding host. Defaults to none: the workbench tab
+   * registry already owns the canonical composition.
    */
   hiddenTabs?: AgentsWorkbenchProps['hiddenTabs'];
 }
@@ -28,7 +27,7 @@ export interface AgentsPlaygroundProps extends AgentsWorkbenchProps {
  * it. `overlayTopInset` pushes the workbench below the host navbar.
  */
 export function AgentsPlayground({
-  hiddenTabs = ['presentation'],
+  hiddenTabs = [],
   overlayTopInset = '0px',
   showSidebarLogo = false,
   viewportMode,

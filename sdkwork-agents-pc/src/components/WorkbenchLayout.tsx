@@ -22,7 +22,6 @@ const InspirationView = lazy(() => import('@sdkwork/agents-pc-inspiration').then
 const CreativeView = lazy(() => import('@sdkwork/agents-pc-creative').then((module) => ({ default: module.CreativeView })));
 const AssetsView = lazy(() => import('@sdkwork/agents-pc-assets').then((module) => ({ default: module.AssetsView })));
 const CanvasView = lazy(() => import('@sdkwork/agents-pc-canvas').then((module) => ({ default: module.CanvasView })));
-const PresentationView = lazy(() => import('@sdkwork/agents-pc-presentation').then((module) => ({ default: module.PresentationView })));
 const AgentsTokenPlanView = lazy(() => import('@sdkwork/agents-pc-membership').then((module) => ({ default: module.AgentsTokenPlanView })));
 
 const WORKBENCH_VIEW_BY_TAB: Record<WorkbenchTab, LazyExoticComponent<ComponentType>> = {
@@ -32,7 +31,6 @@ const WORKBENCH_VIEW_BY_TAB: Record<WorkbenchTab, LazyExoticComponent<ComponentT
   creative: CreativeView,
   assets: AssetsView,
   canvas: CanvasView,
-  presentation: PresentationView,
 };
 
 const AVATAR_COLOR_TEMPLATES = [
