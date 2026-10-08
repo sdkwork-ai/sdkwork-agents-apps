@@ -243,6 +243,11 @@ const TOOL_ARG_LABELS: Record<string, { key: string; fallback: string }> = {
   tags: { key: 'toolArgs.tags', fallback: '风格标签' },
   negativeTags: { key: 'toolArgs.negativeTags', fallback: '回避标签' },
   seed: { key: 'toolArgs.seed', fallback: '随机种子' },
+  negativePrompt: { key: 'toolArgs.negativePrompt', fallback: '负向提示词' },
+  mode: { key: 'toolArgs.mode', fallback: '生成模式' },
+  cfgScale: { key: 'toolArgs.cfgScale', fallback: '引导系数' },
+  isInstrumental: { key: 'toolArgs.isInstrumental', fallback: '纯音乐' },
+  lyricsOptimizer: { key: 'toolArgs.lyricsOptimizer', fallback: '歌词优化' },
 };
 
 /** Argument keys rendered as quoted creative briefs instead of table rows. */
