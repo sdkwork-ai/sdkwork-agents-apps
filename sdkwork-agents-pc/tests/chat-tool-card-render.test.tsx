@@ -139,3 +139,16 @@ test('non-media and unrecognized tools keep readable titles', async () => {
   assert.match(html, /生成音乐/);
   assert.match(html, /intelligence\.model\.list/);
 });
+
+test('sound-effect tools keep their own title instead of the music one', async () => {
+  const i18n = await createTestI18n();
+  const html = renderBotMessage(
+    [
+      { id: 'call-5', name: 'sound-effect.generate', status: 'completed' },
+    ],
+    '',
+    i18n,
+  );
+  assert.match(html, /生成音效/);
+  assert.ok(!html.includes('生成音乐'), 'sound-effect must not be titled as music generation');
+});

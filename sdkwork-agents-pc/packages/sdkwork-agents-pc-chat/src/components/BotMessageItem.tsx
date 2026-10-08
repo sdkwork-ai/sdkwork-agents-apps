@@ -164,13 +164,17 @@ function resolveToolDisplay(name: string | undefined): ToolDisplay {
     ? 'image'
     : compact.includes('video')
       ? 'video'
-      : compact.includes('music') || compact.includes('speech') || compact.includes('sound-effect') || compact.includes('sound_effect')
-        ? 'audio'
-        : compact.includes('transcription')
-          ? 'transcriptions'
-          : compact.includes('translation')
-            ? 'translations'
-            : null;
+      // Sound effects must resolve before the generic audio family or the
+      // card would title them as music generation.
+      : compact.includes('sound-effect') || compact.includes('sound_effect')
+        ? 'sfx'
+        : compact.includes('music') || compact.includes('speech')
+          ? 'audio'
+          : compact.includes('transcription')
+            ? 'transcriptions'
+            : compact.includes('translation')
+              ? 'translations'
+              : null;
   const action = isRetrieve ? 'retrieve' : 'create';
   const titleKeys: Record<string, string> = {
     'image.create': 'toolTitle.image.create',
@@ -179,6 +183,7 @@ function resolveToolDisplay(name: string | undefined): ToolDisplay {
     'video.retrieve': 'toolTitle.video.retrieve',
     'audio.create': 'toolTitle.speech.create',
     'sfx.create': 'toolTitle.sfx.create',
+    'sfx.retrieve': 'toolTitle.sfx.retrieve',
     'transcriptions.create': 'toolTitle.transcriptions.create',
     'translations.create': 'toolTitle.translations.create',
   };
@@ -191,6 +196,7 @@ function resolveToolDisplay(name: string | undefined): ToolDisplay {
     'video.retrieve': '查询视频结果',
     'audio.create': '语音合成',
     'sfx.create': '生成音效',
+    'sfx.retrieve': '查询音效结果',
     'transcriptions.create': '语音转文字',
     'translations.create': '语音翻译',
   };
@@ -200,8 +206,11 @@ function resolveToolDisplay(name: string | undefined): ToolDisplay {
         ? '查询音乐结果'
         : '生成音乐'
       : (kind && fallbackMap[`${kind}.${action}`]) || raw;
-  const mediaKind: ToolMediaKind | null =
-    kind === 'image' || kind === 'video' || kind === 'audio' ? kind : null;
+  // Sound effects render with the audio family's placeholder and result
+  // iconography but keep their own action title.
+  const mediaKind: ToolMediaKind | null = kind === 'image' || kind === 'video' ? kind
+    : kind === 'audio' || kind === 'sfx' ? 'audio'
+    : null;
   return { titleKey, fallback, mediaKind, isCreate: !isRetrieve };
 }
 

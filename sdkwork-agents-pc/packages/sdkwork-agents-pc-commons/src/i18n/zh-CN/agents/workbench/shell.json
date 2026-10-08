@@ -90,6 +90,7 @@
   "toolTitle.music.retrieve": "查询音乐结果",
   "toolTitle.speech.create": "语音合成",
   "toolTitle.sfx.create": "生成音效",
+  "toolTitle.sfx.retrieve": "查询音效结果",
   "toolTitle.transcriptions.create": "语音转文字",
   "toolTitle.translations.create": "语音翻译",
   "toolArgs.prompt": "提示词",

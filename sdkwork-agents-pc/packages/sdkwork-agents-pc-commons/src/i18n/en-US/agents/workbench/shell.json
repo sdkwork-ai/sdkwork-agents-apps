@@ -90,6 +90,7 @@
   "toolTitle.music.retrieve": "Check music result",
   "toolTitle.speech.create": "Speech synthesis",
   "toolTitle.sfx.create": "Generate sound effect",
+  "toolTitle.sfx.retrieve": "Check sound effect result",
   "toolTitle.transcriptions.create": "Transcribe audio",
   "toolTitle.translations.create": "Translate audio",
   "toolArgs.prompt": "Prompt",
