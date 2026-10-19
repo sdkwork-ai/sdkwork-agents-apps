@@ -27,6 +27,14 @@ import { sortSessionItems } from "./sessionMessageOrdering";
  */
 export type AgentTurnWireProtocol = NonNullable<CreateAgentTurnRequest["wireProtocol"]>;
 
+export interface AgentTurnCitation {
+  index: number;
+  documentId: string;
+  title: string;
+  sourceUri?: string | null;
+  score?: number | null;
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant" | "system" | "tool";
@@ -37,6 +45,8 @@ export interface ChatMessage {
   mediaResources?: AgentsDriveMediaResource[];
   /** Tool/media cards folded from ToolCall/ToolResult session items. */
   toolCalls?: ChatToolCall[];
+  /** Knowledge sources returned with the completed turn. */
+  citations?: AgentTurnCitation[];
 }
 
 export interface ChatMessageListPage {
@@ -437,7 +447,10 @@ export class AgentChatService {
     if (!assistantRecord) {
       throw new Error("Agent turn did not return an assistant_output item.");
     }
-    return toChatMessage(assistantRecord);
+    return {
+      ...toChatMessage(assistantRecord),
+      citations: completion.citations ?? [],
+    };
   }
 
   /**
@@ -467,7 +480,10 @@ export class AgentChatService {
     if (!assistantRecord) {
       throw new Error("Agent turn stream did not return an assistant_output item.");
     }
-    return toChatMessage(assistantRecord);
+    return {
+      ...toChatMessage(assistantRecord),
+      citations: completion.citations ?? [],
+    };
   }
 
   private async buildTurnBody(

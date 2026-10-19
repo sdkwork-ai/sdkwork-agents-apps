@@ -12,6 +12,7 @@ import {
   configureChatAgentPort,
   type ChatAgentPort,
 } from '../packages/sdkwork-agents-pc-chat/src/services/ChatService';
+import type { ChatCitation } from '../packages/sdkwork-agents-pc-chat/src/types';
 
 function forbiddenError(): Error & { httpStatus: number; code: string } {
   const error = new Error('iam.permission.missing:ai.agents.manage') as Error & {
@@ -257,4 +258,36 @@ test('does not duplicate the completion text when deltas already streamed', asyn
   // `ChatView.onMessageUpdate` appends each update, so re-emitting the terminal
   // content after deltas would render the answer twice.
   assert.deepEqual(updates, ['streamed ', 'answer']);
+});
+
+test('propagates grounding citations to the completion callback', async () => {
+  const citations = [
+    { index: 1, documentId: 'doc-1', title: 'Refund policy', score: 0.9 },
+  ];
+  configureChatAgentPort(createChatAgentPort({
+    sendMessageStream: async (
+      _agentId,
+      _sessionId,
+      _content,
+      _model,
+      _media,
+      onDelta,
+    ) => {
+      onDelta('answer');
+      return { id: 'message.cited', content: 'answer', citations };
+    },
+  }));
+
+  let completed: { id: string; citations?: ChatCitation[] } | undefined;
+  await ChatService.streamChat({
+    sessionId: 'session.citations',
+    model: 'model-a',
+    messages: [{ id: 'message.user.citations', role: 'user', text: 'refund?' }],
+    onMessageUpdate: () => undefined,
+    onComplete: (message) => {
+      completed = message;
+    },
+  });
+
+  assert.deepEqual(completed?.citations, citations);
 });

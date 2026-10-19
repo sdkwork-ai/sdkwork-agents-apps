@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatToolCall, ChatToolStreamEvent } from '../types';
+import type { ChatCitation, ChatMessage, ChatToolCall, ChatToolStreamEvent } from '../types';
 import { trimSessionTitle } from '../utils/sessionTitleUtils';
 import type { AgentsDriveMediaResource } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
 import { createSdkworkChatRequestContext } from '@sdkwork/agents-pc-core/session';
@@ -72,7 +72,7 @@ export interface ChatServiceOptions {
   onReasoning?: (reasoning: string) => void;
   /** Tool/skill/MCP invocation lifecycle event for the assistant message. */
   onToolEvent?: (event: ChatToolStreamEvent) => void;
-  onComplete?: (message?: { id: string }) => void;
+  onComplete?: (message?: { id: string; citations?: ChatCitation[] }) => void;
   onError?: (failure: ChatSendFailure) => void;
 }
 
@@ -172,7 +172,7 @@ export interface ChatAgentPort {
     systemPrompt?: string,
     /** Optional LLM wire protocol for the cloudrouter gateway (defaults to chat_completions). */
     wireProtocol?: string,
-  ): Promise<{ id: string; content: string }>;
+  ): Promise<{ id: string; content: string; citations?: ChatCitation[] }>;
   /** Optional SSE streaming variant: deltas are delivered via `onDelta`. */
   sendMessageStream?(
     agentId: string,
@@ -186,7 +186,7 @@ export interface ChatAgentPort {
     onToolEvent?: (event: ChatToolStreamEvent) => void,
     /** Optional LLM wire protocol for the cloudrouter gateway (defaults to chat_completions). */
     wireProtocol?: string,
-  ): Promise<{ id: string; content: string }>;
+  ): Promise<{ id: string; content: string; citations?: ChatCitation[] }>;
 }
 
 export function configureChatAgentPort(port: ChatAgentPort): void {
@@ -612,7 +612,7 @@ export class ChatService {
       if (!port.sendMessageStream || !streamedDelta) {
         options.onMessageUpdate(response.content);
       }
-      options.onComplete?.({ id: response.id });
+      options.onComplete?.({ id: response.id, citations: response.citations });
     } catch (error) {
       const failure = toChatSendFailure(error);
       console.warn(

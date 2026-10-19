@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  BookOpen,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -548,6 +549,29 @@ export const BotMessageItem: React.FC<BotMessageItemProps> = ({
             onOpenArtifact={onOpenArtifact}
             streaming={isStreaming}
           />
+        )}
+
+        {!isStreaming && message.citations && message.citations.length > 0 && (
+          <div
+            className="mt-1 w-full rounded-lg border border-gray-200/80 bg-gray-50/60 px-2.5 py-2 dark:border-[#3a3a3a] dark:bg-[#1f1f1f]/60"
+            data-chat-citations
+          >
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 dark:text-gray-400">
+              <BookOpen size={12} className="opacity-70" />
+              <span>{tCommon('sources', { defaultValue: '参考来源' })}</span>
+            </div>
+            <ul className="mt-1 space-y-0.5">
+              {message.citations.map((citation, index) => (
+                <li
+                  key={`${citation.documentId}-${citation.index ?? index}`}
+                  className="truncate text-[11px] leading-snug text-gray-600 dark:text-gray-300"
+                  title={citation.sourceUri ?? citation.title}
+                >
+                  [{citation.index}] {citation.title}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
 
         {!isStreaming && message.text && (

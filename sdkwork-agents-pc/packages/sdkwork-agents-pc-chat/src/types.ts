@@ -28,6 +28,16 @@ export interface ChatToolStreamEvent {
   isError?: boolean;
 }
 
+/** Knowledge source that grounded an assistant turn. */
+export interface ChatCitation {
+  /** 1-based marker number used in the grounding prompt. */
+  index: number;
+  documentId: string;
+  title: string;
+  sourceUri?: string | null;
+  score?: number | null;
+}
+
 export interface ChatMessage {
   id: string;
   role: MessageRole;
@@ -36,6 +46,8 @@ export interface ChatMessage {
   reasoning?: string;
   /** Tool/skill/MCP invocations performed within this turn. */
   toolCalls?: ChatToolCall[];
+  /** Knowledge sources returned with the completed turn. */
+  citations?: ChatCitation[];
   images?: string[];
   mediaResources?: import('@sdkwork/agents-pc-core/sdk/driveUploadService').AgentsDriveMediaResource[];
   feedback?: 'up' | 'down';

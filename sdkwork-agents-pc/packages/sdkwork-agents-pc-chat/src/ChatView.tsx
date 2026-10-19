@@ -772,7 +772,11 @@ export const ChatView = ({
                     ...session,
                     messages: session.messages.map((message) =>
                       message.id === modelMessageId
-                        ? { ...message, id: completedMessage.id }
+                        ? {
+                            ...message,
+                            id: completedMessage.id,
+                            citations: completedMessage.citations ?? message.citations,
+                          }
                         : message
                     ),
                   }
