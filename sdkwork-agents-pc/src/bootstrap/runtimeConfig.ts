@@ -1,4 +1,4 @@
-import manifest from '../../sdkwork.app.config.json';
+import manifest from '../../agent.app.config.json';
 
 export type AgentsPcEnvironment = 'dev' | 'prod' | 'test';
 export type AgentsPcLifecycleEnvironment = 'development' | 'test' | 'staging' | 'production';

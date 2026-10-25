@@ -18,7 +18,7 @@ const CONSTANTS_PATH = path.join(
   appRoot,
   'packages/sdkwork-agents-h5-core/src/sdk/uploadDeclaration.ts',
 );
-const APP_CONFIG_PATH = path.join(appRoot, 'sdkwork.app.config.json');
+const APP_CONFIG_PATH = path.join(appRoot, 'agent.app.config.json');
 
 /** §8.1 standard upload profiles. */
 const STANDARD_UPLOAD_PROFILES = new Set([
@@ -128,7 +128,7 @@ test('upload declaration constants agree on one source label', () => {
 test('upload declaration appId matches the application config', () => {
   const config = JSON.parse(fs.readFileSync(APP_CONFIG_PATH, 'utf8'));
   const appId = config.backend?.appId ?? config.app?.key;
-  assert.ok(appId, 'sdkwork.app.config.json does not declare an app identity.');
+  assert.ok(appId, 'agent.app.config.json does not declare an app identity.');
   assert.equal(loadDeclaration().appId, appId);
 });
 

@@ -10,7 +10,7 @@ The canonical global standards index is `../../../sdkwork-specs/README.md`; `../
 
 ## Application Identity
 
-Read `sdkwork.app.config.json` for application identity, SDK/API inventory, release metadata, packaging, or app-owned capabilities. Runtime environment values come from the application configuration adapters and repository deployable-root `../../etc/`, not the app manifest.
+Read `agent.app.config.json` for application identity, SDK/API inventory, release metadata, packaging, or app-owned capabilities. Runtime environment values come from the application configuration adapters and repository deployable-root `../../etc/`, not the app manifest.
 
 ## Local Dictionary Structure
 

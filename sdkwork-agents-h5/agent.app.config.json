@@ -1,30 +1,30 @@
 {
   "schemaVersion": 3,
-  "kind": "sdkwork.app",
+  "kind": "agent.app",
   "app": {
-    "key": "agents-harmony-mobile",
-    "name": "SDKWork Agents HarmonyOS Mobile",
-    "displayName": "SDKWork Agents HarmonyOS Mobile",
-    "description": "SDKWork Agents native HarmonyOS (ArkTS/ArkUI) mobile client application.",
+    "key": "agents-h5",
+    "name": "SDKWork Agents H5",
+    "displayName": "SDKWork Agents H5",
+    "description": "SDKWork Agents h5 client application scaffold.",
     "vendor": "SDKWork",
-    "officialWebsiteUrl": "https://sdkwork.com/apps/agents-harmony-mobile",
+    "officialWebsiteUrl": "https://sdkwork.com/apps/agents-h5",
     "supportUrl": "https://sdkwork.com/support",
     "privacyPolicyUrl": "https://sdkwork.com/privacy",
     "termsOfServiceUrl": "https://sdkwork.com/terms",
-    "appType": "APP_HARMONY",
-    "versionSource": "oh-package.json5",
+    "appType": "APP_REACT",
+    "versionSource": "package.json",
     "identifiers": {
-      "packageName": "com.sdkwork.agents.mobile",
-      "bundleId": "com.sdkwork.agents.mobile",
+      "packageName": null,
+      "bundleId": null,
       "desktopAppId": null,
-      "containerImage": "registry.sdkwork.com/apps/agents-harmony-mobile"
+      "containerImage": "registry.sdkwork.com/apps/agents-h5"
     }
   },
   "backend": {
     "profileKey": "backend-root-admin",
     "ownerMode": "tenant",
     "grantMode": "current",
-    "platform": "APP_HARMONY",
+    "platform": "H5",
     "appId": "sdkwork-agents",
     "organizationId": "0",
     "tenantId": "100001",
@@ -37,16 +37,15 @@
   },
   "runtime": {
     "family": "mobile",
-    "framework": "harmony-native",
+    "framework": "react-h5",
     "runtimes": [
-      "APP_HARMONY"
+      "H5"
     ],
     "deliveryModes": [
-      "APP_GALLERY",
-      "DIRECT_DOWNLOAD"
+      "WEB_URL"
     ],
-    "defaultPlatform": "APP_HARMONY",
-    "defaultArchitecture": "harmony-native",
+    "defaultPlatform": "H5",
+    "defaultArchitecture": "universal",
     "supportedDeploymentProfiles": [
       "standalone",
       "cloud"
@@ -56,7 +55,7 @@
   "media": {
     "icons": {
       "primary": {
-        "id": "agents-harmony-mobile-primary-icon",
+        "id": "agents-h5-primary-icon",
         "type": "ICON",
         "purpose": "PRIMARY",
         "platform": "APP",
@@ -65,6 +64,7 @@
         "height": 1024,
         "format": "PNG",
         "enabled": true,
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-agents/assets/icon-1024.png",
         "metadata": {
           "generatedPlaceholder": true
         }
@@ -85,35 +85,24 @@
     "status": "DRAFT",
     "installSkill": false,
     "platforms": [
-      "APP_HARMONY"
+      "H5"
     ],
     "installPlatforms": [
-      "APP_HARMONY"
+      "H5"
     ],
     "config": {
-      "workspaceRoot": "apps/sdkwork-agents-harmony-mobile",
-      "framework": "harmony-native",
-      "managedBy": "sdkwork-agents-harmony-scaffold",
-      "distribution": {
-        "appGallery": {
-          "appIdPlaceholder": "<appgallery-app-id>",
-          "signingReference": "<deveco-signing-profile-name>"
-        },
-        "privateDistribution": {
-          "channelPlaceholder": "<private-distribution-channel>"
-        }
-      }
+      "workspaceRoot": "apps/sdkwork-agents-h5",
+      "framework": "react-h5",
+      "managedBy": "sdkwork-agents-client-scaffold"
     }
   },
   "artifacts": {
     "installConfig": {
       "packages": [],
       "metadata": {
-        "workspaceRoot": "apps/sdkwork-agents-harmony-mobile",
-        "framework": "harmony-native",
-        "packageManager": "ohpm",
-        "deferred": true,
-        "deferredReason": "HarmonyOS SDK/hvigor/ohpm toolchain and signing profile are not available in the current environment."
+        "workspaceRoot": "apps/sdkwork-agents-h5",
+        "framework": "react-h5",
+        "packageManager": "pnpm"
       }
     }
   },
@@ -123,22 +112,30 @@
     "latest": {
       "BETA": "0.1.0"
     },
-    "notes": []
+    "notes": [
+      {
+        "version": "0.1.0",
+        "channel": "BETA",
+        "current": true,
+        "packageIds": []
+      }
+    ]
   },
   "security": {
     "checksumRequired": true,
-    "signatureRequired": true,
+    "signatureRequired": false,
     "sbomRequired": true
   },
   "devApp": {
     "build": {
       "targets": []
     },
-    "sourceRoot": "apps/sdkwork-agents-harmony-mobile"
+    "sourceRoot": "apps/sdkwork-agents-h5"
   },
   "metadata": {
     "standardOwner": "sdkwork-agents",
-    "architectureSpec": "HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md",
-    "runtimeTarget": "harmony-native"
+    "initializedAt": "2026-06-26T01:32:34.239Z",
+    "deploymentConfig": "etc/sdkwork.deployment.config.json",
+    "releaseAuthority": "../../sdkwork.workflow.json"
   }
 }

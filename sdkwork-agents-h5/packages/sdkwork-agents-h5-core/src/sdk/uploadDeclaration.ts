@@ -18,7 +18,7 @@ export interface AgentsH5UploadDeclarationEntry {
   readonly uploadProfileCode: string;
 }
 
-/** This application's canonical appId, from `sdkwork.app.config.json` `backend.appId`. */
+/** This application's canonical appId, from `agent.app.config.json` `backend.appId`. */
 export const AGENTS_H5_APP_ID = "sdkwork-agents" as const;
 
 /** The single call-origin label for every upload from this application. */

@@ -1,30 +1,30 @@
 {
   "schemaVersion": 3,
-  "kind": "sdkwork.app",
+  "kind": "agent.app",
   "app": {
-    "key": "agents-mini-program",
-    "name": "SDKWork Agents Mini Program",
-    "displayName": "SDKWork Agents Mini Program",
-    "description": "SDKWork Agents WeChat mini program client application scaffold.",
+    "key": "agents-flutter-mobile",
+    "name": "SDKWork Agents Mobile",
+    "displayName": "SDKWork Agents Mobile",
+    "description": "SDKWork Agents Flutter mobile client application scaffold.",
     "vendor": "SDKWork",
-    "officialWebsiteUrl": "https://sdkwork.com/apps/agents-mini-program",
+    "officialWebsiteUrl": "https://sdkwork.com/apps/agents-flutter-mobile",
     "supportUrl": "https://sdkwork.com/support",
     "privacyPolicyUrl": "https://sdkwork.com/privacy",
     "termsOfServiceUrl": "https://sdkwork.com/terms",
-    "appType": "APP_UNIAPP",
-    "versionSource": "package.json",
+    "appType": "APP_FLUTTER",
+    "versionSource": "pubspec.yaml",
     "identifiers": {
-      "packageName": null,
-      "bundleId": null,
+      "packageName": "com.sdkwork.agents.mobile",
+      "bundleId": "com.sdkwork.agents.mobile",
       "desktopAppId": null,
-      "containerImage": "registry.sdkwork.com/apps/agents-mini-program"
+      "containerImage": "registry.sdkwork.com/apps/agents-flutter-mobile"
     }
   },
   "backend": {
     "profileKey": "backend-root-admin",
     "ownerMode": "tenant",
     "grantMode": "current",
-    "platform": "MP_WEIXIN",
+    "platform": "APP",
     "appId": "sdkwork-agents",
     "organizationId": "0",
     "tenantId": "100001",
@@ -36,15 +36,17 @@
     ]
   },
   "runtime": {
-    "family": "mini-program",
-    "framework": "mp-weixin",
+    "family": "mobile",
+    "framework": "flutter",
     "runtimes": [
-      "MP_WEIXIN"
+      "APP",
+      "APP_ANDROID",
+      "APP_IOS"
     ],
     "deliveryModes": [
-      "WEB_URL"
+      "DIRECT_DOWNLOAD"
     ],
-    "defaultPlatform": "MP_WEIXIN",
+    "defaultPlatform": "APP_ANDROID",
     "defaultArchitecture": "universal",
     "supportedDeploymentProfiles": [
       "standalone",
@@ -55,7 +57,7 @@
   "media": {
     "icons": {
       "primary": {
-        "id": "agents-mini-program-primary-icon",
+        "id": "agents-flutter-mobile-primary-icon",
         "type": "ICON",
         "purpose": "PRIMARY",
         "platform": "APP",
@@ -85,14 +87,18 @@
     "status": "DRAFT",
     "installSkill": false,
     "platforms": [
-      "MP_WEIXIN"
+      "APP",
+      "APP_ANDROID",
+      "APP_IOS"
     ],
     "installPlatforms": [
-      "MP_WEIXIN"
+      "APP",
+      "APP_ANDROID",
+      "APP_IOS"
     ],
     "config": {
-      "workspaceRoot": "apps/sdkwork-agents-mini-program",
-      "framework": "mp-weixin",
+      "workspaceRoot": "apps/sdkwork-agents-flutter-mobile",
+      "framework": "flutter",
       "managedBy": "sdkwork-agents-client-scaffold"
     }
   },
@@ -100,9 +106,9 @@
     "installConfig": {
       "packages": [],
       "metadata": {
-        "workspaceRoot": "apps/sdkwork-agents-mini-program",
-        "framework": "mp-weixin",
-        "packageManager": "pnpm"
+        "workspaceRoot": "apps/sdkwork-agents-flutter-mobile",
+        "framework": "flutter",
+        "packageManager": "flutter"
       }
     }
   },
@@ -130,11 +136,11 @@
     "build": {
       "targets": []
     },
-    "sourceRoot": "apps/sdkwork-agents-mini-program"
+    "sourceRoot": "apps/sdkwork-agents-flutter-mobile"
   },
   "metadata": {
     "standardOwner": "sdkwork-agents",
-    "initializedAt": "2026-06-26T01:32:34.249Z",
+    "initializedAt": "2026-06-26T01:32:34.261Z",
     "deploymentConfig": "etc/sdkwork.deployment.config.json",
     "releaseAuthority": "../../sdkwork.workflow.json"
   }
