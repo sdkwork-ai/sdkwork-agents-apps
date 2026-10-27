@@ -142,6 +142,6 @@
     "standardOwner": "sdkwork-agents",
     "initializedAt": "2026-06-26T01:32:34.261Z",
     "deploymentConfig": "etc/sdkwork.deployment.config.json",
-    "releaseAuthority": "../../sdkwork.workflow.json"
+    "releaseAuthority": "../../agent.workflow.json"
   }
 }
