@@ -44,27 +44,62 @@ export const CreativeMessageItem: React.FC<CreativeMessageItemProps> = ({
       </div>
 
       {/* Rendering stage styles */}
-      {m.stage === 'thinking' || m.stage === 'loading' ? (
+      {m.stage === 'failed' ? (
+        /* Terminal failure card: honest state, with a one-click redo */
+        <div className="w-full min-h-[120px] border border-rose-500/20 bg-rose-500/5 rounded-2xl flex flex-col items-center justify-center gap-2 p-6 dark:border-rose-400/20 dark:bg-rose-400/5">
+          <span className="text-rose-600 dark:text-rose-400 text-[13px] font-medium">
+            {m.errorText || '本次生成失败'}
+          </span>
+          {m.text ? (
+            <button
+              onClick={() => onSend(m.text || '', m.mode || 'image')}
+              className="px-3 py-1.5 rounded-lg border border-black/10 text-zinc-600 hover:text-zinc-900 hover:bg-black/5 transition-colors text-xs font-medium cursor-pointer dark:border-white/10 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
+            >
+              <RotateCcw size={13} className="inline mr-1 -mt-0.5" />
+              重新生成
+            </button>
+          ) : null}
+        </div>
+      ) : m.stage === 'thinking' || m.stage === 'loading' ? (
         /* Progress thinking / loading card */
         <div className="w-full aspect-[2.39/1] min-h-[220px] bg-zinc-100 border border-black/5 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden dark:bg-[#222222] dark:border-white/5">
+          {/* Reference preview: the upload the command is generating from,
+              dimmed under the scan animation until the vendor result replaces it. */}
+          {m.previewUrl ? (
+            <img
+              src={m.previewUrl}
+              alt=""
+              referrerPolicy="no-referrer"
+              className="absolute inset-0 w-full h-full object-cover opacity-25 blur-sm scale-105 select-none pointer-events-none"
+            />
+          ) : null}
           {m.stage === 'thinking' ? (
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 relative z-10">
               <div className="w-6 h-6 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin shrink-0" />
-              <span className="text-zinc-400 text-xs font-medium animate-pulse">认真思考中...</span>
+              <span className="text-zinc-500 dark:text-zinc-300 text-xs font-medium animate-pulse bg-black/30 dark:bg-black/40 px-2 py-0.5 rounded-md">
+                {m.stageLabel || '排队中'}
+              </span>
             </div>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center p-4">
-              {/* Progress Badge */}
+              {/* Status Badge: real stage, not a fabricated percentage */}
               <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 z-10">
                 <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                <span>{m.progress}%</span>
+                <span>{m.stageLabel || '生成中'}</span>
               </div>
-              
+
               {/* Scanning bar animation */}
-              <div className="absolute inset-x-0 h-0.5 bg-cyan-500/50 shadow-[0_0_10px_#06b6d4] scanner-bar" />
-              
-              <Sparkles size={20} className="text-zinc-600 animate-pulse mb-2" />
-              <span className="text-zinc-500 text-[11px] font-medium">生成画面中...</span>
+              <div className="absolute inset-x-0 h-0.5 bg-cyan-500/50 shadow-[0_0_10px_#06b6d4] scanner-bar z-10" />
+
+              <Sparkles size={20} className="text-zinc-600 dark:text-zinc-300 animate-pulse mb-2 relative z-10" />
+              <span className="text-zinc-600 dark:text-zinc-300 text-[11px] font-medium relative z-10 bg-black/30 dark:bg-black/40 px-2 py-0.5 rounded-md">
+                {m.stageLabel || '生成中'}
+              </span>
+              {m.previewUrl ? (
+                <span className="text-zinc-500 dark:text-zinc-400 text-[10px] mt-1 relative z-10">
+                  预览参考 · 生成完成后展示结果
+                </span>
+              ) : null}
             </div>
           )}
         </div>

@@ -9,6 +9,8 @@ export interface CreativeInputSettings {
   duration?: number;
   videoMode?: 'all_around' | 'first_last' | 'smart_multi';
   count?: number;
+  imageWidth?: number;
+  imageHeight?: number;
 }
 
 export function useCreativeInputBox(

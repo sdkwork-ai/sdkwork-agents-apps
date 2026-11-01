@@ -14,7 +14,8 @@ import { CreativeToolbar } from './components/CreativeToolbar';
 import { CreativeMessageItem } from './components/CreativeMessageItem';
 import { PromptHistoryItem } from './components/CreativeHistoryLog';
 
-import { CreativeService } from './services/CreativeService';
+import { CreativeService, CreativeSessionStore } from './services/CreativeService';
+import { uuid } from '@sdkwork/utils';
 
 function createDefaultCreativeSession(): CreativeSession {
   return { id: 'default', title: '默认创作', messages: [] };
@@ -187,8 +188,46 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
     let cancelled = false;
     void CreativeService.getSessions().then((data) => {
       if (cancelled || data.length === 0) return;
-      setSessions(data);
-      setActiveSessionId(data[0].id);
+      // Merge instead of replace: a generation dispatched while the load was
+      // in flight lives only in local state (the backend page predates it),
+      // and a replace used to wipe the pending card and the typed prompt.
+      setSessions(prev => {
+        const byId = new Map(prev.map(s => [s.id, s] as const));
+        const merged: CreativeSession[] = data.map(loaded => {
+          const existing = byId.get(loaded.id);
+          if (!existing) return loaded;
+          byId.delete(loaded.id);
+          const messages = loaded.messages.length >= existing.messages.length
+            ? loaded.messages
+            : existing.messages;
+          const placeholderTitle = existing.title === '新对话' || existing.title === '默认创作';
+          return {
+            ...loaded,
+            messages,
+            title: placeholderTitle ? loaded.title : existing.title,
+            isPinned: existing.isPinned || loaded.isPinned,
+          };
+        });
+        // Local-only sessions (created mid-load, no records yet) survive.
+        for (const local of byId.values()) merged.push(local);
+        return merged;
+      });
+      // Keep the conversation the user is looking at; only fall back to the
+      // newest loaded session when the active one no longer exists.
+      const active = data.some(s => s.id === activeSessionId) ? activeSessionId : data[0].id;
+      setActiveSessionId(active);
+      // The sidebar read defers per-turn media to the session load, so the
+      // session the user is actually looking at resolves its media now.
+      void CreativeService.loadSession(active).then((session) => {
+        if (cancelled || !session) return;
+        setSessions(current => current.map(s => s.id === active
+          ? (
+            session.messages.length >= s.messages.length
+              ? { ...session, title: s.title, isPinned: s.isPinned }
+              : s
+          )
+          : s));
+      });
     });
     return () => {
       cancelled = true;
@@ -213,6 +252,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
     setSessions(prev => prev.map(s => {
       if (s.id === id) {
         const nextPin = !s.isPinned;
+        CreativeSessionStore.setPinned(id, nextPin);
         showToast(nextPin ? "已置顶会话" : "已取消置顶");
         return { ...s, isPinned: nextPin };
       }
@@ -229,6 +269,8 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
       }
       return s;
     }));
+    // Titles are presentation-only; persist them so a reload keeps the name.
+    CreativeSessionStore.rename(id, finalTitle);
     showToast("会话重命名成功");
   };
 
@@ -250,12 +292,23 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
       if (s.id === activeSessionId) {
         const index = s.messages.findIndex(m => m.id === msgId);
         if (index === -1) return s;
-        
+
         let toRemoveIndices = [index];
         if (index > 0 && s.messages[index - 1].role === 'user') {
           toRemoveIndices.push(index - 1);
         }
-        
+
+        // Deletion is presentational; persist the record id so a reload (or
+        // the authoritative per-session reload) does not resurrect the turn.
+        for (const removed of toRemoveIndices) {
+          const removedId = s.messages[removed].id;
+          CreativeSessionStore.hideRecord(
+            removedId.endsWith('-prompt')
+              ? removedId.slice(0, -'-prompt'.length)
+              : removedId,
+          );
+        }
+
         return {
           ...s,
           messages: s.messages.filter((_, idx) => !toRemoveIndices.includes(idx))
@@ -288,8 +341,28 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
     }
   }, [activeSessionId]);
 
+  const handleSelectSession = (id: string) => {
+    setActiveSessionId(id);
+    // Re-fetch the conversation's own turns: the sidebar list is assembled
+    // from the newest global page and truncates conversations that fall
+    // outside it. Only replace when the authoritative list carries at least
+    // as many turns, so an in-flight generation never gets dropped.
+    void CreativeService.loadSession(id).then((session) => {
+      if (!session) return;
+      setSessions(prev => prev.map(s => s.id === id
+        ? (
+          session.messages.length >= s.messages.length
+            ? { ...session, title: s.title, isPinned: s.isPinned }
+            : s
+        )
+        : s));
+    });
+  };
+
   const handleNewChat = () => {
-    const newId = Date.now().toString();
+    // A stable uuid doubles as the backend conversation key; timestamp ids
+    // collide when two sessions are created within the same millisecond.
+    const newId = uuid();
     setSessions(prev => [
       { id: newId, title: '新对话', messages: [] },
       ...prev
@@ -299,6 +372,10 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
 
   const handleDeleteSession = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    // Hide the conversation locally so a reload does not resurrect it; the
+    // generation records themselves stay (the generations surface has no
+    // delete endpoint by contract).
+    CreativeSessionStore.setHidden(id, true);
     if (sessions.length <= 1) {
       const resetSession = createDefaultCreativeSession();
       setSessions([resetSession]);
@@ -333,7 +410,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
       return updated;
     });
 
-    const userMsgId = 'user-' + Date.now();
+    const userMsgId = `user-${uuid()}`;
     const userMessage: CreativeMessage = {
       id: userMsgId,
       role: 'user',
@@ -372,10 +449,17 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
           return s;
         }));
       }, mode === 'agent' ? undefined : settings?.model, {
+        // Multi-turn continuity: every command of the active session rides the
+        // same conversation key, so a reload reassembles the conversation.
+        conversationId: activeSessionId,
         // Reference images change the operation (image_edit / image_to_video)
         // rather than only decorating it.
         hasReferenceImages: Array.isArray(settings?.refImages) && settings.refImages.length > 0,
         ...buildCreativeCommandOptions(text, mode, settings),
+        // The first upload previews on the pending card while the command runs.
+        previewImageUrl: (Array.isArray(settings?.mediaResources) ? settings.mediaResources : [])
+          .map((resource: { url?: string; uri?: string }) => resource.url || resource.uri)
+          .find((url: string | undefined): url is string => Boolean(url)),
       });
     } catch (error) {
       if (assistantMessageId) {

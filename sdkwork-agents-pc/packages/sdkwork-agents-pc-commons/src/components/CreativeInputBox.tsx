@@ -19,6 +19,7 @@ import {
   CREATIVE_CREATION_TYPES,
   resolveCreativeCreationType,
 } from '@sdkwork/agents-pc-core/sdk/creationTypes';
+import { useCreativeCreditEstimate } from '../hooks/useCreativeCreditEstimate';
 import { uuid } from '@sdkwork/utils';
 
 interface CreativeInputBoxProps {
@@ -300,6 +301,27 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
   const TypeIcon = currentType.icon;
   const currentModels = isDigitalHuman ? avatarModels : isAction ? actionModels : isSfx ? soundEffectsModels : isVoice ? voiceModels : isMusic ? musicModels : isVideo ? videoModels : imageModels;
   const currentModel = currentModels.find(m => m.id === selectedModelId) || currentModels[0];
+
+  // Live credit estimate: the submit button shows the backend's projection of
+  // the actual wallet debit for the current type/model/parameter combination,
+  // re-priced whenever any of them changes. Agent mode runs on the chat
+  // billing model and carries no per-command estimate.
+  const creditEstimate = useCreativeCreditEstimate({
+    mode: isAgent ? null : creationType,
+    modelId: selectedModelId,
+    settings: {
+      ratio: isVideo ? videoRatio : (isImage ? imageRatio : '1:1'),
+      resolution: isVideo ? videoResolution : (isImage ? imageResolution : undefined),
+      duration: isVideo ? videoDuration : (isMusic && !musicSmartDuration ? musicDuration : undefined),
+      count: isVideo ? Number(videoCount) : undefined,
+      videoMode: isVideo ? videoSettingsMode : undefined,
+      imageWidth: isImage ? imageWidth : undefined,
+      imageHeight: isImage ? imageHeight : undefined,
+    },
+    prompt: input,
+    hasReferenceImages: uploadedImages.length > 0,
+    musicSmartDuration,
+  });
 
   const placeholderText = isVideo ? "描述您想要生成的视频内容，例如：“一只赛博朋克风格的机器猫在霓虹灯下行走”..." :
     isMusic ? "描述您想要生成的音乐风格，例如：“一首轻快的电子乐，适合作为Vlog背景音乐”..." :
@@ -909,21 +931,16 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
             <button className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-white/10 transition-colors mx-1 text-zinc-400 hover:text-zinc-200">
               <Mic size={18} />
             </button>
-          ) : isVideo ? (
-            <div className="flex items-center gap-1.5 text-[13px] text-zinc-500 mx-2 font-medium">
-              <Sparkles size={14} className="fill-zinc-500" /> 36
-            </div>
-          ) : isMusic ? (
-            <div className="flex items-center gap-1.5 text-[13px] text-zinc-500 mx-2 font-medium">
-              <Sparkles size={14} className="fill-zinc-500" /> 5/首
-            </div>
-          ) : isSfx || isVoice || isDigitalHuman ? (
-            <div className="flex items-center gap-1.5 text-[13px] text-zinc-500 mx-2 font-medium">
-              <Sparkles size={14} className="fill-zinc-500" /> 1/次
-            </div>
           ) : (
-            <div className="flex items-center gap-1.5 text-[13px] text-zinc-500 mx-2 font-medium">
-              <Sparkles size={14} className="fill-zinc-500" /> 3/张
+            <div
+              className={cn(
+                "flex items-center gap-1.5 text-[13px] mx-2 font-medium select-none transition-opacity",
+                creditEstimate.status === 'ready' ? "text-zinc-500" : "text-zinc-400/70",
+              )}
+              title={creditEstimate.detail || undefined}
+            >
+              <Sparkles size={14} className={cn("fill-zinc-500", creditEstimate.status === 'loading' && "animate-pulse")} />
+              <span>{creditEstimate.pointsLabel}</span>
             </div>
           )}
           

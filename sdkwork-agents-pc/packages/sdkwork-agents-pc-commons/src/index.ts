@@ -13,6 +13,11 @@ export type {
   CreativeModelDefinition,
   CreativeModelModality,
 } from "./creative-model-catalog";
+export { useCreativeCreditEstimate } from "./hooks/useCreativeCreditEstimate";
+export type {
+  CreativeCreditEstimateInput,
+  CreativeCreditEstimateState,
+} from "./hooks/useCreativeCreditEstimate";
 export { Avatar } from "./components/Avatar";
 export { CreativeInputBox } from "./components/CreativeInputBox";
 export { IconButton } from "./components/IconButton";

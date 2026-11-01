@@ -8,6 +8,11 @@
     "surface": "app"
   },
   "exports": {
+    "./create": {
+      "types": "./src/create.ts",
+      "import": "./src/create.ts",
+      "default": "./src/create.ts"
+    },
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts",

@@ -40,6 +40,32 @@ function toProgress(record: GenerationRecord): number {
   return 29;
 }
 
+/**
+ * Honest stage label for the progress card. The backend record carries a
+ * status, not a percentage — the previous 29/67/100 numbers implied a progress
+ * the wire never provided, so the card shows the real stage instead.
+ */
+function toStageLabel(record: GenerationRecord, mode: string): string {
+  if (record.status === 'queued') return '排队中';
+  if (record.status === 'requires_action') return '等待确认';
+  switch (mode) {
+    case 'image':
+      return '生成画面中...';
+    case 'video':
+    case 'digital_human':
+    case 'action':
+      return '生成视频中...';
+    case 'music':
+      return '创作音乐中...';
+    case 'voice':
+      return '合成配音中...';
+    case 'sfx':
+      return '生成音效中...';
+    default:
+      return '生成中...';
+  }
+}
+
 function toAssistantMessage(
   record: GenerationRecord,
   media: readonly GenerationMediaResult[],
@@ -49,11 +75,17 @@ function toAssistantMessage(
   const imageUrls = media.filter((item) => item.kind === 'image').map((item) => item.url);
   const videoUrls = media.filter((item) => item.kind === 'video').map((item) => item.url);
   const audioUrls = media.filter((item) => item.kind === 'audio').map((item) => item.url);
+  // A reloaded failed/canceled record must render as a terminal failure, not
+  // as an eternal loading card.
+  const failed = record.status === 'failed' || record.status === 'canceled';
   return {
     id: messageId,
     role: 'assistant',
     text: record.promptPreview || record.operationType,
-    stage: record.status === 'succeeded' ? 'completed' : 'loading',
+    stage: record.status === 'succeeded' ? 'completed' : failed ? 'failed' : 'loading',
+    errorText: failed
+      ? record.status === 'canceled' ? '本次生成已取消' : '本次生成失败，可重新生成'
+      : undefined,
     progress: toProgress(record),
     mode,
     modelInfo: toModelInfo(record),
@@ -66,36 +98,21 @@ function toAssistantMessage(
   };
 }
 
-async function toCreativeSession(record: GenerationRecord): Promise<CreativeSession> {
-  const generationsService = await loadGenerationsService();
-  const media = record.status === 'succeeded'
-    ? await generationsService.listMediaResults(record.id)
-    : [];
-  const prompt = record.promptPreview || record.operationType;
-  return {
-    id: record.id,
-    title: prompt.length > 18 ? `${prompt.slice(0, 18)}...` : prompt,
-    messages: [
-      {
-        id: `${record.id}-prompt`,
-        role: 'user',
-        text: prompt,
-      },
-      toAssistantMessage(record, media),
-    ],
-  };
-}
-
 /**
  * Caller-provided generation dispatch options. `commandParameters` lands in the
  * generations command `parameters` object (vendor routing, generation config,
  * reference media); `commandInputAssetIds` carries Drive node ids for surfaces
- * that resolve assets server-side.
+ * that resolve assets server-side; `previewImageUrl` is the first reference
+ * upload, echoed on the pending card so the user sees what the command is
+ * generating from.
  */
 export interface CreativeGenerationOptions {
   hasReferenceImages?: boolean;
   commandParameters?: Record<string, unknown>;
   commandInputAssetIds?: string[];
+  previewImageUrl?: string;
+  /** Conversation grouping key of the active creative session. */
+  conversationId?: string;
 }
 
 /** Drop blank entries so absent settings never widen the command payload. */
@@ -114,12 +131,230 @@ function compactCreativeCommandParameters(
   return Object.keys(compacted).length > 0 ? compacted : undefined;
 }
 
+/** The slice of the generations service the conversation builder consumes. */
+interface AgentsGenerationsServiceLike {
+  listMediaResults(generationId: string): Promise<GenerationMediaResult[]>;
+}
+
+// ---------------------------------------------------------------------------
+// Client-side session metadata
+// ---------------------------------------------------------------------------
+
+/**
+ * The backend groups records into conversations through `conversationId`;
+ * session titles, pins and deletions are presentation-only state and live in
+ * localStorage keyed by that conversation id, so a reload keeps them.
+ */
+const SESSION_TITLE_PREFIX = 'creative_session_title:';
+const SESSION_PINNED_PREFIX = 'creative_session_pinned:';
+const SESSION_HIDDEN_PREFIX = 'creative_session_hidden:';
+const HIDDEN_RECORD_IDS_KEY = 'creative_hidden_record_ids';
+/** Sidebar history read ceiling: 5 keyset pages of 100 records. */
+const GET_SESSIONS_MAX_PAGES = 5;
+
+function readLocalFlag(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function writeLocalFlag(key: string, value: boolean): void {
+  try {
+    if (value) localStorage.setItem(key, '1');
+    else localStorage.removeItem(key);
+  } catch {
+    // ignore
+  }
+}
+
+export const CreativeSessionStore = {
+  title(conversationId: string): string | null {
+    try {
+      return localStorage.getItem(SESSION_TITLE_PREFIX + conversationId);
+    } catch {
+      return null;
+    }
+  },
+  rename(conversationId: string, title: string): void {
+    try {
+      localStorage.setItem(SESSION_TITLE_PREFIX + conversationId, title);
+    } catch {
+      // ignore
+    }
+  },
+  isPinned(conversationId: string): boolean {
+    return readLocalFlag(SESSION_PINNED_PREFIX + conversationId);
+  },
+  setPinned(conversationId: string, pinned: boolean): void {
+    writeLocalFlag(SESSION_PINNED_PREFIX + conversationId, pinned);
+  },
+  isHidden(conversationId: string): boolean {
+    return readLocalFlag(SESSION_HIDDEN_PREFIX + conversationId);
+  },
+  setHidden(conversationId: string, hidden: boolean): void {
+    writeLocalFlag(SESSION_HIDDEN_PREFIX + conversationId, hidden);
+  },
+  /**
+   * Record ids the user deleted from a conversation. Deletion is presentational
+   * (the generations contract has no record delete), so the hidden set keeps a
+   * reload from resurrecting the turn.
+   */
+  hiddenRecordIds(): Set<string> {
+    try {
+      const raw = localStorage.getItem(HIDDEN_RECORD_IDS_KEY);
+      const parsed: unknown = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []);
+    } catch {
+      return new Set();
+    }
+  },
+  hideRecord(recordId: string): void {
+    const ids = CreativeSessionStore.hiddenRecordIds();
+    ids.add(recordId);
+    try {
+      localStorage.setItem(HIDDEN_RECORD_IDS_KEY, JSON.stringify([...ids]));
+    } catch {
+      // ignore
+    }
+  },
+};
+
 export class CreativeService {
+  /**
+   * Builds one conversation session from its records: turns replay oldest
+   * first, result URLs resolve in parallel, and the title/pin presentation
+   * state comes from the local store.
+   */
+  static async buildConversationSession(
+    generationsService: AgentsGenerationsServiceLike,
+    conversationId: string,
+    records: readonly GenerationRecord[],
+    options: { resolveMedia?: boolean } = {},
+  ): Promise<CreativeSession | null> {
+    if (CreativeSessionStore.isHidden(conversationId)) return null;
+    // Locally deleted turns stay deleted across reloads.
+    const hiddenRecords = CreativeSessionStore.hiddenRecordIds();
+    // `listRecords` returns newest first; turns replay oldest first.
+    const turns = [...records]
+      .filter((record) => !hiddenRecords.has(record.id))
+      .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
+    // Result URLs resolve per record in parallel; sequential awaits made a
+    // long conversation's load linear in its turn count. The sidebar list
+    // defers media to the per-session load so a full history read costs list
+    // queries only; only the session the user actually opens pays the
+    // per-turn result fetches.
+    const mediaByRecord = new Map<string, GenerationMediaResult[]>();
+    if (options.resolveMedia !== false) {
+      await Promise.all(turns
+        .filter((record) => record.status === 'succeeded')
+        .map(async (record) => {
+          const media = await generationsService
+            .listMediaResults(record.id)
+            .catch(() => [] as GenerationMediaResult[]);
+          mediaByRecord.set(record.id, media);
+        }));
+    }
+    const messages: CreativeMessage[] = [];
+    for (const record of turns) {
+      const media = mediaByRecord.get(record.id) ?? [];
+      const prompt = record.promptPreview || record.operationType;
+      messages.push({
+        id: `${record.id}-prompt`,
+        role: 'user',
+        text: prompt,
+      });
+      messages.push(toAssistantMessage(record, media));
+    }
+    const firstPrompt = turns[0]?.promptPreview || '';
+    const storedTitle = CreativeSessionStore.title(conversationId);
+    return {
+      id: conversationId,
+      title: storedTitle
+        || (firstPrompt.length > 18 ? `${firstPrompt.slice(0, 18)}...` : firstPrompt)
+        || '创作会话',
+      isPinned: CreativeSessionStore.isPinned(conversationId),
+      messages,
+    };
+  }
+
+  /**
+   * Authoritative turn list for one conversation. The sidebar reassembles from
+   * the newest global page, which truncates conversations that fall outside
+   * the page window; opening a session re-fetches its own turns so a long
+   * conversation always shows completely.
+   */
+  static async loadSession(conversationId: string): Promise<CreativeSession | null> {
+    try {
+      const generationsService = await loadGenerationsService();
+      const page = await generationsService.listRecords({
+        pageSize: 100,
+        conversationId,
+      });
+      return await CreativeService.buildConversationSession(
+        generationsService,
+        conversationId,
+        page.items,
+      );
+    } catch (error) {
+      console.error('Failed to load the conversation turns.', error);
+      return null;
+    }
+  }
+
+  /**
+   * Reassembles the creative sessions from the generation records.
+   *
+   * Records sharing a `conversationId` are turns of ONE multi-turn session:
+   * the previous implementation mapped every record to its own session, which
+   * fragmented a conversation into one session per generation after a reload.
+   * Records without a grouping key (legacy or direct-API) stay standalone.
+   */
   static async getSessions(): Promise<CreativeSession[]> {
     try {
       const generationsService = await loadGenerationsService();
-      const page = await generationsService.listRecords({ pageSize: 50 });
-      return Promise.all(page.items.map(toCreativeSession));
+      // The keyset cursor works, so the sidebar can read the whole history:
+      // a single page used to hide conversations older than the page window
+      // from the list entirely.
+      const records: GenerationRecord[] = [];
+      let cursor: string | undefined;
+      for (let page = 0; page < GET_SESSIONS_MAX_PAGES; page += 1) {
+        const result = await generationsService.listRecords({
+          pageSize: 100,
+          ...(cursor ? { cursor } : {}),
+        });
+        records.push(...result.items);
+        cursor = result.nextCursor;
+        if (!cursor) break;
+      }
+      const groups = new Map<string, GenerationRecord[]>();
+      for (const record of records) {
+        const conversationId = record.conversationId?.trim() || `legacy:${record.id}`;
+        const bucket = groups.get(conversationId);
+        if (bucket) bucket.push(record);
+        else groups.set(conversationId, [record]);
+      }
+      // Groups inherit the page's newest-first order; the first group is the
+      // conversation the view opens, and the only one that pays the media
+      // fetches at startup.
+      const sessions: CreativeSession[] = [];
+      let newestConversation = true;
+      for (const [conversationId, groupRecords] of groups) {
+        const session = await CreativeService.buildConversationSession(
+          generationsService,
+          conversationId,
+          groupRecords,
+          { resolveMedia: newestConversation },
+        );
+        newestConversation = false;
+        if (session) sessions.push(session);
+      }
+      sessions.sort((left, right) => {
+        if (left.isPinned !== right.isPinned) return left.isPinned ? -1 : 1;
+        return 0;
+      });
+      return sessions;
     } catch (error) {
       // The generations app service may be unavailable in hosted portal
       // environments (no route registered); the creative page degrades to an
@@ -177,6 +412,8 @@ export class CreativeService {
       text: prompt,
       stage: 'thinking',
       progress: 0,
+      stageLabel: '排队中',
+      previewUrl: options.previewImageUrl,
       mode: resolveCreativeCreationType(mode).id,
       modelInfo: resolvedModelLabel ?? `SDKWork ${modality.replace(/_/gu, ' ')}`,
       imageUrls: [],
@@ -189,6 +426,9 @@ export class CreativeService {
       modality,
       operationType: dispatch.operationType,
       prompt,
+      ...(options.conversationId?.trim()
+        ? { conversationId: options.conversationId.trim() }
+        : {}),
       ...(resolvedModel ? { model: resolvedModel } : {}),
       ...(commandParameters ? { parameters: commandParameters } : {}),
       ...(options.commandInputAssetIds?.length
@@ -201,6 +441,7 @@ export class CreativeService {
           ...pendingMessage,
           stage: current.status === 'queued' ? 'thinking' : 'loading',
           progress: toProgress(current),
+          stageLabel: toStageLabel(current, pendingMessage.mode ?? ''),
           modelInfo: toModelInfo(current),
         });
       },

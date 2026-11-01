@@ -14,6 +14,8 @@ import {
 import type {
   GenerationCommandResponse,
   GenerationModality,
+  GenerationPricingEstimate,
+  GenerationPricingEstimateRequest,
   GenerationRecord,
   GenerationRecordPage,
   GenerationResult,
@@ -27,6 +29,38 @@ export type {
   CreativeGenerationOperationType,
 } from "./creationTypes";
 
+/**
+ * Wire modality for the pricing estimate request. The estimate endpoint uses
+ * the generations modality enum; the two video-command surfaces
+ * (digital human avatar, action mimicry) ride the `video` modality with their
+ * operation type naming the endpoint.
+ */
+const GENERATION_ESTIMATE_MODALITY: Record<
+  CreativeGenerationModality,
+  GenerationPricingEstimateRequest["modality"]
+> = {
+  image: "image",
+  video: "video",
+  music: "music",
+  voice: "voice",
+  sound_effects: "sfx",
+  digital_human: "video",
+  action: "video",
+};
+
+/**
+ * Credit-estimate request. Field parity with [`GenerationCommandInput`]
+ * except `prompt` is optional — a voice estimate without text prices one
+ * character as the lower bound.
+ */
+export interface GenerationCreditEstimateInput {
+  modality: CreativeGenerationModality;
+  operationType?: CreativeGenerationOperationType;
+  prompt?: string;
+  model?: string;
+  parameters?: Record<string, unknown>;
+}
+
 export interface GenerationCommandInput {
   /**
    * Modality carried on the command. Every creation surface (image / video /
@@ -34,6 +68,12 @@ export interface GenerationCommandInput {
    * an unknown modality is rejected instead of being downgraded to image.
    */
   modality: CreativeGenerationModality;
+  /**
+   * Client-scoped conversation grouping key. Every command of one multi-turn
+   * conversation carries the same value, so the record list can reassemble the
+   * conversation after a reload. Opaque to the backend.
+   */
+  conversationId?: string;
   /**
    * Explicit operation. Omitted operations resolve through
    * `CREATIVE_DEFAULT_OPERATION_BY_MODALITY` for the given modality.
@@ -67,7 +107,10 @@ type GenerationsClientProvider = () => (
 
 const DEFAULT_PAGE_SIZE = 50;
 const DEFAULT_POLL_INTERVAL_MS = 1_500;
-const DEFAULT_POLL_ATTEMPTS = 80;
+// Vendor media tasks (Seedance / Kling / Suno) routinely run for minutes; the
+// previous 80×1.5s budget declared the generation failed while the vendor was
+// still rendering, and the record then surfaced finished on the next reload.
+const DEFAULT_POLL_ATTEMPTS = 400;
 
 function defaultSleep(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -143,41 +186,6 @@ type GenerationOperationSender = (
 ) => Promise<GenerationCommandResponse>;
 
 /**
- * Bridge for the two operations that are registered by the generations router
- * and declared in the app OpenAPI contract, but have no typed method in the
- * checked-in generated SDK (`avatar`, `motion_mimicry`). They go through the
- * same authenticated HTTP client — same base URL, same interceptors — so they
- * still reach the contract. Delete this once the SDK is regenerated and the
- * generated methods exist.
- */
-async function sendUnlistedGenerationCommand(
-  client: SdkworkGenerationsAppClient,
-  path: string,
-  body: CreateGenerationCommandBody,
-  params: GenerationCommandParams,
-): Promise<GenerationCommandResponse> {
-  const { appApiPath } = await import("@sdkwork/generations-app-sdk");
-  // `BaseHttpClient.request` lives outside this workspace (`@sdkwork/sdk-common`),
-  // so its option type is described structurally here instead of imported.
-  const http = client.http as unknown as {
-    request<T>(path: string, options: {
-      method: string;
-      body?: unknown;
-      contentType?: string;
-      headers?: Record<string, string>;
-      sdkworkUnwrapKind?: "item" | "page" | "command" | "data" | "void";
-    }): Promise<T>;
-  };
-  return http.request<GenerationCommandResponse>(appApiPath(path), {
-    method: "POST",
-    body,
-    contentType: "application/json",
-    headers: { "Idempotency-Key": params.idempotencyKey },
-    sdkworkUnwrapKind: "item",
-  });
-}
-
-/**
  * One sender per operation. The previous implementation branched on four
  * operation types and forwarded everything else to `images.textToImage`, which
  * turned music / voice / sound-effect / digital-human / action commands into
@@ -195,10 +203,9 @@ const GENERATION_OPERATION_SENDERS: Record<CreativeGenerationOperationType, Gene
   speech: (client, body, params) => client.generations.voice.speech(body, params),
   transcription: (client, body, params) => client.generations.voice.transcription(body, params),
   translation: (client, body, params) => client.generations.voice.translation(body, params),
-  avatar: (client, body, params) =>
-    sendUnlistedGenerationCommand(client, "/generations/videos/avatar", body, params),
+  avatar: (client, body, params) => client.generations.videos.avatar(body, params),
   motion_mimicry: (client, body, params) =>
-    sendUnlistedGenerationCommand(client, "/generations/videos/motion_mimicry", body, params),
+    client.generations.videos.motionMimicry(body, params),
 };
 
 export class AgentsGenerationsService {
@@ -208,6 +215,33 @@ export class AgentsGenerationsService {
       (driveUri) => agentsDriveUploadService.resolvePreviewUrl(driveUri),
     private readonly sleep: Sleep = defaultSleep,
   ) {}
+
+  /**
+   * Estimate the credit consumption of one generation command before it is
+   * submitted. The request mirrors `create`'s fields so the backend prices
+   * exactly the command the client is about to send. Throws when the
+   * endpoint is unavailable (501 on deployments without a pricing engine);
+   * callers decide how to degrade the display.
+   */
+  async estimateCredits(
+    input: GenerationCreditEstimateInput,
+  ): Promise<GenerationPricingEstimate> {
+    const session = readAppSdkSessionTokens();
+    if (!resolveAppSdkTenantId(session)) {
+      throw new Error(
+        "An authenticated tenant context is required for credit estimation.",
+      );
+    }
+    const client = await this.getClient();
+    const request: GenerationPricingEstimateRequest = {
+      modality: GENERATION_ESTIMATE_MODALITY[input.modality],
+      ...(input.operationType ? { operationType: input.operationType } : {}),
+      ...(input.model?.trim() ? { model: input.model.trim() } : {}),
+      ...(input.parameters ? { parameters: input.parameters } : {}),
+      ...(input.prompt?.trim() ? { prompt: input.prompt.trim() } : {}),
+    };
+    return client.generations.pricing.estimate(request);
+  }
 
   async create(input: GenerationCommandInput): Promise<GenerationCommandResponse> {
     const prompt = input.prompt.trim();
@@ -224,6 +258,9 @@ export class AgentsGenerationsService {
     }
     const body = {
       prompt,
+      ...(input.conversationId?.trim()
+        ? { conversationId: input.conversationId.trim() }
+        : {}),
       ...(input.model?.trim() ? { model: input.model.trim() } : {}),
       ...(input.inputAssetIds?.length ? { inputAssetIds: [...input.inputAssetIds] } : {}),
       ...(input.parameters ? { parameters: input.parameters } : {}),
@@ -246,11 +283,16 @@ export class AgentsGenerationsService {
     modality?: GenerationModality;
     pageSize?: number;
     q?: string;
+    /** Restrict the page to one conversation grouping key. */
+    conversationId?: string;
   } = {}): Promise<GenerationRecordPage> {
     const client = await this.getClient();
     const page = await client.generations.list({
       ...(input.cursor ? { cursor: input.cursor } : {}),
       ...(input.modality ? { modality: input.modality } : {}),
+      ...(input.conversationId?.trim()
+        ? { conversationId: input.conversationId.trim() }
+        : {}),
       pageSize: input.pageSize ?? DEFAULT_PAGE_SIZE,
       ...(input.q?.trim() ? { q: input.q.trim() } : {}),
     });
