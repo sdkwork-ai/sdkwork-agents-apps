@@ -75,6 +75,12 @@ Thumbs.db
 .vscode/
 *.revert-merge
 
+# --- tsc 编译产物误写入 sdkwork-agents-pc 源码树（应输出到 dist/，不应入库） ---
+sdkwork-agents-pc/**/*.js
+sdkwork-agents-pc/**/*.js.map
+sdkwork-agents-pc/**/*.d.ts
+sdkwork-agents-pc/**/*.d.ts.map
+
 # ---- auto-audited: local artifacts that must never be committed ----
 *.key
 *.pem
