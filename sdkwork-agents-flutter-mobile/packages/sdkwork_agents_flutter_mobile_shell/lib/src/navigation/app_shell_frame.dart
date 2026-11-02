@@ -109,9 +109,9 @@ IconData resolveAgentsMobileTabIcon(String glyph, {required bool active}) {
     case AgentsMobileTabGlyphs.messageSquare:
       return active ? Icons.chat_bubble : Icons.chat_bubble_outline;
     case AgentsMobileTabGlyphs.sparkles:
-      return active ? Icons.auto_awesome : Icons.auto_awesome_outlined;
+      return active ? Icons.stars : Icons.stars_outlined;
     case AgentsMobileTabGlyphs.wand:
-      return active ? Icons.brush : Icons.brush_outlined;
+      return active ? Icons.auto_fix_high : Icons.auto_fix_high_outlined;
     case AgentsMobileTabGlyphs.image:
       return active ? Icons.photo_library : Icons.photo_library_outlined;
     case AgentsMobileTabGlyphs.bot:
