@@ -119,9 +119,9 @@ IconData resolveAgentsMobileTabIcon(String glyph, {required bool active}) {
     case AgentsMobileTabGlyphs.infinity:
       return Icons.all_inclusive;
     case AgentsMobileTabGlyphs.bookOpen:
-      return active ? Icons.menu_book : Icons.menu_book_outlined;
+      return active ? Icons.book : Icons.book_outlined;
     case AgentsMobileTabGlyphs.timer:
-      return active ? Icons.schedule : Icons.schedule_outlined;
+      return active ? Icons.timer : Icons.timer_outlined;
     case AgentsMobileTabGlyphs.shareTwo:
       return active ? Icons.hub : Icons.hub_outlined;
     default:
