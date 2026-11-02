@@ -55,6 +55,11 @@ export interface AgentConfig {
   skillIds?: string[];
   /** Bound external MCP server keys (synced to `slotKind: mcp` composition slots). */
   mcpServerKeys?: string[];
+  /**
+   * IAM role codes allowed to see and run this agent. An empty list (the
+   * default) means every role.
+   */
+  allowedRoleCodes?: string[];
 }
 
 export interface AgentPreviewResponseRequest {
@@ -138,6 +143,22 @@ function asString(value: unknown): string | undefined {
 
 function asOptionalString(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined;
+}
+
+const ALLOWED_ROLE_CODE_PATTERN = /^[a-z][a-z0-9_.-]{0,127}$/;
+
+/** Canonical role-assignment list: valid codes only, de-duplicated and sorted. */
+function normalizeAllowedRoleCodes(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const codes = new Set<string>();
+  for (const item of value) {
+    if (typeof item === 'string' && ALLOWED_ROLE_CODE_PATTERN.test(item.trim())) {
+      codes.add(item.trim());
+    }
+  }
+  return [...codes].sort();
 }
 
 function asStringArray(value: unknown): string[] | undefined {
@@ -398,6 +419,7 @@ function normalizeAgentFromAgentRecord(record: AgentRecord): AgentConfig {
     voiceIds: asStringArray(uiConfig.voiceIds),
     toolIds: asStringArray(uiConfig.toolIds),
     skillIds: asStringArray(uiConfig.skillIds),
+    allowedRoleCodes: normalizeAllowedRoleCodes(record.allowedRoleCodes),
   };
 }
 
@@ -477,6 +499,7 @@ function buildCreateAgentRequest(
     implementationKind: 'manifest-only',
     visibility: 'private',
     tags: categoryId ? [categoryId] : [],
+    allowedRoleCodes: normalizeAllowedRoleCodes(config.allowedRoleCodes) ?? [],
     requestedAt: new Date().toISOString(),
   };
 }
@@ -487,6 +510,9 @@ function buildUpdateAgentRequest(id: string, config: Partial<AgentConfig>): Upda
     ...(typeof config.name === 'string' ? { displayName: config.name } : {}),
     ...(typeof config.description === 'string' ? { description: config.description } : {}),
     ...(categoryId ? { tags: [categoryId] } : {}),
+    ...(Array.isArray(config.allowedRoleCodes)
+      ? { allowedRoleCodes: normalizeAllowedRoleCodes(config.allowedRoleCodes) ?? [] }
+      : {}),
     manifest: buildAgentManifest({ ...config, id }, id),
     defaultCodeTaskIntent: buildAgentDefaultCodeTaskIntent(config),
     managementProfile: buildAgentManagementProfile(config),
@@ -671,6 +697,9 @@ function normalizeAgent(record: RecordLike): AgentConfig | undefined {
     voiceIds: asStringArray(uiConfig.voiceIds),
     toolIds: asStringArray(uiConfig.toolIds),
     skillIds: asStringArray(uiConfig.skillIds),
+    allowedRoleCodes:
+      normalizeAllowedRoleCodes(record.allowedRoleCodes)
+      ?? normalizeAllowedRoleCodes(record.allowed_role_codes),
   };
 }
 

@@ -243,6 +243,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
   const [name, setName] = useState('新智能体');
   const [desc, setDesc] = useState('这是一个新创建的智能体');
   const [avatar, setAvatar] = useState('');
+  const [allowedRoleCodes, setAllowedRoleCodes] = useState<string[]>([]);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('');
   const [agentType, setAgentType] = useState<AgentConfig['type']>('normal');
   const [model, setModel] = useState(DEFAULT_AGENT_CONFIG.model);
@@ -463,6 +464,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
       setDesc('这是一个新创建的智能体');
       setPrompt('');
       setAvatar('');
+      setAllowedRoleCodes([]);
       setAgentType('normal');
       setModel(DEFAULT_AGENT_CONFIG.model);
       setTemperature(DEFAULT_AGENT_CONFIG.temperature);
@@ -500,6 +502,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
         setDesc(agent.description || '');
         setPrompt(agent.systemPrompt ?? '');
         setAvatar(agent.avatar || '');
+        setAllowedRoleCodes(agent.allowedRoleCodes ?? []);
         if (agent.avatar?.startsWith('drive://')) {
           void agentsDriveUploadService.resolvePreviewUrl(agent.avatar)
             .then((url) => {
@@ -584,6 +587,7 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
     toolIds: selectedToolIds,
     skillIds: selectedSkillIds,
     mcpServerKeys: selectedMcpServerKeys,
+    allowedRoleCodes,
   });
 
   /**
@@ -1403,13 +1407,15 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
         initialName={name}
         initialDesc={desc}
         initialAvatar={avatar}
+        initialAllowedRoleCodes={allowedRoleCodes}
         avatarService={avatarUploadImageService}
         avatarAppResourceId={() => draftId ?? undefined}
         onEnsureAvatarAnchor={async () => {
           const persisted = await ensurePersistedAgentForRuntime();
           return persisted.id ?? null;
         }}
-        onSave={(newName, newDesc, newAvatar) => {
+        onSave={(newName, newDesc, newAvatar, nextAllowedRoleCodes) => {
+           setAllowedRoleCodes(nextAllowedRoleCodes);
            setName(newName);
            setDesc(newDesc);
            if (newAvatar) {

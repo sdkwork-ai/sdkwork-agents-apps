@@ -21,6 +21,23 @@ const AVATAR_UPLOAD_COPY = {
   uploadFailed: '上传失败',
 } as const;
 
+const ASSIGNABLE_ROLES = [
+  { code: 'app_user', label: '应用用户' },
+  { code: 'org_admin', label: '组织管理员' },
+  { code: 'org_assistant', label: '组织助理' },
+  { code: 'org_auditor', label: '组织审计员' },
+  { code: 'org_finance', label: '组织财务' },
+  { code: 'org_operations', label: '组织运营' },
+  { code: 'platform_system_admin', label: '平台系统管理员' },
+  { code: 'platform_super_admin', label: '平台超级管理员' },
+] as const;
+
+const ROLE_CODE_PATTERN = /^[a-z][a-z0-9_.-]{0,127}$/;
+
+function normalizeRoleCodes(codes: readonly string[]): string[] {
+  return [...new Set(codes.map((code) => code.trim()).filter((code) => ROLE_CODE_PATTERN.test(code)))].sort();
+}
+
 /**
  * Maps the modal's persisted avatar string (a `drive://` uri, a legacy
  * display url, or empty) onto the shared component's persist-safe value.
@@ -40,6 +57,8 @@ export interface EditBasicInfoModalProps {
   initialDesc: string;
   /** Persisted avatar: a `drive://` uri, a legacy display url, or empty. */
   initialAvatar: string;
+  /** IAM role codes allowed to see and run the agent; empty means every role. */
+  initialAllowedRoleCodes?: readonly string[];
   /** Shared Drive image-upload service built by the host service layer. */
   avatarService: DriveUploadImageService;
   /**
@@ -52,7 +71,12 @@ export interface EditBasicInfoModalProps {
    * picked avatar is still pending because no anchor existed at pick time.
    */
   onEnsureAvatarAnchor: () => Promise<string | null>;
-  onSave: (name: string, desc: string, avatar: string) => void;
+  onSave: (
+    name: string,
+    desc: string,
+    avatar: string,
+    allowedRoleCodes: string[],
+  ) => void;
 }
 
 export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
@@ -61,6 +85,7 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
   initialName,
   initialDesc,
   initialAvatar,
+  initialAllowedRoleCodes = [],
   avatarService,
   avatarAppResourceId,
   onEnsureAvatarAnchor,
@@ -69,6 +94,9 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
   const [tempName, setTempName] = useState(initialName);
   const [tempDesc, setTempDesc] = useState(initialDesc);
   const [tempAvatar, setTempAvatar] = useState(initialAvatar);
+  const [tempAllowedRoleCodes, setTempAllowedRoleCodes] = useState<string[]>([
+    ...initialAllowedRoleCodes,
+  ]);
   const [anchoringAvatar, setAnchoringAvatar] = useState(false);
 
   const avatarController = useDriveUploadImageController({
@@ -90,10 +118,11 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
     setTempName(initialName);
     setTempDesc(initialDesc);
     setTempAvatar(initialAvatar);
+    setTempAllowedRoleCodes([...initialAllowedRoleCodes]);
     // Drops leftover pending/error picks from an earlier session; the
     // controlled `value` below re-seeds the persisted avatar.
     avatarController.clear();
-  }, [isOpen, initialName, initialDesc, initialAvatar, avatarController]);
+  }, [isOpen, initialName, initialDesc, initialAvatar, initialAllowedRoleCodes, avatarController]);
 
   if (!isOpen) return null;
 
@@ -119,7 +148,7 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
         setAnchoringAvatar(false);
       }
       }
-    onSave(tempName, tempDesc, avatarForSave);
+    onSave(tempName, tempDesc, avatarForSave, normalizeRoleCodes(tempAllowedRoleCodes));
   };
 
   return (
@@ -159,6 +188,44 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
               onChange={(event) => setTempDesc(event.target.value)}
               className="custom-scrollbar h-20 w-full resize-none rounded-lg bg-slate-50 dark:bg-[#181818] px-3 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors"
             />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm text-slate-500 dark:text-gray-400">
+              可见角色
+            </label>
+            <div className="grid gap-1.5 rounded-lg bg-slate-50 px-3 py-2.5 dark:bg-[#181818]">
+              <label className="flex items-center gap-2 text-sm text-slate-800 dark:text-gray-200">
+                <input
+                  type="checkbox"
+                  checked={tempAllowedRoleCodes.length === 0}
+                  onChange={() => setTempAllowedRoleCodes([])}
+                />
+                <span>全部角色（默认）</span>
+              </label>
+              {ASSIGNABLE_ROLES.map((role) => (
+                <label
+                  key={role.code}
+                  className="flex items-center gap-2 text-sm text-slate-800 dark:text-gray-200"
+                >
+                  <input
+                    type="checkbox"
+                    checked={tempAllowedRoleCodes.includes(role.code)}
+                    onChange={(event) => {
+                      const next = new Set(tempAllowedRoleCodes);
+                      if (event.target.checked) {
+                        next.add(role.code);
+                      } else {
+                        next.delete(role.code);
+                      }
+                      setTempAllowedRoleCodes([...next]);
+                    }}
+                  />
+                  <span>
+                    {role.label}（{role.code}）
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
           </div>
             <div className="flex justify-end gap-2 bg-slate-50 dark:bg-[#1a1a1a] p-4">
