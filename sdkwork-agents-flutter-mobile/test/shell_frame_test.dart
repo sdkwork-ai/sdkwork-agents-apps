@@ -4,6 +4,18 @@ import 'package:sdkwork_agents_flutter_mobile_commons/sdkwork_agents_flutter_mob
 import 'package:sdkwork_agents_flutter_mobile_shell/sdkwork_agents_flutter_mobile_shell.dart';
 
 void main() {
+  test('every contract tab maps to an outline/filled glyph pair', () {
+    for (final tab in agentsMobileTabs) {
+      final outline = resolveAgentsMobileTabIcon(tab.glyph, active: false);
+      final filled = resolveAgentsMobileTabIcon(tab.glyph, active: true);
+      expect(
+        outline.codePoint,
+        isNot(filled.codePoint),
+        reason: '${tab.tab} must not reuse one glyph for both states',
+      );
+    }
+  });
+
   testWidgets('shell frame renders the five contract tabs', (
     WidgetTester tester,
   ) async {
