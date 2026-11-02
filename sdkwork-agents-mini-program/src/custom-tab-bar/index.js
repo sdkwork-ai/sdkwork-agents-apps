@@ -3,6 +3,35 @@ const runtime = require("../runtime/agents-app");
 const DEFAULT_TAB = "chat";
 
 /**
+ * Outline / filled PNG pair for each shared tab glyph. The mini program cannot
+ * inline the SVG components the H5 and Flutter roots use, so it ships the same
+ * outline/filled pair as monochrome assets
+ * (`ICON_SPEC.md` section 3.2).
+ */
+const TAB_ICONS = {
+  "message-square": {
+    icon: "/assets/tabbar/chat-outline.png",
+    activeIcon: "/assets/tabbar/chat-filled.png",
+  },
+  sparkles: {
+    icon: "/assets/tabbar/inspiration-outline.png",
+    activeIcon: "/assets/tabbar/inspiration-filled.png",
+  },
+  palette: {
+    icon: "/assets/tabbar/creative-outline.png",
+    activeIcon: "/assets/tabbar/creative-filled.png",
+  },
+  image: {
+    icon: "/assets/tabbar/assets-outline.png",
+    activeIcon: "/assets/tabbar/assets-filled.png",
+  },
+  infinity: {
+    icon: "/assets/tabbar/agents-outline.png",
+    activeIcon: "/assets/tabbar/agents-filled.png",
+  },
+};
+
+/**
  * Custom bottom tab bar.
  *
  * The five tabs come from the shell (`AGENTS_MP_TABS`): the PC workbench's
@@ -54,9 +83,14 @@ Component({
     },
 
     applyActive(tab) {
-      const items = runtime.resolveAgentsMpTabBarItems(tab, (key) =>
-        runtime.translateAgentsMpShellText(key),
-      );
+      const items = runtime
+        .resolveAgentsMpTabBarItems(tab, (key) =>
+          runtime.translateAgentsMpShellText(key),
+        )
+        .map((item) => ({
+          ...item,
+          ...(TAB_ICONS[item.glyph] ?? {}),
+        }));
       this.setData({ active: tab, items });
     },
 

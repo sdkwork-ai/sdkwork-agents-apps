@@ -44,8 +44,16 @@
 }
 
 .tab-symbol {
-  font-size: 36rpx;
-  line-height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44rpx;
+  height: 44rpx;
+}
+
+.tab-symbol-image {
+  width: 36rpx;
+  height: 36rpx;
 }
 
 .tab-label {
@@ -62,13 +70,9 @@
   box-sizing: border-box;
   min-width: 72rpx;
   height: 48rpx;
-  line-height: 48rpx;
   padding: 0 16rpx;
   border-radius: 999rpx;
   background: var(--primary-subtle);
-  color: var(--icon-active);
-  text-align: center;
-  font-weight: 600;
 }
 
 /*

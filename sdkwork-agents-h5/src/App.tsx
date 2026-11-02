@@ -1,11 +1,11 @@
 import { useMemo, useState, type ReactNode } from "react";
 import {
+  Bot,
   Images,
-  Infinity as InfinityIcon,
   MessageSquare,
+  Palette,
   Sparkles,
   UserRound,
-  Wand2,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -150,9 +150,9 @@ const ROUTE_REGISTRY = assembleAgentsH5RouteRegistry([
 const TAB_GLYPH_ICONS: Readonly<Record<string, LucideIcon>> = {
   "message-square": MessageSquare,
   sparkles: Sparkles,
-  "wand-2": Wand2,
+  "wand-2": Palette,
   images: Images,
-  infinity: InfinityIcon,
+  infinity: Bot,
 };
 
 const TAB_ICONS = Object.fromEntries(
@@ -206,7 +206,11 @@ function AgentsMobileTabBar({
                 : "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[10px] font-medium text-[var(--color-icon-default,#5B6B88)] transition-colors hover:bg-[var(--color-surface-muted,#EAF1FB)] hover:text-[var(--color-icon-strong,#0A1B3D)]"
             }
           >
-            <Icon size={20} aria-hidden />
+            <Icon
+              size={20}
+              aria-hidden
+              fill={active ? "currentColor" : "none"}
+            />
             <span className="truncate">{translateAgentsShellText(tab.labelKey)}</span>
           </button>
         );
@@ -222,7 +226,11 @@ function AgentsMobileTabBar({
             : "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[10px] font-medium text-[var(--color-icon-default,#5B6B88)] transition-colors hover:bg-[var(--color-surface-muted,#EAF1FB)] hover:text-[var(--color-icon-strong,#0A1B3D)]"
         }
       >
-        <UserRound size={20} aria-hidden />
+        <UserRound
+          size={20}
+          aria-hidden
+          fill={profileActive ? "currentColor" : "none"}
+        />
         <span className="truncate">{translateAgentsShellText("agents.mobile.tab.profile")}</span>
       </button>
     </nav>
