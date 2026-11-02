@@ -1,0 +1,21 @@
+{
+  "agents.settings.title": "Settings",
+  "agents.settings.loading": "Loading settings",
+  "agents.settings.loadFailed": "Failed to load settings. Please retry.",
+  "agents.settings.language": "Language",
+  "agents.settings.language.zhCn": "Chinese (Simplified)",
+  "agents.settings.language.enUs": "English",
+  "agents.settings.theme": "Theme",
+  "agents.settings.theme.system": "Follow system",
+  "agents.settings.theme.light": "Light",
+  "agents.settings.theme.dark": "Dark",
+  "agents.settings.notifications": "Notifications",
+  "agents.settings.notifications.hint": "Receive generation and task updates",
+  "agents.settings.autoplay": "Autoplay",
+  "agents.settings.autoplay.hint": "Play generated media automatically",
+  "agents.settings.save": "Save",
+  "agents.settings.saving": "Saving",
+  "agents.settings.saved": "Settings saved",
+  "agents.settings.saveFailed": "Failed to save settings. Please retry.",
+  "agents.settings.retry": "Retry"
+}

@@ -1,0 +1,4 @@
+<web-view wx:if="{{url}}" src="{{url}}"></web-view>
+<view wx:else class="cashier-empty {{themeClass}}">
+  <text>…</text>
+</view>

@@ -113,7 +113,7 @@ export interface CreativeViewProps {
 export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProps) => {
   const { t } = useTranslation('chat');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  
+
   const [sessions, setSessions] = useState<CreativeSession[]>(() => [createDefaultCreativeSession()]);
   const [activeSessionId, setActiveSessionId] = useState('default');
 
@@ -125,7 +125,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
       } catch (e) {
         console.error(e);
       }
-    }
+      }
     return [
       {
         id: 'demo-1',
@@ -147,7 +147,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
           model: 'Suno Music 3.5',
           duration: 30
         }
-      }
+        }
     ];
   });
 
@@ -228,12 +228,12 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
           )
           : s));
       });
-    });
+      });
     return () => {
       cancelled = true;
     };
   }, []);
-  
+
   // Interactive features
   const [selectedImage, setSelectedImage] = useState<any | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<any | null>(null);
@@ -281,7 +281,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
       if (current === 'grid') next = 'masonry';
       else if (current === 'masonry') next = 'carousel';
       else next = 'grid';
-      
+
       showToast(`已切换布局排版为: ${next === 'grid' ? '经典网格' : next === 'masonry' ? '海报拼图' : '焦点轮播'}`);
       return { ...prev, [msgId]: next };
     });
@@ -318,7 +318,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
     }));
     showToast("已删除该条生成内容");
   };
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -420,7 +420,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
     // Add user message to session & update title if default/new
     setSessions(prev => prev.map(s => {
       if (s.id === activeSessionId) {
-        const title = (s.title === '默认创作' || s.title === '新对话') 
+        const title = (s.title === '默认创作' || s.title === '新对话')
           ? (text.length > 12 ? text.slice(0, 12) + '...' : text)
           : s.title;
         return {
@@ -473,7 +473,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
   };
 
   return (
-    <div className="flex h-full w-full bg-[#f5f5f5] text-zinc-900 dark:bg-[#141414] dark:text-white overflow-hidden font-sans">
+    <div className="flex h-full w-full bg-[var(--ag-color-background,#F4F7FC)] text-[var(--ag-color-text-primary,#0A1B3D)] overflow-hidden font-sans">
       <style>{`
         @keyframes scan {
           0% { transform: translateY(-100%); }
@@ -486,7 +486,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
       `}</style>
 
       {/* Sidebar */}
-      <CreativeSidebar 
+      <CreativeSidebar
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         sessions={sessions}
@@ -504,25 +504,25 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col relative min-w-0 bg-[#fafafa] dark:bg-[#121212]">
+      <div className="flex-1 flex flex-col relative min-w-0 bg-[var(--ag-color-surface,#FFFFFF)]">
         {/* Toggle Sidebar Button */}
         {!isSidebarOpen && (
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(true)}
-            className="absolute top-4 left-4 p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors z-50 bg-white/80 dark:bg-[#141414] border border-black/5 dark:border-white/5 cursor-pointer"
+            className="absolute top-4 left-4 p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors z-50 bg-white/80 dark:bg-[#141414] cursor-pointer"
           >
             <SidebarOpen size={18} />
           </button>
         )}
 
         {!currentSession ? (
-          <div className="flex-1 flex flex-col items-center justify-center h-full text-zinc-500 dark:text-zinc-500 bg-[#fafafa] dark:bg-[#121212]">
-            <div className="w-8 h-8 border-2 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin mb-4" />
+          <div className="flex-1 flex flex-col items-center justify-center h-full text-[var(--ag-color-text-tertiary,#8A97AD)] bg-[var(--ag-color-surface,#FFFFFF)]">
+            <div className="w-8 h-8 border-2 border-[#165DFF]/30 border-t-[#4080FF] rounded-full animate-spin mb-4" />
             <p className="text-sm">加载中...</p>
           </div>
         ) : currentSession.messages.length === 0 ? (
           /* Empty Landing View */
-          <CreativeEmptyState 
+          <CreativeEmptyState
             activeSessionId={activeSessionId}
             handleSend={handleSend}
             initialMode={defaultCreationMode}
@@ -534,9 +534,9 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
             <CreativeToolbar title={currentSession.title} />
 
             {/* Scrollable conversation history */}
-            <div 
+            <div
               ref={scrollContainerRef}
-              className="flex-1 overflow-y-auto px-6 py-6 space-y-8 custom-scrollbar bg-[#f3f4f6] dark:bg-[#0f0f11]"
+              className="flex-1 overflow-y-auto px-6 py-6 space-y-8 custom-scrollbar bg-[var(--ag-color-background,#F4F7FC)]"
             >
               <div className="max-w-[1056px] mx-auto w-full space-y-8">
                 {currentSession.messages.filter(m => m.role === 'assistant').map((m) => (
@@ -581,37 +581,37 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
                 ))}
                 <div ref={messagesEndRef} className="h-4" />
               </div>
-            </div>
+              </div>
 
             {/* Bottom floating input box */}
-            <div className="p-6 bg-gradient-to-t from-[#f3f4f6] via-[#f3f4f6] to-transparent w-full dark:from-[#0f0f11] dark:via-[#0f0f11]">
+            <div className="p-6 bg-[var(--ag-color-background,#F4F7FC)] w-full">
               <div className="max-w-[1056px] mx-auto relative">
-                <CreativeInputBox 
-                  key={activeSessionId + "-bottom-" + inputKey} 
+                <CreativeInputBox
+                  key={activeSessionId + "-bottom-" + inputKey}
                   defaultValue={currentDefaultValue}
-                  initialMode={currentInitialMode} 
+                  initialMode={currentInitialMode}
                   initialSettings={currentInitialSettings}
                   onSubmit={(val, mode, settings) => {
                     handleSend(val, mode, settings);
                     setCurrentDefaultValue('');
-                  }} 
-                  className="w-full shadow-lg dark:shadow-2xl" 
+                  }}
+                  className="w-full"
                 />
-                
+
                 {/* Floating footer text */}
-                <div className="text-center mt-3 text-[10px] text-zinc-400 font-medium dark:text-zinc-500">
+                <div className="text-center mt-3 text-[10px] text-zinc-400 font-medium dark:text-[var(--ag-color-text-tertiary,#8A97AD)]">
                   创作内容由 AI 生成，请注意甄别其真实性与合规性
                 </div>
-              </div>
-            </div>
-          </div>
+                </div>
+                </div>
+                </div>
         )}
       </div>
 
       {/* Global Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 bg-cyan-50 border border-cyan-200 text-cyan-700 px-4 py-2 rounded-lg text-xs font-medium shadow-lg z-[100] flex items-center gap-2 animate-in slide-in-from-top-4 fade-in duration-300 dark:bg-cyan-950 dark:border-cyan-800 dark:text-cyan-300 dark:shadow-2xl">
-          <Sparkles size={14} className="text-cyan-500 dark:text-cyan-400" />
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 bg-[#E8F0FF] text-[#0E42D2] px-4 py-2 rounded-lg text-xs font-medium z-[100] flex items-center gap-2 animate-in slide-in-from-top-4 fade-in duration-300 dark:bg-[#0A1B3D] dark:text-[#4080FF]">
+          <Sparkles size={14} className="text-[#165DFF] dark:text-[#4080FF]" />
           {toastMessage}
         </div>
       )}

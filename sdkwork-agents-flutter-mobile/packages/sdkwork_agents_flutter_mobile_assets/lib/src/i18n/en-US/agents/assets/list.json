@@ -1,0 +1,20 @@
+{
+  "agents.assets.title": "Assets",
+  "agents.assets.filter.all": "All",
+  "agents.assets.kind.image": "Image",
+  "agents.assets.kind.video": "Video",
+  "agents.assets.kind.audio": "Audio",
+  "agents.assets.kind.document": "Document",
+  "agents.assets.kind.other": "Other",
+  "agents.assets.loading": "Loading assets",
+  "agents.assets.empty": "No assets yet",
+  "agents.assets.emptyFiltered": "No assets of this kind",
+  "agents.assets.loadFailed": "Failed to load assets. Please retry.",
+  "agents.assets.unavailable.title": "Assets are not available yet",
+  "agents.assets.unavailable.hint": "This client has no asset service transport. Retry once the service is connected.",
+  "agents.assets.retry": "Retry",
+  "agents.assets.date.today": "Today",
+  "agents.assets.date.yesterday": "Yesterday",
+  "agents.assets.date.unknown": "Undated",
+  "agents.assets.itemCount": "items"
+}

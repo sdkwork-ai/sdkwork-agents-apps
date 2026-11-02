@@ -13,7 +13,7 @@ export const PPTPreview: React.FC<PPTPreviewProps> = ({ srcDoc, layout }) => {
     <div className={cn("h-full bg-white dark:bg-[#0d0d0d] relative", layout === 'split' ? "w-1/2" : "w-full")}>
       <iframe
         srcDoc={srcDoc}
-        className="w-full h-full border-none"
+        className="w-full h-full"
         sandbox="allow-scripts allow-forms allow-same-origin"
         title="PPT Preview"
       />

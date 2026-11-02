@@ -1,13 +1,90 @@
 /*
  * Shared mobile shell styles.
  *
+ * Authority: `specs/client-theme.spec.json` — the "tech-blue flat" theme
+ * (light base, #165DFF accent, no decorative borders, no shadows, no
+ * gradients). Depth comes from surface tint and the scrim only.
+ *
+ * Token mechanism: the palette is declared once as CSS custom properties on
+ * `page`, so every page and the elements inside it inherit the same values and
+ * a page can re-map them (the settings page does this for its dark preference).
+ * WXSS supports custom properties on the page root and `var()` in declarations;
+ * literal fallbacks are avoided so a token change is a one-line edit. The tab
+ * bar is a separate component tree and therefore declares the same tokens in
+ * its own wxss.
+ *
  * Only layout that every tab page repeats lives here (custom app bar, status
  * banner, list/status primitives, tab-bar clearance). Capability-specific
  * styling stays in each page's own wxss.
  */
 page {
-  background: #f8fafc;
+  /* Surface and text scale. */
+  --page: #f4f7fc;
+  --surface: #ffffff;
+  --muted: #eaf1fb;
+  --strong: #dce8f9;
+  --text: #0a1b3d;
+  --text-muted: #5b6b88;
+  --text-weak: #8a97ad;
+
+  /*
+   * Icon scale. Every shell glyph resolves its color from one of these, never
+   * from a surface or border token, so both the light page and the
+   * `.theme-dark` remap below always produce a defined, readable value.
+   * `--icon-on-primary` and `--icon-on-rail` are the only light glyph values and
+   * may only sit on a primary or rail/danger fill.
+   */
+  --icon-default: #5b6b88;
+  --icon-strong: #0a1b3d;
+  --icon-active: #165dff;
+  --icon-on-primary: #ffffff;
+  --icon-on-rail: #c9d6ea;
+
+  /* Tech-blue accent scale. */
+  --primary: #165dff;
+  --primary-hover: #4080ff;
+  --primary-pressed: #0e42d2;
+  --primary-subtle: #e8f0ff;
+  /*
+   * Accent for text and links. It matches `--primary` on light surfaces and is
+   * remapped to a lighter blue tint in `.theme-dark`, where #165DFF would only
+   * reach ~2.7:1 on the navy surfaces. Fills keep using `--primary`.
+   */
+  --accent: #165dff;
+  --primary-on: #ffffff;
+
+  /* Status colors. */
+  --success: #00b42a;
+  --warning: #ff7d00;
+  --danger: #f53f3f;
+
+  /*
+   * Depth and shape: tint and scrim only. `specs/client-theme.spec.json`
+   * declares its border color as transparent, so there is deliberately no line
+   * token here; separation comes from the surface scale above.
+   */
+  --scrim: rgba(10, 27, 61, 0.45);
+  --radius-sm: 16rpx;
+  --radius-md: 24rpx;
+  --radius-lg: 32rpx;
+  --radius-pill: 999rpx;
+
+  /* Deep-navy rail tokens, reused by the dark page preference. */
+  --rail: #0a1b3d;
+  --rail-text: #c9d6ea;
+  --rail-text-muted: #7f91b0;
+
+  background: var(--page);
+  color: var(--text);
 }
+
+/*
+ * Flat component class set.
+ *
+ * Every interactive surface below uses a tonal fill for its rest, pressed, and
+ * selected states. No rule declares a visible outline, shadow, or gradient; the
+ * only outlines are the platform focus rings WeChat draws.
+ */
 
 .app-bar {
   position: fixed;
@@ -16,8 +93,7 @@ page {
   right: 0;
   z-index: 90;
   box-sizing: border-box;
-  background: #ffffff;
-  border-bottom: 1rpx solid #e2e8f0;
+  background: var(--surface);
 }
 
 .app-bar-inner {
@@ -44,7 +120,7 @@ page {
 .app-bar-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text);
   line-height: 40rpx;
 }
 
@@ -56,7 +132,7 @@ page {
 
 .app-bar-subtitle-text {
   font-size: 22rpx;
-  color: #64748b;
+  color: var(--text-muted);
   line-height: 30rpx;
   overflow: hidden;
   white-space: nowrap;
@@ -66,30 +142,34 @@ page {
 .app-bar-chevron {
   margin-left: 4rpx;
   font-size: 24rpx;
-  color: #94a3b8;
+  color: var(--icon-default);
 }
 
 .icon-button {
-  width: 72rpx;
-  height: 72rpx;
+  width: 88rpx;
+  height: 88rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #f1f5f9;
+  background: var(--muted);
+}
+
+.icon-button:active {
+  background: var(--strong);
 }
 
 .icon-glyph {
   font-size: 32rpx;
-  color: #0f766e;
+  color: var(--icon-active);
 }
 
 .banner {
   margin: 16rpx 32rpx 0;
   padding: 16rpx 24rpx;
-  border-radius: 12rpx;
-  background: #fef2f2;
-  color: #dc2626;
+  border-radius: var(--radius-md);
+  background: rgba(245, 63, 63, 0.1);
+  color: var(--danger);
   font-size: 24rpx;
 }
 
@@ -97,11 +177,11 @@ page {
   padding: 96rpx 32rpx;
   text-align: center;
   font-size: 28rpx;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .status-error {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .list {
@@ -109,26 +189,26 @@ page {
   flex-direction: column;
 }
 
+/* Card: white surface separated from the page tint by fill only. */
 .card {
   padding: 24rpx;
   margin-bottom: 16rpx;
-  border-radius: 16rpx;
-  background: #ffffff;
-  border: 1rpx solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
 }
 
 .card-title {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .card-subtitle {
   display: block;
   margin-top: 8rpx;
   font-size: 24rpx;
-  color: #64748b;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
@@ -144,12 +224,13 @@ page {
   text-overflow: ellipsis;
 }
 
+/* Badge/status pill: blue tint on white, never an outline. */
 .card-badge {
   margin-left: 16rpx;
   padding: 4rpx 16rpx;
-  border-radius: 20rpx;
-  background: #ecfdf5;
-  color: #047857;
+  border-radius: var(--radius-pill);
+  background: var(--primary-subtle);
+  color: var(--accent);
   font-size: 22rpx;
 }
 
@@ -161,17 +242,424 @@ page {
   margin-bottom: 24rpx;
 }
 
+/* Inputs are filled, not outlined. */
 .search-input {
   height: 76rpx;
   padding: 0 24rpx;
-  border-radius: 38rpx;
-  background: #ffffff;
-  border: 1rpx solid #e2e8f0;
+  border-radius: var(--radius-pill);
+  background: var(--muted);
   font-size: 28rpx;
-  color: #0f172a;
+  color: var(--text);
+}
+
+.input-placeholder {
+  color: var(--text-weak);
+}
+
+.search-input:focus {
+  background: var(--strong);
 }
 
 .status-note {
   padding: 24rpx 0;
   font-size: 24rpx;
+}
+
+/* ---------------------------------------------------------------------------
+ * Shared shell chrome added with the M1 primary surfaces.
+ * Every interactive row below is at least 88rpx (44px) tall so it meets the
+ * minimum tap target required for WeChat review.
+ * ------------------------------------------------------------------------- */
+
+/* Profile entry rendered on every tab page. */
+.app-bar-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  min-width: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.app-bar-actions {
+  display: flex;
+  align-items: center;
+  margin-left: 12rpx;
+}
+
+.app-bar-avatar-glyph {
+  font-size: 32rpx;
+  color: var(--icon-active);
+  font-weight: 600;
+}
+
+.app-bar-back {
+  width: 88rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: var(--icon-strong);
+}
+
+/* Segmented control: muted track with a white selected pill. */
+.segments {
+  display: flex;
+  padding: 6rpx;
+  margin-bottom: 24rpx;
+  border-radius: var(--radius-pill);
+  background: var(--muted);
+}
+
+.segment {
+  flex: 1;
+  min-height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: var(--radius-pill);
+  font-size: 26rpx;
+  color: var(--text-muted);
+}
+
+.segment:active {
+  background: var(--strong);
+}
+
+.segment.is-active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 16rpx;
+}
+
+/* Chip: filled pill; the selected chip is the blue fill. */
+.chip {
+  display: flex;
+  align-items: center;
+  min-height: 88rpx;
+  padding: 0 28rpx;
+  margin: 0 16rpx 16rpx 0;
+  border-radius: var(--radius-pill);
+  background: var(--muted);
+  font-size: 26rpx;
+  color: var(--text-muted);
+}
+
+.chip:active {
+  background: var(--strong);
+}
+
+.chip.is-active {
+  background: var(--primary);
+  color: var(--primary-on);
+  font-weight: 600;
+}
+
+/* Primary action: the only saturated blue fill on a screen. */
+.primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96rpx;
+  margin-top: 8rpx;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: var(--primary-on);
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.primary-button:active {
+  background: var(--primary-pressed);
+}
+
+.primary-button.is-disabled {
+  background: var(--strong);
+  color: var(--text-weak);
+}
+
+/* Secondary action: tonal blue fill, no outline. */
+.secondary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200rpx;
+  min-height: 88rpx;
+  padding: 0 32rpx;
+  border-radius: var(--radius-pill);
+  background: var(--muted);
+  color: var(--accent);
+  font-size: 26rpx;
+}
+
+.secondary-button:active {
+  background: var(--strong);
+}
+
+.field {
+  margin-bottom: 24rpx;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: 26rpx;
+  color: var(--text-muted);
+}
+
+.field-textarea,
+.field-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 20rpx 24rpx;
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  font-size: 28rpx;
+  color: var(--text);
+}
+
+.field-textarea {
+  min-height: 200rpx;
+}
+
+.field-note {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: var(--text-weak);
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -8rpx;
+}
+
+.grid-tile {
+  box-sizing: border-box;
+  width: 33.3333%;
+  padding: 8rpx;
+}
+
+.tile {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.tile-media {
+  display: block;
+  width: 100%;
+  height: 200rpx;
+  background: var(--muted);
+}
+
+.tile-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200rpx;
+  background: var(--muted);
+  color: var(--text-weak);
+  font-size: 22rpx;
+}
+
+.tile-caption {
+  padding: 12rpx 16rpx;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  color: var(--text-muted);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.section {
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  display: block;
+  margin-bottom: 16rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Empty / error states share one flat card. */
+.state-card {
+  margin: 24rpx 0;
+  padding: 32rpx;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  text-align: center;
+}
+
+.state-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.state-detail {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.state-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24rpx;
+}
+
+/* List row: filled surface, separated by spacing and tap fill only. */
+.link-row {
+  display: flex;
+  align-items: center;
+  min-height: 96rpx;
+  padding: 0 24rpx;
+  margin-bottom: 16rpx;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.link-row:active {
+  background: var(--muted);
+}
+
+.link-glyph {
+  width: 56rpx;
+  font-size: 30rpx;
+  color: var(--icon-active);
+}
+
+.link-label {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--text);
+}
+
+.link-chevron {
+  font-size: 28rpx;
+  color: var(--icon-default);
+}
+
+/* Sheet: scrim for depth, flat white panel, no shadow. */
+.sheet-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 200;
+  background: var(--scrim);
+}
+
+.sheet {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 201;
+  max-height: 80vh;
+  padding: 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--surface);
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.sheet-title {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sheet-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: var(--muted);
+  color: var(--icon-default);
+  font-size: 28rpx;
+}
+
+.detail-row {
+  display: flex;
+  padding: 16rpx 0;
+  font-size: 26rpx;
+}
+
+.detail-key {
+  width: 180rpx;
+  color: var(--text-muted);
+}
+
+.detail-value {
+  flex: 1;
+  color: var(--text);
+  word-break: break-all;
+}
+
+/*
+ * Dark preference driven by the settings page.
+ *
+ * Every page root carries this class (resolved in `onShow`), so the whole app
+ * follows the in-app preference rather than only the platform chrome. The dark
+ * scale keeps the same tech-blue tokens: the rail navy becomes the page,
+ * surfaces are baked white tints over it (tonal fill, not elevation), and the
+ * text scale flips to the rail text tokens. No borders or shadows are
+ * introduced.
+ */
+.theme-dark {
+  min-height: 100vh;
+  /*
+   * The rail tokens declared on `page` drive the dark scale. The surface tints
+   * are the 6/9/15% white overlays composited to opaque hexes, so the fixed app
+   * bar, composer, and sheets never let scrolling content show through them.
+   */
+  --page: var(--rail);
+  --surface: #192949;
+  --muted: #20304e;
+  --strong: #2f3d5a;
+  --text: #e8f0ff;
+  --text-muted: var(--rail-text);
+  --text-weak: var(--rail-text-muted);
+  --primary-subtle: rgba(22, 93, 255, 0.24);
+  --accent: #7fa8ff;
+  --scrim: rgba(10, 27, 61, 0.6);
+  /*
+   * Icon remap: every value is a light glyph for the navy base. `icon-active`
+   * moves to the spec hover blue (#4080FF) because #165DFF only reaches ~3.2:1
+   * on the rail navy; the tab bar remaps to the same value.
+   */
+  --icon-default: var(--rail-text);
+  --icon-strong: #ffffff;
+  --icon-active: var(--primary-hover);
+  --icon-on-primary: #ffffff;
+  --icon-on-rail: var(--rail-text);
+  background: var(--page);
 }

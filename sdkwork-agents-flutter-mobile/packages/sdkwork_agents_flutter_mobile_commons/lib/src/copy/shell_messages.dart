@@ -11,30 +11,55 @@ library;
 
 import 'locale_helpers.dart';
 
-/// Bottom-tab labels, keyed by canonical locale tag then message key.
+/// Bottom-tab labels and shell chrome, keyed by canonical locale tag then
+/// message key.
 const Map<String, Map<String, String>> sdkworkAgentsShellMessages =
     <String, Map<String, String>>{
   'en-US': <String, String>{
-    'agents.mobile.tab.tasks': 'Tasks',
-    'agents.mobile.tab.experts': 'Experts',
+    'agents.mobile.tab.tasks': 'Chat',
+    'agents.mobile.tab.inspiration': 'Inspiration',
+    'agents.mobile.tab.creative': 'Create',
+    'agents.mobile.tab.assets': 'Assets',
+    'agents.mobile.tab.experts': 'Agent',
     'agents.mobile.tab.library': 'Library',
     'agents.mobile.tab.automation': 'Automation',
     'agents.mobile.tab.projects': 'Projects',
+    'agents.mobile.tab.membership': 'Membership',
+    'agents.mobile.tab.profile': 'Profile',
+    'agents.mobile.tab.canvas': 'Canvas',
     'agents.mobile.tab.market': 'Market',
     'agents.mobile.tab.myAgents': 'My agents',
     'agents.mobile.shell.menu': 'Open navigation',
+    'agents.mobile.shell.profile': 'My profile',
+    'agents.mobile.shell.back': 'Back',
     'agents.mobile.shell.newChat': 'New chat',
+    'agents.auth.title': 'SDKWork Agents',
+    'agents.auth.tokenRequired': 'No access token is installed. Launch with '
+        '--dart-define=SDKWORK_ACCESS_TOKEN=<token>, or call '
+        'AgentsAuthSession.install() from the host bridge.',
   },
   'zh-CN': <String, String>{
-    'agents.mobile.tab.tasks': '任务',
-    'agents.mobile.tab.experts': '专家',
+    'agents.mobile.tab.tasks': '对话',
+    'agents.mobile.tab.inspiration': '灵感',
+    'agents.mobile.tab.creative': '生成',
+    'agents.mobile.tab.assets': '资产',
+    'agents.mobile.tab.experts': 'Agent',
     'agents.mobile.tab.library': '资料库',
     'agents.mobile.tab.automation': '自动化',
     'agents.mobile.tab.projects': '项目',
+    'agents.mobile.tab.membership': '会员',
+    'agents.mobile.tab.profile': '我的',
+    'agents.mobile.tab.canvas': '画布',
     'agents.mobile.tab.market': '市场',
     'agents.mobile.tab.myAgents': '我的智能体',
     'agents.mobile.shell.menu': '打开导航',
+    'agents.mobile.shell.profile': '我的',
+    'agents.mobile.shell.back': '返回',
     'agents.mobile.shell.newChat': '新建对话',
+    'agents.auth.title': 'SDKWork Agents',
+    'agents.auth.tokenRequired': '尚未安装访问令牌。请使用 '
+        '--dart-define=SDKWORK_ACCESS_TOKEN=<token> 启动，或由宿主桥接调用 '
+        'AgentsAuthSession.install()。',
   },
 };
 

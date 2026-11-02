@@ -36,7 +36,7 @@ export const CanvasSelectionBox: React.FC<CanvasSelectionBoxProps> = ({ selectio
           to {
             stroke-dashoffset: -10;
           }
-        }
+          }
         .animate-selection-ants {
           stroke-dasharray: 6, 4;
           animation: selection-ants 0.3s linear infinite;
@@ -50,7 +50,7 @@ export const CanvasSelectionBox: React.FC<CanvasSelectionBoxProps> = ({ selectio
           height,
           zIndex: 100
         }}
-        className="absolute bg-cyan-400/[0.04] rounded-lg pointer-events-none shadow-[0_0_30px_rgba(34,211,238,0.15)] border border-cyan-400/25 overflow-hidden transition-all duration-75"
+        className="absolute bg-[#4080FF]/[0.04] rounded-lg pointer-events-none overflow-hidden transition-all duration-75"
       >
         <svg className="absolute inset-0 w-full h-full">
           <rect
@@ -59,7 +59,7 @@ export const CanvasSelectionBox: React.FC<CanvasSelectionBoxProps> = ({ selectio
             width="calc(100% - 1.5px)"
             height="calc(100% - 1.5px)"
             fill="none"
-            stroke="#22d3ee"
+            stroke="#165DFF"
             strokeWidth="1.5"
             className="animate-selection-ants"
             rx="6"

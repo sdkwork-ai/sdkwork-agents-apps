@@ -1,0 +1,12 @@
+{
+  "routerMap": [
+    {
+      "name": "app.agents.assets.detail",
+      "pageSourceFile": "src/main/ets/pages/assets/AssetDetailPage.ets",
+      "buildFunction": "AssetDetailPageBuilder",
+      "data": {
+        "description": "Asset detail (route id app.agents.assets.detail)."
+      }
+    }
+  ]
+}

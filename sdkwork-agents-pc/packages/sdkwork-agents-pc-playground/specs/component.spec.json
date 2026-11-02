@@ -21,7 +21,7 @@
     { "file": "COMPONENT_SPEC.md", "path": "../../../../../sdkwork-specs/COMPONENT_SPEC.md", "purpose": "Component contract shape." }
   ],
   "contracts": {
-    "layerRole": "frontend-facade",
+    "layerRole": "frontend-shell",
     "publicExports": ["."],
     "providedPorts": ["agents.playground.composition"],
     "requiredPorts": ["agents.workbench", "agents.commons", "agents.sdk"],

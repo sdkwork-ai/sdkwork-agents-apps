@@ -35,27 +35,27 @@ export const CreativeSidebarItem: React.FC<CreativeSidebarItemProps> = ({
   isDefault
 }) => {
   return (
-    <div 
+    <div
       onClick={() => setActiveSessionId(session.id)}
       className={cn(
         "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all text-left group cursor-pointer select-none relative",
-        editingSessionId === session.id 
-          ? "text-zinc-900 dark:text-white" 
-          : activeSessionId === session.id 
-            ? "bg-zinc-100 text-zinc-900 dark:bg-[#333333] dark:text-white" 
+        editingSessionId === session.id
+          ? "text-zinc-900 dark:text-white"
+          : activeSessionId === session.id
+            ? "bg-zinc-100 text-zinc-900 dark:bg-[#333333] dark:text-white"
             : "hover:bg-black/5 text-zinc-500 hover:text-zinc-800 dark:hover:bg-[#2a2a2a] dark:text-zinc-400 dark:hover:text-zinc-200"
       )}
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
         {!isDefault && session.avatarUrl ? (
-          <img 
-            src={session.avatarUrl} 
-            className="w-[18px] h-[18px] rounded-full object-cover shrink-0 border border-black/10 dark:border-white/10" 
-            alt="" 
+          <img
+            src={session.avatarUrl}
+            className="w-[18px] h-[18px] rounded-full object-cover shrink-0"
+            alt=""
             referrerPolicy="no-referrer"
           />
         ) : (
-          <MessageSquare size={16} className={cn("shrink-0", session.isPinned ? "text-cyan-400" : "text-zinc-400")} />
+          <MessageSquare size={16} className={cn("shrink-0", session.isPinned ? "text-[#4080FF]" : "text-zinc-400")} />
         )}
         {editingSessionId === session.id ? (
           <input
@@ -68,19 +68,19 @@ export const CreativeSidebarItem: React.FC<CreativeSidebarItemProps> = ({
               if (e.key === 'Enter') onSaveRename(session.id);
               if (e.key === 'Escape') setEditingSessionId(null);
             }}
-            className="bg-zinc-100 text-zinc-900 text-xs px-1.5 py-0.5 rounded border border-zinc-200 outline-none ring-0 w-full focus:outline-none focus:ring-0 dark:bg-[#242426] dark:text-white dark:border-transparent"
+            className="bg-zinc-100 text-zinc-900 text-xs px-1.5 py-0.5 rounded outline-none ring-0 w-full focus:outline-none focus:ring-0 dark:bg-[#242426] dark:text-white"
             autoFocus
           />
         ) : (
           <span className="text-[14px] font-medium truncate flex-1">{session.title}</span>
         )}
         {session.isPinned && !editingSessionId && (
-          <Pin size={10} className="text-cyan-400 shrink-0 rotate-45" />
+          <Pin size={10} className="text-[#4080FF] shrink-0 rotate-45" />
         )}
       </div>
       {!editingSessionId && (
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setActiveSessionMenuId(activeSessionMenuId === session.id ? null : session.id);
@@ -96,7 +96,7 @@ export const CreativeSidebarItem: React.FC<CreativeSidebarItemProps> = ({
       {activeSessionMenuId === session.id && (
         <>
           <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setActiveSessionMenuId(null); }} />
-          <div className="absolute right-2 top-10 w-36 bg-white border border-black/10 rounded-xl py-1.5 shadow-2xl z-50 animate-in fade-in duration-100 dark:bg-[#1a1a1c] dark:border-white/10">
+          <div className="absolute right-2 top-10 w-36 bg-white rounded-xl py-1.5 z-50 animate-in fade-in duration-100 dark:bg-[#1a1a1c]">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -117,7 +117,7 @@ export const CreativeSidebarItem: React.FC<CreativeSidebarItemProps> = ({
               }}
               className="w-full text-left px-3 py-1.5 hover:bg-black/5 text-zinc-600 hover:text-zinc-900 text-xs flex items-center gap-2 transition-colors cursor-pointer dark:hover:bg-[#2a2a2a] dark:text-zinc-300 dark:hover:text-white"
             >
-              <Pin size={12} className={cn("text-zinc-400 dark:text-zinc-500", session.isPinned ? "rotate-45 text-cyan-500 dark:text-cyan-400" : "")} />
+              <Pin size={12} className={cn("text-zinc-400 dark:text-zinc-500", session.isPinned ? "rotate-45 text-[#165DFF] dark:text-[#4080FF]" : "")} />
               {session.isPinned ? '取消置顶' : '置顶会话'}
             </button>
             <button

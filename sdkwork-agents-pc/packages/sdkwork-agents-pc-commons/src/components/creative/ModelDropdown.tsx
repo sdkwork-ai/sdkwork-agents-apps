@@ -55,10 +55,10 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
 }) => {
   const agentTabModels = agentModelTab === 'image' ? agentImageModels : agentVideoModels;
   return (
-    <div 
+    <div
       ref={dropdownRef}
       className={cn(
-        "absolute right-0 bg-white border border-black/10 rounded-xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col w-[calc(100vw-32px)] max-w-[380px] sm:w-[380px] dark:bg-[#1e1e1e] dark:border-white/10 dark:shadow-2xl",
+        "absolute right-0 bg-white rounded-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col w-[calc(100vw-32px)] max-w-[380px] sm:w-[380px] dark:bg-[#1e1e1e]",
         modelMenuPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2",
         isAgent ? "max-h-[70vh] sm:w-[420px] max-w-[420px]" : "max-h-[60vh]"
       )}
@@ -77,27 +77,27 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
               }
             }}>
               <span className="text-[12px] text-zinc-500 dark:text-zinc-400">自动匹配模型</span>
-              <div className={cn("w-8 h-4 rounded-full flex items-center px-[2px] transition-colors", agentAutoMatch ? "bg-cyan-500 justify-end" : "bg-zinc-600 justify-start")}>
-                <div className="w-3.5 h-3.5 bg-white rounded-full shadow-sm"></div>
+                <div className={cn("w-8 h-4 rounded-full flex items-center px-[2px] transition-colors", agentAutoMatch ? "bg-[#165DFF] justify-end" : "bg-zinc-600 justify-start")}>
+                  <div className="w-3.5 h-3.5 bg-white rounded-full"></div>
               </div>
-            </div>
-          </div>
+              </div>
+              </div>
           <div className="px-4 pb-2 shrink-0">
             <div className="flex bg-zinc-100 rounded-xl p-1 dark:bg-[#2a2a2a]">
-              <button 
+              <button
                 onClick={() => setAgentModelTab('image')}
-                className={cn("flex-1 py-1.5 text-[13px] font-medium rounded-lg transition-colors", agentModelTab === 'image' ? "bg-black/10 text-zinc-900 shadow-sm dark:bg-[#333333] dark:text-white" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200")}
+                className={cn("flex-1 py-1.5 text-[13px] font-medium rounded-lg transition-colors", agentModelTab === 'image' ? "bg-black/10 text-zinc-900 dark:bg-[#333333] dark:text-white" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200")}
               >
                 图片模型
               </button>
-              <button 
+              <button
                 onClick={() => setAgentModelTab('video')}
-                className={cn("flex-1 py-1.5 text-[13px] font-medium rounded-lg transition-colors", agentModelTab === 'video' ? "bg-black/10 text-zinc-900 shadow-sm dark:bg-[#333333] dark:text-white" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200")}
+                className={cn("flex-1 py-1.5 text-[13px] font-medium rounded-lg transition-colors", agentModelTab === 'video' ? "bg-black/10 text-zinc-900 dark:bg-[#333333] dark:text-white" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200")}
               >
                 视频模型
               </button>
             </div>
-          </div>
+            </div>
           <div className="px-4 py-2 text-[12px] text-zinc-500 shrink-0">
             {agentModelTab === 'image' ? '图片生成' : '视频生成'}
           </div>
@@ -127,19 +127,19 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
                   <span className={cn("text-[14px] flex items-center gap-1.5", isSelected ? "text-zinc-900 font-medium dark:text-white" : "text-zinc-700 dark:text-zinc-300")}>
                     {model.label}
                     {model.lifecycle === 'deprecated' && (
-                      <span className="bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[9px] font-bold px-1 py-0.5 rounded shrink-0">
+                      <span className="bg-amber-500/10 text-amber-500 text-[9px] font-bold px-1 py-0.5 rounded shrink-0">
                         已弃用
                       </span>
                     )}
                   </span>
-                  <div className={cn("w-4 h-4 rounded-[4px] border flex items-center justify-center transition-colors", isSelected ? "bg-cyan-500 border-cyan-500 text-[#1e1e1e]" : "border-zinc-500")}>
+                    <div className={cn("w-4 h-4 rounded-[4px] flex items-center justify-center transition-colors", isSelected ? "bg-[#165DFF] text-[#1e1e1e]" : "")}>
                     {isSelected && <Check size={12} strokeWidth={3} />}
                   </div>
                 </button>
               );
             })}
           </div>
-        </div>
+          </div>
       ) : (
         <>
           <div className="px-4 py-2 text-zinc-500 dark:text-zinc-400 text-[12px] mb-1 shrink-0">
@@ -152,7 +152,7 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
                 <button
                   key={model.id}
                   disabled={!selectable}
-                  onClick={() => { 
+                  onClick={() => {
                     if (!selectable) return;
                     onSelectModel(model.id);
                   }}
@@ -164,14 +164,14 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
                   )}
                 >
                   {model.image ? (
-                    <div className="shrink-0 w-11 h-11 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 shadow-md">
+                    <div className="shrink-0 w-11 h-11 rounded-lg overflow-hidden">
                       <img src={model.image} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
                     </div>
                   ) : model.badge ? (
-                    <div className="shrink-0 w-11 h-11 flex flex-col items-center justify-center rounded-xl bg-gradient-to-b from-[#1b4383] to-[#0c1f44] border border-blue-400/30 text-white shadow-lg relative select-none">
+                    <div className="shrink-0 w-11 h-11 flex flex-col items-center justify-center rounded-xl bg-[#0A1B3D] text-white relative select-none">
                       <div className="text-[14px] font-black tracking-tight leading-none">{model.badge}</div>
                       {model.subBadge && (
-                        <div className="text-[7px] font-extrabold text-cyan-300 tracking-wider mt-0.5 scale-90">{model.subBadge}</div>
+                        <div className="text-[7px] font-extrabold text-[#4080FF] tracking-wider mt-0.5 scale-90">{model.subBadge}</div>
                       )}
                     </div>
                   ) : (
@@ -185,14 +185,14 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
                       <span className={cn("text-[14px] font-semibold", selectedModelId === model.id ? "text-zinc-900 dark:text-white" : "text-zinc-800 dark:text-zinc-200")}>
                         {model.label}
                       </span>
-                      {model.spark && <Sparkles size={12} className="text-cyan-400 fill-cyan-400 shrink-0" />}
+                        {model.spark && <Sparkles size={12} className="text-[#4080FF] fill-[#4080FF] shrink-0" />}
                       {model.isNew && (
-                        <span className="bg-cyan-500/10 border border-cyan-400/20 text-cyan-400 text-[9px] font-bold px-1 py-0.5 rounded scale-90 origin-left shrink-0">
+                        <span className="bg-[#165DFF]/10 text-[#4080FF] text-[9px] font-bold px-1 py-0.5 rounded scale-90 origin-left shrink-0">
                           New
                         </span>
                       )}
                       {model.lifecycle === 'deprecated' && (
-                        <span className="bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[9px] font-bold px-1 py-0.5 rounded scale-90 origin-left shrink-0 flex items-center gap-0.5">
+                        <span className="bg-amber-500/10 text-amber-500 text-[9px] font-bold px-1 py-0.5 rounded scale-90 origin-left shrink-0 flex items-center gap-0.5">
                           <ShieldAlert size={9} strokeWidth={2.5} />
                           已弃用
                         </span>

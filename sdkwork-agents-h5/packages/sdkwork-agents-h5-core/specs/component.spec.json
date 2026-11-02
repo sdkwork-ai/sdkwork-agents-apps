@@ -59,13 +59,31 @@
         "workspace": "sdkwork-voice-app-sdk",
         "surface": "app-api",
         "credentialMode": "authenticated-app-api"
+      },
+      {
+        "workspace": "sdkwork-membership-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
+      },
+      {
+        "workspace": "sdkwork-feeds-sdk",
+        "surface": "open-api",
+        "credentialMode": "public-open-api"
+      },
+      {
+        "workspace": "sdkwork-order-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
       }
     ],
     "sdkClients": [
       "@sdkwork/agents-app-sdk",
       "@sdkwork/knowledgebase-app-sdk",
       "@sdkwork/skills-app-sdk",
-      "@sdkwork/voice-app-sdk"
+      "@sdkwork/voice-app-sdk",
+      "@sdkwork/membership-app-sdk",
+      "@sdkwork/feeds-sdk",
+      "@sdkwork/order-app-sdk"
     ],
     "permissionComposition": {
       "inheritanceMode": "module-catalog-with-overrides",

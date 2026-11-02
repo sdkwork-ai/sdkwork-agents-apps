@@ -1,0 +1,13 @@
+{
+  "name": "@sdkwork/sdkwork-agents-harmony-mobile-membership",
+  "version": "0.1.0",
+  "description": "SDKWork Agents HarmonyOS mobile membership capability: plan catalog, current membership summary, and checkout entry.",
+  "main": "src/main/ets/Index.ets",
+  "author": "SDKWork",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@sdkwork/sdkwork-agents-harmony-mobile-core": "file:../sdkwork-agents-harmony-mobile-core",
+    "@sdkwork/sdkwork-agents-harmony-mobile-commons": "file:../sdkwork-agents-harmony-mobile-commons",
+    "@sdkwork/sdkwork-agents-harmony-mobile-shell": "file:../sdkwork-agents-harmony-mobile-shell"
+  }
+}

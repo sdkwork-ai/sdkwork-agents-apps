@@ -15,6 +15,9 @@ import type { AgentProjectSummary } from "../types";
 export interface ProjectsScreenProps {
   /** Opens one project. The sessions surface owns the detail view. */
   onOpenProject?: (project: AgentProjectSummary) => void;
+  /** Renders a back affordance when the surface is stack-pushed. */
+  onBack?: () => void;
+  backLabel?: string;
   className?: string;
 }
 
@@ -25,7 +28,7 @@ export interface ProjectsScreenProps {
  * this client root: create / rename / delete stay on the PC workbench until the
  * mobile detail surface exists.
  */
-export function ProjectsScreen({ onOpenProject, className }: ProjectsScreenProps) {
+export function ProjectsScreen({ onOpenProject, onBack, backLabel, className }: ProjectsScreenProps) {
   const [projects, setProjects] = useState<AgentProjectSummary[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -63,6 +66,8 @@ export function ProjectsScreen({ onOpenProject, className }: ProjectsScreenProps
   return (
     <MobileResourceList
       {...(className ? { className } : {})}
+      {...(onBack ? { onBack } : {})}
+      {...(backLabel ? { backLabel } : {})}
       title={translateAgentsProjectsText("agents.projects.title")}
       searchPlaceholder={translateAgentsProjectsText("agents.projects.search.placeholder")}
       searchValue={query}
@@ -80,28 +85,27 @@ export function ProjectsScreen({ onOpenProject, className }: ProjectsScreenProps
           type="button"
           onClick={() => onOpenProject?.(project)}
           className={cn(
-            "flex w-full items-center gap-3 px-4 py-2.5 text-left transition",
-            "active:bg-[var(--color-hover-bg,rgba(0,0,0,0.03))]",
+            "flex w-full items-center gap-3 rounded-xl bg-[var(--color-surface-color,#FFFFFF)] px-4 py-3 text-left transition-colors",
+            "active:bg-[var(--color-surface-muted,#EAF1FB)]",
           )}
         >
           <span
             className={cn(
               "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-              "bg-[var(--color-surface-color,#ffffff)]",
-              "border border-[var(--color-border-color,rgba(0,0,0,0.05))]",
+              "bg-[var(--color-primary-subtle,#E8F0FF)]",
             )}
           >
             <FolderOpen
               size={18}
               aria-hidden="true"
-              className="text-[var(--color-primary-blue,#2b5ce7)]"
+              className="text-[var(--color-primary-blue,#165DFF)]"
             />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[15px] text-[var(--color-text-main,#1f1f1f)]">
+            <span className="block truncate text-[15px] text-[var(--color-text-main,#0A1B3D)]">
               {project.name}
             </span>
-            <span className="block truncate text-[11px] text-[var(--color-text-sub,#8c8c8c)]">
+            <span className="block truncate text-[11px] text-[var(--color-text-sub,#5B6B88)]">
               {[project.status, formatListTimestamp(project.updatedAt)]
                 .filter((part) => Boolean(part))
                 .join(" · ")}

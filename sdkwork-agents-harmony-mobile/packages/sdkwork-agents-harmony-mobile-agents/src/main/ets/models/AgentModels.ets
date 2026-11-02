@@ -8,7 +8,7 @@ export interface AgentsCatalogListItem {
   readonly id: string;
   readonly name: string;
   readonly description: string;
-  readonly avatarUrl?: string;
+  readonly avatarUrl: string;
 }
 
 export interface AgentsConversationRouteParams {
@@ -16,9 +16,11 @@ export interface AgentsConversationRouteParams {
   readonly sessionId?: string;
 }
 
-export interface AgentsCatalogScreenModel {
-  readonly items: AgentsCatalogListItem[];
-  readonly loading: boolean;
-  readonly errorMessage?: string;
-  readonly hasMore: boolean;
+export type AgentsMessageRole = 'user' | 'assistant' | 'system';
+
+export interface AgentsConversationMessage {
+  readonly id: string;
+  readonly role: AgentsMessageRole;
+  readonly text: string;
+  readonly createdAt: string;
 }

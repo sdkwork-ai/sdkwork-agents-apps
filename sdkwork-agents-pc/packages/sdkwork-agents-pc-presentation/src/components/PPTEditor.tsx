@@ -18,8 +18,8 @@ export const PPTEditor: React.FC<PPTEditorProps> = ({ content, setContent, layou
   if (layout !== 'split' && layout !== 'edit') return null;
 
   return (
-    <div className={cn("h-full border-gray-200 dark:border-gray-800 flex flex-col", layout === 'split' ? "w-1/2 border-r" : "w-full")}>
-      <div className="bg-gray-50 dark:bg-[#1a1a1a] px-4 py-2 text-xs font-mono text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
+    <div className={cn("h-full flex flex-col", layout === 'split' ? "w-1/2" : "w-full")}>
+      <div className="bg-gray-50 dark:bg-[#1a1a1a] px-4 py-2 text-xs font-mono text-gray-500 dark:text-gray-400">
         {t('ppt:markdownPrefix')}
       </div>
       <div className="flex-1 relative">
@@ -37,6 +37,6 @@ export const PPTEditor: React.FC<PPTEditorProps> = ({ content, setContent, layou
           }}
         />
       </div>
-    </div>
+      </div>
   );
 };

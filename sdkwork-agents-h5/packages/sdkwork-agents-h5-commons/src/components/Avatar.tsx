@@ -10,6 +10,10 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   shape?: "circle" | "square";
 }
 
+/**
+ * Flat avatar tile: the fallback sits on the tonal `surface-strong` fill, never
+ * on a dark card and never with a decorative border line.
+ */
 export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
   ({ className, src, alt, fallback, size = "md", shape = "square", ...props }, ref) => {
     const sizeClasses = {
@@ -20,14 +24,14 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
 
     const shapeClasses = {
       circle: "rounded-full",
-      square: "rounded-md",
+      square: "rounded-[var(--radius-md,12px)]",
     };
 
     return (
       <div
         ref={ref}
         className={cn(
-          "relative flex shrink-0 overflow-hidden bg-gray-700 items-center justify-center text-gray-300",
+          "relative flex shrink-0 overflow-hidden bg-[var(--color-surface-strong,#DCE8F9)] items-center justify-center text-[var(--color-text-secondary,#5B6B88)]",
           sizeClasses[size],
           shapeClasses[shape],
           className,

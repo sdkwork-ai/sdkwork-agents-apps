@@ -12,14 +12,22 @@
     "./sdk": "./src/sdk/index.ts",
     "./sdk/agentsAppSdkClient": "./src/sdk/agentsAppSdkClient.ts",
     "./sdk/driveAppSdkClient": "./src/sdk/driveAppSdkClient.ts",
+    "./sdk/membershipAppSdkClient": "./src/sdk/membershipAppSdkClient.ts",
+    "./sdk/feedsOpenSdkClient": "./src/sdk/feedsOpenSdkClient.ts",
+    "./sdk/orderAppService": "./src/sdk/orderAppService.ts",
     "./modules": "./src/modules/index.ts",
     "./host": "./src/host/index.ts",
     "./session": "./src/session/index.ts",
+    "./capabilities": "./src/capabilities/index.ts",
     "./composition": "./src/composition/index.ts"
   },
   "dependencies": {
     "@sdkwork/agents-app-sdk": "workspace:*",
     "@sdkwork/drive-app-sdk": "workspace:*",
+    "@sdkwork/membership-app-sdk": "workspace:*",
+    "@sdkwork/feeds-sdk": "workspace:*",
+    "@sdkwork/order-service": "workspace:*",
+    "@sdkwork/order-app-sdk": "workspace:*",
     "@sdkwork/sdk-common": "workspace:*"
   }
 }

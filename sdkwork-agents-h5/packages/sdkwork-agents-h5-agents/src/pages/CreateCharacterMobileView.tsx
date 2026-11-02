@@ -67,22 +67,22 @@ export const CreateCharacterMobileView: React.FC<CreateCharacterMobileViewProps>
   };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--color-bg-color,#f5f5f7)] overflow-hidden">
+    <div className="flex flex-col h-full bg-[var(--color-bg-color,#F4F7FC)] overflow-hidden">
       {/* Header */}
-      <header className="h-[56px] shrink-0 flex items-center justify-between px-2 bg-[var(--color-glass-bg,#f5f5f7)] backdrop-blur-xl border-b border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))] z-10">
+      <header className="h-[56px] shrink-0 flex items-center justify-between px-2 bg-[var(--color-glass-bg,#FFFFFF)] z-10">
         <div className="flex items-center flex-1 gap-1">
           {onBack && (
             <button
               type="button"
               aria-label={t('agents.mobile.back')}
               onClick={onBack}
-              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-black/5 dark:active:bg-white/10 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-[var(--color-surface-muted,#EAF1FB)] transition-colors"
             >
-              <ArrowLeft className="w-6 h-6 text-[var(--color-text-main,#111827)]" />
+              <ArrowLeft className="w-6 h-6 text-[var(--color-icon-strong,#0A1B3D)]" />
             </button>
           )}
         </div>
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-[var(--color-text-main,#111827)]">
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-[var(--color-text-main,#0A1B3D)]">
           {isEdit
             ? t('agents.mobile.characters.form.title.edit')
             : t('agents.mobile.characters.form.title.create')}
@@ -91,9 +91,9 @@ export const CreateCharacterMobileView: React.FC<CreateCharacterMobileViewProps>
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
-        <div className="bg-[var(--color-chat-other-bg,#262626)] rounded-2xl border border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))] px-4 py-2 flex flex-col">
-          <div className="flex items-center gap-4 py-3 border-b border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))]">
-            <span className="w-16 whitespace-nowrap text-[16px] text-[var(--color-text-main,#111827)]">
+        <div className="bg-[var(--color-chat-other-bg,#FFFFFF)] rounded-2xl px-4 py-2 flex flex-col">
+          <div className="flex items-center gap-4 py-3">
+            <span className="w-16 whitespace-nowrap text-[16px] text-[var(--color-text-main,#0A1B3D)]">
               {t('agents.mobile.characters.form.name')}
             </span>
             <input
@@ -101,7 +101,7 @@ export const CreateCharacterMobileView: React.FC<CreateCharacterMobileViewProps>
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('agents.mobile.characters.form.name.placeholder')}
-              className="flex-1 bg-transparent text-[16px] text-[var(--color-text-main,#111827)] outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="flex-1 bg-transparent text-[16px] text-[var(--color-text-main,#0A1B3D)] outline-none placeholder:text-[var(--color-text-secondary,#5B6B88)]"
             />
           </div>
 
@@ -109,18 +109,18 @@ export const CreateCharacterMobileView: React.FC<CreateCharacterMobileViewProps>
             className="flex items-center gap-4 py-3 cursor-pointer active:opacity-70 transition-opacity"
             onClick={() => setShowVoiceSelector(true)}
           >
-            <span className="w-16 whitespace-nowrap text-[16px] text-[var(--color-text-main,#111827)]">
+            <span className="w-16 whitespace-nowrap text-[16px] text-[var(--color-text-main,#0A1B3D)]">
               {t('agents.mobile.characters.form.voice')}
             </span>
             <div className="flex-1 flex justify-between items-center text-[16px]">
               <span
                 className={
-                  voice ? 'text-[var(--color-primary-blue,#2b5ce7)] font-medium' : 'text-[var(--color-text-sub,#9ca3af)]'
+                  voice ? 'text-[var(--color-primary-blue,#165DFF)] font-medium' : 'text-[var(--color-text-sub,#5B6B88)]'
                 }
               >
                 {voiceLabel || voice || t('agents.mobile.characters.form.voice.placeholder')}
               </span>
-              <div className="flex items-center gap-1 text-[var(--color-text-sub,#9ca3af)]">
+              <div className="flex items-center gap-1 text-[var(--color-text-sub,#5B6B88)]">
                 <Mic className="w-4 h-4" />
                 <ChevronRight className="w-4 h-4 ml-1 opacity-50" />
               </div>
@@ -129,16 +129,16 @@ export const CreateCharacterMobileView: React.FC<CreateCharacterMobileViewProps>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[14px] font-medium text-[var(--color-text-main,#111827)] ml-2">
+          <label className="text-[14px] font-medium text-[var(--color-text-main,#0A1B3D)] ml-2">
             {t('agents.mobile.characters.form.desc.label')}
           </label>
-          <div className="bg-[var(--color-chat-other-bg,#262626)] border border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))] rounded-2xl p-4">
+          <div className="bg-[var(--color-chat-other-bg,#FFFFFF)] rounded-2xl p-4">
             <textarea
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
               placeholder={t('agents.mobile.characters.form.desc.placeholder')}
               rows={4}
-              className="w-full bg-transparent text-[15px] text-[var(--color-text-main,#111827)] outline-none resize-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="w-full bg-transparent text-[15px] text-[var(--color-text-main,#0A1B3D)] outline-none resize-none placeholder:text-[var(--color-text-secondary,#5B6B88)]"
             />
           </div>
         </div>
@@ -149,7 +149,7 @@ export const CreateCharacterMobileView: React.FC<CreateCharacterMobileViewProps>
           type="button"
           onClick={() => void handleSave()}
           disabled={saving}
-          className="w-full py-3.5 bg-[var(--color-primary-blue,#2b5ce7)] text-white rounded-full font-bold text-[16px] shadow-lg shadow-[#2b5ce7]/20 active:opacity-80 transition-opacity disabled:opacity-50"
+          className="w-full py-3.5 bg-[var(--color-primary-blue,#165DFF)] text-white rounded-full font-bold text-[16px] active:opacity-80 transition-opacity disabled:opacity-50"
         >
           {t('agents.mobile.characters.form.save')}
         </button>

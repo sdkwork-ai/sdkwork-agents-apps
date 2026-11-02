@@ -31,20 +31,19 @@ export function ConversationEmptyState({
       <div
         className={cn(
           "mb-4 flex h-24 w-24 items-center justify-center rounded-[32px]",
-          "bg-[var(--color-surface-color,#ffffff)]",
-          "shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
+          "bg-[var(--color-primary-subtle,#E8F0FF)]",
         )}
       >
         <Bot
           size={52}
-          className="text-[var(--color-primary-blue,#2b5ce7)]"
+          className="text-[var(--color-primary-blue,#165DFF)]"
           aria-hidden="true"
         />
       </div>
-      <p className="text-[26px] font-semibold leading-9 text-[var(--color-text-main,#1f1f1f)]">
+      <p className="text-[26px] font-semibold leading-9 text-[var(--color-text-main,#0A1B3D)]">
         {translateAgentsConversationText("agents.conversation.empty.greeting")}
       </p>
-      <p className="text-[13px] leading-6 text-[var(--color-text-sub,#8c8c8c)]">
+      <p className="text-[13px] leading-6 text-[var(--color-text-sub,#5B6B88)]">
         {welcomeMessage?.trim() ||
           translateAgentsConversationText("agents.conversation.empty.hint")}
       </p>

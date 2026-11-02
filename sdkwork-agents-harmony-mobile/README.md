@@ -5,10 +5,20 @@ Native HarmonyOS (ArkTS/ArkUI) client application root for SDKWork Agents.
 ## Status
 
 Architecture scaffold materialized against
-`HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md`. This is the first
-`-harmony-mobile` application root in the SDKWork workspace, so the package
-family, composition contracts, and host adapter boundaries are established
-here for the first time.
+`HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md`, now carrying the M1 page parity set
+(`docs/engineering/plans/PLAN-2026-1102-client-page-parity.md`):
+
+- Bottom-tab shell with the five PC-primary surfaces
+  (`navigation.mobileBottomTabs`), per-tab retained state, and a profile action on
+  every tab.
+- `app.agents.profile.index` hub with the contract profile links, and
+  `app.agents.settings.index` with a form persisted through the host
+  `PreferencesAdapter`.
+- `app.agents.membership.catalog` page, exposed to the platform router by route
+  id through the package `route_map.json` profile.
+- Explicit localized `unavailable` + retry states for every capability whose
+  adapted ArkTS transport does not exist yet (inspiration, creative/generations,
+  assets, membership). No page fabricates data.
 
 ## Blocking Prerequisites
 
@@ -35,11 +45,27 @@ produce a signed HAP:
 
 | Package | Role | Layer role |
 | --- | --- | --- |
-| `packages/sdkwork-agents-harmony-mobile-core` | runtime config, SDK factories, token manager, session stores, route registry, host adapter contracts | frontend-core |
-| `packages/sdkwork-agents-harmony-mobile-commons` | domain-neutral ArkUI components, theme adapters, i18n helpers | frontend-commons |
-| `packages/sdkwork-agents-harmony-mobile-shell` | app shell, navigation/page stack, AuthGate integration | frontend-shell |
-| `packages/sdkwork-agents-harmony-mobile-host` | typed HarmonyOS host adapters (camera, QR, secure storage, push, ...) | frontend-host |
-| `packages/sdkwork-agents-harmony-mobile-agents` | agent catalog, creation, and conversation capability | frontend-feature |
+| `packages/sdkwork-agents-harmony-mobile-core` | runtime config, SDK factories, token manager, session stores, page-state contract, host adapter contracts | frontend-core |
+| `packages/sdkwork-agents-harmony-mobile-commons` | domain-neutral ArkUI components (page header, empty/loading states), theme adapters, i18n helpers | frontend-commons |
+| `packages/sdkwork-agents-harmony-mobile-shell` | bottom-tab shell model, route registry and navigator, AuthGate integration, shell i18n | frontend-shell |
+| `packages/sdkwork-agents-harmony-mobile-host` | typed HarmonyOS host adapters (preferences, device info, secure storage, ...) | frontend-host |
+| `packages/sdkwork-agents-harmony-mobile-agents` | root route registry, agent catalog, conversation capability | frontend-feature |
+| `packages/sdkwork-agents-harmony-mobile-inspiration` | inspiration discover feed | frontend-feature |
+| `packages/sdkwork-agents-harmony-mobile-creative` | generation studio | frontend-feature |
+| `packages/sdkwork-agents-harmony-mobile-assets` | asset library and detail sheet | frontend-feature |
+| `packages/sdkwork-agents-harmony-mobile-membership` | membership catalog and checkout entry | frontend-feature |
+| `packages/sdkwork-agents-harmony-mobile-profile` | profile hub and persisted settings form | frontend-feature |
+
+## Page Registry
+
+`packages/sdkwork-agents-harmony-mobile-agents/src/main/ets/routes/RouteContributions.ets`
+is the contract-declared registry (`specs/client-page-parity.spec.json`
+`clients.harmony.registry`). It carries every `app.agents.*` route id with
+`pagePath`, `titleKey`, `auth`, `permissionHint`, presentation, and delivery state.
+Tab-hosted pages are mounted by `entry/src/main/ets/pages/Index.ets`; stack pages
+(membership, profile, settings) are registered for the platform router in their
+package `src/main/resources/base/profile/route_map.json` under the canonical route
+id, so the shell navigator opens them by route identity.
 
 ## Configuration
 

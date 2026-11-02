@@ -31,8 +31,8 @@ export const ChatFailureCard: React.FC<ChatFailureCardProps> = ({ failure }) => 
     <div
       className={
         isFunding
-          ? 'mt-2 flex w-full items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-[13px] text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200'
-          : 'mt-2 flex w-full items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] text-red-900 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200'
+        ? 'mt-2 flex w-full items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-[13px] text-amber-900 dark:bg-amber-500/10 dark:text-amber-200'
+        : 'mt-2 flex w-full items-start gap-2 rounded-xl bg-red-50 px-3 py-2.5 text-[13px] text-red-900 dark:bg-red-500/10 dark:text-red-200'
       }
       data-chat-failure-card={failure.kind}
       role="alert"
@@ -51,6 +51,6 @@ export const ChatFailureCard: React.FC<ChatFailureCardProps> = ({ failure }) => 
           </button>
         )}
       </div>
-    </div>
+      </div>
   );
 };

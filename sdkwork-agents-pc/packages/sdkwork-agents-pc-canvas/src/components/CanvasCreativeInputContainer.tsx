@@ -43,21 +43,21 @@ export const CanvasCreativeInputContainer: React.FC<CanvasCreativeInputContainer
   if (isReadOnly) {
     return (
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[840px] max-w-[95vw] z-30 flex flex-col gap-2.5 no-export select-none animate-in fade-in slide-in-from-bottom-2 duration-300">
-        <div className="flex items-center justify-between gap-4 px-6 py-4 bg-[#141416]/95 border border-amber-500/30 backdrop-blur-md rounded-2xl shadow-2xl">
+        <div className="flex items-center justify-between gap-4 px-6 py-4 bg-[#141416]/95 backdrop-blur-md rounded-2xl">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-400 shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-bold text-zinc-100">演示与评审模式 (只读已开启)</span>
               <span className="text-[11px] text-zinc-400 font-medium">当前画布已被锁定。无法对节点进行创建、内容修改、拖拽或大小调整。请在顶部工具栏解锁。</span>
             </div>
-          </div>
-          <div className="text-xs text-amber-400 font-bold bg-amber-500/5 px-2.5 py-1 rounded-lg border border-amber-500/10 shrink-0 select-none">
+            </div>
+              <div className="text-xs text-amber-400 font-bold bg-amber-500/5 px-2.5 py-1 rounded-lg shrink-0 select-none">
             画布锁定保护中
           </div>
-        </div>
-      </div>
+          </div>
+          </div>
     );
   }
 
@@ -67,12 +67,12 @@ export const CanvasCreativeInputContainer: React.FC<CanvasCreativeInputContainer
     'video-gen': '🎬 正在编辑：AI 镜头渲染'
   };
 
-  const initialMode = selectedNode 
+  const initialMode = selectedNode
     ? (selectedNode.type === 'image-gen' ? 'image' : selectedNode.type === 'video-gen' ? 'video' : 'agent')
     : 'image'; // default to image
-    
-  const initialVal = selectedNode 
-    ? (selectedNode.prompt || selectedNode.content || '') 
+
+  const initialVal = selectedNode
+    ? (selectedNode.prompt || selectedNode.content || '')
     : '';
 
   const initialSettings = selectedNode ? {
@@ -141,12 +141,12 @@ export const CanvasCreativeInputContainer: React.FC<CanvasCreativeInputContainer
   return (
     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[840px] max-w-[95vw] z-30 flex flex-col gap-2.5 no-export">
       {selectedNodeIds.length === 1 && selectedNode && (
-        <div className="flex items-center justify-between px-4 py-1.5 bg-[#121214]/90 backdrop-blur-md border border-cyan-500/30 rounded-xl text-xs text-cyan-400 font-semibold shadow-lg select-none animate-in fade-in slide-in-from-bottom-1 duration-150">
+        <div className="flex items-center justify-between px-4 py-1.5 bg-[#121214]/90 backdrop-blur-md rounded-xl text-xs text-[#4080FF] font-semibold select-none animate-in fade-in slide-in-from-bottom-1 duration-150">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-[#4080FF] animate-pulse" />
             <span>{nodeTitles[selectedNode.type as keyof typeof nodeTitles] || '📝 正在编辑：画布节点'} (ID: {selectedNode.id})</span>
           </div>
-          <button 
+          <button
             onClick={onClearSelection}
             className="px-2 py-0.5 hover:bg-white/10 rounded-md text-zinc-400 hover:text-white transition-colors cursor-pointer text-[10px]"
           >
@@ -154,7 +154,7 @@ export const CanvasCreativeInputContainer: React.FC<CanvasCreativeInputContainer
           </button>
         </div>
       )}
-      
+
       <CreativeInputBox
         key={selectedNode ? `node-${selectedNode.id}` : 'global'}
         defaultValue={initialVal}
@@ -164,7 +164,7 @@ export const CanvasCreativeInputContainer: React.FC<CanvasCreativeInputContainer
         onChange={handleInputPromptChange}
         onModeChange={handleInputModeChange}
         onSettingsChange={handleInputSettingsChange}
-        className="w-full shadow-2xl border-white/10"
+        className="w-full"
       />
     </div>
   );

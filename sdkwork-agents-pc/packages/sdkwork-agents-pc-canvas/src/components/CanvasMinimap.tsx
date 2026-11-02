@@ -141,11 +141,11 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
   }, [scale, zoom, onPanChange]);
 
   return (
-    <div 
-      className="w-[180px] h-[120px] bg-[#141416]/95 border border-white/10 backdrop-blur-md rounded-xl shadow-2xl overflow-hidden relative transition-all duration-300"
+    <div
+      className="w-[180px] h-[120px] bg-[#141416]/95 backdrop-blur-md rounded-xl overflow-hidden relative transition-all duration-300"
     >
       {/* Map Content */}
-      <div 
+      <div
         className="w-full h-full relative overflow-hidden cursor-pointer"
         onClick={handleMapClick}
       >
@@ -186,7 +186,7 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
           {groups.map(group => (
             <div
               key={`map-group-${group.id}`}
-              className="absolute border border-white/15 bg-white/5 rounded-sm"
+              className="absolute bg-white/5 rounded-sm"
               style={{
                 left: offsetX + (group.x - minX) * scale,
                 top: offsetY + (group.y - minY) * scale,
@@ -203,7 +203,7 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
             return (
               <div
                 key={`map-node-${node.id}`}
-                className="absolute bg-cyan-500/40 border border-cyan-400/10 rounded-sm"
+                className="absolute bg-[#165DFF]/40 rounded-sm"
                 style={{
                   left: offsetX + (node.x - minX) * scale,
                   top: offsetY + (node.y - minY) * scale,
@@ -217,7 +217,7 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
           {/* Draw Viewport Rect */}
           <div
             onMouseDown={handleViewportMouseDown}
-            className="viewport-drag-handle absolute border border-yellow-500/80 bg-yellow-500/10 shadow-[0_0_8px_rgba(234,179,8,0.15)] pointer-events-auto cursor-grab active:cursor-grabbing hover:bg-yellow-500/20 transition-colors"
+            className="viewport-drag-handle absolute bg-yellow-500/10 pointer-events-auto cursor-grab active:cursor-grabbing hover:bg-yellow-500/20 transition-colors"
             style={{
               left: offsetX + (viewMinX - minX) * scale,
               top: offsetY + (viewMinY - minY) * scale,
@@ -226,7 +226,7 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
             }}
           />
         </div>
-      </div>
-    </div>
+        </div>
+        </div>
   );
 };

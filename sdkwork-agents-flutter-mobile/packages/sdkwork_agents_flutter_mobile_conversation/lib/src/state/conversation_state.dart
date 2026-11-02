@@ -46,7 +46,8 @@ class AgentsConversationState {
     return AgentsConversationState(
       messages: messages ?? this.messages,
       sessions: sessions ?? this.sessions,
-      activeSessionId: clearActiveSession ? null : (activeSessionId ?? this.activeSessionId),
+      activeSessionId:
+          clearActiveSession ? null : (activeSessionId ?? this.activeSessionId),
       activeSessionTitle: activeSessionTitle ?? this.activeSessionTitle,
       loadingSessions: loadingSessions ?? this.loadingSessions,
       loadingMessages: loadingMessages ?? this.loadingMessages,

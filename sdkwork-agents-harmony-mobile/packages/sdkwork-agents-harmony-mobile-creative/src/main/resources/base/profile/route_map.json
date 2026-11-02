@@ -1,0 +1,12 @@
+{
+  "routerMap": [
+    {
+      "name": "app.agents.canvas.board",
+      "pageSourceFile": "src/main/ets/pages/canvas/CanvasPage.ets",
+      "buildFunction": "CanvasPageBuilder",
+      "data": {
+        "description": "Read-only canvas (route id app.agents.canvas.board)."
+      }
+    }
+  ]
+}

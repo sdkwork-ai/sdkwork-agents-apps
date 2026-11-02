@@ -9,7 +9,7 @@ import { AssetsService } from './services/AssetsService';
 export const AssetsView = () => {
   const [activeTab, setActiveTab] = useState<'history' | 'subject' | 'canvas'>('history');
   const [activeFilter, setActiveFilter] = useState<'image' | 'video' | 'audio' | 'document'>('image');
-  
+
   const [groups, setGroups] = useState<{ date: string; items: AssetItem[] }[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -65,12 +65,12 @@ export const AssetsView = () => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#f5f5f7] text-zinc-900 dark:bg-[#18181A] dark:text-gray-200">
+    <div className="flex flex-col h-full w-full bg-[var(--ag-color-background,#F4F7FC)] text-[var(--ag-color-text-primary,#0A1B3D)]">
       <AssetsHeader activeTab={activeTab} setActiveTab={setActiveTab} />
       <AssetsFilter activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
-      
+
       {loadError && (
-        <div className="mx-6 mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-700 dark:text-red-300">
+        <div className="mx-6 mb-4 px-4 py-3 rounded-lg bg-red-500/10 text-sm text-red-700 dark:text-red-300">
           {loadError}
         </div>
       )}
@@ -97,7 +97,7 @@ export const AssetsView = () => {
 
       {/* Floating Help Button */}
       <div className="absolute right-6 bottom-6">
-        <button className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-zinc-400 hover:text-white transition-colors backdrop-blur-sm">
+        <button className="w-8 h-8 rounded-full bg-[var(--ag-color-surface-muted,#EAF1FB)] hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] flex items-center justify-center text-[var(--ag-color-icon-default,#5B6B88)] hover:text-[var(--ag-color-icon-strong,#0A1B3D)] transition-colors">
           <HelpCircle size={16} />
         </button>
       </div>

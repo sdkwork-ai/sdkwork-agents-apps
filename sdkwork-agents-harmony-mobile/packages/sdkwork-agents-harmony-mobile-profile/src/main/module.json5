@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "sdkwork_agents_harmony_mobile_profile",
+    "type": "har",
+    "deviceTypes": ["phone", "tablet"],
+    "pages": "$profile:main_pages",
+    "routerMap": "$profile:route_map"
+  }
+}

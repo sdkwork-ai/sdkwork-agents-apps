@@ -100,7 +100,7 @@ export function ConversationComposer({
     <div
       className={cn(
         "px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-2",
-        "bg-[var(--color-bg-color,#f5f5f7)]",
+        "bg-[var(--color-bg-color,#F4F7FC)]",
         className,
       )}
     >
@@ -108,12 +108,11 @@ export function ConversationComposer({
         <div
           className={cn(
             "mb-2 overflow-hidden rounded-2xl",
-            "bg-[var(--color-surface-color,#ffffff)]",
-            "shadow-[0_4px_16px_rgba(0,0,0,0.08)]",
+            "bg-[var(--color-surface-color,#FFFFFF)]",
           )}
         >
           {menuActions.length === 0 ? null : (
-            <ul className="divide-y divide-[var(--color-border-color,rgba(0,0,0,0.05))]">
+            <ul>
               {menuActions.map((action) => (
                 <li key={action.id}>
                   <button
@@ -122,7 +121,7 @@ export function ConversationComposer({
                       setActionsOpen(false);
                       action.onSelect();
                     }}
-                    className="w-full px-4 py-3 text-left text-[14px] text-[var(--color-text-main,#1f1f1f)] active:bg-[var(--color-hover-bg,rgba(0,0,0,0.03))]"
+                    className="w-full px-4 py-3 text-left text-[14px] text-[var(--color-text-main,#0A1B3D)] active:bg-[var(--color-hover-bg,#EAF1FB)]"
                   >
                     {action.label}
                   </button>
@@ -136,8 +135,7 @@ export function ConversationComposer({
       <div
         className={cn(
           "flex items-end gap-2 rounded-full px-2 py-1.5",
-          "bg-[var(--color-surface-color,#ffffff)]",
-          "shadow-[0_2px_8px_rgba(0,0,0,0.06)]",
+          "bg-[var(--color-surface-color,#FFFFFF)]",
         )}
       >
         <button
@@ -157,8 +155,8 @@ export function ConversationComposer({
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition",
             voiceActive
-              ? "bg-[var(--color-primary-blue,#2b5ce7)] text-white"
-              : "text-[var(--color-text-sub,#8c8c8c)] active:scale-95",
+              ? "bg-[var(--color-primary-blue,#165DFF)] text-white"
+              : "text-[var(--color-text-sub,#5B6B88)] active:scale-95",
             !voiceSupported && "opacity-40",
           )}
         >
@@ -181,8 +179,8 @@ export function ConversationComposer({
           }}
           className={cn(
             "min-h-9 flex-1 resize-none bg-transparent py-2 text-[15px] leading-5",
-            "text-[var(--color-text-main,#1f1f1f)] outline-none",
-            "placeholder:text-[var(--color-text-sub,#9ca3af)]",
+            "text-[var(--color-text-main,#0A1B3D)] outline-none",
+            "placeholder:text-[var(--color-text-sub,#5B6B88)]",
           )}
         />
 
@@ -198,7 +196,7 @@ export function ConversationComposer({
             disabled={!sending && text.trim().length === 0}
             className={cn(
               "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition active:scale-95",
-              "bg-[var(--color-primary-blue,#2b5ce7)] text-white",
+              "bg-[var(--color-primary-blue,#165DFF)] text-white",
               "disabled:opacity-40",
             )}
           >
@@ -211,7 +209,7 @@ export function ConversationComposer({
             onClick={() => setActionsOpen((open) => !open)}
             className={cn(
               "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition active:scale-95",
-              "text-[var(--color-text-main,#1f1f1f)]",
+              "text-[var(--color-text-main,#0A1B3D)]",
             )}
           >
             <Plus size={20} aria-hidden="true" />

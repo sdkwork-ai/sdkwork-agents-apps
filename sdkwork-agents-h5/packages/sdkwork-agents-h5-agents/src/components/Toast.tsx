@@ -19,10 +19,10 @@ interface ToastItem {
 let addToast: (message: string, type?: ToastType, options?: ToastOptions) => void;
 
 function toastClassName(type: ToastType): string {
-  return `px-4 py-2 rounded-full shadow-lg text-sm font-medium text-white flex items-center gap-2 ${
-    type === 'success' ? 'bg-[#00b42a]' :
-    type === 'error' ? 'bg-red-500' :
-    'bg-[#2b2b2d] border border-white/10'
+  return `px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 ${
+    type === 'success' ? 'bg-[var(--color-success,#00B42A)] text-white' :
+    type === 'error' ? 'bg-[var(--color-danger,#F53F3F)] text-white' :
+    'bg-[var(--color-surface-strong,#DCE8F9)] text-[var(--color-text-main,#0A1B3D)]'
   }`;
 }
 

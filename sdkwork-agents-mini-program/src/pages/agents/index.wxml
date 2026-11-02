@@ -1,11 +1,19 @@
-<view class="page" style="padding-bottom: {{bottomInset}}px;">
+<view class="page {{themeClass}}" style="padding-bottom: {{bottomInset}}px;">
   <view class="app-bar" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
     <view class="app-bar-inner">
       <view class="app-bar-titles app-bar-titles-left">
         <text class="app-bar-title">{{t.title}}</text>
       </view>
-      <view class="icon-button" bindtap="onOpenFullVersion">
+      <view class="icon-button" bindtap="onOpenFullVersion" aria-role="button" aria-label="{{t.openFullVersion}}">
         <text class="icon-glyph">▤</text>
+      </view>
+      <view
+        class="app-bar-avatar app-bar-actions"
+        bindtap="onOpenProfile"
+        aria-role="button"
+        aria-label="{{t.profileEntry}}"
+      >
+        <text class="app-bar-avatar-glyph">我</text>
       </view>
     </view>
   </view>

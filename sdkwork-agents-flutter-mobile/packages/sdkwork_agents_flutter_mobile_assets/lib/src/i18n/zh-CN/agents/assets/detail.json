@@ -1,0 +1,9 @@
+{
+  "agents.assets.detail.title": "资产详情",
+  "agents.assets.detail.kind": "类型",
+  "agents.assets.detail.createdAt": "创建时间",
+  "agents.assets.detail.tool": "生成工具",
+  "agents.assets.detail.driveUri": "Drive 地址",
+  "agents.assets.detail.close": "关闭",
+  "agents.assets.previewUnavailable": "预览暂不可用"
+}

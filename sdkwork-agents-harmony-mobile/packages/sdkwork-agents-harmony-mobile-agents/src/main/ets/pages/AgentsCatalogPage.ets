@@ -1,22 +1,9 @@
-import { EmptyState } from '@sdkwork/sdkwork-agents-harmony-mobile-commons';
-
 /**
- * Route-level capability page. Root pages mount this; business UI lives here.
+ * Compatibility re-export.
+ *
+ * The contract page path for `app.agents.catalog.list` is
+ * `pages/agents/AgentsList` (`specs/client-page-parity.spec.json`), so the
+ * screen implementation lives there. This module keeps the historical
+ * `AgentsCatalogPage` export name importable by existing composition code.
  */
-@Component
-export struct AgentsCatalogPage {
-  @Prop title: string = 'Agents';
-
-  build() {
-    Column() {
-      Text(this.title)
-        .fontSize(20)
-        .fontWeight(FontWeight.Bold)
-        .margin({ bottom: 16 })
-      EmptyState({ message: 'No agents yet' })
-    }
-    .width('100%')
-    .height('100%')
-    .padding(16)
-  }
-}
+export { AgentsListPage, AgentsListPage as AgentsCatalogPage } from './agents/AgentsList';

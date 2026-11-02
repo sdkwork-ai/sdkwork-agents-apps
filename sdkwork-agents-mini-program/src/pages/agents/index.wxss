@@ -1,41 +1,20 @@
-/* Shared app-bar / search / status / card styles live in app.wxss. */
-
-.segments {
-  display: flex;
-  padding: 6rpx;
-  margin-bottom: 24rpx;
-  border-radius: 38rpx;
-  background: #f1f5f9;
-}
-
-.segment {
-  flex: 1;
-  height: 64rpx;
-  line-height: 64rpx;
-  text-align: center;
-  border-radius: 32rpx;
-  font-size: 26rpx;
-  color: #64748b;
-}
-
-.segment.is-active {
-  background: #ffffff;
-  color: #0f766e;
-  font-weight: 600;
-}
+/* Shared app-bar / search / status / card / segment styles live in app.wxss. */
 
 .load-more {
   margin: 16rpx 0 32rpx;
   height: 80rpx;
   line-height: 80rpx;
   text-align: center;
-  border-radius: 40rpx;
-  background: #ffffff;
-  border: 1rpx solid #e2e8f0;
-  color: #0f766e;
+  border-radius: var(--radius-pill);
+  background: var(--muted);
+  color: var(--accent);
   font-size: 26rpx;
 }
 
+.load-more:active {
+  background: var(--strong);
+}
+
 .load-more.is-disabled {
-  color: #94a3b8;
+  color: var(--text-weak);
 }

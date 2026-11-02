@@ -4,24 +4,26 @@
  * the mobile roots; only the rendered screen and the physical container differ.
  *
  * Authority: `APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md` section 4 (shell owns
- * tab/stack ownership) and section 7 (route identity alignment).
+ * tab/stack ownership) and section 7 (route identity alignment). The five tabs
+ * mirror the PC sidebar's primary surfaces; every other PC page stays reachable
+ * from the profile hub instead of adding tab slots.
  */
 
 import {
-  AUTOMATION_INDEX_ROUTE_ID,
   AGENT_CATALOG_LIST_ROUTE_ID,
+  ASSETS_LIST_ROUTE_ID,
   CONVERSATION_CHAT_ROUTE_ID,
-  LIBRARY_LIST_ROUTE_ID,
-  PROJECTS_LIST_ROUTE_ID,
+  CREATIVE_STUDIO_ROUTE_ID,
+  INSPIRATION_DISCOVER_ROUTE_ID,
 } from "./routeRegistry";
 
 /** Stable tab identifiers shared by every mobile root. */
 export type AgentsMobileTabId =
-  | "tasks"
-  | "experts"
-  | "library"
-  | "automation"
-  | "projects";
+  | "chat"
+  | "inspiration"
+  | "creative"
+  | "assets"
+  | "agents";
 
 export interface AgentsMobileTabDescriptor {
   readonly tab: AgentsMobileTabId;
@@ -35,34 +37,34 @@ export interface AgentsMobileTabDescriptor {
 
 export const AGENTS_MOBILE_TABS: readonly AgentsMobileTabDescriptor[] = [
   {
-    tab: "tasks",
+    tab: "chat",
     routeId: CONVERSATION_CHAT_ROUTE_ID,
-    labelKey: "agents.mobile.tab.tasks",
+    labelKey: "agents.mobile.tab.chat",
     glyph: "message-square",
   },
   {
-    tab: "experts",
+    tab: "inspiration",
+    routeId: INSPIRATION_DISCOVER_ROUTE_ID,
+    labelKey: "agents.mobile.tab.inspiration",
+    glyph: "sparkles",
+  },
+  {
+    tab: "creative",
+    routeId: CREATIVE_STUDIO_ROUTE_ID,
+    labelKey: "agents.mobile.tab.creative",
+    glyph: "wand-2",
+  },
+  {
+    tab: "assets",
+    routeId: ASSETS_LIST_ROUTE_ID,
+    labelKey: "agents.mobile.tab.assets",
+    glyph: "images",
+  },
+  {
+    tab: "agents",
     routeId: AGENT_CATALOG_LIST_ROUTE_ID,
-    labelKey: "agents.mobile.tab.experts",
+    labelKey: "agents.mobile.tab.agents",
     glyph: "infinity",
-  },
-  {
-    tab: "library",
-    routeId: LIBRARY_LIST_ROUTE_ID,
-    labelKey: "agents.mobile.tab.library",
-    glyph: "book-open",
-  },
-  {
-    tab: "automation",
-    routeId: AUTOMATION_INDEX_ROUTE_ID,
-    labelKey: "agents.mobile.tab.automation",
-    glyph: "timer",
-  },
-  {
-    tab: "projects",
-    routeId: PROJECTS_LIST_ROUTE_ID,
-    labelKey: "agents.mobile.tab.projects",
-    glyph: "share-2",
   },
 ];
 

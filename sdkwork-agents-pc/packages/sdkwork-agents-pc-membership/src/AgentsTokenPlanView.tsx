@@ -32,10 +32,10 @@ export function AgentsTokenPlanView() {
   }, [initialRuntime]);
 
   if (loadError) {
-    return <div className="flex h-full items-center justify-center bg-[#0e0e11] px-6 text-sm text-rose-300">{loadError}</div>;
+    return <div className="flex h-full items-center justify-center bg-[var(--ag-color-surface,#FFFFFF)] px-6 text-sm text-[var(--ag-color-danger,#F53F3F)]">{loadError}</div>;
   }
   if (!isReady) {
-    return <div className="flex h-full items-center justify-center bg-[#0e0e11] px-6 text-sm text-zinc-400">正在加载会员方案...</div>;
+    return <div className="flex h-full items-center justify-center bg-[var(--ag-color-surface,#FFFFFF)] px-6 text-sm text-[var(--ag-color-text-tertiary,#8A97AD)]">正在加载会员方案...</div>;
   }
   return <AgentsTokenPlanCatalog />;
 }
@@ -46,7 +46,7 @@ function AgentsTokenPlanCatalog() {
   const runtime = getAgentsTokenPlanRuntime();
 
   return (
-    <div className="dark h-full min-h-0 overflow-y-auto bg-[#0e0e11]" data-agents-token-plan>
+    <div className="h-full min-h-0 overflow-y-auto bg-[var(--ag-color-surface,#FFFFFF)]" data-agents-token-plan>
       <div className="mx-auto w-full max-w-7xl">
         <SdkworkSubscriptionCatalogPage
           checkoutPort={runtime.checkoutService}
@@ -67,6 +67,6 @@ function AgentsTokenPlanCatalog() {
           onNotify={onNotify}
         />
       </div>
-    </div>
+      </div>
   );
 }

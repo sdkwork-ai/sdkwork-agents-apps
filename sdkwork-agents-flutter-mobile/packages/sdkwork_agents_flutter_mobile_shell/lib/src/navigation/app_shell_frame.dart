@@ -4,14 +4,18 @@ import 'mobile_tabs.dart';
 
 /// Bottom-navigation frame shared by the Agents Flutter mobile root.
 ///
-/// Layout mirrors the H5 and mini program shells: a five-slot bottom bar whose
-/// labels come from an injected translator, and an `IndexedStack` body so each
-/// tab keeps its own scroll position and stream subscription while the user
-/// moves between them (`APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md` section 7).
+/// Layout mirrors the H5 and mini program shells: a five-slot Material 3
+/// navigation bar whose labels come from an injected translator, and an
+/// `IndexedStack` body so each tab keeps its own scroll position and stream
+/// subscription while the user moves between them
+/// (`APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md` section 7).
 ///
-/// The frame owns navigation mechanics only. Screen bodies are mounted by the
-/// composition root, which is what keeps capability packages independent of
-/// each other.
+/// The frame is flat by contract (`specs/client-theme.spec.json`): the bar uses
+/// the active scheme's surface, the active indicator uses its primary container,
+/// and icons resolve from scheme foreground roles — so light and dark both get
+/// visible glyphs with zero elevation and no top border. Screen bodies are
+/// mounted by the composition root, which is what keeps capability packages
+/// independent of each other.
 class SdkworkAgentsAppShellFrame extends StatelessWidget {
   const SdkworkAgentsAppShellFrame({
     super.key,
@@ -20,12 +24,9 @@ class SdkworkAgentsAppShellFrame extends StatelessWidget {
     required this.currentIndex,
     required this.onSelectTab,
     required this.translate,
-    this.primaryColor = defaultPrimaryColor,
-    this.backgroundColor = defaultBackgroundColor,
+    this.primaryColor,
+    this.backgroundColor,
   });
-
-  static const int defaultPrimaryColor = 0xFF0F766E;
-  static const int defaultBackgroundColor = 0xFFF8FAFC;
 
   /// Tab descriptors, in bottom-bar order.
   final List<AgentsMobileTabDescriptor> tabs;
@@ -39,8 +40,11 @@ class SdkworkAgentsAppShellFrame extends StatelessWidget {
   /// Resolves a tab `labelKey` to display text for the active locale.
   final String Function(String key) translate;
 
-  final int primaryColor;
-  final int backgroundColor;
+  /// Optional explicit override; otherwise the active scheme's primary is used.
+  final int? primaryColor;
+
+  /// Optional explicit override; otherwise the scaffold background is used.
+  final int? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -50,26 +54,47 @@ class SdkworkAgentsAppShellFrame extends StatelessWidget {
         '${destinations.length} destinations; they must match.',
       );
     }
-    final safeIndex = currentIndex < 0 || currentIndex >= tabs.length ? 0 : currentIndex;
+    final safeIndex =
+        currentIndex < 0 || currentIndex >= tabs.length ? 0 : currentIndex;
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final Color activeColor =
+        primaryColor == null ? scheme.primary : Color(primaryColor!);
+    final Color pageBackground = backgroundColor == null
+        ? Theme.of(context).scaffoldBackgroundColor
+        : Color(backgroundColor!);
     return Scaffold(
-      backgroundColor: Color(backgroundColor),
+      backgroundColor: pageBackground,
       body: IndexedStack(index: safeIndex, children: destinations),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: safeIndex,
-        selectedItemColor: Color(primaryColor),
-        unselectedItemColor: const Color(0xFF64748B),
-        backgroundColor: Colors.white,
-        showUnselectedLabels: true,
-        onTap: onSelectTab,
-        items: <BottomNavigationBarItem>[
-          for (final tab in tabs)
-            BottomNavigationBarItem(
-              icon: Icon(resolveAgentsMobileTabIcon(tab.glyph, active: false)),
-              activeIcon: Icon(resolveAgentsMobileTabIcon(tab.glyph, active: true)),
-              label: translate(tab.labelKey),
-            ),
-        ],
+      bottomNavigationBar: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        label: 'SDKWork Agents',
+        child: NavigationBar(
+          height: 72,
+          selectedIndex: safeIndex,
+          onDestinationSelected: onSelectTab,
+          backgroundColor: scheme.surface,
+          indicatorColor: scheme.primaryContainer,
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: <NavigationDestination>[
+            for (final tab in tabs)
+              NavigationDestination(
+                icon: Icon(
+                  resolveAgentsMobileTabIcon(tab.glyph, active: false),
+                  color: scheme.onSurfaceVariant,
+                ),
+                selectedIcon: Icon(
+                  resolveAgentsMobileTabIcon(tab.glyph, active: true),
+                  color: activeColor,
+                ),
+                label: translate(tab.labelKey),
+                tooltip: translate(tab.labelKey),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -83,6 +108,14 @@ IconData resolveAgentsMobileTabIcon(String glyph, {required bool active}) {
   switch (glyph) {
     case AgentsMobileTabGlyphs.messageSquare:
       return active ? Icons.chat_bubble : Icons.chat_bubble_outline;
+    case AgentsMobileTabGlyphs.sparkles:
+      return active ? Icons.auto_awesome : Icons.auto_awesome_outlined;
+    case AgentsMobileTabGlyphs.wand:
+      return active ? Icons.brush : Icons.brush_outlined;
+    case AgentsMobileTabGlyphs.image:
+      return active ? Icons.photo_library : Icons.photo_library_outlined;
+    case AgentsMobileTabGlyphs.bot:
+      return active ? Icons.smart_toy : Icons.smart_toy_outlined;
     case AgentsMobileTabGlyphs.infinity:
       return Icons.all_inclusive;
     case AgentsMobileTabGlyphs.bookOpen:

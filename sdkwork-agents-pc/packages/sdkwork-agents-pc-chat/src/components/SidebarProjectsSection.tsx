@@ -72,12 +72,12 @@ export const SidebarProjectsSection: React.FC<SidebarProjectsSectionProps> = ({
             className="cursor-pointer hover:text-zinc-100 transition-colors"
           />
         </div>
-      </div>
+        </div>
       <div className="space-y-0.5">
         {projects.slice(0, 5).map((project) => (
           <div key={project.projectId} className="relative group">
             {editingProject === project.projectId ? (
-              <div className="flex items-center justify-between text-zinc-300 font-medium rounded-lg w-full py-1.5 px-2.5 bg-indigo-500/10 border border-indigo-500/30">
+              <div className="flex items-center justify-between text-zinc-300 font-medium rounded-lg w-full py-1.5 px-2.5 bg-indigo-500/10">
                 <div className="flex items-center gap-3 w-full">
                   <Folder
                     size={18}
@@ -85,7 +85,7 @@ export const SidebarProjectsSection: React.FC<SidebarProjectsSectionProps> = ({
                   />
                   <input
                     type="text"
-                    className="bg-transparent border-none outline-none text-[14px] text-white w-full h-full"
+                    className="bg-transparent outline-none text-[14px] text-white w-full h-full"
                     defaultValue={project.name}
                     autoFocus
                     onBlur={(e) => {
@@ -104,7 +104,7 @@ export const SidebarProjectsSection: React.FC<SidebarProjectsSectionProps> = ({
                     }}
                   />
                 </div>
-              </div>
+                </div>
             ) : (
               <button
                 onClick={() => onProjectSelect?.(project)}
@@ -152,6 +152,6 @@ export const SidebarProjectsSection: React.FC<SidebarProjectsSectionProps> = ({
           <span className="text-[13px]">查看更多</span>
         </button>
       </div>
-    </div>
+      </div>
   );
 };

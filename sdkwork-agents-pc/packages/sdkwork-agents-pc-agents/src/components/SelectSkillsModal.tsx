@@ -120,9 +120,9 @@ export const SelectSkillsModal: React.FC<SelectSkillsModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl flex flex-col z-[101] overflow-hidden border border-slate-300 dark:border-white/10"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-white dark:bg-[#1e1e1e] rounded-2xl flex flex-col z-[101] overflow-hidden"
           >
-            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#202020] shrink-0">
+            <div className="flex items-center justify-between p-6 bg-slate-50 dark:bg-[#202020] shrink-0">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-gray-100 mb-1">选择 Agent Skills</h2>
                 <p className="text-xs text-slate-500 dark:text-gray-400">赋予智能体更高级的推理、反思和多维度协作能力。</p>
@@ -136,7 +136,7 @@ export const SelectSkillsModal: React.FC<SelectSkillsModalProps> = ({
             </div>
 
             <div className="flex flex-1 min-h-0">
-              <div className="w-[200px] bg-slate-100 dark:bg-[#151515] border-r border-slate-200 dark:border-white/5 py-5 flex flex-col shrink-0">
+              <div className="w-[200px] bg-slate-100 dark:bg-[#151515] py-5 flex flex-col shrink-0">
                 <div className="px-5 pb-5">
                   <div className="relative">
                     <input
@@ -144,11 +144,11 @@ export const SelectSkillsModal: React.FC<SelectSkillsModalProps> = ({
                       placeholder="搜索心智..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-[#202020] border border-slate-300 dark:border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none focus:border-cyan-500/50 transition-colors shadow-inner"
+                      className="w-full bg-slate-50 dark:bg-[#202020] rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors"
                     />
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-gray-500" size={16} />
                   </div>
-                </div>
+                  </div>
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar px-4 space-y-6">
                   <div>
@@ -164,7 +164,7 @@ export const SelectSkillsModal: React.FC<SelectSkillsModalProps> = ({
                           className={cn(
                             "w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all text-left group",
                             activeTab === tab.id
-                              ? "bg-cyan-500/10 text-cyan-400"
+                            ? "bg-[#165DFF]/10 text-[#4080FF]"
                               : "text-slate-500 dark:text-gray-400 hover:bg-slate-900/5 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-gray-200"
                           )}
                         >
@@ -172,14 +172,14 @@ export const SelectSkillsModal: React.FC<SelectSkillsModalProps> = ({
                         </button>
                       ))}
                     </div>
-                  </div>
-                </div>
-              </div>
+                    </div>
+                    </div>
+                    </div>
 
               <div className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-slate-50 dark:bg-[#1a1a1a]">
                 {loading ? (
                   <div className="text-slate-500 dark:text-gray-500 text-sm text-center py-32 flex flex-col items-center justify-center gap-3">
-                    <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-2 border-[#165DFF] border-t-transparent rounded-full animate-spin" />
                     正在加载技能目录...
                   </div>
                 ) : error ? (
@@ -207,31 +207,31 @@ export const SelectSkillsModal: React.FC<SelectSkillsModalProps> = ({
                           key={item.id}
                           onClick={() => handleSelect(item)}
                           className={cn(
-                            "relative group bg-slate-100 dark:bg-[#252528] rounded-xl border p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col",
+                            "relative group bg-slate-100 dark:bg-[#252528] rounded-xl p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col",
                             isSelected
-                              ? "border-cyan-500 shadow-md shadow-cyan-500/10 bg-cyan-500/5"
-                              : "border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-200 dark:hover:bg-[#2a2a2d]"
+                            ? "bg-[#165DFF]/5"
+                            : "hover:bg-slate-200 dark:hover:bg-[#2a2a2d]"
                           )}
                         >
                           {isSelected && (
-                            <div className="absolute top-4 right-4 text-cyan-500">
+                            <div className="absolute top-4 right-4 text-[#165DFF]">
                               <Check size={18} strokeWidth={3} />
                             </div>
                           )}
 
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-white/5 flex items-center justify-center shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                            <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#1e1e1e] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                               {item.icon}
                             </div>
                             <div className="flex-1 min-w-0 pr-4">
-                              <h3 className={cn("text-[15px] font-semibold truncate", isSelected ? "text-cyan-400" : "text-slate-900 dark:text-gray-100 group-hover:text-slate-900 dark:hover:text-white transition-colors")}>
+                              <h3 className={cn("text-[15px] font-semibold truncate", isSelected ? "text-[#4080FF]" : "text-slate-900 dark:text-gray-100 group-hover:text-slate-900 dark:hover:text-white transition-colors")}>
                                 {item.name}
                               </h3>
-                              <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-500 dark:text-gray-400">
+                                <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-900/5 dark:bg-white/5 text-slate-500 dark:text-gray-400">
                                 {item.provider}
                               </span>
                             </div>
-                          </div>
+                            </div>
 
                           <p className="text-[13px] text-slate-500 dark:text-gray-400 leading-relaxed">
                             {item.description}
@@ -254,11 +254,11 @@ export const SelectSkillsModal: React.FC<SelectSkillsModalProps> = ({
                   </div>
                 )}
               </div>
-            </div>
+              </div>
 
-            <div className="p-5 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#202020] flex items-center justify-between shrink-0">
+                <div className="p-5 bg-slate-50 dark:bg-[#202020] flex items-center justify-between shrink-0">
               <div className="text-sm text-slate-500 dark:text-gray-400">
-                已启用 <span className="text-cyan-400 font-semibold">{currentSelection.length}</span> 项技能
+                已启用 <span className="text-[#4080FF] font-semibold">{currentSelection.length}</span> 项技能
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -275,12 +275,12 @@ export const SelectSkillsModal: React.FC<SelectSkillsModalProps> = ({
                     onSave(currentSelection, selectedItems);
                     onClose();
                   }}
-                  className="px-6 py-2.5 rounded-xl text-sm font-medium bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/20 transition-all"
+                  className="px-6 py-2.5 rounded-xl text-sm font-medium bg-[#0E42D2] hover:bg-[#165DFF] text-white transition-all"
                 >
                   确认启用
                 </button>
               </div>
-            </div>
+              </div>
           </motion.div>
         </>
       )}

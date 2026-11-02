@@ -1,0 +1,17 @@
+/* Canvas page: shared app-bar, banner, cards, and state styles live in app.wxss. */
+
+.canvas-media {
+  display: block;
+  width: 100%;
+  margin-top: 12rpx;
+  border-radius: var(--radius-md);
+  background: var(--muted);
+}
+
+.card-subtitle {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  margin-top: 8rpx;
+}

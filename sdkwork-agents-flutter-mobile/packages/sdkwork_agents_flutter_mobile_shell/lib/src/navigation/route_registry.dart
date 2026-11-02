@@ -55,6 +55,38 @@ List<SdkworkAgentsRouteRegistration> createSdkworkAgentsRouteRegistry(
   ];
 }
 
+/// Proves the flattened registry's tab slots equal [agentsMobileTabs].
+///
+/// The frame renders `agentsMobileTabs`; the root builds its destinations from
+/// the registry. Comparing both here means a tab cannot be added to one side
+/// without the other.
+void assertSdkworkAgentsRouteRegistryMatchesTabs(
+  List<SdkworkAgentsRouteRegistration> routes,
+) {
+  final tabRoutes = routes
+      .where((SdkworkAgentsRouteRegistration route) => route.tab != null)
+      .toList(growable: false);
+  if (tabRoutes.length != agentsMobileTabs.length) {
+    throw StateError(
+      'Route registry declares ${tabRoutes.length} tab routes but the mobile '
+      'contract declares ${agentsMobileTabs.length}.',
+    );
+  }
+  for (var index = 0; index < agentsMobileTabs.length; index += 1) {
+    final declaration = agentsMobileTabs[index];
+    final registration = tabRoutes[index];
+    if (registration.id != declaration.routeId ||
+        registration.routeName != declaration.routeName ||
+        registration.tab != declaration.tab) {
+      throw StateError(
+        'Route registry tab $index is out of order: expected '
+        '${declaration.routeId} at ${declaration.routeName}, found '
+        '${registration.id} at ${registration.routeName}.',
+      );
+    }
+  }
+}
+
 /// Route id behind a physical Flutter route name, or `null` when unmounted.
 String? resolveSdkworkAgentsRouteId(
   String routeName,

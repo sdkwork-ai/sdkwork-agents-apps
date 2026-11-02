@@ -17,46 +17,46 @@ interface CanvasGroupItemProps {
 
 const colorSchemes = {
   cyan: {
-    border: 'border-cyan-500/20 group-hover:border-cyan-500/40',
-    bg: 'bg-gradient-to-br from-cyan-500/[0.02] to-transparent',
-    text: 'text-cyan-400',
-    accent: 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.5)]',
-    activeBorder: 'border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.1)]'
+    border: '',
+    bg: 'bg-[#165DFF]/[0.02]',
+    text: 'text-[#4080FF]',
+    accent: 'bg-[#4080FF]',
+    activeBorder: ''
   },
   yellow: {
-    border: 'border-yellow-500/20 group-hover:border-yellow-500/40',
-    bg: 'bg-gradient-to-br from-yellow-500/[0.02] to-transparent',
+    border: '',
+    bg: 'bg-yellow-500/[0.02]',
     text: 'text-yellow-400',
-    accent: 'bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]',
-    activeBorder: 'border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.1)]'
+    accent: 'bg-yellow-400',
+    activeBorder: ''
   },
   pink: {
-    border: 'border-pink-500/20 group-hover:border-pink-500/40',
-    bg: 'bg-gradient-to-br from-pink-500/[0.02] to-transparent',
+    border: '',
+    bg: 'bg-pink-500/[0.02]',
     text: 'text-pink-400',
-    accent: 'bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.5)]',
-    activeBorder: 'border-pink-400 shadow-[0_0_15px_rgba(244,114,182,0.1)]'
+    accent: 'bg-pink-400',
+    activeBorder: ''
   },
   emerald: {
-    border: 'border-emerald-500/20 group-hover:border-emerald-500/40',
-    bg: 'bg-gradient-to-br from-emerald-500/[0.02] to-transparent',
+    border: '',
+    bg: 'bg-emerald-500/[0.02]',
     text: 'text-emerald-400',
-    accent: 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]',
-    activeBorder: 'border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.1)]'
+    accent: 'bg-emerald-400',
+    activeBorder: ''
   },
   violet: {
-    border: 'border-violet-500/20 group-hover:border-violet-500/40',
-    bg: 'bg-gradient-to-br from-violet-500/[0.02] to-transparent',
+    border: '',
+    bg: 'bg-violet-500/[0.02]',
     text: 'text-violet-400',
-    accent: 'bg-violet-400 shadow-[0_0_8px_rgba(167,139,250,0.5)]',
-    activeBorder: 'border-violet-400 shadow-[0_0_15px_rgba(167,139,250,0.1)]'
+    accent: 'bg-violet-400',
+    activeBorder: ''
   },
   orange: {
-    border: 'border-orange-500/20 group-hover:border-orange-500/40',
-    bg: 'bg-gradient-to-br from-orange-500/[0.02] to-transparent',
+    border: '',
+    bg: 'bg-orange-500/[0.02]',
     text: 'text-orange-400',
-    accent: 'bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.5)]',
-    activeBorder: 'border-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.1)]'
+    accent: 'bg-orange-400',
+    activeBorder: ''
   }
 };
 
@@ -72,7 +72,7 @@ export const CanvasGroupItem: React.FC<CanvasGroupItemProps> = ({
   onContextMenu
 }) => {
   const scheme = colorSchemes[group.color || 'cyan'];
-  
+
   const groupX = typeof group.x === 'number' && !isNaN(group.x) ? group.x : 0;
   const groupY = typeof group.y === 'number' && !isNaN(group.y) ? group.y : 0;
   const groupWidth = typeof group.width === 'number' && !isNaN(group.width) ? group.width : 240;
@@ -90,17 +90,17 @@ export const CanvasGroupItem: React.FC<CanvasGroupItemProps> = ({
       }}
       onMouseDown={(e) => onMouseDown(group.id, e)}
       className={cn(
-        "absolute rounded-[28px] border transition-all duration-150 group/group pointer-events-auto",
-        group.isCollapsed ? "border-solid shadow-lg bg-black/50" : "border-dashed",
+        "absolute rounded-[28px] transition-all duration-150 group/group pointer-events-auto",
+        group.isCollapsed ? "bg-black/50" : "",
         isSelected ? scheme.activeBorder : scheme.border,
         scheme.bg
       )}
     >
       {/* Group Label / Inline editor */}
-      <div 
+      <div
         className={cn(
           "absolute top-0 left-0 right-0 h-10 px-4 flex items-center justify-between bg-black/40 cursor-grab active:cursor-grabbing transition-all",
-          group.isCollapsed ? "rounded-[28px] border-b-0" : "rounded-t-[28px] border-b border-white/5"
+          group.isCollapsed ? "rounded-[28px]" : "rounded-t-[28px]"
         )}
       >
         <div className="flex items-center gap-2">
@@ -116,13 +116,13 @@ export const CanvasGroupItem: React.FC<CanvasGroupItemProps> = ({
               <ChevronDown size={14} />
             )}
           </button>
-          
+
           <div className={cn("w-2 h-2 rounded-full", scheme.accent)} />
           <input
             type="text"
             value={group.title}
             onChange={(e) => onTitleChange(group.id, e.target.value)}
-            className="bg-transparent text-[12px] font-extrabold text-zinc-100 outline-none border-none p-0 focus:bg-white/5 rounded px-1.5 py-0.5 w-48 font-sans"
+            className="bg-transparent text-[12px] font-extrabold text-zinc-100 outline-none p-0 focus:bg-white/5 rounded px-1.5 py-0.5 w-48 font-sans"
             onClick={(e) => e.stopPropagation()}
           />
           <span className="text-[10px] text-zinc-500 font-mono font-medium">
@@ -132,14 +132,14 @@ export const CanvasGroupItem: React.FC<CanvasGroupItemProps> = ({
 
         <div className="flex items-center gap-2 opacity-30 group-hover/group:opacity-100 transition-opacity">
           {/* Color Palette selectors */}
-          <div className="flex items-center gap-1 bg-[#121214] p-1 rounded-lg border border-white/5">
+          <div className="flex items-center gap-1 bg-[#121214] p-1 rounded-lg">
             {(['cyan', 'yellow', 'pink', 'emerald', 'violet', 'orange'] as const).map(color => (
               <button
                 key={color}
                 onClick={() => onColorChange(group.id, color)}
                 className={cn(
                   "w-2.5 h-2.5 rounded-full hover:scale-125 transition-transform cursor-pointer color-picker-dot",
-                  color === 'cyan' && 'bg-cyan-400',
+                  color === 'cyan' && 'bg-[#4080FF]',
                   color === 'yellow' && 'bg-yellow-400',
                   color === 'pink' && 'bg-pink-400',
                   color === 'emerald' && 'bg-emerald-400',
@@ -161,7 +161,7 @@ export const CanvasGroupItem: React.FC<CanvasGroupItemProps> = ({
             解散
           </button>
         </div>
-      </div>
+        </div>
 
       {/* Empty group alert helper */}
       {!group.isCollapsed && group.nodeIds.length === 0 && (
@@ -170,11 +170,11 @@ export const CanvasGroupItem: React.FC<CanvasGroupItemProps> = ({
           <span className="text-[11px]">拖拽卡片至此即可自动加入</span>
         </div>
       )}
-      
+
       {/* Resizer */}
       {!group.isCollapsed && (
-        <div 
-          className="absolute -right-2 -bottom-2 w-5 h-5 bg-[#1e1e20] border border-white/10 rounded-full cursor-nwse-resize opacity-0 group-hover/group:opacity-100 transition-opacity shadow-lg flex items-center justify-center z-50 hover:scale-110 hover:border-white/30"
+        <div
+          className="absolute -right-2 -bottom-2 w-5 h-5 bg-[#1e1e20] rounded-full cursor-nwse-resize opacity-0 group-hover/group:opacity-100 transition-opacity flex items-center justify-center z-50 hover:scale-110"
           onMouseDown={(e) => onResizeMouseDown(group.id, e)}
         >
           <div className="w-1.5 h-1.5 rounded-full bg-zinc-400" />

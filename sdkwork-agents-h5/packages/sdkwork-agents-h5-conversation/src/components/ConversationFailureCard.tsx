@@ -28,10 +28,10 @@ export function ConversationFailureCard({ failure }: ConversationFailureCardProp
   return (
     <div
       className={cn(
-        "mt-2 flex w-full items-start gap-2 rounded-xl border px-3 py-2.5 text-[12px]",
+        "mt-2 flex w-full items-start gap-2 rounded-xl  px-3 py-2.5 text-[12px]",
         isFunding
-          ? "border-[var(--color-warning-border,#f5d08a)] bg-[var(--color-warning-bg,#fff8e6)] text-[var(--color-warning-text,#8a5a00)]"
-          : "border-[var(--color-danger-border,#f3b4b4)] bg-[var(--color-danger-bg,#fef2f2)] text-[var(--color-danger,#dc2626)]",
+          ? " bg-[var(--color-warning-bg,#FFF5E6)] text-[var(--color-warning-text,#A34F00)]"
+          : " bg-[var(--color-danger-bg,#FFF1F0)] text-[var(--color-danger,#F53F3F)]",
       )}
       data-conversation-failure-card={failure.kind}
       role="alert"

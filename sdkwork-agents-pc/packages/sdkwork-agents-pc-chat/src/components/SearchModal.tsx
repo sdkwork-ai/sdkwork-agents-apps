@@ -33,8 +33,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, sessi
     return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
   };
 
-  const filteredSessions = query.trim() === '' 
-    ? sessions 
+  const filteredSessions = query.trim() === ''
+    ? sessions
     : sessions.filter(s => {
         const titleMatch = s.title.toLowerCase().includes(query.toLowerCase());
         const contentMatch = s.messages.some(m => m.text.toLowerCase().includes(query.toLowerCase()));
@@ -45,12 +45,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, sessi
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
-      <div 
-        className="w-[680px] max-h-[75vh] bg-[#232323] rounded-2xl overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200 flex flex-col border border-[#333]"
+      <div
+        className="w-[680px] max-h-[75vh] bg-[#232323] rounded-2xl overflow-hidden relative animate-in zoom-in-95 duration-200 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header / Input */}
-        <div className="flex items-center px-5 py-4 border-b border-transparent shrink-0">
+        <div className="flex items-center px-5 py-4 shrink-0">
           <input
             ref={inputRef}
             type="text"
@@ -62,8 +62,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, sessi
           <div className="flex items-center ml-2 shrink-0 h-6">
             {query && (
               <>
-                <button 
-                  onClick={() => setQuery('')} 
+                <button
+                  onClick={() => setQuery('')}
                   className="text-[14px] text-zinc-400 hover:text-white transition-colors"
                 >
                   清除
@@ -75,7 +75,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, sessi
               <X size={20} />
             </button>
           </div>
-        </div>
+          </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-3 pb-3 custom-scrollbar flex flex-col">
@@ -106,8 +106,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, sessi
                     onClick={() => setActiveTab(tab)}
                     className={cn(
                       "px-4 py-1.5 rounded-full text-[14px] font-medium transition-colors",
-                      activeTab === tab 
-                        ? "bg-white/10 text-white" 
+                      activeTab === tab
+                        ? "bg-white/10 text-white"
                         : "text-zinc-400 hover:text-zinc-300 hover:bg-white/5"
                     )}
                   >
@@ -121,7 +121,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, sessi
                   filteredSessions.map((session, index) => {
                     const matchingMessage = session.messages.find(m => m.text.toLowerCase().includes(query.toLowerCase()));
                     let snippet = matchingMessage ? matchingMessage.text : session.messages.find(m => m.role === 'user')?.text || '...';
-                    
+
                     if (snippet.length > 80) {
                       snippet = snippet.substring(0, 80) + '...';
                     }
@@ -146,7 +146,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, sessi
                           <div className="text-[14px] text-zinc-400 truncate">
                             {snippet}
                           </div>
-                        </div>
+                          </div>
                         <div className="text-[13px] text-zinc-400 shrink-0 mt-1 whitespace-nowrap">
                           {formatDate(session.updatedAt)}
                         </div>
@@ -159,10 +159,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, sessi
                   </div>
                 )}
               </div>
-            </div>
+              </div>
           )}
         </div>
-      </div>
-    </div>
+        </div>
+        </div>
   );
 };

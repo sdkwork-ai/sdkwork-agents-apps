@@ -46,6 +46,21 @@ function resolveAgentsMiniProgramLocale(
 }
 
 /**
+ * Injects the resolved locale into every surface that owns copy.
+ *
+ * Called once during launch and again when the user switches language on the
+ * settings page, so both paths share one implementation
+ * (`I18N_SPEC.md` section 7).
+ */
+export function applyAgentsMiniProgramLocale(locale: AgentsMpShellLocale): void {
+  configureAgentsMpShellLocale(locale);
+  configureAgentsMpConversationLocale(locale as AgentsMpConversationLocale);
+  configureAgentsMpLibraryLocale(locale as AgentsMpLibraryLocale);
+  configureAgentsMpProjectsLocale(locale as AgentsMpProjectsLocale);
+  configureAgentsMpAutomationLocale(locale as AgentsMpAutomationLocale);
+}
+
+/**
  * Composes the mini program runtime: platform adapters, SDK clients, and locale
  * injection. Capability services are constructed per page from the injected
  * clients so nothing reaches the network during launch.
@@ -56,11 +71,7 @@ export function bootstrap(options: AgentsMiniProgramBootstrapOptions = {}) {
   const driveAppSdk = initDriveAppSdkClient();
   const locale = resolveAgentsMiniProgramLocale(options.locale, adapters.localeTag);
 
-  configureAgentsMpShellLocale(locale);
-  configureAgentsMpConversationLocale(locale as AgentsMpConversationLocale);
-  configureAgentsMpLibraryLocale(locale as AgentsMpLibraryLocale);
-  configureAgentsMpProjectsLocale(locale as AgentsMpProjectsLocale);
-  configureAgentsMpAutomationLocale(locale as AgentsMpAutomationLocale);
+  applyAgentsMiniProgramLocale(locale);
 
   return { ready: true, locale, insets: adapters.insets, driveAppSdk, ...sdk };
 }

@@ -78,7 +78,8 @@ List<AgentsTaskSummary> filterAgentsTasks(
     return List<AgentsTaskSummary>.from(items);
   }
   return items
-      .where((AgentsTaskSummary item) => item.name.toLowerCase().contains(needle))
+      .where(
+          (AgentsTaskSummary item) => item.name.toLowerCase().contains(needle))
       .toList(growable: false);
 }
 
@@ -109,7 +110,8 @@ class _FanoutOutcome {
 }
 
 class _AgentsAutomationServiceImpl implements AgentsAutomationService {
-  _AgentsAutomationServiceImpl({required this.client, required this.agentSource});
+  _AgentsAutomationServiceImpl(
+      {required this.client, required this.agentSource});
 
   final SdkworkAppClient client;
   final AgentsAutomationAgentSource agentSource;
@@ -124,7 +126,8 @@ class _AgentsAutomationServiceImpl implements AgentsAutomationService {
       return cached;
     }
 
-    final agentIds = await agentSource.listManagedAgentIds(agentsAutomationAgentFanout);
+    final agentIds =
+        await agentSource.listManagedAgentIds(agentsAutomationAgentFanout);
     final outcomes = await Future.wait(
       agentIds.map((String agentId) async {
         try {
@@ -143,12 +146,14 @@ class _AgentsAutomationServiceImpl implements AgentsAutomationService {
           }
           return _FanoutOutcome(tasks: tasks);
         } catch (error) {
-          return _FanoutOutcome(tasks: const <AgentsTaskSummary>[], error: error);
+          return _FanoutOutcome(
+              tasks: const <AgentsTaskSummary>[], error: error);
         }
       }),
     );
 
-    final failures = outcomes.where((_FanoutOutcome entry) => entry.error != null).toList();
+    final failures =
+        outcomes.where((_FanoutOutcome entry) => entry.error != null).toList();
     if (outcomes.isNotEmpty && failures.length == outcomes.length) {
       // Every agent failed: surface the first reason instead of a silently
       // empty tab.
@@ -176,7 +181,8 @@ class _AgentsAutomationServiceImpl implements AgentsAutomationService {
       throw ArgumentError.value(page, 'page', 'must be a positive integer');
     }
     if (pageSize < 1) {
-      throw ArgumentError.value(pageSize, 'pageSize', 'must be a positive integer');
+      throw ArgumentError.value(
+          pageSize, 'pageSize', 'must be a positive integer');
     }
     final tasks = await _collect();
     final start = _clampIndex((page - 1) * pageSize, tasks.length);
@@ -193,7 +199,8 @@ class _AgentsAutomationServiceImpl implements AgentsAutomationService {
     final collected = <AgentsTaskSummary>[];
     for (var page = 1; page <= agentsAutomationMaxPages; page += 1) {
       final tasks = await _collect();
-      final start = _clampIndex((page - 1) * agentsAutomationPageSize, tasks.length);
+      final start =
+          _clampIndex((page - 1) * agentsAutomationPageSize, tasks.length);
       final end = _clampIndex(page * agentsAutomationPageSize, tasks.length);
       collected.addAll(tasks.sublist(start, end));
       if (end >= tasks.length) {

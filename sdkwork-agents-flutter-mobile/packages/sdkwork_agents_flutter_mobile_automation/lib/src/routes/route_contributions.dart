@@ -14,8 +14,6 @@ const List<AgentsRouteContribution> automationRouteContributions =
     permissionHint: 'ai.agents.read',
     flutter: AgentsFlutterRoutePlacement(
       routeName: agentsAutomationRouteName,
-      tab: AgentsMobileTabId.automation,
-      rootTab: true,
     ),
   ),
 ];

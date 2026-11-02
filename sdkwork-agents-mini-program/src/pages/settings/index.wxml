@@ -1,0 +1,47 @@
+<view class="page {{themeClass}}" style="padding-bottom: {{bottomInset}}px;">
+  <view class="app-bar" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
+    <view class="app-bar-inner">
+      <view
+        class="app-bar-back"
+        bindtap="onBack"
+        aria-role="button"
+        aria-label="{{t.back}}"
+      >‹</view>
+      <view class="app-bar-titles app-bar-titles-left">
+        <text class="app-bar-title">{{t.title}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content" style="margin-top: {{headerHeight}}px;">
+    <view class="section">
+      <text class="section-title">{{t.languageTitle}}</text>
+      <view class="chip-row">
+        <view
+          wx:for="{{languages}}"
+          wx:key="id"
+          class="chip {{locale === item.id ? 'is-active' : ''}}"
+          data-locale="{{item.id}}"
+          bindtap="onLanguageTap"
+          aria-role="button"
+        >{{item.label}}</view>
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">{{t.themeTitle}}</text>
+      <view class="chip-row">
+        <view
+          wx:for="{{themes}}"
+          wx:key="id"
+          class="chip {{theme === item.id ? 'is-active' : ''}}"
+          data-theme="{{item.id}}"
+          bindtap="onThemeTap"
+          aria-role="button"
+        >{{item.label}}</view>
+      </view>
+    </view>
+
+    <text class="field-note">{{t.localNote}}</text>
+  </view>
+</view>

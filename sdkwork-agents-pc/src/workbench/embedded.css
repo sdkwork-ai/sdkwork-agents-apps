@@ -1,13 +1,102 @@
 @layer base {
   .sdkwork-agents-workbench {
-    color-scheme: light dark;
+    /* Light tech-blue is the default rendering for the workbench; dark-mode
+       utilities still compile (`@custom-variant dark` in src/index.css). */
+    color-scheme: light;
     container-type: size;
     font-family: var(--font-sans);
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    --sdk-color-brand-primary: #22d3ee;
+
+    /* Mirrors the `--ag-*` token block in src/index.css. Hosts that embed this
+       workbench never load the app sheet, so the scoped copy keeps the theme
+       self-contained. Keep the two blocks in sync. */
+    --ag-color-primary: #165dff;
+    --ag-color-primary-hover: #4080ff;
+    --ag-color-primary-pressed: #0e42d2;
+    --ag-color-primary-subtle: #e8f0ff;
+    --ag-color-primary-on: #ffffff;
+    --ag-color-background: #f4f7fc;
+    --ag-color-surface: #ffffff;
+    --ag-color-surface-muted: #eaf1fb;
+    --ag-color-surface-strong: #dce8f9;
+    --ag-color-rail: #0a1b3d;
+    --ag-color-rail-active: #165dff;
+    --ag-color-rail-text: #c9d6ea;
+    --ag-color-rail-text-muted: #7f91b0;
+    --ag-color-text-primary: #0a1b3d;
+    --ag-color-text-secondary: #5b6b88;
+    --ag-color-text-tertiary: #8a97ad;
+    --ag-color-success: #00b42a;
+    --ag-color-warning: #ff7d00;
+    --ag-color-danger: #f53f3f;
+    --ag-color-scrim: rgb(10 27 61 / 45%);
+    --ag-color-border: transparent;
+    --ag-color-icon-default: #5b6b88;
+    --ag-color-icon-strong: #0a1b3d;
+    --ag-color-icon-active: #165dff;
+    --ag-color-icon-on-primary: #ffffff;
+    --ag-color-icon-on-rail: #c9d6ea;
+    --ag-color-icon-disabled: #8a97ad;
+    --ag-border-width: 0px;
+    --ag-radius-sm: 8px;
+    --ag-radius-md: 12px;
+    --ag-radius-lg: 16px;
+    --ag-radius-pill: 999px;
+    --ag-elevation-shadow: none;
+    --ag-focus-outline-width: 2px;
+    --ag-focus-outline-color: #165dff;
+    --ag-focus-outline-offset: 2px;
+    --ag-motion-duration-fast: 120ms;
+    --ag-motion-duration-base: 200ms;
+    --ag-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+
+    --sdk-color-brand-primary: var(--ag-color-primary);
+    --sdk-color-bg-page: var(--ag-color-background);
+    --sdk-color-bg-surface: var(--ag-color-surface);
+    --sdk-color-text-primary: var(--ag-color-text-primary);
+    --sdk-color-text-secondary: var(--ag-color-text-secondary);
+    --sdk-color-border-default: var(--ag-color-border);
+  }
+
+  /* Dark mirror of the token block above: an embedded workbench keeps its light
+     default, but a host that turns dark on the surrounding document or on the
+     scoped SDKWork surface switches the same tokens to the spec `dark` set
+     (specs/client-theme.spec.json). Without this block, token-backed children
+     render light surfaces under dark-mode text utilities. */
+  .dark .sdkwork-agents-workbench,
+  [data-sdk-color-mode="dark"] .sdkwork-agents-workbench {
+    color-scheme: dark;
+    --ag-color-primary: #4080ff;
+    --ag-color-primary-hover: #6aa0ff;
+    --ag-color-primary-pressed: #165dff;
+    --ag-color-primary-subtle: #16305c;
+    --ag-color-primary-on: #ffffff;
+    --ag-color-background: #0a1224;
+    --ag-color-surface: #111c33;
+    --ag-color-surface-muted: #17233d;
+    --ag-color-surface-strong: #1f2e4d;
+    --ag-color-rail: #060e1e;
+    --ag-color-rail-active: #4080ff;
+    --ag-color-rail-text: #c9d6ea;
+    --ag-color-rail-text-muted: #7f91b0;
+    --ag-color-text-primary: #eaf1fb;
+    --ag-color-text-secondary: #a9b7d0;
+    --ag-color-text-tertiary: #7f91b0;
+    --ag-color-success: #23c343;
+    --ag-color-warning: #ff9a2e;
+    --ag-color-danger: #ff7875;
+    --ag-color-scrim: rgb(0 0 0 / 60%);
+    --ag-color-border: transparent;
+    --ag-color-icon-default: #a9b7d0;
+    --ag-color-icon-strong: #eaf1fb;
+    --ag-color-icon-active: #4080ff;
+    --ag-color-icon-on-primary: #ffffff;
+    --ag-color-icon-on-rail: #c9d6ea;
+    --ag-color-icon-disabled: #7f91b0;
+    --ag-focus-outline-color: #4080ff;
   }
 
   .sdkwork-agents-workbench :where(button, input, textarea, select) {
@@ -15,8 +104,8 @@
   }
 
   .sdkwork-agents-workbench :where(button, input, textarea, select, a):focus-visible {
-    outline: 2px solid #67e8f9;
-    outline-offset: 3px;
+    outline: var(--ag-focus-outline-width) solid var(--ag-focus-outline-color);
+    outline-offset: var(--ag-focus-outline-offset);
   }
 }
 
@@ -35,11 +124,11 @@
 
 .sdkwork-agents-workbench ::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background-color: #d1d5db;
+  background-color: var(--ag-color-surface-strong);
 }
 
 .sdkwork-agents-workbench ::-webkit-scrollbar-thumb:hover {
-  background-color: #9ca3af;
+  background-color: var(--ag-color-text-tertiary);
 }
 
 .dark .sdkwork-agents-workbench ::-webkit-scrollbar-thumb {
@@ -52,7 +141,7 @@
 
 .sdkwork-agents-workbench,
 .sdkwork-agents-workbench * {
-  scrollbar-color: #d1d5db transparent;
+  scrollbar-color: var(--ag-color-surface-strong) transparent;
   scrollbar-width: thin;
 }
 

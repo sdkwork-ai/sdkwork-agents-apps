@@ -60,7 +60,8 @@ class AgentsLibraryController extends ChangeNotifier {
     try {
       return await service.source.resolvePreviewUrl(fileId);
     } catch (_) {
-      _state = _state.copyWith(errorMessage: translate('agents.library.openFailed'));
+      _state =
+          _state.copyWith(errorMessage: translate('agents.library.openFailed'));
       notifyListeners();
       return null;
     }

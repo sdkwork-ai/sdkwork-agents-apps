@@ -53,7 +53,7 @@ export const CREATIVE_CREATION_TYPES: readonly CreativeCreationTypeDefinition[] 
     card: {
       emoji: "🖼️",
       description: "智能美学提升",
-      background: "bg-gradient-to-br from-blue-500 to-indigo-500",
+      background: "bg-[#165DFF]",
       tag: "New",
     },
   },
@@ -64,7 +64,7 @@ export const CREATIVE_CREATION_TYPES: readonly CreativeCreationTypeDefinition[] 
     card: {
       emoji: "🎬",
       description: "Seedance 2.0",
-      background: "bg-gradient-to-br from-purple-500 to-violet-500",
+      background: "bg-violet-500",
     },
   },
   {
@@ -74,7 +74,7 @@ export const CREATIVE_CREATION_TYPES: readonly CreativeCreationTypeDefinition[] 
     card: {
       emoji: "🎵",
       description: "文生音乐 / 歌词成曲",
-      background: "bg-gradient-to-br from-pink-500 to-rose-500",
+      background: "bg-pink-500",
     },
   },
   {
@@ -84,7 +84,7 @@ export const CREATIVE_CREATION_TYPES: readonly CreativeCreationTypeDefinition[] 
     card: {
       emoji: "🎙️",
       description: "文本转语音",
-      background: "bg-gradient-to-br from-cyan-500 to-sky-500",
+      background: "bg-[#165DFF]",
     },
   },
   {
@@ -94,7 +94,7 @@ export const CREATIVE_CREATION_TYPES: readonly CreativeCreationTypeDefinition[] 
     card: {
       emoji: "🔊",
       description: "描述即得音效",
-      background: "bg-gradient-to-br from-amber-400 to-orange-500",
+      background: "bg-amber-500",
     },
   },
   {
@@ -104,7 +104,7 @@ export const CREATIVE_CREATION_TYPES: readonly CreativeCreationTypeDefinition[] 
     card: {
       emoji: "🙂",
       description: "形象 + 口型驱动",
-      background: "bg-gradient-to-br from-emerald-400 to-teal-500",
+      background: "bg-emerald-500",
     },
   },
   {
@@ -114,7 +114,7 @@ export const CREATIVE_CREATION_TYPES: readonly CreativeCreationTypeDefinition[] 
     card: {
       emoji: "🤸",
       description: "参考动作迁移",
-      background: "bg-gradient-to-br from-fuchsia-500 to-purple-500",
+      background: "bg-violet-500",
     },
   },
   {
@@ -124,7 +124,7 @@ export const CREATIVE_CREATION_TYPES: readonly CreativeCreationTypeDefinition[] 
     card: {
       emoji: "🤖",
       description: "多步任务编排",
-      background: "bg-gradient-to-br from-emerald-400 to-teal-400",
+      background: "bg-emerald-500",
     },
   },
 ];

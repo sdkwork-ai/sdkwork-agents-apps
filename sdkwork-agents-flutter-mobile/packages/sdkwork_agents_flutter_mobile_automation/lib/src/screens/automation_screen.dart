@@ -15,6 +15,8 @@ class AgentsAutomationScreen extends StatelessWidget {
     required this.statusLabel,
     required this.translate,
     this.trailingActions = const <Widget>[],
+    this.onNavigateBack,
+    this.backTooltip,
   });
 
   final AgentsAutomationState state;
@@ -28,6 +30,10 @@ class AgentsAutomationScreen extends StatelessWidget {
   final String Function(String? status) statusLabel;
   final String Function(String key) translate;
   final List<Widget> trailingActions;
+
+  /// When set, the app bar exposes a back affordance for a pushed page.
+  final VoidCallback? onNavigateBack;
+  final String? backTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +56,20 @@ class AgentsAutomationScreen extends StatelessWidget {
       banner: state.truncated ? translate('agents.automation.truncated') : null,
       onRefresh: onRefresh,
       onRetry: onRefresh,
+      retryLabel: translate('agents.automation.retry'),
+      onLeadingPressed: onNavigateBack,
+      leadingIcon: onNavigateBack == null ? null : Icons.arrow_back,
+      leadingTooltip: backTooltip,
       trailingActions: trailingActions,
       itemBuilder: (BuildContext context, int index) {
         final task = tasks[index];
         final schedule = task.schedule;
         final label = statusLabel(task.status);
         return ListTile(
-          leading: const Icon(Icons.schedule_outlined),
+          leading: Icon(
+            Icons.schedule_outlined,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           title: Text(task.name, maxLines: 2, overflow: TextOverflow.ellipsis),
           subtitle: Text(
             <String>[

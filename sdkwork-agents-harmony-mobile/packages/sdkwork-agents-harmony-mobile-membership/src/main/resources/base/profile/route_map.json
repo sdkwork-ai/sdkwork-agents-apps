@@ -1,0 +1,12 @@
+{
+  "routerMap": [
+    {
+      "name": "app.agents.membership.catalog",
+      "pageSourceFile": "src/main/ets/pages/membership/MembershipPage.ets",
+      "buildFunction": "MembershipPageBuilder",
+      "data": {
+        "description": "Membership catalog and checkout entry (route id app.agents.membership.catalog)."
+      }
+    }
+  ]
+}

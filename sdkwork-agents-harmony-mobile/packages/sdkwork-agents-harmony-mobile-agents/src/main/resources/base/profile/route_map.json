@@ -1,0 +1,44 @@
+{
+  "routerMap": [
+    {
+      "name": "app.agents.conversation.list",
+      "pageSourceFile": "src/main/ets/pages/conversation/ConversationHistory.ets",
+      "buildFunction": "ConversationHistoryBuilder",
+      "data": {
+        "description": "Conversation history (route id app.agents.conversation.list)."
+      }
+    },
+    {
+      "name": "app.agents.catalog.editor",
+      "pageSourceFile": "src/main/ets/pages/agents/CreateAgent.ets",
+      "buildFunction": "CreateAgentBuilder",
+      "data": {
+        "description": "Agent editor (route id app.agents.catalog.editor)."
+      }
+    },
+    {
+      "name": "app.agents.projects.list",
+      "pageSourceFile": "src/main/ets/pages/projects/ProjectsPage.ets",
+      "buildFunction": "ProjectsPageBuilder",
+      "data": {
+        "description": "Project list (route id app.agents.projects.list)."
+      }
+    },
+    {
+      "name": "app.agents.library.list",
+      "pageSourceFile": "src/main/ets/pages/library/LibraryPage.ets",
+      "buildFunction": "LibraryPageBuilder",
+      "data": {
+        "description": "File library (route id app.agents.library.list)."
+      }
+    },
+    {
+      "name": "app.agents.automation.index",
+      "pageSourceFile": "src/main/ets/pages/automation/AutomationPage.ets",
+      "buildFunction": "AutomationPageBuilder",
+      "data": {
+        "description": "Scheduled automation (route id app.agents.automation.index)."
+      }
+    }
+  ]
+}

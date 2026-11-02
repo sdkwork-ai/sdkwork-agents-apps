@@ -1,0 +1,6 @@
+{
+  "src": [
+    "pages/creative/CreativePage",
+    "pages/canvas/CanvasPage"
+  ]
+}

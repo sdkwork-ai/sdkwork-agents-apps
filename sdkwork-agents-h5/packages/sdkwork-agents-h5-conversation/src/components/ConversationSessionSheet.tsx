@@ -74,24 +74,23 @@ export function ConversationSessionSheet({
         type="button"
         aria-label={translateAgentsConversationText("agents.conversation.sessions.cancel")}
         onClick={onClose}
-        className="h-full flex-1 bg-black/30"
+        className="h-full flex-1 bg-[var(--color-scrim,rgba(10,27,61,0.45))]"
       />
       <aside
         className={cn(
           "flex h-full w-[78%] max-w-[320px] flex-col",
-          "bg-[var(--color-surface-color,#ffffff)]",
-          "shadow-[0_0_24px_rgba(0,0,0,0.12)]",
+          "bg-[var(--color-surface-color,#FFFFFF)]",
         )}
       >
         <div className="flex items-center justify-between px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3">
-          <h2 className="text-[16px] font-semibold text-[var(--color-text-main,#1f1f1f)]">
+          <h2 className="text-[16px] font-semibold text-[var(--color-text-main,#0A1B3D)]">
             {translateAgentsConversationText("agents.conversation.sessions.title")}
           </h2>
           <button
             type="button"
             aria-label={translateAgentsConversationText("agents.conversation.sessions.cancel")}
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-text-sub,#8c8c8c)] active:scale-95"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-text-sub,#5B6B88)] active:scale-95"
           >
             <X size={18} aria-hidden="true" />
           </button>
@@ -105,7 +104,7 @@ export function ConversationSessionSheet({
           }}
           className={cn(
             "mx-3 mb-2 flex items-center gap-2 rounded-xl px-3 py-2.5 text-[14px] font-medium",
-            "bg-[var(--color-primary-blue,#2b5ce7)] text-white active:scale-[0.99]",
+            "bg-[var(--color-primary-blue,#165DFF)] text-white active:scale-[0.99]",
           )}
         >
           <MessageSquarePlus size={17} aria-hidden="true" />
@@ -114,11 +113,11 @@ export function ConversationSessionSheet({
 
         <div className="min-h-0 flex-1 overflow-y-auto pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
           {loading && sessions.length === 0 ? (
-            <p className="px-4 py-6 text-center text-[13px] text-[var(--color-text-sub,#8c8c8c)]">
+            <p className="px-4 py-6 text-center text-[13px] text-[var(--color-text-sub,#5B6B88)]">
               {translateAgentsConversationText("agents.conversation.status.loading")}
             </p>
           ) : sessions.length === 0 ? (
-            <p className="px-4 py-6 text-center text-[13px] text-[var(--color-text-sub,#8c8c8c)]">
+            <p className="px-4 py-6 text-center text-[13px] text-[var(--color-text-sub,#5B6B88)]">
               {translateAgentsConversationText("agents.conversation.sessions.empty")}
             </p>
           ) : (
@@ -145,20 +144,20 @@ export function ConversationSessionSheet({
                           }}
                           className={cn(
                             "min-w-0 flex-1 rounded-lg px-2 py-1.5 text-[14px] outline-none",
-                            "bg-[var(--color-bg-color,#f5f5f7)] text-[var(--color-text-main,#1f1f1f)]",
+                            "bg-[var(--color-bg-color,#F4F7FC)] text-[var(--color-text-main,#0A1B3D)]",
                           )}
                         />
                         <button
                           type="button"
                           onClick={commitRename}
-                          className="shrink-0 rounded-lg px-2 py-1.5 text-[13px] font-medium text-[var(--color-primary-blue,#2b5ce7)]"
+                          className="shrink-0 rounded-lg px-2 py-1.5 text-[13px] font-medium text-[var(--color-primary-blue,#165DFF)]"
                         >
                           {translateAgentsConversationText("agents.conversation.sessions.confirm")}
                         </button>
                       </div>
                     ) : isPendingDelete ? (
                       <div className="flex items-center gap-2 px-2 py-2">
-                        <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--color-danger,#dc2626)]">
+                        <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--color-danger,#F53F3F)]">
                           {translateAgentsConversationText("agents.conversation.sessions.delete")}
                         </span>
                         <button
@@ -167,14 +166,14 @@ export function ConversationSessionSheet({
                             onDelete(session.id);
                             setPendingDeleteId(null);
                           }}
-                          className="shrink-0 rounded-lg px-2 py-1.5 text-[13px] font-medium text-[var(--color-danger,#dc2626)]"
+                          className="shrink-0 rounded-lg px-2 py-1.5 text-[13px] font-medium text-[var(--color-danger,#F53F3F)]"
                         >
                           {translateAgentsConversationText("agents.conversation.sessions.confirm")}
                         </button>
                         <button
                           type="button"
                           onClick={() => setPendingDeleteId(null)}
-                          className="shrink-0 rounded-lg px-2 py-1.5 text-[13px] text-[var(--color-text-sub,#8c8c8c)]"
+                          className="shrink-0 rounded-lg px-2 py-1.5 text-[13px] text-[var(--color-text-sub,#5B6B88)]"
                         >
                           {translateAgentsConversationText("agents.conversation.sessions.cancel")}
                         </button>
@@ -183,7 +182,7 @@ export function ConversationSessionSheet({
                       <div
                         className={cn(
                           "flex items-center gap-1 rounded-xl px-2 py-1",
-                          isActive && "bg-[var(--color-hover-bg,rgba(43,92,231,0.08))]",
+                          isActive && "bg-[var(--color-primary-subtle,#E8F0FF)]",
                         )}
                       >
                         <button
@@ -194,13 +193,13 @@ export function ConversationSessionSheet({
                           }}
                           className="min-w-0 flex-1 py-2 text-left"
                         >
-                          <span className="block truncate text-[14px] text-[var(--color-text-main,#1f1f1f)]">
+                          <span className="block truncate text-[14px] text-[var(--color-text-main,#0A1B3D)]">
                             {session.title ||
                               translateAgentsConversationText(
                                 "agents.conversation.sessions.untitled",
                               )}
                           </span>
-                          <span className="block text-[11px] text-[var(--color-text-sub,#8c8c8c)]">
+                          <span className="block text-[11px] text-[var(--color-text-sub,#5B6B88)]">
                             {formatUpdatedAt(session.updatedAt)}
                           </span>
                         </button>
@@ -213,7 +212,7 @@ export function ConversationSessionSheet({
                             setEditingId(session.id);
                             setDraftTitle(session.title);
                           }}
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--color-text-sub,#8c8c8c)] active:scale-95"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--color-text-sub,#5B6B88)] active:scale-95"
                         >
                           <Pencil size={14} aria-hidden="true" />
                         </button>
@@ -223,7 +222,7 @@ export function ConversationSessionSheet({
                             "agents.conversation.sessions.delete",
                           )}
                           onClick={() => setPendingDeleteId(session.id)}
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--color-text-sub,#8c8c8c)] active:scale-95"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--color-text-sub,#5B6B88)] active:scale-95"
                         >
                           <Trash2 size={14} aria-hidden="true" />
                         </button>

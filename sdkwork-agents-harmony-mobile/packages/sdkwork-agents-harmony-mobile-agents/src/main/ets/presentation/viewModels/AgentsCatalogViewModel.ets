@@ -1,38 +1,30 @@
+import {
+  loadingAgentsPageSnapshot,
+  type AgentsPageSnapshot,
+} from '@sdkwork/sdkwork-agents-harmony-mobile-core';
+
+import { type AgentsCatalogListItem } from '../../models/AgentModels';
 import { AgentCatalogService } from '../../services/AgentCatalogService';
-import { type AgentsCatalogScreenModel } from '../../models/AgentModels';
 
 /**
  * Catalog view model. Owns UI state mapping; calls services only.
  */
 export class AgentsCatalogViewModel {
   private readonly service: AgentCatalogService;
-  private model: AgentsCatalogScreenModel = {
-    items: [],
-    loading: false,
-    hasMore: false,
-  };
+  private snapshot: AgentsPageSnapshot<AgentsCatalogListItem> =
+    loadingAgentsPageSnapshot<AgentsCatalogListItem>();
 
   constructor(service: AgentCatalogService) {
     this.service = service;
   }
 
-  state(): AgentsCatalogScreenModel {
-    return this.model;
+  state(): AgentsPageSnapshot<AgentsCatalogListItem> {
+    return this.snapshot;
   }
 
-  async load(pageSize: number): Promise<AgentsCatalogScreenModel> {
-    this.model = { items: this.model.items, loading: true, hasMore: false };
-    try {
-      const items = await this.service.listAgents(pageSize);
-      this.model = { items, loading: false, hasMore: items.length >= pageSize };
-    } catch (error) {
-      this.model = {
-        items: [],
-        loading: false,
-        hasMore: false,
-        errorMessage: error instanceof Error ? error.message : 'unknown-error',
-      };
-    }
-    return this.model;
+  async load(pageSize: number): Promise<AgentsPageSnapshot<AgentsCatalogListItem>> {
+    this.snapshot = loadingAgentsPageSnapshot<AgentsCatalogListItem>();
+    this.snapshot = await this.service.listAgents(pageSize);
+    return this.snapshot;
   }
 }

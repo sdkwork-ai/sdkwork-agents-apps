@@ -18,6 +18,7 @@ class AgentsConversationChatScreen extends StatefulWidget {
     required this.onNewSession,
     required this.onOpenHistory,
     required this.translate,
+    this.profileAction,
   });
 
   final AgentsConversationState state;
@@ -26,12 +27,16 @@ class AgentsConversationChatScreen extends StatefulWidget {
   final VoidCallback onOpenHistory;
   final String Function(String key) translate;
 
+  /// Accessible avatar action that opens the profile hub.
+  final Widget? profileAction;
+
   @override
   State<AgentsConversationChatScreen> createState() =>
       _AgentsConversationChatScreenState();
 }
 
-class _AgentsConversationChatScreenState extends State<AgentsConversationChatScreen> {
+class _AgentsConversationChatScreenState
+    extends State<AgentsConversationChatScreen> {
   final TextEditingController _composer = TextEditingController();
   final ScrollController _scroll = ScrollController();
 
@@ -74,20 +79,26 @@ class _AgentsConversationChatScreenState extends State<AgentsConversationChatScr
   Widget build(BuildContext context) {
     final state = widget.state;
     return Scaffold(
-      backgroundColor: const Color(SdkworkAgentsFlutterTokens.colorBackground),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: <Widget>[
           SdkworkAgentsMobileAppBar(
             title: 'SDKWork Agents',
-            subtitle: state.activeSessionTitle.isEmpty ? null : state.activeSessionTitle,
-            leadingTooltip: widget.translate('agents.conversation.actions.history'),
+            subtitle: state.activeSessionTitle.isEmpty
+                ? null
+                : state.activeSessionTitle,
+            leading: Icons.history,
+            leadingTooltip:
+                widget.translate('agents.conversation.actions.history'),
             onLeadingPressed: widget.onOpenHistory,
             actions: <Widget>[
               SdkworkAgentsMobileAppBarAction(
                 icon: Icons.add,
-                tooltip: widget.translate('agents.conversation.actions.newSession'),
+                tooltip:
+                    widget.translate('agents.conversation.actions.newSession'),
                 onPressed: widget.onNewSession,
               ),
+              if (widget.profileAction != null) widget.profileAction!,
             ],
           ),
           Expanded(
@@ -100,14 +111,16 @@ class _AgentsConversationChatScreenState extends State<AgentsConversationChatScr
                         itemCount: state.messages.length,
                         itemBuilder: (BuildContext context, int index) =>
                             _ConversationMessageRow(
-                              message: state.messages[index],
-                              reasoningTitle:
-                                  widget.translate('agents.conversation.reasoning.title'),
-                            ),
+                          message: state.messages[index],
+                          reasoningTitle: widget
+                              .translate('agents.conversation.reasoning.title'),
+                        ),
                       )
                     : SdkworkAgentsEmptyState(
-                        headline: widget.translate('agents.conversation.empty.greeting'),
-                        hint: widget.translate('agents.conversation.empty.hint'),
+                        headline: widget
+                            .translate('agents.conversation.empty.greeting'),
+                        hint:
+                            widget.translate('agents.conversation.empty.hint'),
                       ),
           ),
           _ConversationComposer(
@@ -137,8 +150,10 @@ class _ConversationComposer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final TechBlueThemeColors colors = techBlueThemeColors(context);
     return Material(
-      color: Colors.white,
+      color: scheme.surface,
       child: SafeArea(
         top: false,
         child: Padding(
@@ -152,11 +167,14 @@ class _ConversationComposer extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               IconButton(
-                tooltip: translate('agents.conversation.composer.voiceUnavailable'),
+                tooltip:
+                    translate('agents.conversation.composer.voiceUnavailable'),
+                color: colors.iconDefault,
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(translate('agents.conversation.composer.voiceUnavailable')),
+                      content: Text(translate(
+                          'agents.conversation.composer.voiceUnavailable')),
                     ),
                   );
                 },
@@ -169,14 +187,8 @@ class _ConversationComposer extends StatelessWidget {
                   maxLines: 5,
                   textInputAction: TextInputAction.newline,
                   decoration: InputDecoration(
-                    hintText: translate('agents.conversation.composer.placeholder'),
-                    filled: true,
-                    fillColor: const Color(0xFFF1F5F9),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
-                    ),
+                    hintText:
+                        translate('agents.conversation.composer.placeholder'),
                   ),
                 ),
               ),
@@ -185,8 +197,24 @@ class _ConversationComposer extends StatelessWidget {
                 tooltip: streaming
                     ? translate('agents.conversation.composer.stop')
                     : translate('agents.conversation.composer.send'),
+                // The glyph colour is explicit: `IconButton.filled` resolves
+                // its foreground through the variant defaults, so inheriting
+                // it here rendered the paper-plane dark grey on the blue disc.
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(
+                    SdkworkAgentsFlutterTokens.colorPrimary,
+                  ),
+                  foregroundColor: colors.iconOnPrimary,
+                  disabledBackgroundColor: const Color(
+                    SdkworkAgentsFlutterTokens.colorPrimary,
+                  ),
+                  disabledForegroundColor: colors.iconOnPrimary,
+                ),
                 onPressed: streaming ? null : () => onSubmit(),
-                icon: Icon(streaming ? Icons.hourglass_top : Icons.send),
+                icon: Icon(
+                  streaming ? Icons.hourglass_top : Icons.send,
+                  color: colors.iconOnPrimary,
+                ),
               ),
             ],
           ),
@@ -197,7 +225,8 @@ class _ConversationComposer extends StatelessWidget {
 }
 
 class _ConversationMessageRow extends StatelessWidget {
-  const _ConversationMessageRow({required this.message, required this.reasoningTitle});
+  const _ConversationMessageRow(
+      {required this.message, required this.reasoningTitle});
 
   final AgentsConversationMessage message;
   final String reasoningTitle;
@@ -205,10 +234,13 @@ class _ConversationMessageRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUser = message.isUser;
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final TechBlueThemeColors colors = techBlueThemeColors(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
-        crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment:
+            isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           if (message.hasReasoning)
             _ReasoningBlock(text: message.reasoning!, title: reasoningTitle),
@@ -220,8 +252,10 @@ class _ConversationMessageRow extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: isUser ? const Color(SdkworkAgentsFlutterTokens.colorPrimary) : Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                color: isUser ? scheme.primary : scheme.surface,
+                borderRadius: BorderRadius.circular(
+                  SdkworkAgentsFlutterTokens.radiusMd,
+                ),
               ),
               child: Text(
                 message.streaming && message.text.isEmpty
@@ -230,9 +264,7 @@ class _ConversationMessageRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.45,
-                  color: isUser
-                      ? Colors.white
-                      : const Color(SdkworkAgentsFlutterTokens.colorText),
+                  color: isUser ? scheme.onPrimary : scheme.onSurface,
                 ),
               ),
             ),
@@ -242,7 +274,10 @@ class _ConversationMessageRow extends StatelessWidget {
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 message.error!,
-                style: const TextStyle(fontSize: 12, color: Color(0xFFB91C1C)),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colors.dangerText,
+                ),
               ),
             ),
         ],
@@ -259,17 +294,20 @@ class _ReasoningBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         tilePadding: EdgeInsets.zero,
         childrenPadding: const EdgeInsets.only(bottom: 8),
+        iconColor: scheme.onSurfaceVariant,
+        collapsedIconColor: scheme.onSurfaceVariant,
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: Color(SdkworkAgentsFlutterTokens.colorTextMuted),
+            color: scheme.onSurfaceVariant,
           ),
         ),
         children: <Widget>[
@@ -277,9 +315,9 @@ class _ReasoningBlock extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Color(SdkworkAgentsFlutterTokens.colorTextMuted),
+                color: scheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -296,6 +334,8 @@ class _ToolCallList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final TechBlueThemeColors colors = techBlueThemeColors(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -305,13 +345,17 @@ class _ToolCallList extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Icon(_iconFor(call.status), size: 14, color: _colorFor(call.status)),
+                Icon(
+                  _iconFor(call.status),
+                  size: 14,
+                  color: _colorFor(call.status, scheme, colors),
+                ),
                 const SizedBox(width: 6),
                 Text(
                   call.name ?? call.id,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(SdkworkAgentsFlutterTokens.colorTextMuted),
+                    color: scheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -332,14 +376,18 @@ class _ToolCallList extends StatelessWidget {
     }
   }
 
-  static Color _colorFor(AgentsConversationToolStatus status) {
+  static Color _colorFor(
+    AgentsConversationToolStatus status,
+    ColorScheme scheme,
+    TechBlueThemeColors colors,
+  ) {
     switch (status) {
       case AgentsConversationToolStatus.running:
-        return const Color(SdkworkAgentsFlutterTokens.colorTextMuted);
+        return scheme.onSurfaceVariant;
       case AgentsConversationToolStatus.completed:
-        return const Color(SdkworkAgentsFlutterTokens.colorPrimary);
+        return scheme.primary;
       case AgentsConversationToolStatus.error:
-        return const Color(0xFFB91C1C);
+        return colors.dangerText;
     }
   }
 }

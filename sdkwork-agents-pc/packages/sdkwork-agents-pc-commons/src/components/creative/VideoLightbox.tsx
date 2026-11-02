@@ -58,7 +58,7 @@ export const VideoLightbox: React.FC<VideoLightboxProps> = ({
       } else {
         videoRef.current.pause();
       }
-    }
+      }
   }, [isPlaying, currentUrl]);
 
   if (!currentUrl) return null;
@@ -102,12 +102,12 @@ export const VideoLightbox: React.FC<VideoLightboxProps> = ({
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-[999] bg-black/95 flex flex-col items-center justify-center animate-in fade-in duration-200 select-none"
       onClick={onClose}
     >
       {/* Top Panel Actions */}
-      <div className="absolute top-0 inset-x-0 h-16 flex items-center justify-between px-6 bg-gradient-to-b from-black/60 to-transparent z-10">
+      <div className="absolute top-0 inset-x-0 h-16 flex items-center justify-between px-6 bg-[#0A1B3D]/45 z-10">
         <div className="text-zinc-400 text-sm font-medium font-mono">
           视频 {activeIndex + 1} / {videoUrls.length || 1}
         </div>
@@ -134,21 +134,21 @@ export const VideoLightbox: React.FC<VideoLightboxProps> = ({
             <span>关闭 ESC</span>
           </button>
         </div>
-      </div>
+        </div>
 
       {/* Main Large Video Display */}
       <div className="relative max-w-[90vw] max-h-[80vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
         {videoUrls.length > 1 && (
           <button
             onClick={handlePrev}
-            className="absolute -left-16 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all hover:scale-105 active:scale-95 cursor-pointer hidden md:flex items-center justify-center border border-white/5"
+            className="absolute -left-16 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all hover:scale-105 active:scale-95 cursor-pointer hidden md:flex items-center justify-center"
             title="上一个"
           >
             <span className="text-xl">←</span>
           </button>
         )}
 
-        <div className="relative group/player rounded-2xl overflow-hidden shadow-2xl border border-white/5 max-h-[80vh]">
+        <div className="relative group/player rounded-2xl overflow-hidden max-h-[80vh]">
           <video
             ref={videoRef}
             src={currentUrl}
@@ -160,21 +160,21 @@ export const VideoLightbox: React.FC<VideoLightboxProps> = ({
           />
           {/* Custom Overlay Play Button indicator when paused */}
           {!isPlaying && (
-            <div 
+            <div
               className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer transition-opacity"
               onClick={togglePlay}
             >
-              <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white scale-110 transition-transform">
+              <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white scale-110 transition-transform">
                 <Play size={30} fill="currentColor" className="ml-1 text-white" />
               </div>
-            </div>
+              </div>
           )}
         </div>
 
         {videoUrls.length > 1 && (
           <button
             onClick={handleNext}
-            className="absolute -right-16 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all hover:scale-105 active:scale-95 cursor-pointer hidden md:flex items-center justify-center border border-white/5"
+            className="absolute -right-16 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all hover:scale-105 active:scale-95 cursor-pointer hidden md:flex items-center justify-center"
             title="下一个"
           >
             <span className="text-xl">→</span>
@@ -184,7 +184,7 @@ export const VideoLightbox: React.FC<VideoLightboxProps> = ({
 
       {/* Thumbnails strip */}
       {videoUrls.length > 1 && (
-        <div className="absolute bottom-6 flex gap-2 overflow-x-auto max-w-[90vw] p-1.5 bg-black/40 backdrop-blur-md rounded-2xl border border-white/5">
+        <div className="absolute bottom-6 flex gap-2 overflow-x-auto max-w-[90vw] p-1.5 bg-black/40 backdrop-blur-md rounded-2xl">
           {videoUrls.map((url, idx) => (
             <button
               key={idx}
@@ -194,8 +194,8 @@ export const VideoLightbox: React.FC<VideoLightboxProps> = ({
                 setIsPlaying(true);
               }}
               className={cn(
-                "relative w-16 h-12 rounded-lg overflow-hidden border transition-all shrink-0 cursor-pointer",
-                activeIndex === idx ? "border-cyan-400 ring-2 ring-cyan-400/20 scale-95" : "border-white/10 opacity-60 hover:opacity-100"
+                "relative w-16 h-12 rounded-lg overflow-hidden transition-all shrink-0 cursor-pointer",
+                activeIndex === idx ? "ring-2 ring-[#4080FF]/20 scale-95" : "opacity-60 hover:opacity-100"
               )}
             >
               {/* Fallback container with play indicator badge since we can't easily extract thumbnail from video on client side without loadedmetadata */}

@@ -35,15 +35,15 @@ export function ChatCodeBlock({
     } catch {
       setCopied(false);
     }
-  }
+    }
 
   return (
-    <figure className="chat-md-code-block my-4 min-w-0 overflow-hidden rounded-xl border border-[#d9d9d9] bg-[#f7f7f7] text-left shadow-sm dark:border-[#333] dark:bg-[#1e1e1e]">
-      <figcaption className="flex items-center justify-between border-b border-[#d9d9d9] bg-[#ebebeb] px-4 py-2.5 text-xs text-gray-500 dark:border-[#333] dark:bg-[#171717] dark:text-gray-300">
+    <figure className="chat-md-code-block my-4 min-w-0 overflow-hidden rounded-xl bg-[#f7f7f7] text-left dark:bg-[#1e1e1e]">
+      <figcaption className="flex items-center justify-between bg-[#ebebeb] px-4 py-2.5 text-xs text-gray-500 dark:bg-[#171717] dark:text-gray-300">
         <div className="flex items-center gap-4">
-          <span className="font-mono text-[#1890ff] dark:text-cyan-400">{languageLabel}</span>
+          <span className="font-mono text-[#165DFF] dark:text-[#4080FF]">{languageLabel}</span>
           {onOpenArtifact && (
-            <div className="flex rounded-lg border border-[#ccc] bg-[#d9d9d9] p-0.5 dark:border-gray-800 dark:bg-[#0f0f0f]">
+            <div className="flex rounded-lg bg-[#d9d9d9] p-0.5 dark:bg-[#0f0f0f]">
               <button
                 type="button"
                 onClick={() => onOpenArtifact(languageLabel, displayCode, 'code')}

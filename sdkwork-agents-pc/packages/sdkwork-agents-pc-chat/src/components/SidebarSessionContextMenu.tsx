@@ -43,7 +43,7 @@ export const SidebarSessionContextMenu: React.FC<
 }) => {
   return createPortal(
     <div
-      className="fixed mt-1 w-[180px] bg-[#2A2A2D] border border-white/10 rounded-xl shadow-2xl py-1.5 z-[9999] animate-in fade-in zoom-in-95 duration-100"
+      className="fixed mt-1 w-[180px] bg-[#2A2A2D] rounded-xl py-1.5 z-[9999] animate-in fade-in zoom-in-95 duration-100"
       style={{ top: dropdownPos.top, left: dropdownPos.left }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -55,7 +55,7 @@ export const SidebarSessionContextMenu: React.FC<
         <UserPlus size={14} className="text-zinc-400" />
         开始群聊
       </button>
-      <button 
+      <button
         onClick={(e) => {
           e.stopPropagation();
           onRename?.();
@@ -79,8 +79,8 @@ export const SidebarSessionContextMenu: React.FC<
         </button>
 
         {/* Project Submenu */}
-        <div className="absolute left-full top-0 ml-1 w-[200px] bg-[#2A2A2D] border border-white/10 rounded-xl shadow-2xl py-1.5 opacity-0 invisible group-hover/project:opacity-100 group-hover/project:visible transition-all duration-100 z-50">
-          <div className="px-1.5 mb-1 pb-1 border-b border-white/5">
+        <div className="absolute left-full top-0 ml-1 w-[200px] bg-[#2A2A2D] rounded-xl py-1.5 opacity-0 invisible group-hover/project:opacity-100 group-hover/project:visible transition-all duration-100 z-50">
+          <div className="px-1.5 mb-1 pb-1">
             <button className="w-full flex items-center gap-2.5 px-2.5 py-2 text-[13px] text-zinc-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors text-left">
               <FolderPlus size={14} className="text-zinc-400" />
               新项目
@@ -90,7 +90,7 @@ export const SidebarSessionContextMenu: React.FC<
             {projectsList.map((project) => (
               <button
                 key={project.projectId}
-                className="w-full flex items-center gap-2.5 px-2.5 py-2 text-[13px] text-zinc-300 hover:text-white hover:bg-indigo-500/10 hover:border-indigo-500/20 border border-transparent rounded-lg transition-colors text-left group/item"
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 text-[13px] text-zinc-300 hover:text-white hover:bg-indigo-500/10 rounded-lg transition-colors text-left group/item"
                 onClick={() => {
                   onClose();
                   onMoveToProject(project);
@@ -104,8 +104,8 @@ export const SidebarSessionContextMenu: React.FC<
               </button>
             ))}
           </div>
-        </div>
-      </div>
+          </div>
+          </div>
       <div className="h-px bg-white/10 my-1.5 mx-2" />
       <button
         onClick={(e) => {

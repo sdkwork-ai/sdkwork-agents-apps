@@ -17,6 +17,8 @@ function resolveCatalogCopy() {
     loadMore: translate("agents.catalog.loadMore"),
     myAgents: runtime.translateAgentsMpShellText("agents.mobile.tab.myAgents"),
     market: runtime.translateAgentsMpShellText("agents.mobile.tab.market"),
+    profileEntry: runtime.translateAgentsMpShellText("agents.mobile.nav.profileEntry"),
+    openFullVersion: translate("agents.catalog.openFullVersion"),
   };
 }
 
@@ -39,6 +41,7 @@ Page({
     errorMessage: "",
     page: 1,
     hasMore: false,
+    themeClass: "",
   },
 
   onLoad() {
@@ -54,10 +57,17 @@ Page({
   },
 
   onShow() {
+    // Re-apply the stored theme so returning from Settings repaints this page.
+    this.setData({ themeClass: runtime.resolveAgentsMpThemeClass() });
     const tabBar = this.getTabBar && this.getTabBar();
     if (tabBar) {
-      tabBar.setActive("experts");
+      tabBar.setActive("agents");
     }
+  },
+
+  /** Avatar entry: every tab page reaches the profile hub the same way. */
+  onOpenProfile() {
+    wx.navigateTo({ url: runtime.AGENTS_MP_PROFILE_PAGE_URL });
   },
 
   onPullDownRefresh() {

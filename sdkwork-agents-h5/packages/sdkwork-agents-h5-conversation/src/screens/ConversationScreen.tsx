@@ -20,6 +20,8 @@ export interface ConversationScreenProps {
   model?: string;
   /** Greeting shown in the empty state instead of the default hint. */
   welcomeMessage?: string;
+  /** Session to open first; defaults to the most recent one. */
+  initialSessionId?: string;
   /** Optional voice input port. */
   voice?: ConversationVoicePort | null;
   /** Notified after the session list changes. */
@@ -38,6 +40,7 @@ export function ConversationScreen({
   scope,
   model,
   welcomeMessage,
+  initialSessionId,
   voice = null,
   onSessionsChanged,
   className,
@@ -48,6 +51,7 @@ export function ConversationScreen({
   const controller = useConversationController({
     ...(scope ? { scope } : {}),
     ...(model ? { model } : {}),
+    ...(initialSessionId ? { initialSessionId } : {}),
     ...(onSessionsChanged ? { onSessionsChanged } : {}),
   });
 
@@ -59,7 +63,7 @@ export function ConversationScreen({
     <div
       className={cn(
         "relative flex min-h-0 flex-1 flex-col overflow-hidden",
-        "bg-[var(--color-bg-color,#f5f5f7)]",
+        "bg-[var(--color-bg-color,#F4F7FC)]",
         className,
       )}
       style={viewportHeight ? { height: `${viewportHeight}px` } : undefined}
@@ -77,8 +81,8 @@ export function ConversationScreen({
             onClick={controller.dismissError}
             className={cn(
               "w-full rounded-xl px-3 py-2 text-left text-[12px]",
-              "bg-[var(--color-danger-bg,rgba(220,38,38,0.08))]",
-              "text-[var(--color-danger,#dc2626)]",
+              "bg-[var(--color-danger-bg,#FFF1F0)]",
+              "text-[var(--color-danger,#F53F3F)]",
             )}
           >
             {controller.error}

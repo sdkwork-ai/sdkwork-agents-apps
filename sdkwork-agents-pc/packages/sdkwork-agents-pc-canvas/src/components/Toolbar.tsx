@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  MousePointer2, 
-  Hand, 
-  Type, 
-  Image, 
-  Video, 
-  Maximize2, 
-  ZoomIn, 
-  ZoomOut, 
-  Trash2, 
+import {
+  MousePointer2,
+  Hand,
+  Type,
+  Image,
+  Video,
+  Maximize2,
+  ZoomIn,
+  ZoomOut,
+  Trash2,
   HelpCircle,
   LayoutGrid,
   Undo2,
@@ -79,7 +79,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     const saved = localStorage.getItem('canvas-toolbar-position');
     return (saved === 'left' || saved === 'right') ? saved : 'right';
   });
-  
+
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isLayoutOpen, setIsLayoutOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -115,7 +115,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   // Helper for dynamic tooltip classes based on position
   const getTooltipClass = () => {
     return cn(
-      "absolute top-1/2 -translate-y-1/2 bg-[#121214] border border-white/10 text-[10px] text-zinc-300 px-2 py-1.5 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-55",
+      "absolute top-1/2 -translate-y-1/2 bg-[#121214] text-[10px] text-zinc-300 px-2 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-55",
       position === 'left' ? "left-full ml-3" : "right-full mr-3"
     );
   };
@@ -123,17 +123,17 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   // Helper for dynamic dropdown layouts
   const getDropdownClass = () => {
     return cn(
-      "absolute w-52 bg-[#161618]/95 border border-white/10 backdrop-blur-xl rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.6)] p-1.5 flex flex-col gap-1 z-55 animate-in fade-in duration-150",
-      position === 'left' 
-        ? "left-full ml-3 top-[-10px] origin-left slide-in-from-left-2" 
+      "absolute w-52 bg-[#161618]/95 backdrop-blur-xl rounded-2xl p-1.5 flex flex-col gap-1 z-55 animate-in fade-in duration-150",
+      position === 'left'
+        ? "left-full ml-3 top-[-10px] origin-left slide-in-from-left-2"
         : "right-full mr-3 top-[-10px] origin-right slide-in-from-right-2"
     );
   };
 
   return (
-    <div 
+    <div
       className={cn(
-        "absolute top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 bg-[#1e1e20]/90 border border-white/10 backdrop-blur-md p-2 rounded-2xl shadow-2xl z-50 select-none transition-all duration-300",
+        "absolute top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 bg-[#1e1e20]/90 backdrop-blur-md p-2 rounded-2xl z-50 select-none transition-all duration-300",
         position === 'left' ? "left-6" : "right-6"
       )}
     >
@@ -141,7 +141,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       <button
         onClick={togglePosition}
         type="button"
-        className="w-9 h-9 rounded-xl border border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
+        className="w-9 h-9 rounded-xl bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
       >
         <ArrowLeftRight size={15} />
         <div className={getTooltipClass()}>
@@ -152,13 +152,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       <div className="h-[1px] w-6 bg-white/10"></div>
 
       {/* 2. Interaction Mode */}
-      <div className="flex flex-col items-center gap-1 bg-[#151516] p-1 rounded-xl border border-white/5 w-full">
+      <div className="flex flex-col items-center gap-1 bg-[#151516] p-1 rounded-xl w-full">
         <button
           onClick={() => setActiveTool('select')}
           type="button"
           className={cn(
             "w-9 h-9 rounded-lg flex items-center justify-center transition-all cursor-pointer relative group",
-            activeTool === 'select' ? "bg-cyan-500 text-black shadow-lg" : "text-zinc-400 hover:text-white hover:bg-white/5"
+            activeTool === 'select' ? "bg-[#165DFF] text-white" : "text-zinc-400 hover:text-white hover:bg-white/5"
           )}
         >
           <MousePointer2 size={16} fill={activeTool === 'select' ? "currentColor" : "none"} />
@@ -171,7 +171,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           type="button"
           className={cn(
             "w-9 h-9 rounded-lg flex items-center justify-center transition-all cursor-pointer relative group",
-            activeTool === 'hand' ? "bg-cyan-500 text-black shadow-lg" : "text-zinc-400 hover:text-white hover:bg-white/5"
+            activeTool === 'hand' ? "bg-[#165DFF] text-white" : "text-zinc-400 hover:text-white hover:bg-white/5"
           )}
         >
           <Hand size={16} fill={activeTool === 'hand' ? "currentColor" : "none"} />
@@ -188,9 +188,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <button
           onClick={() => onAddNode('text')}
           type="button"
-          className="w-9 h-9 rounded-xl border border-white/5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
+          className="w-9 h-9 rounded-xl text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
         >
-          <Type size={16} className="text-cyan-400" />
+          <Type size={16} className="text-[#4080FF]" />
           <div className={getTooltipClass()}>
             添加文本创意
           </div>
@@ -199,7 +199,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <button
           onClick={() => onAddNode('image-gen')}
           type="button"
-          className="w-9 h-9 rounded-xl border border-white/5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
+          className="w-9 h-9 rounded-xl text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
         >
           <Image size={16} className="text-yellow-400" />
           <div className={getTooltipClass()}>
@@ -210,7 +210,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <button
           onClick={() => onAddNode('video-gen')}
           type="button"
-          className="w-9 h-9 rounded-xl border border-white/5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
+          className="w-9 h-9 rounded-xl text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
         >
           <Video size={16} className="text-indigo-400" />
           <div className={getTooltipClass()}>
@@ -221,7 +221,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <button
           onClick={() => onAddNode('sticky')}
           type="button"
-          className="w-9 h-9 rounded-xl border border-white/5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
+          className="w-9 h-9 rounded-xl text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center cursor-pointer transition-all relative group"
         >
           <StickyNote size={16} className="text-amber-400" />
           <div className={getTooltipClass()}>
@@ -233,7 +233,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       <div className="h-[1px] w-6 bg-white/10"></div>
 
       {/* 4. History Tools */}
-      <div className="flex flex-col items-center gap-1 bg-[#151516] p-1 rounded-xl border border-white/5 w-full">
+      <div className="flex flex-col items-center gap-1 bg-[#151516] p-1 rounded-xl w-full">
         <button
           onClick={onUndo}
           disabled={!canUndo}
@@ -268,10 +268,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             onClick={() => setIsLayoutOpen(!isLayoutOpen)}
             type="button"
             className={cn(
-              "w-9 h-9 rounded-xl border flex items-center justify-center cursor-pointer transition-all relative group",
+              "w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all relative group",
               isLayoutOpen
-                ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.15)]"
-                : "border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:border-white/10"
+              ? "bg-[#165DFF]/10 text-[#4080FF]"
+              : "bg-white/5 text-zinc-400 hover:text-white"
             )}
           >
             <LayoutGrid size={15} />
@@ -284,10 +284,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           {isLayoutOpen && (
             <div className={getDropdownClass()}>
-              <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider select-none border-b border-white/5 mb-1">
+              <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider select-none mb-1">
                 选择排版布局方式
               </div>
-              
+
               {/* Hierarchical Layout */}
               <button
                 onClick={() => {
@@ -297,7 +297,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 type="button"
                 className="w-full px-3 py-2 rounded-xl flex items-center gap-2.5 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition-all cursor-pointer text-left font-medium"
               >
-                <GitFork size={14} className="text-cyan-400 font-normal shrink-0 rotate-90" />
+                <GitFork size={14} className="text-[#4080FF] font-normal shrink-0 rotate-90" />
                 <div className="flex flex-col min-w-0">
                   <span className="truncate">树状分层排版</span>
                   <span className="text-[9px] text-zinc-500 font-normal truncate">按连接流向左右对齐</span>
@@ -327,10 +327,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           onClick={onToggleGrid}
           type="button"
           className={cn(
-            "w-9 h-9 rounded-xl border flex items-center justify-center cursor-pointer transition-all relative group",
-            showGrid 
-              ? "border-cyan-500/10 bg-cyan-500/5 text-cyan-400 hover:text-cyan-300"
-              : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"
+            "w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all relative group",
+            showGrid
+            ? "bg-[#165DFF]/5 text-[#4080FF] hover:text-[#4080FF]"
+            : "bg-white/5 text-zinc-400 hover:text-white"
           )}
         >
           <Grid size={15} />
@@ -345,10 +345,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             onClick={() => setIsExportOpen(!isExportOpen)}
             type="button"
             className={cn(
-              "w-9 h-9 rounded-xl border flex items-center justify-center cursor-pointer transition-all relative group",
+              "w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all relative group",
               isExportOpen
-                ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.15)]"
-                : "border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:border-white/10"
+              ? "bg-[#165DFF]/10 text-[#4080FF]"
+              : "bg-white/5 text-zinc-400 hover:text-white"
             )}
           >
             <Share2 size={15} />
@@ -361,10 +361,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           {isExportOpen && (
             <div className={getDropdownClass()}>
-              <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider select-none border-b border-white/5 mb-1">
+              <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider select-none mb-1">
                 流程保存与分享
               </div>
-              
+
               {/* Export as JSON */}
               <button
                 onClick={() => {
@@ -374,7 +374,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 type="button"
                 className="w-full px-3 py-2 rounded-xl flex items-center gap-2.5 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition-all cursor-pointer text-left font-medium"
               >
-                <FileJson size={14} className="text-cyan-400 font-normal shrink-0" />
+                <FileJson size={14} className="text-[#4080FF] font-normal shrink-0" />
                 <div className="flex flex-col min-w-0">
                   <span className="truncate">导出为 JSON 备份</span>
                   <span className="text-[9px] text-zinc-500 font-normal truncate">可重新导入并编辑</span>
@@ -443,10 +443,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           onClick={() => setShowHelp(!showHelp)}
           type="button"
           className={cn(
-            "w-9 h-9 rounded-xl border flex items-center justify-center cursor-pointer transition-all relative group",
-            showHelp 
-              ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" 
-              : "border-white/5 bg-white/5 text-zinc-400 hover:text-white"
+            "w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all relative group",
+            showHelp
+            ? "bg-[#165DFF]/10 text-[#4080FF]"
+            : "bg-white/5 text-zinc-400 hover:text-white"
           )}
         >
           <HelpCircle size={15} fill={showHelp ? "currentColor" : "none"} fillOpacity={showHelp ? 0.25 : 0} />
@@ -458,7 +458,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <button
           onClick={onClearCanvas}
           type="button"
-          className="w-9 h-9 rounded-xl border border-rose-500/10 bg-rose-500/5 text-rose-400 hover:text-white hover:bg-rose-500/20 flex items-center justify-center cursor-pointer transition-all relative group"
+          className="w-9 h-9 rounded-xl bg-rose-500/5 text-rose-400 hover:text-white hover:bg-rose-500/20 flex items-center justify-center cursor-pointer transition-all relative group"
         >
           <Trash2 size={15} />
           <div className={getTooltipClass()}>
@@ -466,6 +466,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           </div>
         </button>
       </div>
-    </div>
+      </div>
   );
 };

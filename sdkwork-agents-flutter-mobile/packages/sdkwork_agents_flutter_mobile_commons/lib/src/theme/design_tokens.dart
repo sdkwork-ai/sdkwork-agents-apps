@@ -1,16 +1,9 @@
-/// Domain-neutral design tokens for the SDKWork Agents Flutter mobile root.
+/// Backwards-compatible import for the tech-blue token module.
 ///
-/// Authority: `APP_FLUTTER_UI_SPEC.md`. Shared packages must not import
-/// application app shells.
-class SdkworkAgentsFlutterTokens {
-  const SdkworkAgentsFlutterTokens._();
+/// The canonical token and theme definitions live in `tech_blue_theme.dart`;
+/// this file only keeps existing `../theme/design_tokens.dart` imports
+/// resolving. New code must import `tech_blue_theme.dart` (or the package
+/// barrel).
+library;
 
-  static const int colorPrimary = 0xFF0F766E;
-  static const int colorBackground = 0xFFF8FAFC;
-  static const int colorText = 0xFF0F172A;
-  static const int colorTextMuted = 0xFF64748B;
-
-  static const double spacingSm = 8;
-  static const double spacingMd = 16;
-  static const double spacingLg = 24;
-}
+export 'tech_blue_theme.dart' show SdkworkAgentsFlutterTokens;

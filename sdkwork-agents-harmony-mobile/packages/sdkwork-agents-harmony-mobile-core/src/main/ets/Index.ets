@@ -4,6 +4,7 @@
 export * from './sdk/AgentsAppSdkClient';
 export * from './sdk/SdkInventory';
 export * from './session/SessionStore';
+export * from './state/PageState';
 export * from './host/HostAdapterContracts';
 export * from './composition/DependencyManifest';
 export * from './composition/HostRegistry';

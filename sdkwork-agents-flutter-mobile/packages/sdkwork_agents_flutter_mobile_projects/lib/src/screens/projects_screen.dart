@@ -15,6 +15,8 @@ class AgentsProjectsScreen extends StatelessWidget {
     required this.translate,
     this.onOpen,
     this.trailingActions = const <Widget>[],
+    this.onNavigateBack,
+    this.backTooltip,
   });
 
   final AgentsProjectsState state;
@@ -26,6 +28,10 @@ class AgentsProjectsScreen extends StatelessWidget {
   final ValueChanged<AgentsProjectSummary>? onOpen;
   final String Function(String key) translate;
   final List<Widget> trailingActions;
+
+  /// When set, the app bar exposes a back affordance for a pushed page.
+  final VoidCallback? onNavigateBack;
+  final String? backTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -48,14 +54,24 @@ class AgentsProjectsScreen extends StatelessWidget {
       banner: state.truncated ? translate('agents.projects.truncated') : null,
       onRefresh: onRefresh,
       onRetry: onRefresh,
+      retryLabel: translate('agents.projects.retry'),
+      onLeadingPressed: onNavigateBack,
+      leadingIcon: onNavigateBack == null ? null : Icons.arrow_back,
+      leadingTooltip: backTooltip,
       trailingActions: trailingActions,
       itemBuilder: (BuildContext context, int index) {
         final project = projects[index];
         final description = project.description;
         return ListTile(
-          leading: const Icon(Icons.folder_outlined),
-          title: Text(project.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-          subtitle: description == null || description.isEmpty ? null : Text(description),
+          leading: Icon(
+            Icons.folder_outlined,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          title:
+              Text(project.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: description == null || description.isEmpty
+              ? null
+              : Text(description),
           onTap: onOpen == null ? null : () => onOpen!(project),
         );
       },

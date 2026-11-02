@@ -39,8 +39,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         <p className="text-xs text-gray-500 mt-1">{t('profileSubtitle')}</p>
       </div>
 
-      <div className="flex items-center gap-5 p-5 rounded-2xl bg-gray-50/50 dark:bg-zinc-900/40 border border-gray-100 dark:border-zinc-850">
-        <div className={`w-16 h-16 rounded-2xl ${AVATAR_COLOR_TEMPLATES[avatarIndex].class} flex items-center justify-center font-extrabold text-2xl shadow-md cursor-pointer relative hover:scale-105 transition-transform`}>
+        <div className="flex items-center gap-5 p-5 rounded-2xl bg-gray-50/50 dark:bg-zinc-900/40">
+          <div className={`w-16 h-16 rounded-2xl ${AVATAR_COLOR_TEMPLATES[avatarIndex].class} flex items-center justify-center font-extrabold text-2xl cursor-pointer relative hover:scale-105 transition-transform`}>
           {username.substring(0, 2).toUpperCase()}
         </div>
         <div>
@@ -48,42 +48,42 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <p className="text-xs text-gray-500 mt-0.5">{email}</p>
           <div className="mt-2.5 flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wider bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20">{t('verifiedEmail')}</span>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wider bg-[#1890ff]/10 text-[#1890ff] dark:bg-[#1890ff]/20">{t('proWorkspace')}</span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wider bg-[#165DFF]/10 text-[#165DFF] dark:bg-[#165DFF]/20">{t('proWorkspace')}</span>
           </div>
-        </div>
-      </div>
+          </div>
+          </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <label className="block text-xs font-semibold text-gray-500 tracking-wide">{t('username')}</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full bg-gray-50/50 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-gray-900 dark:text-white focus:ring-1 focus:ring-[#1890ff] outline-none transition-all dark:focus:border-[#1890ff]"
+            className="w-full bg-gray-50/50 dark:bg-zinc-900/50 rounded-xl px-4 py-2.5 text-xs text-gray-900 dark:text-white focus:ring-1 focus:ring-[#165DFF] outline-none transition-all"
           />
         </div>
 
         <div className="space-y-1.5">
           <label className="block text-xs font-semibold text-gray-500 tracking-wide">{t('email')}</label>
-          <input 
-            type="email" 
+          <input
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-gray-50/50 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-gray-900 dark:text-white focus:ring-1 focus:ring-[#1890ff] outline-none transition-all dark:focus:border-[#1890ff]"
+            className="w-full bg-gray-50/50 dark:bg-zinc-900/50 rounded-xl px-4 py-2.5 text-xs text-gray-900 dark:text-white focus:ring-1 focus:ring-[#165DFF] outline-none transition-all"
           />
         </div>
 
         <div className="col-span-2 space-y-1.5">
           <label className="block text-xs font-semibold text-gray-500 tracking-wide">{t('bio')}</label>
-          <textarea 
+          <textarea
             rows={2}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            className="w-full bg-gray-50/50 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-gray-900 dark:text-white focus:ring-1 focus:ring-[#1890ff] outline-none transition-all dark:focus:border-[#1890ff]"
+            className="w-full bg-gray-50/50 dark:bg-zinc-900/50 rounded-xl px-4 py-2.5 text-xs text-gray-900 dark:text-white focus:ring-1 focus:ring-[#165DFF] outline-none transition-all"
           />
         </div>
-      </div>
+        </div>
 
       <div className="space-y-2">
         <label className="block text-xs font-semibold text-gray-500 tracking-wide">{t('changeAvatar')}</label>
@@ -101,18 +101,18 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </button>
           ))}
         </div>
-      </div>
+        </div>
 
       <div className="pt-4 flex justify-end">
         <button
           onClick={handleSaveProfile}
           disabled={isSaving}
-          className="px-6 py-2.5 bg-[#1890ff] hover:bg-[#1890ff]/90 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-2"
+          className="px-6 py-2.5 bg-[#165DFF] hover:bg-[#165DFF]/90 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2"
         >
           {isSaving && <RefreshCw size={13} className="animate-spin" />}
           {t('saveProfile')}
         </button>
       </div>
-    </div>
+      </div>
   );
 };

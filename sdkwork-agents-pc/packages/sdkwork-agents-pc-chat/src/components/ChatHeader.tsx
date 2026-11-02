@@ -94,7 +94,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         ) : null}
       </div>
       <div className="flex items-center gap-2 pointer-events-auto mt-2">
-        <button 
+        <button
           onClick={onOpenSettings}
           className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors p-1.5 rounded-lg hover:bg-gray-200/50 dark:hover:bg-[#2f2f2f]/50"
           title={t('settings')}

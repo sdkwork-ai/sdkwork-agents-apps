@@ -174,7 +174,7 @@ export const ChatView = ({
         if (active) {
           setIsSessionsBootstrapping(false);
         }
-      }
+        }
     })();
     return () => {
       active = false;
@@ -313,7 +313,7 @@ export const ChatView = ({
         });
         setIsArtifactOpen(true);
       }
-    }
+      }
   }, [isGenerating, currentSession?.id]);
 
   // Auto-resize textarea
@@ -358,7 +358,7 @@ export const ChatView = ({
             document.getElementById('sidebar-search-input')?.focus();
           }, 100);
         }
-      }
+        }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -584,7 +584,7 @@ export const ChatView = ({
           console.error(`Chat file Drive upload failed for ${file.name}`, error);
           window.alert(`${file.name} 上传失败，请重试`);
         });
-    });
+        });
   };
 
   const handleRemoveImage = (index: number) => {
@@ -756,8 +756,8 @@ export const ChatView = ({
                         target.error = undefined;
                         target.media = extractToolMedia(toolName, event.result);
                       }
-                    }
-                  }
+                      }
+                      }
                   return { ...m, toolCalls };
                 }),
               };
@@ -876,7 +876,7 @@ export const ChatView = ({
                 }),
               );
             }
-          }
+            }
           // A rejected request can still settle a preflight hold, so refresh
           // the balance before the next attempt.
           refreshBalance();
@@ -890,7 +890,7 @@ export const ChatView = ({
         setIsGenerating(false);
         setStreamingMessageId(null);
       }
-    }
+      }
   };
 
   const handleStop = () => {
@@ -908,11 +908,11 @@ export const ChatView = ({
       if (!isChatInputDisabled) {
         handleSend();
       }
-    }
+      }
   };
 
   return (
-    <div className="flex h-full w-full bg-[#f5f5f5] dark:bg-[#191919] font-sans text-gray-900 dark:text-gray-100 overflow-hidden">
+    <div className="flex h-full w-full bg-[var(--ag-color-background,#F4F7FC)] font-sans text-[var(--ag-color-text-primary,#0A1B3D)] dark:bg-[#191919] dark:text-gray-100 overflow-hidden">
       <Sidebar
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -938,9 +938,9 @@ export const ChatView = ({
 
       <div
         className={cn(
-          "flex flex-col h-full relative bg-[#f5f5f5] dark:bg-[#191919] transition-all duration-300",
+          "flex flex-col h-full relative bg-[var(--ag-color-background,#F4F7FC)] transition-colors duration-300",
           isArtifactOpen
-            ? "flex-1 min-w-[300px] border-r border-[#d9d9d9] dark:border-[#1a1a1a]"
+          ? "flex-1 min-w-[300px]"
             : "flex-1 min-w-0",
         )}
       >

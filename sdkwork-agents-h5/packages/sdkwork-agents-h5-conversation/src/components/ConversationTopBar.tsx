@@ -29,7 +29,7 @@ export function ConversationTopBar({
     <header
       className={cn(
         "flex items-center gap-3 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3",
-        "bg-[var(--color-bg-color,#f5f5f7)]",
+        "bg-[var(--color-bg-color,#F4F7FC)]",
         className,
       )}
     >
@@ -39,15 +39,15 @@ export function ConversationTopBar({
         onClick={onOpenSessions}
         className={cn(
           "flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
-          "bg-[var(--color-surface-color,#ffffff)] text-[var(--color-text-main,#1f1f1f)]",
-          "shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition active:scale-95",
+          "bg-[var(--color-surface-color,#FFFFFF)] text-[var(--color-text-main,#0A1B3D)]",
+          " transition active:scale-95",
         )}
       >
         <Menu size={20} />
       </button>
 
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-[17px] font-semibold leading-6 text-[var(--color-text-main,#1f1f1f)]">
+        <h1 className="truncate text-[17px] font-semibold leading-6 text-[var(--color-text-main,#0A1B3D)]">
           {translateAgentsConversationText("agents.conversation.header.title")}
         </h1>
         <button
@@ -56,7 +56,7 @@ export function ConversationTopBar({
           aria-label={translateAgentsConversationText("agents.conversation.header.switchSession")}
           className={cn(
             "flex max-w-full items-center gap-1 text-[12px] leading-5",
-            "text-[var(--color-text-sub,#8c8c8c)]",
+            "text-[var(--color-text-sub,#5B6B88)]",
           )}
         >
           <span className="truncate">
@@ -75,7 +75,7 @@ export function ConversationTopBar({
         onClick={onNewSession}
         className={cn(
           "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-          "text-[var(--color-text-sub,#8c8c8c)] transition active:scale-95",
+          "text-[var(--color-text-sub,#5B6B88)] transition active:scale-95",
         )}
       >
         <Plus size={20} />

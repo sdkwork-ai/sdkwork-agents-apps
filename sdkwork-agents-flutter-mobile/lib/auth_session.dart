@@ -8,17 +8,21 @@
 /// wiring).
 library;
 
-const String agentsConfiguredAccessToken = String.fromEnvironment('SDKWORK_ACCESS_TOKEN');
+const String agentsConfiguredAccessToken = String.fromEnvironment(
+  'SDKWORK_ACCESS_TOKEN',
+);
 
 class AgentsAuthSession {
   const AgentsAuthSession._();
 
-  static String? _accessToken =
-      agentsConfiguredAccessToken.isEmpty ? null : agentsConfiguredAccessToken;
+  static String? _accessToken = agentsConfiguredAccessToken.isEmpty
+      ? null
+      : agentsConfiguredAccessToken;
 
   static String? get accessToken => _accessToken;
 
-  static bool get isAuthenticated => _accessToken != null && _accessToken!.isNotEmpty;
+  static bool get isAuthenticated =>
+      _accessToken != null && _accessToken!.isNotEmpty;
 
   /// Installs a token obtained out of band (host bridge, deep link, test).
   static void install(String accessToken) {

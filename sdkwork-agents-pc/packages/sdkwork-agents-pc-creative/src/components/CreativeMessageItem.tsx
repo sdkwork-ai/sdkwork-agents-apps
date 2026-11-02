@@ -28,32 +28,32 @@ export const CreativeMessageItem: React.FC<CreativeMessageItemProps> = ({
   onDelete
 }) => {
   return (
-    <div className="w-full flex flex-col gap-3 group border-b border-black/[0.03] pb-8 last:border-b-0 last:pb-0 animate-in fade-in duration-300 dark:border-white/[0.03]">
-      
+    <div className="w-full flex flex-col gap-3 group pb-8 last:pb-0 animate-in fade-in duration-300">
+
       {/* Prompt Title & Model Info */}
       <div className="flex items-center justify-between gap-4 w-full select-none">
         <div className="text-[14px] font-medium text-zinc-800 leading-relaxed dark:text-zinc-200">
           {m.text}
         </div>
-        <div className="flex items-center gap-1.5 text-zinc-500 text-[11px] font-medium shrink-0">
+        <div className="flex items-center gap-1.5 text-[var(--ag-color-text-secondary,#5B6B88)] text-[11px] font-medium shrink-0">
           <span>{m.modelInfo || '图片 5.0 Lite | 1:1 | 2K'}</span>
-          <span className="cursor-pointer hover:text-zinc-300 transition-colors flex items-center gap-0.5">
+          <span className="cursor-pointer hover:text-[var(--ag-color-text-primary,#0A1B3D)] transition-colors flex items-center gap-0.5">
             详细信息 ⓘ
           </span>
         </div>
-      </div>
+        </div>
 
       {/* Rendering stage styles */}
       {m.stage === 'failed' ? (
         /* Terminal failure card: honest state, with a one-click redo */
-        <div className="w-full min-h-[120px] border border-rose-500/20 bg-rose-500/5 rounded-2xl flex flex-col items-center justify-center gap-2 p-6 dark:border-rose-400/20 dark:bg-rose-400/5">
+        <div className="w-full min-h-[120px] bg-rose-500/5 rounded-2xl flex flex-col items-center justify-center gap-2 p-6 dark:bg-rose-400/5">
           <span className="text-rose-600 dark:text-rose-400 text-[13px] font-medium">
             {m.errorText || '本次生成失败'}
           </span>
           {m.text ? (
             <button
               onClick={() => onSend(m.text || '', m.mode || 'image')}
-              className="px-3 py-1.5 rounded-lg border border-black/10 text-zinc-600 hover:text-zinc-900 hover:bg-black/5 transition-colors text-xs font-medium cursor-pointer dark:border-white/10 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
+              className="px-3 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-black/5 transition-colors text-xs font-medium cursor-pointer dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
             >
               <RotateCcw size={13} className="inline mr-1 -mt-0.5" />
               重新生成
@@ -62,7 +62,7 @@ export const CreativeMessageItem: React.FC<CreativeMessageItemProps> = ({
         </div>
       ) : m.stage === 'thinking' || m.stage === 'loading' ? (
         /* Progress thinking / loading card */
-        <div className="w-full aspect-[2.39/1] min-h-[220px] bg-zinc-100 border border-black/5 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden dark:bg-[#222222] dark:border-white/5">
+        <div className="w-full aspect-[2.39/1] min-h-[220px] bg-zinc-100 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden dark:bg-[#222222]">
           {/* Reference preview: the upload the command is generating from,
               dimmed under the scan animation until the vendor result replaces it. */}
           {m.previewUrl ? (
@@ -75,7 +75,7 @@ export const CreativeMessageItem: React.FC<CreativeMessageItemProps> = ({
           ) : null}
           {m.stage === 'thinking' ? (
             <div className="flex flex-col items-center gap-2 relative z-10">
-              <div className="w-6 h-6 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin shrink-0" />
+              <div className="w-6 h-6 rounded-full border-2 border-[#4080FF] border-t-transparent animate-spin shrink-0" />
               <span className="text-zinc-500 dark:text-zinc-300 text-xs font-medium animate-pulse bg-black/30 dark:bg-black/40 px-2 py-0.5 rounded-md">
                 {m.stageLabel || '排队中'}
               </span>
@@ -84,12 +84,12 @@ export const CreativeMessageItem: React.FC<CreativeMessageItemProps> = ({
             <div className="w-full h-full flex flex-col items-center justify-center p-4">
               {/* Status Badge: real stage, not a fabricated percentage */}
               <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 z-10">
-                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#4080FF] animate-pulse" />
                 <span>{m.stageLabel || '生成中'}</span>
               </div>
 
               {/* Scanning bar animation */}
-              <div className="absolute inset-x-0 h-0.5 bg-cyan-500/50 shadow-[0_0_10px_#06b6d4] scanner-bar z-10" />
+              <div className="absolute inset-x-0 h-0.5 bg-[#165DFF]/50 scanner-bar z-10" />
 
               <Sparkles size={20} className="text-zinc-600 dark:text-zinc-300 animate-pulse mb-2 relative z-10" />
               <span className="text-zinc-600 dark:text-zinc-300 text-[11px] font-medium relative z-10 bg-black/30 dark:bg-black/40 px-2 py-0.5 rounded-md">
@@ -116,23 +116,23 @@ export const CreativeMessageItem: React.FC<CreativeMessageItemProps> = ({
 
           {/* Action buttons row below images */}
           <div className="flex items-center gap-2 mt-4 select-none relative">
-            <button 
+            <button
               onClick={() => onSend(m.text || '', m.mode || 'agent')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-black/10 text-zinc-600 hover:text-zinc-900 hover:bg-black/5 transition-colors text-xs font-medium cursor-pointer dark:border-white/10 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-black/5 transition-colors text-xs font-medium cursor-pointer dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
             >
               <RotateCcw size={13} />
               重新生成
             </button>
-            <button 
+            <button
               onClick={onToggleLayout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-black/10 text-zinc-600 hover:text-zinc-900 hover:bg-black/5 transition-colors text-xs font-medium cursor-pointer dark:border-white/10 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-black/5 transition-colors text-xs font-medium cursor-pointer dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
             >
               <LayoutGrid size={13} />
               切换排版
             </button>
             <button
               onClick={onDelete}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-black/10 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors text-xs font-medium cursor-pointer dark:border-white/10 dark:text-rose-400 dark:hover:text-rose-300 dark:hover:bg-rose-500/5"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors text-xs font-medium cursor-pointer dark:text-rose-400 dark:hover:text-rose-300 dark:hover:bg-rose-500/5"
             >
               <Trash2 size={13} />
               删除记录
@@ -147,9 +147,9 @@ export const CreativeMessageItem: React.FC<CreativeMessageItemProps> = ({
                 <button
                   key={idx}
                   onClick={() => onSend(sug, 'agent')}
-                  className="bg-zinc-100 hover:bg-zinc-200 border border-black/5 rounded-full px-3 py-1.5 text-[11px] text-zinc-600 hover:text-zinc-900 transition-colors flex items-center gap-1.5 group cursor-pointer dark:bg-[#2a2a2a] dark:hover:bg-[#333333] dark:border-white/5 dark:text-zinc-300 dark:hover:text-white"
+                  className="bg-zinc-100 hover:bg-zinc-200 rounded-full px-3 py-1.5 text-[11px] text-zinc-600 hover:text-zinc-900 transition-colors flex items-center gap-1.5 group cursor-pointer dark:bg-[#2a2a2a] dark:hover:bg-[#333333] dark:text-zinc-300 dark:hover:text-white"
                 >
-                  <Sparkles size={10} className="text-cyan-500 group-hover:text-cyan-400" />
+                  <Sparkles size={10} className="text-[#165DFF] group-hover:text-[#4080FF]" />
                   {sug}
                 </button>
               ))}

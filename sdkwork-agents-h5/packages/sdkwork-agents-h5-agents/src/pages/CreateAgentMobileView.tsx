@@ -271,22 +271,22 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--color-bg-color,#f5f5f7)] overflow-hidden">
+    <div className="flex flex-col h-full bg-[var(--color-bg-color,#F4F7FC)] overflow-hidden">
       {/* Header */}
-      <header className="h-[56px] shrink-0 flex items-center justify-between px-2 bg-[var(--color-glass-bg,#f5f5f7)] backdrop-blur-xl border-b border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))] z-10">
+      <header className="h-[56px] shrink-0 flex items-center justify-between px-2 bg-[var(--color-glass-bg,#FFFFFF)] z-10">
         <div className="flex items-center flex-1">
           {onBack && (
             <button
               type="button"
               aria-label={t('agents.mobile.back')}
               onClick={onBack}
-              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-black/5 dark:active:bg-white/10 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-[var(--color-surface-muted,#EAF1FB)] transition-colors"
             >
-              <ArrowLeft className="w-6 h-6 text-[var(--color-text-main,#111827)]" />
+              <ArrowLeft className="w-6 h-6 text-[var(--color-icon-strong,#0A1B3D)]" />
             </button>
           )}
         </div>
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-[var(--color-text-main,#111827)]">
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-[var(--color-text-main,#0A1B3D)]">
           {isEdit ? t('agents.mobile.form.title.edit') : t('agents.mobile.form.title.create')}
         </h1>
         <div className="flex items-center flex-1 justify-end gap-2 pr-1">
@@ -297,8 +297,8 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
             className={cn(
               'px-3.5 py-1.5 rounded-lg text-[14px] font-medium transition-colors',
               saving
-                ? 'bg-black/5 dark:bg-white/10 text-gray-400 cursor-not-allowed'
-                : 'bg-[var(--color-primary-blue,#2b5ce7)] text-white active:bg-[#2452cc]',
+                ? 'bg-[var(--color-surface-muted,#EAF1FB)] text-[var(--color-text-secondary,#5B6B88)] cursor-not-allowed'
+                : 'bg-[var(--color-primary-blue,#165DFF)] text-white active:bg-[var(--color-primary-pressed,#0E42D2)]',
             )}
           >
             {saving ? t('agents.mobile.form.saving') : t('agents.mobile.form.save')}
@@ -308,10 +308,10 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
             disabled={saving}
             onClick={() => void handleSave(true)}
             className={cn(
-              'px-3.5 py-1.5 rounded-lg text-[14px] font-medium transition-colors border',
+              'px-3.5 py-1.5 rounded-lg text-[14px] font-medium transition-colors ',
               saving
-                ? 'border-black/10 dark:border-white/10 text-gray-400 cursor-not-allowed'
-                : 'border-[#2b5ce7]/30 text-[var(--color-primary-blue,#2b5ce7)] dark:text-[#6f9bff] active:bg-[var(--color-primary-blue,#2b5ce7)]/10',
+                ? ' text-[var(--color-text-secondary,#5B6B88)] cursor-not-allowed'
+                : '/30 text-[var(--color-primary-blue,#165DFF)] active:bg-[var(--color-primary-blue,#165DFF)]/10',
             )}
           >
             {saving ? t('agents.mobile.form.publishing') : t('agents.mobile.form.publish')}
@@ -322,16 +322,16 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
       {/* Content */}
       {loading ? (
         <div className="flex-1 px-4 pt-4 space-y-3 animate-pulse" aria-busy="true">
-          <div className="h-28 rounded-2xl bg-[var(--color-chat-other-bg,#262626)]" />
-          <div className="h-40 rounded-2xl bg-[var(--color-chat-other-bg,#262626)]" />
-          <div className="h-48 rounded-2xl bg-[var(--color-chat-other-bg,#262626)]" />
+          <div className="h-28 rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)]" />
+          <div className="h-40 rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)]" />
+          <div className="h-48 rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)]" />
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-8">
           {/* Basic info */}
-          <section className="rounded-2xl bg-[var(--color-chat-other-bg,#262626)] px-4 py-4 space-y-4">
+          <section className="rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] px-4 py-4 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-[13px] font-medium text-[var(--color-text-sub,#6b7280)]">
+              <span className="text-[13px] font-medium text-[var(--color-text-sub,#5B6B88)]">
                 {t('agents.mobile.form.avatar')}
               </span>
               <DriveUploadImage
@@ -368,7 +368,7 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
           </section>
 
           {/* Persona */}
-          <section className="rounded-2xl bg-[var(--color-chat-other-bg,#262626)] px-4 py-4">
+          <section className="rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] px-4 py-4">
             <FormField label={t('agents.mobile.form.persona')}>
               <textarea
                 value={persona}
@@ -378,16 +378,16 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
                 placeholder={t('agents.mobile.form.persona.placeholder')}
                 className={cn(inputClassName, 'resize-none leading-relaxed')}
               />
-              <span className="mt-1 block text-right text-[11px] text-[var(--color-text-sub,#9ca3af)]">
+              <span className="mt-1 block text-right text-[11px] text-[var(--color-text-sub,#5B6B88)]">
                 {persona.length}/{MAX_PROMPT_LENGTH}
               </span>
             </FormField>
           </section>
 
           {/* Config */}
-          <section className="rounded-2xl bg-[var(--color-chat-other-bg,#262626)] px-4 py-1 divide-y divide-[var(--color-border-color,rgba(0,0,0,0.05))] dark:divide-[var(--color-border-color,rgba(255,255,255,0.05))]">
+          <section className="rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] px-4 py-1">
             <SettingRow
-              icon={<SlidersHorizontal className="w-[18px] h-[18px] text-[var(--color-primary-blue,#2b5ce7)]" />}
+              icon={<SlidersHorizontal className="w-[18px] h-[18px] text-[var(--color-icon-active,#165DFF)]" />}
               label={t('agents.mobile.form.model')}
               value={modelLabel || t('agents.mobile.form.model.placeholder')}
               onClick={() => setShowModelSheet(true)}
@@ -395,15 +395,15 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
 
             <div className="py-3.5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <SlidersHorizontal className="w-[18px] h-[18px] text-[var(--color-primary-blue,#2b5ce7)] shrink-0" />
+                <SlidersHorizontal className="w-[18px] h-[18px] text-[var(--color-icon-active,#165DFF)] shrink-0" />
                 <div className="min-w-0">
-                  <div className="text-[15px] text-[var(--color-text-main,#111827)]">
+                  <div className="text-[15px] text-[var(--color-text-main,#0A1B3D)]">
                     {t('agents.mobile.form.temperature')}
-                    <span className="ml-1.5 text-[13px] text-[var(--color-text-sub,#9ca3af)]">
+                    <span className="ml-1.5 text-[13px] text-[var(--color-text-sub,#5B6B88)]">
                       {temperature.toFixed(1)}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[var(--color-text-sub,#9ca3af)]">
+                  <p className="text-[11px] text-[var(--color-text-sub,#5B6B88)]">
                     {t('agents.mobile.form.temperature.desc')}
                   </p>
                 </div>
@@ -415,13 +415,13 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
                 step={0.1}
                 value={temperature}
                 onChange={(event) => setTemperature(Number(event.target.value))}
-                className="w-28 accent-[#2b5ce7]"
+                className="w-28 accent-[var(--color-primary,#165DFF)]"
                 aria-label={t('agents.mobile.form.temperature')}
               />
             </div>
 
             <SettingRow
-              icon={<Brain className="w-[18px] h-[18px] text-[var(--color-primary-blue,#2b5ce7)]" />}
+              icon={<Brain className="w-[18px] h-[18px] text-[var(--color-icon-active,#165DFF)]" />}
               label={t('agents.mobile.form.memory')}
               description={t('agents.mobile.form.memory.desc')}
               trailing={
@@ -432,12 +432,12 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
                   onClick={() => setMemoryEnabled((prev) => !prev)}
                   className={cn(
                     'relative w-11 h-6 rounded-full transition-colors shrink-0',
-                    memoryEnabled ? 'bg-[var(--color-primary-blue,#2b5ce7)]' : 'bg-black/15 dark:bg-white/20',
+                    memoryEnabled ? 'bg-[var(--color-primary-blue,#165DFF)]' : 'bg-[var(--color-surface-strong,#DCE8F9)]',
                   )}
                 >
                   <span
                     className={cn(
-                      'absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all',
+                      'absolute top-0.5 w-5 h-5 rounded-full bg-white  transition-all',
                       memoryEnabled ? 'left-[22px]' : 'left-0.5',
                     )}
                   />
@@ -447,7 +447,7 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
           </section>
 
           {/* Experience */}
-          <section className="rounded-2xl bg-[var(--color-chat-other-bg,#262626)] px-4 py-4 space-y-4">
+          <section className="rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] px-4 py-4 space-y-4">
             <FormField label={t('agents.mobile.form.welcome')}>
               <input
                 value={welcomeMessage}
@@ -464,7 +464,7 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
                   {suggestedPrompts.map((prompt, index) => (
                     <span
                       key={`${prompt}-${index}`}
-                      className="inline-flex items-center gap-1 rounded-full bg-[var(--color-primary-blue,#2b5ce7)]/10 text-[var(--color-primary-blue,#2b5ce7)] dark:text-[#6f9bff] px-3 py-1 text-[13px]"
+                      className="inline-flex items-center gap-1 rounded-full bg-[var(--color-primary-blue,#165DFF)]/10 text-[var(--color-primary-blue,#165DFF)] px-3 py-1 text-[13px]"
                     >
                       {prompt}
                       <button
@@ -497,7 +497,7 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
                   type="button"
                   onClick={addSuggestedPrompt}
                   aria-label={t('agents.mobile.form.suggestedPrompts.add')}
-                  className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-[var(--color-primary-blue,#2b5ce7)]/10 text-[var(--color-primary-blue,#2b5ce7)] dark:text-[#6f9bff] active:bg-[var(--color-primary-blue,#2b5ce7)]/20 transition-colors"
+                  className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-[var(--color-primary-blue,#165DFF)]/10 text-[var(--color-primary-blue,#165DFF)] active:bg-[var(--color-primary-blue,#165DFF)]/20 transition-colors"
                 >
                   <Plus className="w-4.5 h-4.5" />
                 </button>
@@ -515,7 +515,7 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center"
+            className="fixed inset-0 z-50 bg-[var(--color-scrim,rgba(10,27,61,0.45))] flex items-end justify-center"
             onClick={() => setShowModelSheet(false)}
           >
             <motion.div
@@ -523,13 +523,13 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-              className="w-full max-w-[420px] rounded-t-2xl bg-[var(--color-chat-other-bg,#262626)] max-h-[70vh] flex flex-col pb-[env(safe-area-inset-bottom)]"
+              className="w-full max-w-[420px] rounded-t-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] max-h-[70vh] flex flex-col pb-[env(safe-area-inset-bottom)]"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="flex justify-center pt-2.5 pb-1 shrink-0">
-                <div className="h-1 w-9 rounded-full bg-black/15 dark:bg-white/20" />
+                <div className="h-1 w-9 rounded-full bg-[var(--color-surface-strong,#DCE8F9)]" />
               </div>
-              <h3 className="px-5 pb-3 pt-1 text-[16px] font-semibold text-[var(--color-text-main,#111827)] shrink-0">
+              <h3 className="px-5 pb-3 pt-1 text-[16px] font-semibold text-[var(--color-text-main,#0A1B3D)] shrink-0">
                 {t('agents.mobile.form.model')}
               </h3>
               <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-1">
@@ -547,31 +547,31 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
                       className={cn(
                         'w-full flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors',
                         selected
-                          ? 'bg-[var(--color-primary-blue,#2b5ce7)]/10'
-                          : 'active:bg-black/5 dark:active:bg-white/10',
+                          ? 'bg-[var(--color-primary-blue,#165DFF)]/10'
+                          : 'active:bg-[var(--color-surface-muted,#EAF1FB)]',
                       )}
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="text-[15px] font-medium text-[var(--color-text-main,#111827)] truncate">
+                        <div className="text-[15px] font-medium text-[var(--color-text-main,#0A1B3D)] truncate">
                           {item.label}
                         </div>
                         {item.description && (
-                          <p className="text-[12px] text-[var(--color-text-sub,#6b7280)] truncate">
+                          <p className="text-[12px] text-[var(--color-text-sub,#5B6B88)] truncate">
                             {item.description}
                           </p>
                         )}
                       </div>
-                      {selected && <Check className="w-4.5 h-4.5 text-[var(--color-primary-blue,#2b5ce7)] shrink-0" />}
+                      {selected && <Check className="w-4.5 h-4.5 text-[var(--color-icon-active,#165DFF)] shrink-0" />}
                     </button>
                   );
                 })}
                 {modelCatalog.length === 0 && (
-                  <p className="px-3 py-4 text-center text-[13px] text-[var(--color-text-sub,#9ca3af)]">
+                  <p className="px-3 py-4 text-center text-[13px] text-[var(--color-text-sub,#5B6B88)]">
                     {t('agents.mobile.form.model.loadFailed')}
                   </p>
                 )}
                 <div className="flex items-center gap-2 px-1 pt-2">
-                  <Zap className="w-4 h-4 text-gray-400 shrink-0" />
+                  <Zap className="w-4 h-4 text-[var(--color-icon-default,#5B6B88)] shrink-0" />
                   <input
                     value={customModel}
                     onChange={(event) => setCustomModel(event.target.value)}
@@ -596,7 +596,7 @@ export const CreateAgentMobileView: React.FC<CreateAgentMobileViewProps> = ({
 };
 
 const inputClassName = cn(
-  'w-full rounded-xl bg-black/5 dark:bg-white/10 px-3.5 py-2.5 text-[15px] text-[var(--color-text-main,#111827)] placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none focus:ring-2 focus:ring-[#2b5ce7]/30 transition-shadow',
+  'w-full rounded-xl bg-[var(--color-surface-muted,#EAF1FB)] px-3.5 py-2.5 text-[15px] text-[var(--color-text-main,#0A1B3D)] placeholder:text-[var(--color-text-secondary,#5B6B88)] outline-none transition-colors focus:bg-[var(--color-surface-color,#FFFFFF)]',
 );
 
 const FormField: React.FC<{
@@ -604,7 +604,7 @@ const FormField: React.FC<{
   children: React.ReactNode;
 }> = ({ label, children }) => (
   <label className="block">
-    <span className="mb-1.5 block text-[13px] font-medium text-[var(--color-text-sub,#6b7280)]">
+    <span className="mb-1.5 block text-[13px] font-medium text-[var(--color-text-sub,#5B6B88)]">
       {label}
     </span>
     {children}
@@ -630,17 +630,17 @@ const SettingRow: React.FC<{
   >
     <span className="shrink-0">{icon}</span>
     <div className="flex-1 min-w-0">
-      <div className="text-[15px] text-[var(--color-text-main,#111827)]">{label}</div>
+      <div className="text-[15px] text-[var(--color-text-main,#0A1B3D)]">{label}</div>
       {description && (
-        <p className="text-[11px] text-[var(--color-text-sub,#9ca3af)]">{description}</p>
+        <p className="text-[11px] text-[var(--color-text-sub,#5B6B88)]">{description}</p>
       )}
     </div>
     {value !== undefined && (
-      <span className="shrink-0 text-[14px] text-[var(--color-text-sub,#9ca3af)] truncate max-w-[140px]">
+      <span className="shrink-0 text-[14px] text-[var(--color-text-sub,#5B6B88)] truncate max-w-[140px]">
         {value}
       </span>
     )}
     {trailing}
-    {onClick && <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 shrink-0" />}
+    {onClick && <ChevronRight className="w-4 h-4 text-[var(--color-icon-strong,#0A1B3D)] shrink-0" />}
   </div>
 );

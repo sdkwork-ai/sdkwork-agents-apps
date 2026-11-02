@@ -1,0 +1,6 @@
+{
+  "src": [
+    "pages/assets/AssetsPage",
+    "pages/assets/AssetDetailPage"
+  ]
+}

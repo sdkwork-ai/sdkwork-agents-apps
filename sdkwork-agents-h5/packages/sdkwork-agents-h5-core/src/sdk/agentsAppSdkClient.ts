@@ -2,6 +2,8 @@ import {
   createClient,
   completeAgentTurn,
   completeAgentTurnStream,
+  getUsageSummary,
+  listUsageRecords,
   type CompleteAgentTurnResult,
   type CreateAgentTurnRequest,
   type SdkworkAppClient as GeneratedSdkworkAgentsAppClient,
@@ -113,5 +115,5 @@ export type {
   UpdateAgentSessionRuntimeBindingRequest,
 } from "@sdkwork/agents-app-sdk";
 
-export { completeAgentTurn, completeAgentTurnStream };
-export type { CompleteAgentTurnResult };
+export { completeAgentTurn, completeAgentTurnStream, getUsageSummary, listUsageRecords };
+export type { CompleteAgentTurnResult, AgentUsageSummary } from "@sdkwork/agents-app-sdk";

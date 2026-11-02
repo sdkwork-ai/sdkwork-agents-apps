@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "SDKWork Agents HarmonyOS 应用模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "SDKWork Agents"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "SDKWork Agents"
+    }
+  ]
+}

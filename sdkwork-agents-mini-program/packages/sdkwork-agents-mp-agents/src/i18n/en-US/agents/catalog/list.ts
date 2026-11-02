@@ -10,4 +10,5 @@ export const agentsMpCatalogListEnUs: Record<string, string> = {
   "agents.catalog.empty": "No agents yet",
   "agents.catalog.loadFailed": "Failed to load agents",
   "agents.catalog.loadMore": "Load more",
+  "agents.catalog.openFullVersion": "Open the full version",
 };

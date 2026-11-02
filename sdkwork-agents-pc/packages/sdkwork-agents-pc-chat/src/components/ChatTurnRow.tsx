@@ -41,14 +41,14 @@ function renderAttachments(message: ChatMessage, isUser: boolean) {
             target="_blank"
             rel="noreferrer"
             aria-label={resource.fileName ?? resource.id}
-            className="flex min-h-9 items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+            className="flex min-h-9 items-center gap-2 rounded-md bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
           >
             {content}
           </a>
         ) : (
           <div
             key={`${resource.id}-${resource.kind}`}
-            className="flex min-h-9 items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
+            className="flex min-h-9 items-center gap-2 rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-500 dark:bg-gray-900 dark:text-gray-400"
           >
             {content}
           </div>
@@ -84,7 +84,7 @@ export const ChatTurnRow: React.FC<ChatTurnRowProps> = memo(({
               handleCopy={handleCopy}
             />
           </div>
-        </div>
+          </div>
       )}
 
       {assistantMessage && (

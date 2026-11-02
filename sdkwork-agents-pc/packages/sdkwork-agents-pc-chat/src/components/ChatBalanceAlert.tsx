@@ -33,7 +33,7 @@ export const ChatBalanceAlert: React.FC<ChatBalanceAlertProps> = ({
   return (
     <div className="w-full px-4 pb-1 pt-2" data-chat-balance-alert>
       <div
-        className="mx-auto flex w-full max-w-3xl items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-[13px] text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200"
+        className="mx-auto flex w-full max-w-3xl items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-[13px] text-amber-900 dark:bg-amber-500/10 dark:text-amber-200"
         role="alert"
       >
         <AlertTriangle aria-hidden className="mt-[2px] shrink-0" size={16} />
@@ -60,6 +60,6 @@ export const ChatBalanceAlert: React.FC<ChatBalanceAlertProps> = ({
           <X aria-hidden size={14} />
         </button>
       </div>
-    </div>
+      </div>
   );
 };

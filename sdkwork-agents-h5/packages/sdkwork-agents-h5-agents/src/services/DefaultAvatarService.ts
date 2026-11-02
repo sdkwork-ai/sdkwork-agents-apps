@@ -1,25 +1,33 @@
 export type DefaultAvatarKind = 'agent' | 'direct' | 'group' | 'user';
 
+/**
+ * Avatar art palettes.
+ *
+ * These are content colours for generated placeholder avatars, not UI chrome,
+ * so they follow the light tech-blue family instead of the previous dark
+ * purple/green/navy tiles: a tonal light background with a saturated accent and
+ * a deep readable glyph.
+ */
 const AVATAR_COLORS: Record<DefaultAvatarKind, { accent: string; background: string; foreground: string }> = {
   agent: {
-    accent: '#8b5cf6',
-    background: '#261f39',
-    foreground: '#e9ddff',
+    accent: '#165DFF',
+    background: '#E8F0FF',
+    foreground: '#0A1B3D',
   },
   direct: {
-    accent: '#22c55e',
-    background: '#153322',
-    foreground: '#d9fbe7',
+    accent: '#00B42A',
+    background: '#E8FFEF',
+    foreground: '#0A1B3D',
   },
   group: {
-    accent: '#38bdf8',
-    background: '#132f3f',
-    foreground: '#d9f3ff',
+    accent: '#165DFF',
+    background: '#DCE8F9',
+    foreground: '#0A1B3D',
   },
   user: {
-    accent: '#f59e0b',
-    background: '#392714',
-    foreground: '#fff0cf',
+    accent: '#FF7D00',
+    background: '#FFF5E6',
+    foreground: '#0A1B3D',
   },
 };
 
@@ -67,7 +75,7 @@ export function createDefaultAvatar(kind: DefaultAvatarKind): string {
   return encodeSvg(`
     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" role="img" aria-label="${kind} avatar">
       <rect width="80" height="80" rx="18" fill="${colors.background}"/>
-      <circle cx="66" cy="14" r="8" fill="${colors.accent}" opacity="0.75"/>
+      <circle cx="66" cy="14" r="8" fill="${colors.accent}" opacity="0.35"/>
       ${renderIcon(kind, colors.foreground, colors.accent)}
     </svg>
   `);
@@ -76,11 +84,11 @@ export function createDefaultAvatar(kind: DefaultAvatarKind): string {
 export function createDefaultMusicCover(): string {
   return encodeSvg(`
     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" role="img" aria-label="music cover">
-      <rect width="80" height="80" rx="12" fill="#141414"/>
-      <circle cx="40" cy="40" r="24" fill="#242424" stroke="#1db954" stroke-width="3"/>
-      <circle cx="40" cy="40" r="7" fill="#1db954"/>
-      <path d="M54 22v24" stroke="#1db954" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="54" cy="46" r="5" fill="#1db954"/>
+      <rect width="80" height="80" rx="12" fill="#E8F0FF"/>
+      <circle cx="40" cy="40" r="24" fill="#FFFFFF" stroke="#165DFF" stroke-width="3"/>
+      <circle cx="40" cy="40" r="7" fill="#165DFF"/>
+      <path d="M54 22v24" stroke="#165DFF" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="54" cy="46" r="5" fill="#165DFF"/>
     </svg>
   `);
 }

@@ -63,12 +63,12 @@ export interface SidebarProps {
 }
 
 const AVATAR_COLOR_TEMPLATES = [
-  "bg-[#1890ff] text-white",
+  "bg-[#165DFF] text-white",
   "bg-emerald-500 text-white",
   "bg-violet-500 text-white",
   "bg-orange-500 text-white",
   "bg-rose-500 text-white",
-  "bg-zinc-800 border border-zinc-700 text-white",
+  "bg-zinc-800 text-white",
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -201,20 +201,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <>
       <div
         className={cn(
-          "flex h-full transition-all duration-300 ease-in-out shrink-0 overflow-hidden relative border-r border-transparent dark:border-white/5",
+          "flex h-full transition-all duration-300 ease-in-out shrink-0 overflow-hidden relative",
           isOpen ? "w-[280px]" : "w-0",
         )}
       >
         {/* Toast Overlay for Mini actions status */}
         {sidebarToast && (
-          <div className="absolute top-16 left-20 right-4 bg-[#2A2A2D] text-xs text-white px-3 py-2 rounded-xl border border-white/5 shadow-xl flex items-center gap-1.5 justify-center z-50 animate-fade-in-down font-medium tracking-wide">
+          <div className="absolute top-16 left-20 right-4 bg-[#0A1B3D] text-xs text-white px-3 py-2 rounded-xl flex items-center gap-1.5 justify-center z-50 animate-fade-in-down font-medium tracking-wide">
             <Sparkles size={11} className="text-amber-400 animate-pulse" />
             <span>{sidebarToast}</span>
           </div>
         )}
 
         {/* Chat List Pane */}
-        <div className="flex-1 flex flex-col h-full bg-[#1C1C1E] min-w-0 z-10">
+        <div className="flex-1 flex flex-col h-full bg-[#0A1B3D] min-w-0 z-10">
           {/* Top Header section */}
           <div className="p-3 pb-2 shrink-0 flex flex-col gap-1">
             <div className="flex items-center justify-between px-2 py-1 mb-2">
@@ -240,7 +240,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </svg>
               <button
                 onClick={toggleSidebar}
-                className="p-1.5 text-zinc-400 hover:text-zinc-200 rounded-md transition-colors hover:bg-white/5"
+                className="p-1.5 text-[var(--ag-color-rail-text-muted,#7F91B0)] hover:text-[var(--ag-color-icon-on-rail,#C9D6EA)] rounded-md transition-colors hover:bg-white/5"
                 title={tCommon("closeSidebar")}
               >
                 <PanelLeftClose size={18} />
@@ -251,35 +251,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={onNewChat}
               disabled={isNewChatDisabled}
               className={cn(
-                "flex items-center gap-3 text-zinc-100 font-medium rounded-lg transition-all w-full py-2 px-3 hover:bg-white/5 active:scale-[0.98]",
+                "flex items-center gap-3 text-[var(--ag-color-rail-text,#C9D6EA)] font-medium rounded-lg transition-all w-full py-2 px-3 hover:bg-white/5 active:scale-[0.98]",
                 isNewChatDisabled && "cursor-not-allowed opacity-50 hover:bg-transparent active:scale-100",
               )}
             >
-              <SquarePen size={18} className="text-zinc-200" />
+              <SquarePen size={18} className="text-[var(--ag-color-icon-on-rail,#C9D6EA)]" />
               <span className="text-[14px]">{t("newChat")}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => setIsSearchModalOpen(true)}
-              className="flex items-center gap-3 text-zinc-100 font-medium rounded-lg transition-all w-full py-2 px-3 hover:bg-white/5 active:scale-[0.98]"
+              className="flex items-center gap-3 text-[var(--ag-color-rail-text,#C9D6EA)] font-medium rounded-lg transition-all w-full py-2 px-3 hover:bg-white/5 active:scale-[0.98]"
             >
-              <Search size={18} className="text-zinc-200" />
+              <Search size={18} className="text-[var(--ag-color-icon-on-rail,#C9D6EA)]" />
               <span className="text-[14px]">{t("searchChat")}</span>
             </button>
 
-            <button 
+            <button
               onClick={onOpenFileLibrary}
-              className="flex items-center gap-3 text-zinc-100 font-medium rounded-lg transition-all w-full py-2 px-3 hover:bg-white/5 active:scale-[0.98]"
+              className="flex items-center gap-3 text-[var(--ag-color-rail-text,#C9D6EA)] font-medium rounded-lg transition-all w-full py-2 px-3 hover:bg-white/5 active:scale-[0.98]"
             >
-              <Library size={18} className="text-zinc-200" />
+              <Library size={18} className="text-[var(--ag-color-icon-on-rail,#C9D6EA)]" />
               <span className="text-[14px]">{t("fileLibrary")}</span>
             </button>
 
             <button
               onClick={() => setIsBirdCoderModalOpen(true)}
-              className="flex items-center gap-3 text-zinc-100 font-medium rounded-lg transition-all w-full py-2 px-3 hover:bg-white/5 active:scale-[0.98]"
+              className="flex items-center gap-3 text-[var(--ag-color-rail-text,#C9D6EA)] font-medium rounded-lg transition-all w-full py-2 px-3 hover:bg-white/5 active:scale-[0.98]"
             >
-              <Bot size={18} className="text-zinc-200" />
+              <Bot size={18} className="text-[var(--ag-color-icon-on-rail,#C9D6EA)]" />
               <span className="text-[14px]">{t("codex")}</span>
             </button>
           </div>
@@ -297,7 +297,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onProjectDelete={onProjectDelete}
             />
 
-            <div className="px-4 text-[15px] font-bold text-zinc-100 mt-6 mb-2">
+            <div className="px-4 text-[15px] font-bold text-[var(--ag-color-rail-text,#C9D6EA)] mt-6 mb-2">
               聊天
             </div>
 
@@ -334,7 +334,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       />
                     ))}
                 </div>
-              </div>
+                </div>
             )}
 
             {/* Category B: Recent (最近) */}
@@ -376,9 +376,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      </div>
+            </div>
+            </div>
+            </div>
       <BirdCoderModal
         isOpen={isBirdCoderModalOpen}
         onClose={() => setIsBirdCoderModalOpen(false)}

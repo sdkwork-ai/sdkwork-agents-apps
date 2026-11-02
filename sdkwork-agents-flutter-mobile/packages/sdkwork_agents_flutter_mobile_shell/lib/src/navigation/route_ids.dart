@@ -17,9 +17,18 @@ const String agentsConversationChatRouteId = 'app.agents.conversation.chat';
 const String agentsConversationListRouteId = 'app.agents.conversation.list';
 const String agentsCatalogListRouteId = 'app.agents.catalog.list';
 const String agentsCatalogEditorRouteId = 'app.agents.catalog.editor';
+const String agentsInspirationDiscoverRouteId =
+    'app.agents.inspiration.discover';
+const String agentsCreativeStudioRouteId = 'app.agents.creative.studio';
+const String agentsAssetsListRouteId = 'app.agents.assets.list';
+const String agentsAssetsDetailRouteId = 'app.agents.assets.detail';
+const String agentsCanvasBoardRouteId = 'app.agents.canvas.board';
+const String agentsMembershipCatalogRouteId = 'app.agents.membership.catalog';
+const String agentsProfileIndexRouteId = 'app.agents.profile.index';
 const String agentsLibraryListRouteId = 'app.agents.library.list';
 const String agentsAutomationIndexRouteId = 'app.agents.automation.index';
 const String agentsProjectsListRouteId = 'app.agents.projects.list';
+const String agentsSettingsIndexRouteId = 'app.agents.settings.index';
 
 // --- Physical Flutter route names ------------------------------------------
 
@@ -27,9 +36,17 @@ const String agentsConversationRouteName = '/conversation';
 const String agentsConversationHistoryRouteName = '/conversation/history';
 const String agentsCatalogRouteName = '/agents';
 const String agentsCatalogEditorRouteName = '/agents/editor';
+const String agentsInspirationRouteName = '/inspiration';
+const String agentsCreativeRouteName = '/creative';
+const String agentsAssetsRouteName = '/assets';
+const String agentsAssetsDetailRouteName = '/assets/detail';
+const String agentsCanvasRouteName = '/canvas';
+const String agentsMembershipRouteName = '/membership';
+const String agentsProfileRouteName = '/profile';
 const String agentsLibraryRouteName = '/library';
 const String agentsAutomationRouteName = '/automation';
 const String agentsProjectsRouteName = '/projects';
+const String agentsSettingsRouteName = '/settings';
 
 /// The four route-id segments a contribution must decompose into.
 class AgentsRouteSegments {

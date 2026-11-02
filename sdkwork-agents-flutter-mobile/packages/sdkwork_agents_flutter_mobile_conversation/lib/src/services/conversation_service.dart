@@ -68,7 +68,8 @@ abstract class AgentsConversationService {
 
   Future<void> deleteSession(String sessionId);
 
-  Future<AgentsConversationMessagePage> listMessages(String sessionId, {String? cursor});
+  Future<AgentsConversationMessagePage> listMessages(String sessionId,
+      {String? cursor});
 
   /// Streams one turn; deltas arrive through [handlers].
   Future<AgentsConversationTurnResult> streamTurn(
@@ -235,7 +236,8 @@ class _AgentsConversationServiceImpl implements AgentsConversationService {
     required this.client,
     required Future<String> Function({String? preferred}) resolveDefaultModel,
     required this.resolveAgentId,
-    required Future<AgentsConversationSession> Function(String title) createSession,
+    required Future<AgentsConversationSession> Function(String title)
+        createSession,
     required this.dispatchRichEvent,
   })  : _resolveDefaultModel = resolveDefaultModel,
         _createSession = createSession;
@@ -258,8 +260,8 @@ class _AgentsConversationServiceImpl implements AgentsConversationService {
   @override
   Future<List<AgentsConversationSession>> listSessions() async {
     final agentId = await resolveAgentId();
-    final response =
-        await client.ai.agentsSessionsList(agentId, null, agentsConversationSessionPageSize);
+    final response = await client.ai
+        .agentsSessionsList(agentId, null, agentsConversationSessionPageSize);
     final sessions = <AgentsConversationSession>[];
     for (final record in sdkworkAgentsPageItems(response?.data)) {
       final mapped = mapAgentsConversationSession(record);
@@ -330,7 +332,8 @@ class _AgentsConversationServiceImpl implements AgentsConversationService {
       content: content,
       contentType: contentType,
       turnMode: 'interactive',
-      systemPrompt: systemPrompt == null || systemPrompt.isEmpty ? null : systemPrompt,
+      systemPrompt:
+          systemPrompt == null || systemPrompt.isEmpty ? null : systemPrompt,
       wireProtocol: input.wireProtocol,
       requestedAt: DateTime.now().toUtc().toIso8601String(),
       idempotencyKey: requestId,
@@ -379,6 +382,7 @@ class _AgentsConversationServiceImpl implements AgentsConversationService {
         );
       }
     }
-    throw StateError('Agent turn stream did not return an assistant_output item.');
+    throw StateError(
+        'Agent turn stream did not return an assistant_output item.');
   }
 }

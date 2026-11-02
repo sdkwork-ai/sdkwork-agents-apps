@@ -16,7 +16,9 @@ import 'package:sdkwork_agents_app_sdk/sdkwork_agents_app_sdk.dart';
 /// carries a single-resource payload instead.
 SdkWorkPageData? sdkworkAgentsPageData(Object? data) {
   final map = sdkworkAgentsAsMap(data);
-  if (map == null || !map.containsKey('items') || sdkworkAgentsAsMap(map['pageInfo']) == null) {
+  if (map == null ||
+      !map.containsKey('items') ||
+      sdkworkAgentsAsMap(map['pageInfo']) == null) {
     return null;
   }
   return SdkWorkPageData.fromJson(map);
@@ -39,7 +41,8 @@ Map<String, dynamic>? sdkworkAgentsAsMap(Object? value) {
   }
   if (value is Map) {
     return value.map<String, dynamic>(
-      (Object? key, Object? item) => MapEntry<String, dynamic>(key.toString(), item),
+      (Object? key, Object? item) =>
+          MapEntry<String, dynamic>(key.toString(), item),
     );
   }
   return null;

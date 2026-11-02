@@ -1,0 +1,101 @@
+/* Shared app-bar / card / link-row styles live in app.wxss. */
+
+.identity-card {
+  margin-bottom: 24rpx;
+}
+
+.identity-body {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 16rpx;
+}
+
+/*
+ * Native <button> reset: WeChat draws its own outline and a 1px ::after ring.
+ * These are platform chrome, so they are zeroed with width/style declarations
+ * (no visible line value) to keep the avatar flat.
+ */
+.identity-avatar-button {
+  width: 128rpx;
+  height: 128rpx;
+  padding: 0;
+  margin: 0 24rpx 0 0;
+  line-height: 1;
+  border-width: 0;
+  border-style: none;
+  border-radius: 50%;
+  background: transparent;
+  overflow: hidden;
+}
+
+.identity-avatar-button::after {
+  border-width: 0;
+  border-style: none;
+}
+
+.identity-avatar {
+  display: block;
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.identity-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.identity-avatar-glyph {
+  font-size: 44rpx;
+  color: var(--icon-active);
+}
+
+.identity-fields {
+  flex: 1;
+  min-width: 0;
+}
+
+.identity-nickname {
+  margin-bottom: 8rpx;
+}
+
+.account-row {
+  margin-top: 12rpx;
+}
+
+.account-state {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.account-environment {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--text-muted);
+}
+
+.membership-header {
+  display: flex;
+  align-items: center;
+}
+
+.membership-label {
+  flex: 1;
+}
+
+.text-action {
+  display: flex;
+  align-items: center;
+  min-height: 88rpx;
+  font-size: 26rpx;
+  color: var(--accent);
+}

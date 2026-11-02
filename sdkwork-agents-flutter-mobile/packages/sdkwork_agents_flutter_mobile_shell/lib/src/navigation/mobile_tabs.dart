@@ -1,8 +1,9 @@
 /// Bottom tab descriptors for the Agents Flutter mobile shell.
 ///
-/// The tab set and the route id behind each tab are identical to the H5 and
-/// mini program roots; only the physical Flutter route name differs
-/// (`APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md` sections 4 and 7).
+/// Authority: `specs/client-page-parity.spec.json` (`navigation.mobileBottomTabs`)
+/// and `APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md` section 7. The five slots are
+/// the PC workbench's primary surfaces in the contract's order; the remaining
+/// PC pages stay reachable from the profile hub ([agentsMobileProfileLinks]).
 ///
 /// Tab labels are resolved through an injected translator so the shell package
 /// stays free of locale resources; the composition root wires the copy in.
@@ -11,12 +12,16 @@ library;
 import 'route_ids.dart';
 
 /// Stable tab identifiers shared by every mobile root.
-enum AgentsMobileTabId { tasks, experts, library, automation, projects }
+enum AgentsMobileTabId { tasks, inspiration, creative, assets, experts }
 
 /// Glyph vocabulary shared with the PC/H5 icon set and the mini program
 /// text-symbol projection.
 abstract final class AgentsMobileTabGlyphs {
   static const String messageSquare = 'message-square';
+  static const String sparkles = 'sparkles';
+  static const String wand = 'wand';
+  static const String image = 'image';
+  static const String bot = 'bot';
   static const String infinity = 'infinity';
   static const String bookOpen = 'book-open';
   static const String timer = 'timer';
@@ -48,7 +53,11 @@ class AgentsMobileTabDescriptor {
 }
 
 /// The five mobile tabs, in bottom-bar order.
-const List<AgentsMobileTabDescriptor> agentsMobileTabs = <AgentsMobileTabDescriptor>[
+///
+/// This literal order is the navigation contract; `bootstrap/routes.dart`
+/// asserts the route contributions match it index by index.
+const List<AgentsMobileTabDescriptor> agentsMobileTabs =
+    <AgentsMobileTabDescriptor>[
   AgentsMobileTabDescriptor(
     tab: AgentsMobileTabId.tasks,
     routeId: agentsConversationChatRouteId,
@@ -57,33 +66,47 @@ const List<AgentsMobileTabDescriptor> agentsMobileTabs = <AgentsMobileTabDescrip
     glyph: AgentsMobileTabGlyphs.messageSquare,
   ),
   AgentsMobileTabDescriptor(
+    tab: AgentsMobileTabId.inspiration,
+    routeId: agentsInspirationDiscoverRouteId,
+    routeName: agentsInspirationRouteName,
+    labelKey: 'agents.mobile.tab.inspiration',
+    glyph: AgentsMobileTabGlyphs.sparkles,
+  ),
+  AgentsMobileTabDescriptor(
+    tab: AgentsMobileTabId.creative,
+    routeId: agentsCreativeStudioRouteId,
+    routeName: agentsCreativeRouteName,
+    labelKey: 'agents.mobile.tab.creative',
+    glyph: AgentsMobileTabGlyphs.wand,
+  ),
+  AgentsMobileTabDescriptor(
+    tab: AgentsMobileTabId.assets,
+    routeId: agentsAssetsListRouteId,
+    routeName: agentsAssetsRouteName,
+    labelKey: 'agents.mobile.tab.assets',
+    glyph: AgentsMobileTabGlyphs.image,
+  ),
+  AgentsMobileTabDescriptor(
     tab: AgentsMobileTabId.experts,
     routeId: agentsCatalogListRouteId,
     routeName: agentsCatalogRouteName,
     labelKey: 'agents.mobile.tab.experts',
-    glyph: AgentsMobileTabGlyphs.infinity,
+    glyph: AgentsMobileTabGlyphs.bot,
   ),
-  AgentsMobileTabDescriptor(
-    tab: AgentsMobileTabId.library,
-    routeId: agentsLibraryListRouteId,
-    routeName: agentsLibraryRouteName,
-    labelKey: 'agents.mobile.tab.library',
-    glyph: AgentsMobileTabGlyphs.bookOpen,
-  ),
-  AgentsMobileTabDescriptor(
-    tab: AgentsMobileTabId.automation,
-    routeId: agentsAutomationIndexRouteId,
-    routeName: agentsAutomationRouteName,
-    labelKey: 'agents.mobile.tab.automation',
-    glyph: AgentsMobileTabGlyphs.timer,
-  ),
-  AgentsMobileTabDescriptor(
-    tab: AgentsMobileTabId.projects,
-    routeId: agentsProjectsListRouteId,
-    routeName: agentsProjectsRouteName,
-    labelKey: 'agents.mobile.tab.projects',
-    glyph: AgentsMobileTabGlyphs.shareTwo,
-  ),
+];
+
+/// Route ids reachable from the profile hub, in contract order.
+///
+/// Authority: `specs/client-page-parity.spec.json`
+/// (`navigation.mobileProfileLinks`). The profile package renders exactly this
+/// list and the root asserts each id is a registered non-tab contribution.
+const List<String> agentsMobileProfileLinks = <String>[
+  agentsMembershipCatalogRouteId,
+  agentsProjectsListRouteId,
+  agentsLibraryListRouteId,
+  agentsAutomationIndexRouteId,
+  agentsConversationListRouteId,
+  agentsSettingsIndexRouteId,
 ];
 
 /// Resolves the tab that owns a route id, or `null` for nested surfaces.

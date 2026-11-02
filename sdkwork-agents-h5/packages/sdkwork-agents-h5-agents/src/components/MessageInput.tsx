@@ -183,7 +183,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     editable: !disabled && !isTyping,
     editorProps: {
       attributes: {
-        class: 'w-full h-full bg-transparent outline-none text-[15px] text-[var(--color-text-main,#e5e7eb)] font-sans leading-relaxed',
+        class: 'w-full h-full bg-transparent outline-none text-[15px] text-[var(--color-text-main,#0A1B3D)] font-sans leading-relaxed',
       },
     },
     onUpdate: ({ editor }: { editor: Editor }) => {
@@ -362,27 +362,27 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       {/* Drag Handle */}
       {resizable && (
         <div 
-          className="absolute top-0 left-0 right-0 h-3 cursor-ns-resize hover:bg-white/5 transition-colors z-10 flex items-center justify-center group"
+          className="absolute top-0 left-0 right-0 h-3 cursor-ns-resize hover:bg-[var(--color-surface-muted,#EAF1FB)] transition-colors z-10 flex items-center justify-center group"
           onMouseDown={handleMouseDown}
         >
-          <div className="w-10 h-1 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="w-10 h-1 rounded-full bg-[var(--color-surface-strong,#DCE8F9)] opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       )}
 
       {/* AI Style Input Container */}
-      <div className={`bg-[var(--color-input-bg,#2b2b2d)] rounded-2xl flex flex-col shadow-sm transition-all focus-within:bg-[var(--color-hover-bg,#2f2f33)] min-h-0 flex-1 relative ${disabled || isTyping ? 'opacity-70' : ''}`}>
+      <div className={`bg-[var(--color-input-bg,#EAF1FB)] rounded-2xl flex flex-col transition-colors focus-within:bg-[var(--color-surface-color,#FFFFFF)] min-h-0 flex-1 relative ${disabled || isTyping ? 'opacity-70' : ''}`}>
         
         {/* Reply Preview */}
         {replyingTo && (
-          <div className="flex items-center justify-between px-4 py-2 bg-[var(--color-hover-bg,rgba(255,255,255,0.05))] border-b border-[var(--color-border-color,rgba(255,255,255,0.1))] rounded-t-2xl shrink-0">
+          <div className="flex items-center justify-between px-4 py-2 bg-[var(--color-hover-bg,#EAF1FB)] rounded-t-2xl shrink-0">
             <div className="flex items-center gap-2 min-w-0">
-              <Reply size={14} className="text-[var(--color-text-sub,#9ca3af)] shrink-0" />
-              <span className="text-[12px] text-[var(--color-text-sub,#9ca3af)] font-medium shrink-0">{t('chat.messageInput.replyPrefix', { name: replyingTo.senderName })}</span>
-              <span className="text-[12px] text-[var(--color-text-sub,#6b7280)] truncate">{replyingTo.content}</span>
+              <Reply size={14} className="text-[var(--color-icon-default,#5B6B88)] shrink-0" />
+              <span className="text-[12px] text-[var(--color-text-sub,#5B6B88)] font-medium shrink-0">{t('chat.messageInput.replyPrefix', { name: replyingTo.senderName })}</span>
+              <span className="text-[12px] text-[var(--color-text-sub,#5B6B88)] truncate">{replyingTo.content}</span>
             </div>
             <button 
               onClick={onCancelReply}
-              className="text-[var(--color-text-sub,#6b7280)] hover:text-[var(--color-text-main,#d1d5db)] transition-colors shrink-0 ml-2"
+              className="text-[var(--color-text-sub,#5B6B88)] hover:text-[var(--color-text-main,#0A1B3D)] transition-colors shrink-0 ml-2"
             >
               <X size={14} />
             </button>
@@ -395,7 +395,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               (outer padding 20px + row padding 12px) so the actions stay
               visible and the text scrolls instead of overflowing. */}
           <div 
-            className={cn("flex-1 min-w-0 min-h-[40px] overflow-y-auto custom-scrollbar px-2.5 py-1.5 relative flex flex-col justify-center transition-colors", isDragOver ? "bg-[var(--color-hover-bg,#3a3a3a)]" : "")}
+            className={cn("flex-1 min-w-0 min-h-[40px] overflow-y-auto custom-scrollbar px-2.5 py-1.5 relative flex flex-col justify-center transition-colors", isDragOver ? "bg-[var(--color-hover-bg,#EAF1FB)]" : "")}
             style={{ maxHeight: `calc(${maxHeightPx !== undefined ? `${maxHeightPx}px` : '50vh'} - 32px)` }}
             onKeyDownCapture={handleKeyDown}
             onPaste={handlePaste}
@@ -404,9 +404,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             onDrop={handleDrop}
           >
             {isDragOver && (
-              <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#1e1e1e]/80 backdrop-blur-sm shadow-inner rounded-lg m-2 border-2 border-dashed border-indigo-500/50">
-                 <ArrowUp size={32} className="text-indigo-400 mb-2 animate-bounce" />
-                 <p className="text-[var(--color-text-main,#e5e7eb)] font-medium">{t('chat.messageInput.dropToSend')}</p>
+              <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[var(--color-primary-subtle,#E8F0FF)] rounded-lg m-2">
+                 <ArrowUp size={32} className="text-[var(--color-icon-active,#165DFF)] mb-2 animate-bounce" />
+                 <p className="text-[var(--color-text-main,#0A1B3D)] font-medium">{t('chat.messageInput.dropToSend')}</p>
               </div>
             )}
             <EditorContent editor={editor} />
@@ -469,7 +469,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 }
               }}
               disabled={disabled || isTyping}
-              className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[var(--color-text-sub,#9ca3af)] hover:text-[var(--color-text-main,#e5e7eb)] hover:bg-[var(--color-hover-bg,rgba(255,255,255,0.05))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[var(--color-text-sub,#5B6B88)] hover:text-[var(--color-text-main,#0A1B3D)] hover:bg-[var(--color-hover-bg,#EAF1FB)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Scissors size={18} />
             </motion.button>
@@ -482,7 +482,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               title={t('chat.messageInput.actions.history')}
               onClick={onHistoryClick}
               disabled={disabled || isTyping}
-              className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[var(--color-text-sub,#9ca3af)] hover:text-[var(--color-text-main,#e5e7eb)] hover:bg-[var(--color-hover-bg,rgba(255,255,255,0.05))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[var(--color-text-sub,#5B6B88)] hover:text-[var(--color-text-main,#0A1B3D)] hover:bg-[var(--color-hover-bg,#EAF1FB)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Clock size={18} />
             </motion.button>
@@ -494,7 +494,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             title={t('chat.messageInput.actions.sendFile')}
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled || isTyping}
-            className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[var(--color-text-sub,#9ca3af)] hover:text-[var(--color-text-main,#e5e7eb)] hover:bg-[var(--color-hover-bg,rgba(255,255,255,0.05))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[var(--color-text-sub,#5B6B88)] hover:text-[var(--color-text-main,#0A1B3D)] hover:bg-[var(--color-hover-bg,#EAF1FB)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Paperclip size={18} />
           </motion.button>
@@ -506,7 +506,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               whileTap={{ scale: 0.9 }}
               title={t('chat.messageInput.actions.emoji')}
               disabled={disabled || isTyping}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${showEmojiPicker ? 'text-[#00b42a] bg-[#00b42a]/10' : 'text-[var(--color-text-sub,#9ca3af)] hover:text-[var(--color-text-main,#e5e7eb)] hover:bg-[var(--color-hover-bg,rgba(255,255,255,0.05))]'}`}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${showEmojiPicker ? 'text-[var(--color-success,#00B42A)] bg-[var(--color-success,#00B42A)]/10' : 'text-[var(--color-text-sub,#5B6B88)] hover:text-[var(--color-text-main,#0A1B3D)] hover:bg-[var(--color-hover-bg,#EAF1FB)]'}`}
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             >
               <Smile size={18} />
@@ -540,10 +540,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             title={isRecording ? t('chat.messageInput.actions.stopRecording') : t('chat.messageInput.actions.recordVoice')}
             onClick={toggleVoiceRecording}
             disabled={disabled || isTyping}
-            className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative ${isRecording ? 'text-[#00b42a] bg-[#00b42a]/10 hover:bg-[#00b42a]/20' : 'text-[var(--color-text-sub,#9ca3af)] hover:text-[var(--color-text-main,#e5e7eb)] hover:bg-[var(--color-hover-bg,rgba(255,255,255,0.05))]'}`}
+            className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative ${isRecording ? 'text-[var(--color-success,#00B42A)] bg-[var(--color-success,#00B42A)]/10 hover:bg-[var(--color-success,#00B42A)]/20' : 'text-[var(--color-text-sub,#5B6B88)] hover:text-[var(--color-text-main,#0A1B3D)] hover:bg-[var(--color-hover-bg,#EAF1FB)]'}`}
           >
             <Mic size={18} className={isRecording ? 'animate-pulse' : ''} />
-            {isRecording && <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#00b42a] text-white text-[11px] px-2 py-0.5 rounded shadow-sm whitespace-nowrap">{voiceDuration}s</div>}
+            {isRecording && <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--color-success,#00B42A)] text-white text-[11px] px-2 py-0.5 rounded whitespace-nowrap">{voiceDuration}s</div>}
           </motion.button>
 
           {isTyping ? (
@@ -552,7 +552,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               whileTap={{ scale: 0.9 }}
               title={t('chat.messageInput.actions.stopGenerating')}
               onClick={onStop}
-              className="w-8 h-8 shrink-0 rounded-full bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center text-red-500 transition-colors shadow-sm"
+              className="w-8 h-8 shrink-0 rounded-full bg-[var(--color-danger-bg,#FFF1F0)] hover:bg-[var(--color-danger,#F53F3F)]/30 flex items-center justify-center text-[var(--color-danger,#F53F3F)] transition-colors"
             >
               <StopCircle size={18} strokeWidth={2.5} />
             </motion.button>
@@ -563,7 +563,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               title={t('chat.messageInput.actions.send')}
               onClick={handleSend}
               disabled={disabled || isEmpty}
-              className="w-8 h-8 shrink-0 rounded-full bg-[var(--color-primary-blue,#00b42a)] hover:bg-[var(--color-primary-blue,#009a24)] disabled:bg-[var(--color-hover-bg,rgba(255,255,255,0.1))] disabled:text-[var(--color-text-sub,#6b7280)] flex items-center justify-center text-white transition-colors shadow-sm"
+              className="w-8 h-8 shrink-0 rounded-full bg-[var(--color-primary-blue,#165DFF)] hover:bg-[var(--color-primary-blue,#165DFF)] disabled:bg-[var(--color-hover-bg,#EAF1FB)] disabled:text-[var(--color-text-sub,#5B6B88)] flex items-center justify-center text-white transition-colors"
             >
               <ArrowUp size={18} strokeWidth={2.5} />
             </motion.button>

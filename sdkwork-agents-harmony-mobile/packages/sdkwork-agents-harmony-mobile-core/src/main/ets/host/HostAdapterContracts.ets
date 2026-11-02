@@ -27,3 +27,22 @@ export interface NetworkStatusAdapter {
 export interface AppLifecycleAdapter {
   currentState(): Promise<HostAdapterResult<string>>;
 }
+
+/**
+ * Non-sensitive preference storage (HarmonyOS `preferences`).
+ *
+ * Authority: `HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md` section 7 — the platform
+ * API stays in the host package; settings UI depends on this interface only.
+ * Tokens and credentials do not belong here; they use `SecureStorageAdapter`.
+ */
+export interface PreferencesAdapter {
+  read(key: string): Promise<HostAdapterResult<string>>;
+  write(key: string, value: string): Promise<HostAdapterResult<void>>;
+  remove(key: string): Promise<HostAdapterResult<void>>;
+}
+
+/** Read-only device facts the shell needs (locale, theme, device class). */
+export interface DeviceInfoAdapter {
+  /** Resolved system language tag, for example `zh-Hans-CN`. */
+  systemLanguage(): Promise<HostAdapterResult<string>>;
+}

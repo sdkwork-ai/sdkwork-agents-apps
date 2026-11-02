@@ -1,0 +1,19 @@
+{
+  "agents.profile.title": "Profile",
+  "agents.profile.signedInTitle": "Signed-in account",
+  "agents.profile.signedOutTitle": "Not signed in",
+  "agents.profile.signedInHint": "This session is authorized",
+  "agents.profile.signedOutHint": "Install an access token to use the app",
+  "agents.profile.accountLabel": "Account",
+  "agents.profile.localeLabel": "Language",
+  "agents.profile.loading": "Loading profile",
+  "agents.profile.loadFailed": "Failed to load the profile. Please retry.",
+  "agents.profile.retry": "Retry",
+  "agents.profile.links.title": "More",
+  "agents.profile.link.membership": "Membership",
+  "agents.profile.link.projects": "Projects",
+  "agents.profile.link.library": "Library",
+  "agents.profile.link.automation": "Automation",
+  "agents.profile.link.history": "Chat history",
+  "agents.profile.link.settings": "Settings"
+}

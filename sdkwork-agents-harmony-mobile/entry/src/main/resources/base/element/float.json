@@ -1,0 +1,64 @@
+{
+  "float": [
+    {
+      "name": "theme_border_width",
+      "value": "0vp"
+    },
+    {
+      "name": "theme_elevation_none",
+      "value": "0vp"
+    },
+    {
+      "name": "theme_radius_sm",
+      "value": "8vp"
+    },
+    {
+      "name": "theme_radius_md",
+      "value": "12vp"
+    },
+    {
+      "name": "theme_radius_lg",
+      "value": "16vp"
+    },
+    {
+      "name": "theme_radius_pill",
+      "value": "999vp"
+    },
+    {
+      "name": "theme_spacing_xs",
+      "value": "4vp"
+    },
+    {
+      "name": "theme_spacing_sm",
+      "value": "8vp"
+    },
+    {
+      "name": "theme_spacing_md",
+      "value": "16vp"
+    },
+    {
+      "name": "theme_spacing_lg",
+      "value": "24vp"
+    },
+    {
+      "name": "theme_spacing_xl",
+      "value": "32vp"
+    },
+    {
+      "name": "theme_focus_outline_width",
+      "value": "2vp"
+    },
+    {
+      "name": "theme_focus_outline_offset",
+      "value": "2vp"
+    },
+    {
+      "name": "theme_min_touch_target",
+      "value": "44vp"
+    },
+    {
+      "name": "theme_tab_bar_height",
+      "value": "64vp"
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+<view class="page {{themeClass}}" style="padding-bottom: {{bottomInset}}px;">
+  <view class="app-bar" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
+    <view class="app-bar-inner">
+      <view class="app-bar-titles app-bar-titles-left">
+        <text class="app-bar-title">{{t.title}}</text>
+      </view>
+      <view
+        class="app-bar-avatar"
+        bindtap="onOpenProfile"
+        aria-role="button"
+        aria-label="{{t.profileEntry}}"
+      >
+        <text class="app-bar-avatar-glyph">我</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content" style="margin-top: {{headerHeight}}px;">
+    <view class="chip-row">
+      <view
+        wx:for="{{filters}}"
+        wx:key="kind"
+        class="chip {{kind === item.kind ? 'is-active' : ''}}"
+        data-kind="{{item.kind}}"
+        bindtap="onFilterTap"
+        aria-role="button"
+      >{{item.label}}</view>
+    </view>
+
+    <view wx:if="{{status === 'loading'}}" class="status">{{t.loading}}</view>
+
+    <view wx:elif="{{status === 'error'}}" class="state-card">
+      <text class="state-title">{{t.loadFailed}}</text>
+      <view class="state-actions">
+        <view class="secondary-button" bindtap="onRetry" aria-role="button">{{t.retry}}</view>
+      </view>
+    </view>
+
+    <view wx:elif="{{status === 'empty'}}" class="status">{{t.empty}}</view>
+    <view wx:elif="{{status === 'emptyFiltered'}}" class="status">{{t.emptyFiltered}}</view>
+
+    <block wx:else>
+      <text wx:if="{{countText}}" class="status status-note">{{countText}}</text>
+      <block wx:for="{{groups}}" wx:for-item="group" wx:key="dateKey">
+        <view class="group">
+          <text class="section-title">{{group.label}}</text>
+          <view class="grid">
+            <view
+              wx:for="{{group.items}}"
+              wx:for-item="asset"
+              wx:key="id"
+              class="grid-tile"
+              data-id="{{asset.id}}"
+              bindtap="onAssetTap"
+              aria-role="button"
+              aria-label="{{asset.kindLabel}} {{asset.title}}"
+            >
+              <view class="tile">
+                <image
+                  wx:if="{{asset.kind === 'image' && asset.previewUrl}}"
+                  class="tile-media"
+                  src="{{asset.previewUrl}}"
+                  mode="aspectFill"
+                  lazy-load
+                />
+                <view wx:else class="tile-fallback">{{asset.kindLabel}}</view>
+                <text class="tile-caption">{{asset.title}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </block>
+  </view>
+
+  <view
+    wx:if="{{detailOpen}}"
+    class="sheet-mask"
+    bindtap="onCloseDetail"
+    aria-role="button"
+    aria-label="{{t.close}}"
+  ></view>
+  <view wx:if="{{detailOpen}}" class="sheet">
+    <view class="sheet-header">
+      <text class="sheet-title">{{t.detailTitle}}</text>
+      <view
+        class="sheet-close"
+        bindtap="onCloseDetail"
+        aria-role="button"
+        aria-label="{{t.close}}"
+      >✕</view>
+    </view>
+
+    <block wx:if="{{detail}}">
+      <image
+        wx:if="{{detail.kind === 'image' && detail.previewUrl}}"
+        class="detail-media"
+        src="{{detail.previewUrl}}"
+        mode="widthFix"
+        show-menu-by-longpress
+      />
+      <video
+        wx:elif="{{detail.kind === 'video' && detail.previewUrl}}"
+        class="detail-media"
+        src="{{detail.previewUrl}}"
+        controls
+      ></video>
+      <view wx:elif="{{detail.kind === 'audio' && detail.previewUrl}}" class="detail-action">
+        <view class="secondary-button" bindtap="onToggleAudio" aria-role="button">
+          {{detailPlaying ? t.pause : t.play}}
+        </view>
+      </view>
+      <view wx:elif="{{detail.previewUrl}}" class="detail-action">
+        <view class="secondary-button" bindtap="onOpenDocument" aria-role="button">{{t.open}}</view>
+      </view>
+      <text wx:else class="state-detail">{{t.emptyPreview}}</text>
+
+      <view class="detail-row">
+        <text class="detail-key">{{t.detailKind}}</text>
+        <text class="detail-value">{{detail.kindLabel}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-key">{{t.detailCreatedAt}}</text>
+        <text class="detail-value">{{detail.createdAtText}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-key">{{t.detailSource}}</text>
+        <text class="detail-value">{{detail.title}}</text>
+      </view>
+    </block>
+  </view>
+</view>

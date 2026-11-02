@@ -4,10 +4,10 @@ import { cn } from '@sdkwork/agents-pc-commons';
 interface AlignGuide {
   id: string;
   type: 'h' | 'v'; // h = horizontal line, v = vertical line
-  coord: number;   // target axis coordinate
-  start: number;   // bounding box line start
-  end: number;     // bounding box line end
-  label?: string;  // descriptive label
+  coord: number; // target axis coordinate
+  start: number; // bounding box line start
+  end: number; // bounding box line end
+  label?: string; // descriptive label
 }
 
 interface CanvasAlignGuidesProps {
@@ -32,14 +32,14 @@ export const CanvasAlignGuides: React.FC<CanvasAlignGuidesProps> = ({ guides }) 
             pointerEvents: 'none'
           }}
           className={cn(
-            "border-dashed transition-opacity duration-150 flex items-center justify-center",
-            guide.type === 'v' 
-              ? "border-l border-cyan-400/85 shadow-[0_0_8px_rgba(34,211,238,0.4)]" 
-              : "border-t border-cyan-400/85 shadow-[0_0_8px_rgba(34,211,238,0.4)]"
+            "transition-opacity duration-150 flex items-center justify-center",
+            guide.type === 'v'
+            ? ""
+            : ""
           )}
         >
           {guide.label && (
-            <span className="absolute px-1.5 py-0.5 rounded bg-cyan-950/95 border border-cyan-400/30 text-cyan-300 text-[9px] font-bold whitespace-nowrap scale-90 translate-x-4 -translate-y-4 select-none shadow-md font-sans">
+            <span className="absolute px-1.5 py-0.5 rounded bg-[#0A1B3D]/95 text-[#4080FF] text-[9px] font-bold whitespace-nowrap scale-90 translate-x-4 -translate-y-4 select-none font-sans">
               {guide.label}
             </span>
           )}

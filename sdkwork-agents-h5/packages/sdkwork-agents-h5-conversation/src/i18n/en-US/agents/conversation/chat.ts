@@ -33,6 +33,13 @@ export const agentsConversationChatEnUs = {
   "agents.conversation.sessions.cancel": "Cancel",
   "agents.conversation.sessions.confirm": "Confirm",
 
+  "agents.mobile.history.title": "Chat history",
+  "agents.conversation.history.search": "Search sessions",
+  "agents.conversation.history.open": "Open session",
+  "agents.conversation.history.loadFailed": "Could not load chat history. Try again.",
+  "agents.conversation.history.deleteFailed": "Could not delete the session. Try again.",
+  "agents.conversation.history.updatedAt": "Updated {{date}}",
+
   "agents.conversation.message.copy": "Copy",
   "agents.conversation.message.copied": "Copied",
   "agents.conversation.message.copyFailed": "Copy failed",

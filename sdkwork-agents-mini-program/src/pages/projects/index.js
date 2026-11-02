@@ -30,6 +30,7 @@ Page({
     loading: true,
     errorMessage: "",
     truncatedText: "",
+    themeClass: "",
   },
 
   onLoad() {
@@ -38,17 +39,23 @@ Page({
       t: buildCopy(),
       statusBarHeight: insets.statusBarHeight,
       headerHeight: insets.headerHeight,
-      bottomInset: 52 + insets.safeAreaBottom,
+      bottomInset: insets.safeAreaBottom,
     });
     this.services = runtime.getAgentsMpRuntimeServices();
     this.loadProjects();
   },
 
   onShow() {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar) {
-      tabBar.setActive("projects");
+    // Re-apply the stored theme so returning from Settings repaints this page.
+    this.setData({ themeClass: runtime.resolveAgentsMpThemeClass() });
+  },
+
+  onBack() {
+    if (getCurrentPages().length > 1) {
+      wx.navigateBack();
+      return;
     }
+    wx.switchTab({ url: "/pages/conversation/index" });
   },
 
   onPullDownRefresh() {

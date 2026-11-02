@@ -33,7 +33,9 @@ String resolveSdkworkAgentsLocaleTag(String value) {
 
 SdkworkAgentsLocale normalizeSdkworkAgentsLocale(String value) {
   final normalized = value.trim().toLowerCase();
-  return normalized.startsWith('zh') ? SdkworkAgentsLocale.zhCn : SdkworkAgentsLocale.enUs;
+  return normalized.startsWith('zh')
+      ? SdkworkAgentsLocale.zhCn
+      : SdkworkAgentsLocale.enUs;
 }
 
 String pickSdkworkAgentsMessage(

@@ -4,6 +4,7 @@ import {
   assertAgentsMpRouteContributionsAligned,
   listAgentsMpRootPages,
   projectAgentsMpPages,
+  shellMpRouteContributions,
   type AgentsMpRouteContribution,
 } from "@sdkwork/agents-mp-shell";
 import { conversationMpRouteContributions } from "@sdkwork/agents-mp-conversation";
@@ -28,6 +29,7 @@ export function createRoutes(): AgentsMpRouteContribution[] {
   const contributions = [
     ...conversationMpRouteContributions,
     ...agentsMpRouteContributions,
+    ...shellMpRouteContributions,
     ...libraryMpRouteContributions,
     ...automationMpRouteContributions,
     ...projectsMpRouteContributions,

@@ -2,6 +2,8 @@ import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
+import { preserveAgentsHarmonyShellState } from '@sdkwork/sdkwork-agents-harmony-mobile-shell';
+
 import { bootstrapAgentsHarmonyApp } from '../bootstrap/Runtime';
 
 const DOMAIN: number = 0x0000;
@@ -11,7 +13,8 @@ const TAG: string = 'SdkworkAgentsEntry';
  * HarmonyOS entry ability.
  *
  * This module stays thin by contract: it wires the bootstrap/composition
- * module and nothing else. Business pages live in capability packages.
+ * module, hosts the single tab-shell page, and re-affirms shell state across
+ * the ability lifecycle. Business pages live in capability packages.
  */
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
@@ -42,6 +45,9 @@ export default class EntryAbility extends UIAbility {
   }
 
   onBackground(): void {
+    // Re-affirm the selected tab so a background kill cannot lose it
+    // (`packages/sdkwork-agents-harmony-mobile-shell/src/main/ets/state/ShellState.ets`).
+    preserveAgentsHarmonyShellState();
     hilog.info(DOMAIN, TAG, 'onBackground');
   }
 }

@@ -56,7 +56,7 @@ function resolveUploadPurpose(
     case 'voice': return 'agent-chat-voice';
     default: return 'agent-chat-attachment';
   }
-}
+  }
 
 async function uploadAndSendFileMessage(
   file: File,
@@ -142,7 +142,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
       void uploadFile(file);
@@ -201,7 +201,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       attributes: {
         class: 'w-full h-full bg-transparent outline-none text-[15px] text-slate-800 dark:text-gray-200 font-sans leading-relaxed',
       },
-    },
+      },
     onUpdate: ({ editor }: { editor: Editor }) => {
       setIsEmpty(editor.getText().trim().length === 0);
     },
@@ -224,13 +224,13 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
   const handleSend = () => {
     if (!editor || disabled || isTyping) return;
-    
+
     const content = editor.getText().trim();
     if (!content) return;
 
     if (!onSend) return;
     onSend(content, 'text');
-    
+
     // Clear editor after sending
     editor.commands.clearContent();
     setIsEmpty(true);
@@ -256,15 +256,15 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 void uploadFile(file, 'image');
                 e.preventDefault();
             }
-        }
-    }
+            }
+            }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       await uploadFile(file);
-      
+
       // Reset input so the same file can be selected again if needed
       e.target.value = '';
     }
@@ -290,7 +290,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         } else if (finalDuration < 1) {
           toast(t('chat.messageInput.toast.voiceTooShort'), 'error');
         }
-      }
+        }
       return;
     }
 
@@ -322,18 +322,18 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       mediaRecorder.onstop = async () => {
         const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
         const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-        
+
         // Stop all tracks to release microphone
         stream?.getTracks().forEach(track => track.stop());
-        
+
         if (voiceTimerRef.current) {
           clearInterval(voiceTimerRef.current);
           voiceTimerRef.current = null;
         }
-        
+
         setIsRecording(false);
         const finalDuration = voiceDurationRef.current;
-        
+
         // Send actual voice message
         if (finalDuration >= 1) {
           const file = new File([audioBlob], `voice-${Date.now()}.webm`, { type: mimeType });
@@ -345,7 +345,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
       mediaRecorder.start();
       startTimer();
-      
+
     } catch (err) {
       console.error('Error accessing microphone:', err);
       stream?.getTracks().forEach(track => track.stop());
@@ -363,17 +363,17 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <div 
+    <div
       className="shrink-0 px-2.5 pb-2.5 pt-3 flex flex-col bg-white dark:bg-[#1e1e1e] relative"
-      style={{ 
-        height: resizable ? `${height}px` : 'auto', 
+      style={{
+        height: resizable ? `${height}px` : 'auto',
         minHeight: resizable ? '120px' : `${defaultHeight}px`,
         maxHeight: '50vh'
       }}
     >
       {/* Drag Handle */}
       {resizable && (
-        <div 
+        <div
           className="absolute top-0 left-0 right-0 h-3 cursor-ns-resize hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors z-10 flex items-center justify-center group"
           onMouseDown={handleMouseDown}
         >
@@ -382,17 +382,17 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       )}
 
       {/* AI Style Input Container */}
-      <div className={`bg-slate-200 dark:bg-[#2b2b2d] rounded-2xl flex flex-col shadow-sm transition-all focus-within:bg-slate-100 dark:focus-within:bg-[#2f2f33] h-full relative ${disabled || isTyping ? 'opacity-70' : ''}`}>
-        
+      <div className={`bg-slate-200 dark:bg-[#2b2b2d] rounded-2xl flex flex-col transition-all focus-within:bg-slate-100 dark:focus-within:bg-[#2f2f33] h-full relative${disabled || isTyping ? 'opacity-70' : ''}`}>
+
         {/* Reply Preview */}
         {replyingTo && (
-          <div className="flex items-center justify-between px-4 py-2 bg-slate-900/5 dark:bg-white/5 border-b border-slate-200 dark:border-white/5 rounded-t-2xl shrink-0">
+          <div className="flex items-center justify-between px-4 py-2 bg-slate-900/5 dark:bg-white/5 rounded-t-2xl shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <Reply size={14} className="text-slate-500 dark:text-gray-400 shrink-0" />
               <span className="text-[12px] text-slate-500 dark:text-gray-400 font-medium shrink-0">{t('chat.messageInput.replyPrefix', { name: replyingTo.senderName })}</span>
               <span className="text-[12px] text-slate-500 dark:text-gray-500 truncate">{replyingTo.content}</span>
             </div>
-            <button 
+            <button
               onClick={onCancelReply}
               className="text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 transition-colors shrink-0 ml-2"
             >
@@ -402,7 +402,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         )}
 
         {/* Text Area */}
-        <div 
+        <div
           className={cn("flex-1 overflow-y-auto custom-scrollbar px-4 py-3 relative flex flex-col transition-colors", isDragOver ? "bg-slate-300 dark:bg-[#3a3a3a]" : "")}
           onKeyDownCapture={handleKeyDown}
           onPaste={handlePaste}
@@ -411,28 +411,28 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           onDrop={handleDrop}
         >
           {isDragOver && (
-            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-[#1e1e1e]/80 backdrop-blur-sm shadow-inner rounded-lg m-2 border-2 border-dashed border-indigo-500/50">
+            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-[#1e1e1e]/80 backdrop-blur-sm rounded-lg m-2">
                <ArrowUp size={32} className="text-indigo-400 mb-2 animate-bounce" />
                <p className="text-slate-800 dark:text-gray-200 font-medium">{t('chat.messageInput.dropToSend')}</p>
             </div>
           )}
           <EditorContent editor={editor} className="h-full" />
         </div>
-        
+
         {/* Bottom Actions */}
         <div className="flex items-center justify-between px-3 pb-3 pt-1 shrink-0 relative">
           <div className="flex items-center gap-1">
             {/* Hidden File Input */}
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              multiple 
-              onChange={handleFileChange} 
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              multiple
+              onChange={handleFileChange}
               disabled={disabled || isTyping}
             />
-            
-            <motion.button 
+
+            <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title={t('chat.messageInput.actions.sendFile')}
@@ -442,7 +442,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             >
               <Paperclip size={18} />
             </motion.button>
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title={t('chat.messageInput.actions.screenshot')}
@@ -459,7 +459,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                   video.play();
                   // wait a moment to ensure frame is available
                   await new Promise(resolve => setTimeout(resolve, 300));
-                  
+
                   const canvas = document.createElement('canvas');
                   canvas.width = video.videoWidth;
                   canvas.height = video.videoHeight;
@@ -483,17 +483,17 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                   } else {
                     toast(t('chat.messageInput.toast.screenshotCancelled'), 'success');
                   }
-                }
+                  }
               }}
               disabled={disabled || isTyping}
               className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Scissors size={18} />
             </motion.button>
-            
+
             {/* Emoji Button & Picker */}
             <div className="relative">
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 title={t('chat.messageInput.actions.emoji')}
@@ -503,10 +503,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               >
                 <Smile size={18} />
               </motion.button>
-              
+
               <AnimatePresence>
                 {showEmojiPicker && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -526,7 +526,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               </AnimatePresence>
             </div>
 
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title={t('chat.messageInput.actions.history')}
@@ -536,7 +536,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             >
               <Clock size={18} />
             </motion.button>
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title={isRecording ? t('chat.messageInput.actions.stopRecording') : t('chat.messageInput.actions.recordVoice')}
@@ -545,34 +545,34 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative ${isRecording ? 'text-[#00b42a] bg-[#00b42a]/10 hover:bg-[#00b42a]/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 hover:bg-slate-900/5 dark:hover:bg-white/5'}`}
             >
               <Mic size={18} className={isRecording ? 'animate-pulse' : ''} />
-              {isRecording && <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#00b42a] text-white text-[11px] px-2 py-0.5 rounded shadow-sm whitespace-nowrap">{voiceDuration}s</div>}
+              {isRecording && <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#00b42a] text-white text-[11px] px-2 py-0.5 rounded whitespace-nowrap">{voiceDuration}s</div>}
             </motion.button>
           </div>
-          
+
           {isTyping ? (
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title={t('chat.messageInput.actions.stopGenerating')}
               onClick={onStop}
-              className="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center text-red-500 transition-colors shadow-sm"
+              className="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center text-red-500 transition-colors"
             >
               <StopCircle size={18} strokeWidth={2.5} />
             </motion.button>
           ) : (
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title={t('chat.messageInput.actions.send')}
               onClick={handleSend}
               disabled={disabled || isEmpty}
-              className="w-8 h-8 rounded-full bg-[#00b42a] hover:bg-[#009a24] disabled:bg-slate-900/10 dark:disabled:bg-white/10 disabled:text-slate-500 dark:disabled:text-gray-500 flex items-center justify-center text-white transition-colors shadow-sm"
+              className="w-8 h-8 rounded-full bg-[#165DFF] hover:bg-[#4080FF] active:bg-[#0E42D2] disabled:bg-slate-900/10 dark:disabled:bg-white/10 disabled:text-slate-500 dark:disabled:text-gray-500 flex items-center justify-center text-white transition-colors"
             >
               <ArrowUp size={18} strokeWidth={2.5} />
             </motion.button>
           )}
         </div>
-      </div>
-    </div>
+        </div>
+        </div>
   );
 };

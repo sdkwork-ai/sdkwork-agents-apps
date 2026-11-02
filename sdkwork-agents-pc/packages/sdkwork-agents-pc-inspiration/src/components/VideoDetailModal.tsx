@@ -43,7 +43,7 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
         setIsLiked(false);
         setVideoAspect(16 / 9); // Reset to default 16:9 until metadata loads
       }
-    }
+      }
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
@@ -60,7 +60,7 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
       } else {
         videoRef.current.pause();
       }
-    }
+      }
   }, [isPlaying, video]);
 
   if (!isOpen || !video) return null;
@@ -90,7 +90,7 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
       if (duration) {
         setProgress((current / duration) * 100);
       }
-    }
+      }
   };
 
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +106,7 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
       if (videoRef.current.requestFullscreen) {
         videoRef.current.requestFullscreen();
       }
-    }
+      }
   };
 
   const handleLike = () => {
@@ -121,7 +121,7 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
   return (
     <div className="fixed inset-0 z-50 flex bg-[#0a0a0a]/95 animate-in fade-in duration-200">
       {/* Close Button */}
-      <button 
+      <button
         onClick={onClose}
         className="absolute top-6 left-6 p-2.5 bg-white/10 hover:bg-white/20 rounded-full text-zinc-400 hover:text-white transition-colors z-[60]"
       >
@@ -131,8 +131,8 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
       <div className="flex w-full h-full relative overflow-hidden">
         {/* Left Side - Custom Video Player */}
         <div className="flex-1 bg-black/60 p-6 md:p-12 flex flex-col items-center justify-center relative group h-full">
-          <div 
-            className="relative rounded-xl overflow-hidden shadow-2xl bg-black border border-white/5 flex items-center justify-center transition-all duration-300"
+          <div
+            className="relative rounded-xl overflow-hidden bg-black flex items-center justify-center transition-all duration-300"
             style={{
               aspectRatio: videoAspect,
               maxWidth: '100%',
@@ -154,7 +154,7 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
             />
 
             {/* Custom Control Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+            <div className="absolute inset-0 bg-[#0A1B3D]/45 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
               {/* Progress bar */}
               <div className="w-full flex items-center gap-2 mb-3">
                 <input
@@ -163,7 +163,7 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
                   max="100"
                   value={progress}
                   onChange={handleProgressChange}
-                  className="w-full h-1 bg-white/20 accent-cyan-500 rounded-lg cursor-pointer hover:h-1.5 transition-all"
+                  className="w-full h-1 bg-white/20 accent-[#165DFF] rounded-lg cursor-pointer hover:h-1.5 transition-all"
                 />
               </div>
 
@@ -186,37 +186,37 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
                     <Maximize2 size={18} />
                   </button>
                 </div>
-              </div>
-            </div>
+                </div>
+                </div>
 
             {/* Big Centered Play/Pause Button on Pause State */}
             {!isPlaying && (
-              <button 
+              <button
                 onClick={togglePlay}
-                className="absolute inset-0 m-auto w-16 h-16 flex items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm border border-white/10 hover:scale-105 transition-transform"
+                className="absolute inset-0 m-auto w-16 h-16 flex items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm hover:scale-105 transition-transform"
               >
                 <Play size={28} className="ml-1" />
               </button>
             )}
           </div>
-        </div>
+          </div>
 
         {/* Right Side - Details Sidebar */}
-        <div className="w-[400px] shrink-0 flex flex-col h-full bg-[#141414] border-l border-white/5 relative z-50">
+        <div className="w-[400px] shrink-0 flex flex-col h-full bg-[#141414] relative z-50">
           {/* Author info */}
-          <div className="p-6 pb-5 border-b border-white/5 flex items-center justify-between">
+          <div className="p-6 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img src={video.avatar} alt={video.author} className="w-10 h-10 rounded-full object-cover" />
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <span className="text-zinc-200 font-medium text-[14px]">{video.author}</span>
-                  <button 
+                  <button
                     onClick={() => setIsFollowed(!isFollowed)}
                     className={cn(
                       "px-2.5 py-0.5 rounded-full text-[11px] transition-colors font-medium",
-                      isFollowed 
-                        ? "bg-zinc-800 text-zinc-400 hover:bg-zinc-700" 
-                        : "bg-cyan-500 text-black hover:bg-cyan-400"
+                      isFollowed
+                        ? "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                        : "bg-[#165DFF] text-white hover:bg-[#4080FF]"
                     )}
                   >
                     {isFollowed ? '已关注' : '+ 关注'}
@@ -227,10 +227,10 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
                   <span className="w-1 h-1 rounded-full bg-zinc-600"></span>
                   <span>AI 智能视频</span>
                 </div>
-              </div>
-            </div>
+                </div>
+                </div>
             <div className="flex items-center gap-2">
-              <button 
+              <button
                 onClick={handleLike}
                 className={cn(
                   "flex items-center gap-1.5 p-2 rounded-lg transition-colors",
@@ -244,7 +244,7 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
                 <MoreHorizontal size={18} />
               </button>
             </div>
-          </div>
+            </div>
 
           {/* Video Description */}
           <div className="p-6 flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
@@ -255,32 +255,32 @@ export const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ isOpen, onCl
               </p>
             </div>
 
-            <div className="p-4 bg-[#1e1e1e] rounded-xl border border-white/5 mb-6">
+              <div className="p-4 bg-[#1e1e1e] rounded-xl mb-6">
               <div className="text-[11px] text-zinc-500 uppercase tracking-wider mb-1.5 font-semibold">生成模型</div>
               <div className="text-[13px] text-zinc-300">Seedance 2.0 (High Definition Video Model)</div>
             </div>
 
-            <div className="p-4 bg-[#1e1e1e] rounded-xl border border-white/5">
+              <div className="p-4 bg-[#1e1e1e] rounded-xl">
               <div className="text-[11px] text-zinc-500 uppercase tracking-wider mb-1.5 font-semibold">推荐提示词</div>
               <p className="text-[12px] text-zinc-400 leading-normal italic">
                 "stunning AI video production, high fidelity details, unreal engine 5 style, dramatic lighting, volumetric effects, cinematic atmosphere, masterpiece..."
               </p>
             </div>
-          </div>
+            </div>
 
           {/* Action Footer */}
-          <div className="p-6 pt-4 border-t border-black/5 dark:border-white/5 flex items-center gap-3 bg-zinc-100 dark:bg-[#141414]">
+          <div className="p-6 pt-4 flex items-center gap-3 bg-zinc-100 dark:bg-[#141414]">
             <button className="flex-1 bg-black/10 hover:bg-black/15 text-zinc-800 dark:bg-[#333333] dark:hover:bg-[#3a3a3a] dark:text-zinc-200 py-2.5 rounded-xl text-[13px] font-medium transition-colors flex items-center justify-center gap-1.5">
               <Play size={14} />
               做同款视频
             </button>
-            <button className="flex-1 bg-cyan-500 text-black hover:bg-cyan-400 py-2.5 rounded-xl text-[13px] font-semibold transition-colors flex items-center justify-center gap-1.5">
+              <button className="flex-1 bg-[#165DFF] text-white hover:bg-[#4080FF] py-2.5 rounded-xl text-[13px] font-semibold transition-colors flex items-center justify-center gap-1.5">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
               参考此视频
             </button>
           </div>
-        </div>
-      </div>
+          </div>
+          </div>
 
       {isVideoLightboxOpen && (
         <VideoLightbox

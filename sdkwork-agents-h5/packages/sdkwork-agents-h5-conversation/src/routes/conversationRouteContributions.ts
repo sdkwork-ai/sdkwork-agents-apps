@@ -33,9 +33,9 @@ export const conversationRouteContributions: readonly AgentsH5RouteContribution[
     capability: "conversation",
     screen: "list",
     path: CONVERSATION_LIST_PATH,
-    titleKey: "agents.conversation.sessions.title",
+    titleKey: "agents.mobile.history.title",
     auth: "required",
     permissionHint: "ai.agents.read",
-    presentation: { h5Mobile: "sheet" },
+    presentation: { h5Mobile: "stack" },
   },
 ];

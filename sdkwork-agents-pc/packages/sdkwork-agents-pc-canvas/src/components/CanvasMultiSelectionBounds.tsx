@@ -57,34 +57,34 @@ export const CanvasMultiSelectionBounds: React.FC<CanvasMultiSelectionBoundsProp
   return (
     <div
       style={boundingStyle}
-      className="absolute border border-cyan-400/30 bg-cyan-400/[0.015] rounded-2xl pointer-events-none transition-[left,top,width,height] duration-75 ease-out shadow-[0_0_40px_rgba(34,211,238,0.05)]"
+      className="absolute bg-[#4080FF]/[0.015] rounded-2xl pointer-events-none transition-[left,top,width,height] duration-75 ease-out"
     >
       {/* CORNER BRACKETS */}
       {/* Top Left */}
-      <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-cyan-400 rounded-tl-md" />
+      <div className="absolute -top-1 -left-1 w-4 h-4 rounded-tl-md" />
       {/* Top Right */}
-      <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-cyan-400 rounded-tr-md" />
+      <div className="absolute -top-1 -right-1 w-4 h-4 rounded-tr-md" />
       {/* Bottom Left */}
-      <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-cyan-400 rounded-bl-md" />
+      <div className="absolute -bottom-1 -left-1 w-4 h-4 rounded-bl-md" />
       {/* Bottom Right */}
-      <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-cyan-400 rounded-br-md" />
+      <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-br-md" />
 
       {/* DASHED ACCENT PATH INSIDE */}
-      <div className="absolute inset-1 border border-dashed border-cyan-400/15 rounded-xl pointer-events-none" />
+      <div className="absolute inset-1 rounded-xl pointer-events-none" />
 
       {/* FLOATING HUD BADGE ABOVE THE BOX */}
-      <div 
-        className="absolute -top-8 left-0 flex items-center gap-1.5 px-2.5 py-1 bg-cyan-500/10 border border-cyan-400/20 backdrop-blur-md rounded-lg"
+      <div
+        className="absolute -top-8 left-0 flex items-center gap-1.5 px-2.5 py-1 bg-[#165DFF]/10 backdrop-blur-md rounded-lg"
         style={{ zIndex: 30 }}
       >
-        <Layers size={11} className="text-cyan-400 animate-pulse" />
-        <span className="text-[10px] font-extrabold tracking-wider text-cyan-300 uppercase select-none">
+        <Layers size={11} className="text-[#4080FF] animate-pulse" />
+        <span className="text-[10px] font-extrabold tracking-wider text-[#4080FF] uppercase select-none">
           已选 {selectedNodes.length} 个节点
         </span>
       </div>
 
       {/* RESIZE GUIDELINE LINES */}
-      <div className="absolute -inset-px border border-cyan-400/20 rounded-2xl animate-pulse duration-[3000ms] pointer-events-none" />
+      <div className="absolute -inset-px rounded-2xl animate-pulse duration-[3000ms] pointer-events-none" />
     </div>
   );
 };

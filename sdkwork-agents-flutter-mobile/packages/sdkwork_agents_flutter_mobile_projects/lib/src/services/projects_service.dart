@@ -53,7 +53,8 @@ List<AgentsProjectSummary> filterAgentsProjects(
     return List<AgentsProjectSummary>.from(items);
   }
   return items
-      .where((AgentsProjectSummary item) => item.name.toLowerCase().contains(needle))
+      .where((AgentsProjectSummary item) =>
+          item.name.toLowerCase().contains(needle))
       .toList(growable: false);
 }
 
@@ -78,7 +79,8 @@ AgentsProjectsService createAgentsProjectsService(SdkworkAppClient client) {
         items.add(mapped);
       }
     }
-    final pageInfo = sdkworkAgentsAsMap(sdkworkAgentsAsMap(response?.data)?['pageInfo']);
+    final pageInfo =
+        sdkworkAgentsAsMap(sdkworkAgentsAsMap(response?.data)?['pageInfo']);
     return AgentsProjectPage(
       items: items,
       page: page,
@@ -105,7 +107,8 @@ class _AgentsProjectsServiceImpl implements AgentsProjectsService {
       throw ArgumentError.value(page, 'page', 'must be a positive integer');
     }
     if (pageSize < 1) {
-      throw ArgumentError.value(pageSize, 'pageSize', 'must be a positive integer');
+      throw ArgumentError.value(
+          pageSize, 'pageSize', 'must be a positive integer');
     }
     return readPage(page, pageSize);
   }

@@ -38,7 +38,7 @@ function mapMcpRecord(record: McpServerMarketplaceRecord): ToolItem {
     description: `MCP server ${record.serverId}`,
     provider: "MCP Marketplace",
     category: "mcp",
-    icon: createElement(Globe, { size: 20, className: "text-gray-300" }),
+    icon: createElement(Globe, { size: 20, className: "text-[var(--color-text-primary,#0A1B3D)]" }),
   };
 }
 
@@ -49,7 +49,7 @@ function mapAgentEngineRecord(record: AgentEngineCatalogEngine): ToolItem {
     description: "Agent engine runtime",
     provider: "Agent Engine",
     category: "official",
-    icon: createElement(Code2, { size: 20, className: "text-emerald-500" }),
+    icon: createElement(Code2, { size: 20, className: "text-[var(--color-success,#00B42A)]" }),
   };
 }
 

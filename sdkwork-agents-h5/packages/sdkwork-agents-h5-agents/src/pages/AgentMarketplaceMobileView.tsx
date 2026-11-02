@@ -207,10 +207,10 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
       : agents.filter((agent) => normalizeCategoryId(agent.categoryId) === activeCategory);
 
   return (
-    <div className="flex flex-col h-full bg-[var(--color-bg-color,#f5f5f7)] overflow-hidden">
+    <div className="flex flex-col h-full bg-[var(--color-bg-color,#F4F7FC)] overflow-hidden">
       {/* Header with category tabs + search entry */}
-      <header className="bg-[var(--color-bg-color,#f5f5f7)] sticky top-0 z-10 shrink-0 pt-safe">
-        <div className="flex items-center relative border-b border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))]">
+      <header className="bg-[var(--color-bg-color,#F4F7FC)] sticky top-0 z-10 shrink-0 pt-safe">
+        <div className="flex items-center relative">
           <div
             ref={categoryBarRef}
             className="flex items-center gap-6 px-4 pr-16 overflow-x-auto flex-1 min-w-0"
@@ -225,8 +225,8 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
                 className={cn(
                   'shrink-0 py-3 text-[15px] font-medium whitespace-nowrap transition-colors',
                   activeCategory === category.id
-                    ? 'font-semibold text-[var(--color-primary-blue,#2b5ce7)]'
-                    : 'text-[var(--color-text-sub,#6b7280)]',
+                    ? 'font-semibold text-[var(--color-primary-blue,#165DFF)]'
+                    : 'text-[var(--color-text-sub,#5B6B88)]',
                 )}
               >
                 {category.label}
@@ -235,13 +235,13 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
           </div>
 
           {/* Right search icon with fade */}
-          <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end w-20 bg-gradient-to-l from-[#f5f5f7] via-[#f5f5f7] to-transparent dark:from-[#111113] dark:via-[#111113] pr-4 pointer-events-none">
+          <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end w-20 pr-4 pointer-events-none">
             {onSearch && (
               <button
                 type="button"
                 aria-label={t('agents.mobile.market.search')}
                 onClick={onSearch}
-                className="pointer-events-auto flex items-center justify-center w-8 h-8 rounded-full text-gray-700 dark:text-gray-200 active:bg-black/5 dark:active:bg-white/10 transition-colors"
+                className="pointer-events-auto flex items-center justify-center w-8 h-8 rounded-full text-[var(--color-text-secondary,#5B6B88)] active:bg-[var(--color-surface-muted,#EAF1FB)] transition-colors"
               >
                 <Search className="w-5 h-5" strokeWidth={2.5} />
               </button>
@@ -253,7 +253,7 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
       {/* Pull-to-refresh indicator */}
       {pullDistance > 0 && (
         <div
-          className="shrink-0 flex items-center justify-center gap-2 text-[13px] text-[var(--color-text-sub,#6b7280)] transition-[height] overflow-hidden"
+          className="shrink-0 flex items-center justify-center gap-2 text-[13px] text-[var(--color-text-sub,#5B6B88)] transition-[height] overflow-hidden"
           style={{ height: pullDistance }}
         >
           <RefreshCw className={cn('w-4 h-4', refreshing ? 'animate-spin' : '')} />
@@ -278,12 +278,12 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
             {Array.from({ length: 6 }, (_, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 rounded-2xl bg-[var(--color-chat-other-bg,#262626)] px-4 py-3.5 animate-pulse"
+                className="flex items-center gap-3 rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] px-4 py-3.5 animate-pulse"
               >
-                <div className="w-[52px] h-[52px] rounded-full bg-black/5 dark:bg-white/10 shrink-0" />
+                <div className="w-[52px] h-[52px] rounded-full bg-[var(--color-surface-muted,#EAF1FB)] shrink-0" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-2/5 rounded bg-black/5 dark:bg-white/10" />
-                  <div className="h-3 w-4/5 rounded bg-black/5 dark:bg-white/10" />
+                  <div className="h-4 w-2/5 rounded bg-[var(--color-surface-muted,#EAF1FB)]" />
+                  <div className="h-3 w-4/5 rounded bg-[var(--color-surface-muted,#EAF1FB)]" />
                 </div>
               </div>
             ))}
@@ -292,13 +292,13 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
 
         {status === 'error' && (
           <div className="flex flex-col items-center justify-center h-full px-8">
-            <div className="w-16 h-16 rounded-3xl bg-[var(--color-chat-other-bg,#262626)] flex items-center justify-center mb-4">
-              <Bot className="w-8 h-8 text-gray-400" />
+            <div className="w-16 h-16 rounded-3xl bg-[var(--color-chat-other-bg,#FFFFFF)] flex items-center justify-center mb-4">
+              <Bot className="w-8 h-8 text-[var(--color-icon-default,#5B6B88)]" />
             </div>
-            <h3 className="text-[16px] font-semibold text-[var(--color-text-main,#111827)] mb-1">
+            <h3 className="text-[16px] font-semibold text-[var(--color-text-main,#0A1B3D)] mb-1">
               {t('agents.mobile.market.error.title')}
             </h3>
-            <p className="text-[13px] text-[var(--color-text-sub,#6b7280)] mb-6 text-center leading-relaxed">
+            <p className="text-[13px] text-[var(--color-text-sub,#5B6B88)] mb-6 text-center leading-relaxed">
               {t('agents.mobile.market.error.desc')}
             </p>
             <button
@@ -307,7 +307,7 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
                 setStatus('loading');
                 void refresh();
               }}
-              className="flex items-center gap-2 px-7 h-11 rounded-full bg-[var(--color-primary-blue,#2b5ce7)] text-white text-[15px] font-medium active:scale-95 transition-transform"
+              className="flex items-center gap-2 px-7 h-11 rounded-full bg-[var(--color-primary-blue,#165DFF)] text-white text-[15px] font-medium active:scale-95 transition-transform"
             >
               <RefreshCw className="w-4 h-4" />
               {t('agents.mobile.market.error.retry')}
@@ -319,27 +319,27 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
           <div className="pb-[84px]">
             {visibleAgents.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 px-8">
-                <div className="w-16 h-16 rounded-3xl bg-[var(--color-chat-other-bg,#262626)] flex items-center justify-center mb-4">
-                  <Bot className="w-8 h-8 text-gray-300 dark:text-gray-600" />
+                <div className="w-16 h-16 rounded-3xl bg-[var(--color-chat-other-bg,#FFFFFF)] flex items-center justify-center mb-4">
+                  <Bot className="w-8 h-8 text-[var(--color-icon-strong,#0A1B3D)]" />
                 </div>
-                <h3 className="text-[16px] font-semibold text-[var(--color-text-main,#111827)] mb-1">
+                <h3 className="text-[16px] font-semibold text-[var(--color-text-main,#0A1B3D)] mb-1">
                   {t('agents.mobile.market.empty.title')}
                 </h3>
-                <p className="text-[13px] text-[var(--color-text-sub,#6b7280)] mb-6 text-center leading-relaxed max-w-[240px]">
+                <p className="text-[13px] text-[var(--color-text-sub,#5B6B88)] mb-6 text-center leading-relaxed max-w-[240px]">
                   {t('agents.mobile.market.empty.desc')}
                 </p>
                 {activeCategory === ALL_CATEGORY_ID && onCreateAgent && (
                   <button
                     type="button"
                     onClick={onCreateAgent}
-                    className="px-8 h-11 rounded-full bg-[var(--color-primary-blue,#2b5ce7)] text-white text-[15px] font-medium active:scale-95 transition-transform"
+                    className="px-8 h-11 rounded-full bg-[var(--color-primary-blue,#165DFF)] text-white text-[15px] font-medium active:scale-95 transition-transform"
                   >
                     {t('agents.mobile.market.empty.create')}
                   </button>
                 )}
               </div>
             ) : (
-              <div className="bg-[var(--color-chat-other-bg,#262626)] rounded-2xl mx-4 mt-3 overflow-hidden divide-y divide-[var(--color-border-color,rgba(0,0,0,0.05))] dark:divide-[var(--color-border-color,rgba(255,255,255,0.05))]">
+              <div className="bg-[var(--color-chat-other-bg,#FFFFFF)] rounded-2xl mx-4 mt-3 overflow-hidden">
                 {visibleAgents.map((agent) => (
                   <MarketAgentCard
                     key={agent.id}
@@ -353,12 +353,12 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
             {/* Load more footer */}
             <div ref={sentinelRef} className="flex justify-center py-4">
               {loadingMore && (
-                <span className="text-[13px] text-[var(--color-text-sub,#9ca3af)]">
+                <span className="text-[13px] text-[var(--color-text-sub,#5B6B88)]">
                   {t('agents.mobile.loadingMore')}
                 </span>
               )}
               {!hasMore && !loadingMore && agents.length > 0 && (
-                <span className="text-[13px] text-[var(--color-text-sub,#9ca3af)]">
+                <span className="text-[13px] text-[var(--color-text-sub,#5B6B88)]">
                   {t('agents.mobile.noMore')}
                 </span>
               )}
@@ -373,7 +373,7 @@ export const AgentMarketplaceMobileView: React.FC<AgentMarketplaceMobileViewProp
           <button
             type="button"
             onClick={onCreateAgent}
-            className="flex items-center gap-1.5 bg-[var(--color-primary-blue,#2b5ce7)] text-white px-5 py-3 rounded-full shadow-lg shadow-[var(--color-primary-blue,#2b5ce7)]/25 cursor-pointer active:scale-95 transition-transform"
+            className="flex items-center gap-1.5 bg-[var(--color-primary-blue,#165DFF)] text-white px-5 py-3 rounded-full cursor-pointer active:scale-95 transition-transform"
           >
             <Plus className="w-5 h-5" strokeWidth={2.5} />
             <span className="text-[15px] font-medium">{t('agents.mobile.market.create')}</span>

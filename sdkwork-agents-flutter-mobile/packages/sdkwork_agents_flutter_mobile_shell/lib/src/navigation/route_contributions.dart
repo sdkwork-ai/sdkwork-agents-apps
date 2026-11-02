@@ -72,12 +72,14 @@ class AgentsRouteContribution {
 
 /// Validates a contribution list: every id must match its segments and no id
 /// may be declared twice.
-void assertAgentsRouteContributionsAligned(List<AgentsRouteContribution> contributions) {
+void assertAgentsRouteContributionsAligned(
+    List<AgentsRouteContribution> contributions) {
   final seen = <String>{};
   final routeNames = <String, String>{};
   for (final contribution in contributions) {
     if (!isAlignedAgentsRouteId(contribution.id, contribution.segments)) {
-      throw StateError('Route id is not aligned with its segments: ${contribution.id}');
+      throw StateError(
+          'Route id is not aligned with its segments: ${contribution.id}');
     }
     if (!seen.add(contribution.id)) {
       throw StateError('Duplicate route id: ${contribution.id}');
@@ -93,10 +95,78 @@ void assertAgentsRouteContributionsAligned(List<AgentsRouteContribution> contrib
   }
 }
 
+/// Proves the contribution set is exactly the shared mobile navigation contract.
+///
+/// This is the single assertion that keeps the bottom bar, the route registry,
+/// and the profile hub from drifting apart: the five contract tab ids must be
+/// present, flagged as root tabs, and ordered exactly like [agentsMobileTabs],
+/// and every [agentsMobileProfileLinks] id must be registered as a non-tab
+/// screen.
+void assertAgentsMobileNavigationAligned(
+    List<AgentsRouteContribution> contributions) {
+  assertAgentsRouteContributionsAligned(contributions);
+  final byRouteId = <String, AgentsRouteContribution>{
+    for (final contribution in contributions) contribution.id: contribution,
+  };
+
+  for (var index = 0; index < agentsMobileTabs.length; index += 1) {
+    final declaration = agentsMobileTabs[index];
+    final contribution = byRouteId[declaration.routeId];
+    if (contribution == null) {
+      throw StateError(
+        'Tab $index (${declaration.routeId}) has no route contribution.',
+      );
+    }
+    if (!contribution.flutter.rootTab) {
+      throw StateError(
+        '${declaration.routeId} is declared in the bottom bar but its '
+        'contribution is not a root tab.',
+      );
+    }
+    if (contribution.flutter.tab != declaration.tab) {
+      throw StateError(
+        '${declaration.routeId} declares tab ${contribution.flutter.tab} but '
+        'the bottom bar expects ${declaration.tab}.',
+      );
+    }
+    if (contribution.routeName != declaration.routeName) {
+      throw StateError(
+        '${declaration.routeId} is mounted at ${contribution.routeName} but the '
+        'bottom bar expects ${declaration.routeName}.',
+      );
+    }
+  }
+
+  final extraTabs = contributions
+      .where((AgentsRouteContribution contribution) =>
+          contribution.flutter.rootTab &&
+          resolveAgentsMobileTabByRouteId(contribution.id) == null)
+      .map((AgentsRouteContribution contribution) => contribution.id)
+      .toList(growable: false);
+  if (extraTabs.isNotEmpty) {
+    throw StateError(
+      'Route contributions claim a bottom-bar slot the contract does not '
+      'declare: ${extraTabs.join(', ')}',
+    );
+  }
+
+  for (final routeId in agentsMobileProfileLinks) {
+    final contribution = byRouteId[routeId];
+    if (contribution == null) {
+      throw StateError('Profile link $routeId has no route contribution.');
+    }
+    if (contribution.flutter.rootTab) {
+      throw StateError(
+        'Profile link $routeId must be a stack screen, not a bottom-bar tab.',
+      );
+    }
+  }
+}
+
 /// Contributions that occupy a bottom-bar slot, in [agentsMobileTabs] order.
 ///
-/// The root asserts this equals the tab set so a contribution can never drift
-/// away from the shared mobile navigation contract.
+/// Throws when a slot has no contribution instead of silently rendering a
+/// shorter bar, so a missing screen can never pass as a valid shell.
 List<AgentsRouteContribution> listAgentsTabContributions(
   List<AgentsRouteContribution> contributions,
 ) {
@@ -106,9 +176,11 @@ List<AgentsRouteContribution> listAgentsTabContributions(
   final result = <AgentsRouteContribution>[];
   for (final tab in agentsMobileTabs) {
     final contribution = byRouteId[tab.routeId];
-    if (contribution != null && contribution.flutter.rootTab) {
-      result.add(contribution);
+    if (contribution == null || !contribution.flutter.rootTab) {
+      throw StateError(
+          'No root-tab contribution is registered for ${tab.routeId}.');
     }
+    result.add(contribution);
   }
   return result;
 }

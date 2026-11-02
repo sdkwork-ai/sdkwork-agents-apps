@@ -39,15 +39,13 @@ void main() {
     final Future<AgentSessionResponse?> Function(
       String,
       CreateAgentSessionRequest,
-    )
-    createSession = client.ai.agentsSessionsCreate;
+    ) createSession = client.ai.agentsSessionsCreate;
     final Stream<AgentTurnStreamEvent> Function(
       String,
       String,
       CreateAgentTurnRequest, [
       bool?,
-    ])
-    streamTurn = client.ai.agentsTurnsStream;
+    ]) streamTurn = client.ai.agentsTurnsStream;
     final Future<AgentSessionItemListResponse?> Function(
       String,
       String, [
@@ -56,8 +54,7 @@ void main() {
       String?,
       String?,
       String?,
-    ])
-    listItems = client.ai.agentsSessionItemsList;
+    ]) listItems = client.ai.agentsSessionItemsList;
 
     expect(createSession, isNotNull);
     expect(streamTurn, isNotNull);

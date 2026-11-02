@@ -1,12 +1,12 @@
 import React from 'react';
 import { useCanvasLogic } from './hooks/useCanvasLogic';
-import { 
-  HelpCircle, 
-  Sparkles, 
-  Layers, 
-  Trash2, 
-  RotateCcw, 
-  Check, 
+import {
+  HelpCircle,
+  Sparkles,
+  Layers,
+  Trash2,
+  RotateCcw,
+  Check,
   HelpCircle as InfoIcon,
   MousePointer2,
   Hand,
@@ -151,26 +151,26 @@ export const CanvasView: React.FC = () => {
     const fromNode = nodes.find(n => n.id === conn.fromNodeId);
     const toNode = nodes.find(n => n.id === conn.toNodeId);
     if (!fromNode || !toNode) return false;
-    
+
     const fromGroup = fromNode.groupId ? groups.find(g => g.id === fromNode.groupId) : null;
     const toGroup = toNode.groupId ? groups.find(g => g.id === toNode.groupId) : null;
-    
+
     return !fromGroup?.isCollapsed && !toGroup?.isCollapsed;
   });
 
   return (
     <div className="flex-1 h-full w-full bg-[#0d0d0e] text-zinc-200 relative overflow-hidden flex flex-col font-sans">
-      
+
       {/* GLOBAL TOAST BANNER */}
       <CanvasToastBanner toast={toast} onClear={clearToast} />
-      
+
       {/* Inline dynamic style animation for extreme link flow polished feel */}
       <style>{`
         @keyframes flow-dash {
           to {
             stroke-dashoffset: -28;
           }
-        }
+          }
         .flow-line-animated {
           stroke-dasharray: 8, 4;
           animation: flow-dash 1.2s linear infinite;
@@ -182,7 +182,7 @@ export const CanvasView: React.FC = () => {
       `}</style>
 
       {/* INFINITE VIEWPORT CANVAS */}
-      <div 
+      <div
         ref={containerRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -244,7 +244,7 @@ export const CanvasView: React.FC = () => {
           {/* GROUP FRAMES CONTAINER (RENDERED AT LOWER DEPTH Z-INDEX: 10) */}
           <div className="absolute inset-0">
             {groups.map(group => (
-              <CanvasGroupItem 
+              <CanvasGroupItem
                 key={group.id}
                 group={group}
                 isSelected={selectedGroupId === group.id}
@@ -305,7 +305,7 @@ export const CanvasView: React.FC = () => {
             {visibleNodes.map(node => {
               const incomingConn = visibleConnections.find(c => c.toNodeId === node.id);
               const incomingNode = incomingConn ? visibleNodes.find(n => n.id === incomingConn.fromNodeId) : undefined;
-              
+
               const outgoingConns = visibleConnections.filter(c => c.fromNodeId === node.id);
               const outgoingNodes = outgoingConns.map(c => visibleNodes.find(n => n.id === c.toNodeId)).filter(Boolean) as CanvasNode[];
 
@@ -336,8 +336,8 @@ export const CanvasView: React.FC = () => {
               );
             })}
           </div>
-        </div>
-      </div>
+          </div>
+          </div>
 
       {/* STICKY CLICK-TO-CONNECT HUD (点击连线模式HUD) */}
       <div className="no-export">
@@ -346,11 +346,11 @@ export const CanvasView: React.FC = () => {
 
       {/* FLOATING ACTION TOOLBAR ON MULTIPLE SELECTIONS (批量操作浮标) */}
       <div className="no-export">
-        <CanvasSelectionToolbar 
-          selectedCount={selectedNodeIds.length} 
-          onCreateGroup={handleCreateGroupFromSelection} 
-          onBatchDelete={handleBatchDelete} 
-          onClearSelection={() => setSelectedNodeIds([])} 
+        <CanvasSelectionToolbar
+          selectedCount={selectedNodeIds.length}
+          onCreateGroup={handleCreateGroupFromSelection}
+          onBatchDelete={handleBatchDelete}
+          onClearSelection={() => setSelectedNodeIds([])}
           onAlignNodes={handleAlignNodes}
         />
       </div>

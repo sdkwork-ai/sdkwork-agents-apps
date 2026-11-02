@@ -102,7 +102,7 @@ export const FileLibraryView = () => {
       case 'image':
         return (
           <div className="w-7 h-7 rounded bg-blue-500/20 flex items-center justify-center shrink-0">
-            <ImageIcon size={14} className="text-blue-400" />
+            <ImageIcon size={14} className="text-[var(--ag-color-primary,#165DFF)]" />
           </div>
         );
       case 'ppt':
@@ -114,13 +114,13 @@ export const FileLibraryView = () => {
       case 'md':
         return (
           <div className="w-7 h-7 rounded bg-blue-500/20 flex items-center justify-center shrink-0">
-            <FileText size={14} className="text-blue-400" />
+            <FileText size={14} className="text-[var(--ag-color-primary,#165DFF)]" />
           </div>
         );
       default:
         return (
-          <div className="w-7 h-7 rounded bg-zinc-500/20 flex items-center justify-center shrink-0">
-            <FileText size={14} className="text-zinc-400" />
+          <div className="w-7 h-7 rounded bg-[var(--ag-color-surface-muted,#EAF1FB)] flex items-center justify-center shrink-0">
+            <FileText size={14} className="text-[var(--ag-color-text-secondary,#5B6B88)]" />
           </div>
         );
     }
@@ -138,34 +138,34 @@ export const FileLibraryView = () => {
   }, [files, searchQuery, activeTab]);
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#000000] text-gray-200 overflow-hidden">
+    <div className="flex flex-col h-full w-full bg-[var(--ag-color-background,#F4F7FC)] text-[var(--ag-color-text-primary,#0A1B3D)] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-10 pt-10 pb-6 shrink-0">
-        <h1 className="text-3xl font-bold text-white">资料库</h1>
+        <h1 className="text-3xl font-bold text-[var(--ag-color-text-primary,#0A1B3D)]">资料库</h1>
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={16} className="text-zinc-400" />
+              <Search size={16} className="text-[var(--ag-color-text-secondary,#5B6B88)]" />
             </div>
             <input
               type="text"
               placeholder="搜索"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#1C1C1E] border border-white/5 rounded-full pl-9 pr-4 py-1.5 text-[14px] text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 transition-colors w-[240px]"
+              className="bg-[var(--ag-color-surface,#FFFFFF)] rounded-full pl-9 pr-4 py-1.5 text-[14px] text-[var(--ag-color-text-primary,#0A1B3D)] placeholder:text-[var(--ag-color-text-tertiary,#8A97AD)] focus:outline-none transition-colors w-[240px]"
             />
           </div>
           <button
             onClick={() => void loadFiles()}
             disabled={loading}
-            className="flex items-center gap-2 bg-white/5 text-white hover:bg-white/10 rounded-full px-3 py-1.5 text-[14px] font-medium transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-[var(--ag-color-surface-muted,#EAF1FB)] text-[var(--ag-color-text-primary,#0A1B3D)] hover:bg-[var(--ag-color-surface-muted,#EAF1FB)] rounded-full px-3 py-1.5 text-[14px] font-medium transition-colors disabled:opacity-50"
             title="刷新"
           >
             <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
             刷新
           </button>
         </div>
-      </div>
+        </div>
 
       {/* Tabs & Controls */}
       <div className="flex items-center justify-between px-10 pb-4 shrink-0">
@@ -179,8 +179,8 @@ export const FileLibraryView = () => {
                 className={cn(
                   "px-4 py-1.5 rounded-full text-[14px] font-medium transition-colors",
                   activeTab === tabKey
-                    ? "bg-[#2A2A2D] text-white"
-                    : "text-zinc-400 hover:text-white"
+                  ? "bg-[var(--ag-color-surface-strong,#DCE8F9)] text-[var(--ag-color-text-primary,#0A1B3D)]"
+                  : "text-[var(--ag-color-text-secondary,#5B6B88)] hover:text-[var(--ag-color-text-primary,#0A1B3D)]"
                 )}
               >
                 {label}
@@ -190,23 +190,23 @@ export const FileLibraryView = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="text-zinc-400 hover:text-white transition-colors">
+          <button className="text-[var(--ag-color-text-secondary,#5B6B88)] hover:text-[var(--ag-color-text-primary,#0A1B3D)] transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 6h18M6 12h12M10 18h4" />
             </svg>
           </button>
-          <div className="w-[1px] h-4 bg-white/10" />
-          <button className="text-zinc-400 hover:text-white transition-colors">
+            <div className="w-[1px] h-4 bg-[var(--ag-color-surface-strong,#DCE8F9)]" />
+            <button className="text-[var(--ag-color-text-secondary,#5B6B88)] hover:text-[var(--ag-color-text-primary,#0A1B3D)] transition-colors">
             <LayoutGrid size={18} />
           </button>
-          <button className="w-8 h-8 rounded-full bg-[#2A2A2D] flex items-center justify-center text-white transition-colors">
+            <button className="w-8 h-8 rounded-full bg-[var(--ag-color-surface-strong,#DCE8F9)] flex items-center justify-center text-[var(--ag-color-text-primary,#0A1B3D)] transition-colors">
             <ListIcon size={18} />
           </button>
         </div>
-      </div>
+        </div>
 
       {/* Table Header */}
-      <div className="flex items-center px-10 py-3 border-b border-white/5 text-[13px] text-zinc-400 font-medium shrink-0">
+      <div className="flex items-center px-10 py-3 text-[13px] text-[var(--ag-color-text-secondary,#5B6B88)] font-medium shrink-0">
         <div className="flex-1 pr-4">名称</div>
         <div className="w-[180px] shrink-0">修改时间 &darr;</div>
         <div className="w-[120px] shrink-0">大小</div>
@@ -215,13 +215,13 @@ export const FileLibraryView = () => {
       {/* File List */}
       <div className="flex-1 overflow-y-auto px-10 py-2 custom-scrollbar">
         {loading ? (
-          <div className="py-20 text-center text-zinc-500 text-[14px]">加载中...</div>
+          <div className="py-20 text-center text-[var(--ag-color-text-tertiary,#8A97AD)] text-[14px]">加载中...</div>
         ) : error ? (
           <div className="py-20 text-center">
-            <div className="text-zinc-500 text-[14px] mb-4">{error}</div>
+            <div className="text-[var(--ag-color-text-tertiary,#8A97AD)] text-[14px] mb-4">{error}</div>
             <button
               onClick={() => void loadFiles()}
-              className="bg-white/10 hover:bg-white/15 text-white rounded-full px-5 py-1.5 text-[14px] font-medium transition-colors"
+              className="bg-[var(--ag-color-surface-strong,#DCE8F9)] hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] text-[var(--ag-color-text-primary,#0A1B3D)] rounded-full px-5 py-1.5 text-[14px] font-medium transition-colors"
             >
               重试
             </button>
@@ -232,30 +232,30 @@ export const FileLibraryView = () => {
               <div
                 key={file.id}
                 onClick={() => void handleOpenFile(file)}
-                className="flex items-center py-4 border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer group"
+                className="flex items-center py-4 hover:bg-[var(--ag-color-surface-muted,#EAF1FB)] transition-colors cursor-pointer group"
               >
                 <div className="flex-1 flex items-center gap-3 min-w-0 pr-4">
                   {getFileIcon(getFileKind(file))}
-                  <span className="text-[14px] text-white truncate font-medium group-hover:text-blue-400 transition-colors">
+                  <span className="text-[14px] text-[var(--ag-color-text-primary,#0A1B3D)] truncate font-medium group-hover:text-[var(--ag-color-primary,#165DFF)] transition-colors">
                     {file.name}
                   </span>
                 </div>
-                <div className="w-[180px] shrink-0 text-[14px] text-zinc-400">
+                  <div className="w-[180px] shrink-0 text-[14px] text-[var(--ag-color-text-secondary,#5B6B88)]">
                   {formatDate(file.updatedAt)}
                 </div>
-                <div className="w-[120px] shrink-0 text-[14px] text-zinc-400">
+                  <div className="w-[120px] shrink-0 text-[14px] text-[var(--ag-color-text-secondary,#5B6B88)]">
                   {openingId === file.id ? '打开中...' : formatSize(file.sizeBytes)}
                 </div>
-              </div>
+                </div>
             ))}
             {filteredFiles.length === 0 && (
-              <div className="py-20 text-center text-zinc-500 text-[14px]">
+              <div className="py-20 text-center text-[var(--ag-color-text-tertiary,#8A97AD)] text-[14px]">
                 无文件
               </div>
             )}
           </div>
         )}
       </div>
-    </div>
+      </div>
   );
 };

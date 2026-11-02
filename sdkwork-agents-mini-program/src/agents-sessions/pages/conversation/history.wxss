@@ -1,5 +1,5 @@
 page {
-  background: #f8fafc;
+  background: var(--page);
 }
 
 .page {
@@ -11,11 +11,11 @@ page {
   padding: 96rpx 0;
   text-align: center;
   font-size: 28rpx;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .status-error {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .list {
@@ -23,14 +23,18 @@ page {
   flex-direction: column;
 }
 
+/* Session row: flat surface, separated by spacing and tap fill only. */
 .session {
   display: flex;
   align-items: center;
   padding: 24rpx;
   margin-bottom: 16rpx;
-  border-radius: 16rpx;
-  background: #ffffff;
-  border: 1rpx solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.session:active {
+  background: var(--muted);
 }
 
 .session-main {
@@ -42,7 +46,7 @@ page {
 
 .session-title {
   font-size: 28rpx;
-  color: #0f172a;
+  color: var(--text);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -51,7 +55,7 @@ page {
 .session-time {
   margin-top: 6rpx;
   font-size: 22rpx;
-  color: #94a3b8;
+  color: var(--text-weak);
 }
 
 .session-actions {
@@ -63,9 +67,9 @@ page {
   padding: 8rpx 16rpx;
   margin-left: 8rpx;
   font-size: 24rpx;
-  color: #0f766e;
+  color: var(--accent);
 }
 
 .session-action-danger {
-  color: #dc2626;
+  color: var(--danger);
 }

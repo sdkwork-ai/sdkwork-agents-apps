@@ -79,7 +79,8 @@ AgentsConversationRole toAgentsConversationRole(String? kind) {
 }
 
 /// Maps one `AgentSessionRecord` payload onto the session view model.
-AgentsConversationSession? mapAgentsConversationSession(Map<String, dynamic> record) {
+AgentsConversationSession? mapAgentsConversationSession(
+    Map<String, dynamic> record) {
   final id = record['sessionId'];
   if (id is! String || id.isEmpty) {
     return null;
@@ -89,7 +90,8 @@ AgentsConversationSession? mapAgentsConversationSession(Map<String, dynamic> rec
   return AgentsConversationSession(
     id: id,
     title: trimmedTitle.isEmpty ? 'New chat' : trimmedTitle,
-    updatedAtMillis: parseAgentsConversationTimestamp(record['updatedAt']?.toString()),
+    updatedAtMillis:
+        parseAgentsConversationTimestamp(record['updatedAt']?.toString()),
     version: (record['version'] ?? '0').toString(),
   );
 }
@@ -160,7 +162,8 @@ List<AgentsConversationMessage> normalizeAgentsConversationMessages(
       }
       var call = toolCallsById[toolCallId];
       if (call == null) {
-        call = _ToolCallBuilder(id: toolCallId, name: record['toolName']?.toString());
+        call = _ToolCallBuilder(
+            id: toolCallId, name: record['toolName']?.toString());
         toolCallsById[toolCallId] = call;
         pendingToolCalls.add(call);
       }
@@ -181,7 +184,8 @@ List<AgentsConversationMessage> normalizeAgentsConversationMessages(
         call.status = AgentsConversationToolStatus.completed;
       } else {
         call.status = AgentsConversationToolStatus.error;
-        call.error = resultContent?.toString() ?? resultMap['status']?.toString();
+        call.error =
+            resultContent?.toString() ?? resultMap['status']?.toString();
       }
       continue;
     }
@@ -196,11 +200,13 @@ List<AgentsConversationMessage> normalizeAgentsConversationMessages(
       text: content ?? '',
       createdAt: record['createdAt']?.toString(),
     );
-    if (message.role == AgentsConversationRole.assistant && pendingReasoning.isNotEmpty) {
+    if (message.role == AgentsConversationRole.assistant &&
+        pendingReasoning.isNotEmpty) {
       message = message.copyWith(reasoning: pendingReasoning);
       pendingReasoning = '';
     }
-    if (message.role == AgentsConversationRole.assistant && pendingToolCalls.isNotEmpty) {
+    if (message.role == AgentsConversationRole.assistant &&
+        pendingToolCalls.isNotEmpty) {
       message = message.copyWith(
         toolCalls: pendingToolCalls
             .map((builder) => builder.build())

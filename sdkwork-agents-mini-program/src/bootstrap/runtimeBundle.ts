@@ -1,4 +1,4 @@
-import { bootstrap } from "./runtime";
+import { applyAgentsMiniProgramLocale, bootstrap } from "./runtime";
 import {
   configureAgentsAppSdkBaseUrl,
   configureAgentsAppSdkBootstrapAccessToken,
@@ -26,6 +26,21 @@ export function getAgentsMpDriveSdkClient() {
 
 export { configureAgentsAppSdkBaseUrl, configureAgentsAppSdkBootstrapAccessToken };
 
+/** Re-injects the locale after the user switches language on the settings page. */
+export function applyAgentsMpLocale(locale: string): void {
+  applyAgentsMiniProgramLocale(locale.toLowerCase().startsWith("en") ? "en-US" : "zh-CN");
+}
+
+export {
+  AGENTS_MP_LOCALE_STORAGE_KEY,
+  AGENTS_MP_THEME_STORAGE_KEY,
+  applyAgentsMpTheme,
+  readStoredString as readAgentsMpStoredString,
+  resolveAgentsMpThemeClass,
+  writeStoredString as writeAgentsMpStoredString,
+  type AgentsMpThemePreference,
+} from "./platformStores";
+
 // Mini program composition root. Platform pages call these instead of building
 // transport or re-implementing mapping/pagination.
 export {
@@ -42,13 +57,18 @@ export {
 } from "./routes";
 export { getAgentsMpWindowInsets, type AgentsMpHostAdapters } from "./hostAdapters";
 
-// Shell: route identity, bottom tabs, and locale boundary.
+// Shell: route identity, bottom tabs, profile hub, and locale boundary.
 export {
+  AGENTS_MP_PROFILE_LINKS,
+  AGENTS_MP_PROFILE_PAGE_URL,
   AGENTS_MP_TABS,
   getAgentsMpShellLocale,
+  resolveAgentsMpProfileLinks,
   resolveAgentsMpTabBarItems,
   resolveAgentsMpTabByRouteId,
+  shellMpRouteContributions,
   translateAgentsMpShellText,
+  type AgentsMpProfileLinkItem,
   type AgentsMpTabBarItem,
   type AgentsMpTabDescriptor,
   type AgentsMpTabId,
@@ -111,3 +131,34 @@ export {
   type AgentsMpAutomationService,
   type AgentsMpTaskSummary,
 } from "@sdkwork/agents-mp-automation";
+
+// M1 primary-surface capabilities (inspiration, creative, assets, membership,
+// profile). Their transports and device ports are composed in `services.ts`.
+export {
+  AGENTS_MP_CREATIVE_ASPECT_SIZES,
+  AGENTS_MP_CREATIVE_MAX_RUNS,
+  createAgentsMpAssetsService,
+  createAgentsMpCreativeService,
+  createAgentsMpInspirationService,
+  createAgentsMpMembershipService,
+  createAgentsMpProfileService,
+  groupAgentsMpAssetsByDate,
+  type AgentsMpAssetGroup,
+  type AgentsMpAssetItem,
+  type AgentsMpAssetKind,
+  type AgentsMpAssetsService,
+  type AgentsMpCreativeAspect,
+  type AgentsMpCreativeAvailability,
+  type AgentsMpCreativeCatalog,
+  type AgentsMpCreativeMedia,
+  type AgentsMpCreativeModality,
+  type AgentsMpCreativeRun,
+  type AgentsMpCreativeService,
+  type AgentsMpCreativeTool,
+  type AgentsMpInspirationItem,
+  type AgentsMpInspirationService,
+  type AgentsMpMembershipCatalog,
+  type AgentsMpMembershipService,
+  type AgentsMpProfileService,
+  type AgentsMpProfileSnapshot,
+} from "@sdkwork/agents-mp-core/capabilities";

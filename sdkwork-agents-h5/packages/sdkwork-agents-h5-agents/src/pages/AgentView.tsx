@@ -127,7 +127,7 @@ export const AgentView: React.FC<AgentViewProps> = ({ onStartChat, onCreateAgent
     name: config.name,
     desc: config.description,
     icon: getIcon(config.iconName),
-    color: config.color || 'bg-blue-500',
+    color: config.color || 'bg-[var(--color-primary,#165DFF)]',
     author: config.author || '我',
     users: config.users || '0',
     avatar: config.avatar,
@@ -152,51 +152,51 @@ export const AgentView: React.FC<AgentViewProps> = ({ onStartChat, onCreateAgent
   };
 
   return (
-    <div className="flex flex-1 min-h-0">
+    <div className="flex flex-1 min-h-0 flex-col md:flex-row">
       {/* Left Category List */}
-      <div className="flex w-[280px] shrink-0 flex-col bg-[#202020] border-r border-white/5 min-h-0">
+      <div className="flex w-full max-h-[42%] shrink-0 flex-col bg-[var(--color-surface-color,#FFFFFF)] min-h-0 md:max-h-none md:w-[280px]">
         <div className="flex-1 overflow-y-auto custom-scrollbar py-2">
-          <div className="px-4 py-2 text-xs text-gray-500 font-medium tracking-wide">发现</div>
+          <div className="px-4 py-2 text-xs text-[var(--color-text-secondary,#5B6B88)] font-medium tracking-wide">发现</div>
           <div 
             onClick={() => setActiveCategory('market')}
             className={cn(
-              "flex items-center px-4 py-3 cursor-pointer transition-all hover:bg-white/5",
-              activeCategory === 'market' && "bg-blue-600/10 border-l-2 border-blue-500 text-blue-400"
+              "flex items-center px-4 py-3 cursor-pointer transition-all hover:bg-[var(--color-surface-muted,#EAF1FB)]",
+              activeCategory === 'market' && "bg-[var(--color-primary-subtle,#E8F0FF)]   text-[var(--color-primary,#165DFF)]"
             )}
           >
-            <div className={cn("w-[28px] h-[28px] flex items-center justify-center shrink-0 mr-3", activeCategory === 'market' ? 'text-blue-500' : 'text-gray-400')}>
+            <div className={cn("w-[28px] h-[28px] flex items-center justify-center shrink-0 mr-3", activeCategory === 'market' ? 'text-[var(--color-primary,#165DFF)]' : 'text-[var(--color-text-secondary,#5B6B88)]')}>
               <Compass size={18} />
             </div>
-            <span className={cn("text-[14px]", activeCategory === 'market' ? 'font-semibold text-blue-400' : 'text-gray-300 font-medium')}>发现智能体</span>
+            <span className={cn("text-[14px]", activeCategory === 'market' ? 'font-semibold text-[var(--color-primary,#165DFF)]' : 'text-[var(--color-text-primary,#0A1B3D)] font-medium')}>发现智能体</span>
           </div>
 
-          <div className="px-4 py-2 mt-6 text-xs text-gray-500 font-medium tracking-wide">我的智能体</div>
+          <div className="px-4 py-2 mt-6 text-xs text-[var(--color-text-secondary,#5B6B88)] font-medium tracking-wide">我的智能体</div>
           {loading ? (
-            <div className="px-4 py-3 text-sm text-gray-500">加载中...</div>
+            <div className="px-4 py-3 text-sm text-[var(--color-text-secondary,#5B6B88)]">加载中...</div>
           ) : myAgents.map(config => {
             const agent = mapToAgent(config);
             return (
               <div 
                 key={agent.id}
                 onClick={() => onStartChat(agent)}
-                className="flex items-center px-4 py-3 cursor-pointer transition-colors hover:bg-white/5 group justify-between"
+                className="flex items-center px-4 py-3 cursor-pointer transition-colors hover:bg-[var(--color-surface-muted,#EAF1FB)] group justify-between"
               >
                 <div className="flex items-center flex-1 min-w-0 pr-2">
-                  <div className={cn("w-[28px] h-[28px] rounded-lg flex items-center justify-center text-white shrink-0 mr-3 shadow-md shadow-black/20 group-hover:scale-105 transition-transform", agent.color)}>
+                  <div className={cn("w-[28px] h-[28px] rounded-lg flex items-center justify-center text-white shrink-0 mr-3   group-hover:scale-105 transition-transform", agent.color)}>
                     {React.isValidElement(agent.icon) ? React.cloneElement(agent.icon as React.ReactElement<any>, { size: 14 }) : agent.icon}
                   </div>
-                  <span className="text-[14px] text-gray-300 font-medium truncate group-hover:text-white transition-colors flex-1">{agent.name}</span>
+                  <span className="text-[14px] text-[var(--color-text-primary,#0A1B3D)] font-medium truncate group-hover:text-[var(--color-text-primary,#0A1B3D)] transition-colors flex-1">{agent.name}</span>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 transition-opacity">
                   <button 
-                    className="p-1.5 text-gray-500 hover:text-blue-400 rounded transition-colors"
+                    className="p-1.5 text-[var(--color-icon-default,#5B6B88)] hover:text-[var(--color-icon-active,#165DFF)] rounded transition-colors"
                     onClick={(e) => { e.stopPropagation(); onEditAgent && onEditAgent(agent.id); }}
                     title="编辑"
                   >
                     <Edit2 size={14} />
                   </button>
                   <button 
-                    className="p-1.5 text-gray-500 hover:text-red-400 rounded transition-colors"
+                    className="p-1.5 text-[var(--color-icon-default,#5B6B88)] hover:text-[var(--color-icon-danger,#F53F3F)] rounded transition-colors"
                     onClick={(e) => handleDeleteAgent(e, agent.id)}
                     title="删除"
                   >
@@ -209,7 +209,7 @@ export const AgentView: React.FC<AgentViewProps> = ({ onStartChat, onCreateAgent
           {myHasMore && !loading && (
             <button
               type="button"
-              className="mx-4 my-2 rounded-lg border border-white/10 px-3 py-2 text-xs text-gray-400 hover:text-white hover:bg-white/5"
+              className="mx-4 my-2 rounded-lg px-3 py-2 text-xs text-[var(--color-text-secondary,#5B6B88)] hover:text-[var(--color-primary,#165DFF)] hover:bg-[var(--color-surface-muted,#EAF1FB)]"
               disabled={loadingMoreMy}
               onClick={() => void loadMyPage(myPage + 1, true)}
             >
@@ -220,13 +220,13 @@ export const AgentView: React.FC<AgentViewProps> = ({ onStartChat, onCreateAgent
       </div>
 
       {/* Right Panel */}
-      <div className="flex-1 flex flex-col bg-[#1e1e1e] min-w-0 p-6 lg:p-8 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 flex flex-col bg-[var(--color-bg-color,#F4F7FC)] min-w-0 p-6 lg:p-8 overflow-y-auto custom-scrollbar">
         <div className="w-full h-full flex flex-col">
           <div className="flex flex-col gap-6 mb-8 shrink-0">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-100 mb-2">探索智能体生态体系</h2>
-                <p className="text-gray-500 text-sm">发掘领域专家与效率工具，全方位提升协作能力。</p>
+                <h2 className="text-2xl font-bold text-[var(--color-text-primary,#0A1B3D)] mb-2">探索智能体生态体系</h2>
+                <p className="text-[var(--color-text-secondary,#5B6B88)] text-sm">发掘领域专家与效率工具，全方位提升协作能力。</p>
               </div>
               <div className="flex items-center gap-4">
                 <div className="relative hidden md:block">
@@ -235,13 +235,13 @@ export const AgentView: React.FC<AgentViewProps> = ({ onStartChat, onCreateAgent
                     placeholder="搜索能力、名称或描述..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-72 bg-[#141414] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-gray-200 outline-none focus:border-blue-500 focus:bg-[#181818] transition-all shadow-inner"
+                    className="w-72 bg-[var(--color-bg-color,#F4F7FC)] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[var(--color-text-primary,#0A1B3D)] outline-none focus:bg-[var(--color-input-bg,#EAF1FB)] transition-all"
                   />
-                  <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                  <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-icon-default,#5B6B88)]" size={16} />
                 </div>
                 <button 
                   onClick={onCreateAgent}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors text-sm font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary,#165DFF)] hover:bg-[var(--color-primary-hover,#4080FF)] text-white rounded-xl transition-colors text-sm font-semibold"
                 >
                   <Plus size={18} />
                   创建新智能体
@@ -256,10 +256,10 @@ export const AgentView: React.FC<AgentViewProps> = ({ onStartChat, onCreateAgent
                   key={cat.id}
                   onClick={() => setSelectedMarketCategory(cat.id)}
                   className={cn(
-                    "px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap border",
+                    "px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ",
                     selectedMarketCategory === cat.id 
-                      ? "bg-blue-500/10 text-blue-400 border-blue-500/30" 
-                      : "bg-[#252528] text-gray-400 border-white/5 hover:bg-white/5 hover:text-gray-200"
+                      ? "bg-[var(--color-primary-subtle,#E8F0FF)] text-[var(--color-primary,#165DFF)] " 
+                      : "bg-[var(--color-surface-muted,#EAF1FB)] text-[var(--color-text-secondary,#5B6B88)]  hover:bg-[var(--color-surface-muted,#EAF1FB)] hover:text-[var(--color-text-primary,#0A1B3D)]"
                   )}
                 >
                   {cat.name}
@@ -270,33 +270,31 @@ export const AgentView: React.FC<AgentViewProps> = ({ onStartChat, onCreateAgent
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 pb-20">
             {loading ? (
-              <div className="text-gray-500 text-sm col-span-full py-20 text-center">正在加载智能体核心数据...</div>
+              <div className="text-[var(--color-text-secondary,#5B6B88)] text-sm col-span-full py-20 text-center">正在加载智能体核心数据...</div>
             ) : filteredMarketAgents.length === 0 ? (
-              <div className="text-gray-500 text-sm col-span-full py-20 text-center">未找到符合条件的智能体</div>
+              <div className="text-[var(--color-text-secondary,#5B6B88)] text-sm col-span-full py-20 text-center">未找到符合条件的智能体</div>
             ) : filteredMarketAgents.map(config => {
               const agent = mapToAgent(config);
               return (
                 <div 
                   key={agent.id} 
                   onClick={() => onStartChat(agent)}
-                  className="bg-[#242426] rounded-2xl border border-white/5 p-6 hover:border-blue-500/40 transition-all hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-blue-500/10 cursor-pointer flex flex-col group relative overflow-hidden"
+                  className="bg-[var(--color-surface-color,#FFFFFF)] rounded-2xl p-6 transition-all hover:-translate-y-1.5 cursor-pointer flex flex-col group relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-[50px] pointer-events-none group-hover:bg-blue-500/10 transition-colors"></div>
-                  
                   <div className="flex items-start justify-between mb-5 relative z-10">
-                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg ring-1 ring-white/10 group-hover:scale-105 transition-transform", agent.color)}>
+                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white group-hover:scale-105 transition-transform", agent.color)}>
                       {React.isValidElement(agent.icon) ? React.cloneElement(agent.icon as React.ReactElement<any>, { size: 28 }) : agent.icon}
                     </div>
-                    <button className="px-4 py-1.5 rounded-lg bg-[#1e1e1e] hover:bg-blue-500 hover:text-white text-gray-300 text-xs font-semibold transition-all opacity-0 group-hover:opacity-100 border border-white/5 shadow-sm">
+                    <button className="px-4 py-1.5 rounded-lg bg-[var(--color-primary-subtle,#E8F0FF)] hover:bg-[var(--color-primary,#165DFF)] hover:text-[var(--color-icon-on-primary,#FFFFFF)] text-[var(--color-primary,#165DFF)] text-xs font-semibold transition-all">
                       唤醒对话
                     </button>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-100 mb-2 group-hover:text-blue-400 transition-colors tracking-wide relative z-10">{agent.name}</h3>
-                  <p className="text-sm text-gray-400 line-clamp-3 mb-6 flex-1 leading-relaxed relative z-10">{agent.desc}</p>
+                  <h3 className="text-lg font-bold text-[var(--color-text-primary,#0A1B3D)] mb-2 group-hover:text-[var(--color-primary,#165DFF)] transition-colors tracking-wide relative z-10">{agent.name}</h3>
+                  <p className="text-sm text-[var(--color-text-secondary,#5B6B88)] line-clamp-3 mb-6 flex-1 leading-relaxed relative z-10">{agent.desc}</p>
                   
-                  <div className="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-white/5 mt-auto relative z-10">
+                  <div className="flex items-center justify-between text-xs text-[var(--color-text-secondary,#5B6B88)] pt-4 mt-auto relative z-10">
                     <span className="flex items-center gap-1.5 font-medium"><Bot size={14}/> {agent.author}</span>
-                    <span className="bg-[#181818] border border-white/5 px-2.5 py-1 rounded-md text-gray-400 tracking-wider font-mono">{agent.users} USERS</span>
+                    <span className="bg-[var(--color-input-bg,#EAF1FB)] px-2.5 py-1 rounded-md text-[var(--color-text-secondary,#5B6B88)] tracking-wider font-mono">{agent.users} USERS</span>
                   </div>
                 </div>
               );
@@ -306,7 +304,7 @@ export const AgentView: React.FC<AgentViewProps> = ({ onStartChat, onCreateAgent
             <div className="flex justify-center pb-8">
               <button
                 type="button"
-                className="rounded-xl border border-white/10 px-5 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5"
+                className="rounded-xl px-5 py-2.5 text-sm text-[var(--color-text-primary,#0A1B3D)] hover:text-[var(--color-primary,#165DFF)] hover:bg-[var(--color-surface-muted,#EAF1FB)]"
                 disabled={loadingMoreMarket}
                 onClick={() => void loadMarketPage(marketPage + 1, true)}
               >

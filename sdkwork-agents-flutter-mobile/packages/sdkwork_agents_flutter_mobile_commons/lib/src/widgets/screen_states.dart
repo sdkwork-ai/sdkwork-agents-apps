@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/design_tokens.dart';
+import '../theme/tech_blue_theme.dart';
 
 /// Domain-neutral screen/list state primitives.
 ///
@@ -18,7 +18,9 @@ SdkworkAgentsScreenStatus resolveSdkworkAgentsScreenStatus(
   if (errorMessage != null && errorMessage.isNotEmpty) {
     return SdkworkAgentsScreenStatus.error;
   }
-  return itemCount == 0 ? SdkworkAgentsScreenStatus.empty : SdkworkAgentsScreenStatus.ready;
+  return itemCount == 0
+      ? SdkworkAgentsScreenStatus.empty
+      : SdkworkAgentsScreenStatus.ready;
 }
 
 /// Payload-free status widget used by capability screens.
@@ -63,6 +65,7 @@ class SdkworkAgentsEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hintText = hint;
+    final ColorScheme scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -73,15 +76,15 @@ class SdkworkAgentsEmptyState extends StatelessWidget {
               width: 64,
               height: 64,
               alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainer,
                 shape: BoxShape.circle,
               ),
               child: Text(
                 glyph,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
-                  color: Color(SdkworkAgentsFlutterTokens.colorTextMuted),
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -89,10 +92,10 @@ class SdkworkAgentsEmptyState extends StatelessWidget {
             Text(
               headline,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Color(SdkworkAgentsFlutterTokens.colorText),
+                color: scheme.onSurface,
               ),
             ),
             if (hintText != null && hintText.isNotEmpty) ...<Widget>[
@@ -100,17 +103,22 @@ class SdkworkAgentsEmptyState extends StatelessWidget {
               Text(
                 hintText,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: Color(SdkworkAgentsFlutterTokens.colorTextMuted),
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
             ],
-            if (onRetry != null) ...<Widget>[
+            if (onRetry != null &&
+                retryLabel != null &&
+                retryLabel!.isNotEmpty) ...<Widget>[
               const SizedBox(height: SdkworkAgentsFlutterTokens.spacingMd),
               FilledButton(
                 onPressed: onRetry,
-                child: Text(retryLabel ?? 'Retry'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(120, 48),
+                ),
+                child: Text(retryLabel!),
               ),
             ],
           ],

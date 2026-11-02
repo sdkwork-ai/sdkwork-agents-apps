@@ -16,6 +16,7 @@ const Map<String, Map<String, String>> agentsProjectsMessages =
     'agents.projects.loading': 'Loading',
     'agents.projects.loadFailed': 'Failed to load projects. Please retry.',
     'agents.projects.truncated': 'Many projects: showing the most recent ones',
+    'agents.projects.retry': 'Retry',
   },
   'zh-CN': <String, String>{
     'agents.projects.title': '项目',
@@ -24,13 +25,14 @@ const Map<String, Map<String, String>> agentsProjectsMessages =
     'agents.projects.loading': '加载中',
     'agents.projects.loadFailed': '项目加载失败，请稍后重试',
     'agents.projects.truncated': '项目较多，仅展示最近的部分',
+    'agents.projects.retry': '重试',
   },
 };
 
 String translateAgentsProjectsMessage(String localeTag, String key) {
   final tag = resolveSdkworkAgentsLocaleTag(localeTag);
-  final messages =
-      agentsProjectsMessages[tag] ?? agentsProjectsMessages[sdkworkAgentsDefaultLocaleTag]!;
+  final messages = agentsProjectsMessages[tag] ??
+      agentsProjectsMessages[sdkworkAgentsDefaultLocaleTag]!;
   final value = messages[key];
   return value != null && value.isNotEmpty ? value : key;
 }

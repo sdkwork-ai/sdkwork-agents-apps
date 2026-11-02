@@ -44,7 +44,28 @@
     "sdkClients": [],
     "sdkDependencies": [],
     "dependencyApiExports": [],
-    "dependencyApiSurfaces": []
+    "dependencyApiSurfaces": [],
+    "providedPorts": [
+      {
+        "name": "agentsHarmonyHostAdapters",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyPreferencesAdapter",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyDeviceInfoAdapter",
+        "export": "Index.ets"
+      }
+    ],
+    "requiredPorts": [
+      {
+        "name": "agentsHarmonyHostContracts",
+        "package": "@sdkwork/sdkwork-agents-harmony-mobile-core",
+        "export": "Index.ets"
+      }
+    ]
   },
   "verification": {
     "commands": [

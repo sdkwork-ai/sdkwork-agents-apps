@@ -36,7 +36,8 @@ class AgentCatalogService {
       throw ArgumentError.value(page, 'page', 'must be a positive integer');
     }
     if (pageSize < 1) {
-      throw ArgumentError.value(pageSize, 'pageSize', 'must be a positive integer');
+      throw ArgumentError.value(
+          pageSize, 'pageSize', 'must be a positive integer');
     }
     // The Dart generator flattens the sub-resource tree: the operation is
     // `AiApi.agentsList`, not `AiApi.agents.list`.
@@ -57,17 +58,50 @@ class AgentCatalogService {
       ),
     );
   }
+
+  /// Loads one agent for the editor.
+  Future<AgentsCatalogItem?> loadAgent(String agentId) async {
+    final response = await client.ai.agentsRetrieve(agentId);
+    final data = sdkworkAgentsAsMap(response?.data);
+    if (data == null) {
+      return null;
+    }
+    final items = extractAgentsCatalogItems(<Map<String, dynamic>>[data]);
+    return items.isEmpty ? null : items.first;
+  }
+
+  /// Updates the editable fields of one agent.
+  Future<void> updateAgent({
+    required String agentId,
+    required String name,
+    required String description,
+  }) async {
+    final response = await client.ai.agentsUpdate(
+      agentId,
+      UpdateAgentRequest(
+        displayName: name,
+        description: description,
+        requestedAt: DateTime.now().toUtc().toIso8601String(),
+      ),
+    );
+    if (response == null) {
+      throw StateError('The agent update returned no record.');
+    }
+  }
 }
 
 /// Structural mapping because the record DTO is read field-by-field.
-List<AgentsCatalogItem> extractAgentsCatalogItems(List<Map<String, dynamic>> records) {
+List<AgentsCatalogItem> extractAgentsCatalogItems(
+    List<Map<String, dynamic>> records) {
   final items = <AgentsCatalogItem>[];
   for (final record in records) {
     final id = record['agentId'] ?? record['id'] ?? record['code'];
     if (id is! String || id.isEmpty) {
       continue;
     }
-    final name = record['displayName']?.toString() ?? record['code']?.toString() ?? 'Agent';
+    final name = record['displayName']?.toString() ??
+        record['code']?.toString() ??
+        'Agent';
     items.add(
       AgentsCatalogItem(
         id: id,

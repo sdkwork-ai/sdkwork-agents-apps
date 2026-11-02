@@ -4,8 +4,8 @@ version: 0.1.0
 publish_to: none
 
 environment:
-  sdk: ">=3.5.0 <4.0.0"
-  flutter: ">=3.24.0"
+  sdk: ">=3.11.0 <4.0.0"
+  flutter: ">=3.41.0"
 
 dependencies:
   flutter:
@@ -26,6 +26,19 @@ dependencies:
     path: packages/sdkwork_agents_flutter_mobile_projects
   sdkwork_agents_flutter_mobile_automation:
     path: packages/sdkwork_agents_flutter_mobile_automation
+  sdkwork_agents_flutter_mobile_inspiration:
+    path: packages/sdkwork_agents_flutter_mobile_inspiration
+  sdkwork_agents_flutter_mobile_creative:
+    path: packages/sdkwork_agents_flutter_mobile_creative
+  sdkwork_agents_flutter_mobile_assets:
+    path: packages/sdkwork_agents_flutter_mobile_assets
+  sdkwork_agents_flutter_mobile_canvas:
+    path: packages/sdkwork_agents_flutter_mobile_canvas
+  sdkwork_agents_flutter_mobile_membership:
+    path: packages/sdkwork_agents_flutter_mobile_membership
+  sdkwork_agents_flutter_mobile_profile:
+    path: packages/sdkwork_agents_flutter_mobile_profile
+  shared_preferences: ^2.5.6
 
 dev_dependencies:
   flutter_test:

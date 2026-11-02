@@ -118,7 +118,7 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
       } finally {
         setAnchoringAvatar(false);
       }
-    }
+      }
     onSave(tempName, tempDesc, avatarForSave);
   };
 
@@ -127,9 +127,9 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex w-[480px] flex-col overflow-hidden rounded-xl border border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-[#222] shadow-2xl"
+        className="flex w-[480px] flex-col overflow-hidden rounded-xl bg-slate-50 dark:bg-[#222]"
       >
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#1a1a1a] p-4">
+        <div className="flex items-center justify-between bg-slate-50 dark:bg-[#1a1a1a] p-4">
           <h3 className="font-medium text-slate-800 dark:text-gray-200">编辑基础信息</h3>
         </div>
         <div className="space-y-4 p-6">
@@ -149,7 +149,7 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
               type="text"
               value={tempName}
               onChange={(event) => setTempName(event.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#181818] px-3 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors focus:border-slate-300 dark:focus:border-white/20"
+              className="w-full rounded-lg bg-slate-50 dark:bg-[#181818] px-3 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors"
             />
           </div>
           <div>
@@ -157,11 +157,11 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
             <textarea
               value={tempDesc}
               onChange={(event) => setTempDesc(event.target.value)}
-              className="custom-scrollbar h-20 w-full resize-none rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#181818] px-3 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors focus:border-slate-300 dark:focus:border-white/20"
+              className="custom-scrollbar h-20 w-full resize-none rounded-lg bg-slate-50 dark:bg-[#181818] px-3 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors"
             />
           </div>
-        </div>
-        <div className="flex justify-end gap-2 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#1a1a1a] p-4">
+          </div>
+            <div className="flex justify-end gap-2 bg-slate-50 dark:bg-[#1a1a1a] p-4">
           <button
             type="button"
             onClick={onClose}
@@ -173,7 +173,7 @@ export const EditBasicInfoModal: React.FC<EditBasicInfoModalProps> = ({
             type="button"
             disabled={!tempName.trim() || avatarSnapshot.isUploading || anchoringAvatar}
             onClick={() => void handleSave()}
-            className="rounded bg-[#00b42a] px-4 py-2 text-sm text-white transition-colors hover:bg-[#009a24] disabled:bg-[#00b42a]/50"
+            className="rounded bg-[#165DFF] px-4 py-2 text-sm text-white transition-colors hover:bg-[#4080FF] active:bg-[#0E42D2] disabled:bg-[#165DFF]/50"
           >
             {avatarSnapshot.isUploading || anchoringAvatar ? '上传中' : '保存'}
           </button>

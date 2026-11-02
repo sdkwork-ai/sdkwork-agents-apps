@@ -1,24 +1,29 @@
-/**
- * Package-local locale fragments.
- *
- * Authority: `I18N_SPEC.md` section 6.1 — split by locale, domain, capability,
- * and screen fragment. Platform monolithic resources are assembled from these
- * fragments and must not be hand-authored as a whole-root catalog.
- */
-export const agentsMessagesEnUs: Record<string, string> = {
-  'agents.catalog.title': 'Agents',
-  'agents.detail.title': 'Agent',
-  'agents.create.title': 'Create Agent',
-  'agents.conversation.title': 'Conversation',
-  'agents.catalog.empty': 'No agents yet',
-  'agents.catalog.loadFailed': 'Failed to load agents',
-};
+import {
+  type AgentsHarmonyMessageCatalog,
+  mergeAgentsHarmonyCatalogs,
+} from '@sdkwork/sdkwork-agents-harmony-mobile-commons';
+import { agentsLocalizedMessage } from '@sdkwork/sdkwork-agents-harmony-mobile-shell';
 
-export const agentsMessagesZhCn: Record<string, string> = {
-  'agents.catalog.title': '智能体',
-  'agents.detail.title': '智能体详情',
-  'agents.create.title': '创建智能体',
-  'agents.conversation.title': '对话',
-  'agents.catalog.empty': '暂无智能体',
-  'agents.catalog.loadFailed': '智能体加载失败',
-};
+import { agentsCatalogListEnUs } from './en-US/agents/catalog/list';
+import { agentsConversationChatEnUs } from './en-US/agents/conversation/chat';
+import { agentsCatalogListZhCn } from './zh-CN/agents/catalog/list';
+import { agentsConversationChatZhCn } from './zh-CN/agents/conversation/chat';
+
+/**
+ * Package-local locale aggregation for the agents capability.
+ *
+ * Authority: `I18N_SPEC.md` section 6.1 — authored copy lives in
+ * `<locale>/<domain>/<capability>/<screen>` fragments; this module only
+ * aggregates and looks up. Platform `resources/**/element/string.json` files are
+ * projections and stay out of authored copy.
+ */
+export const agentsMessagesEnUs: AgentsHarmonyMessageCatalog =
+  mergeAgentsHarmonyCatalogs([agentsCatalogListEnUs, agentsConversationChatEnUs]);
+
+export const agentsMessagesZhCn: AgentsHarmonyMessageCatalog =
+  mergeAgentsHarmonyCatalogs([agentsCatalogListZhCn, agentsConversationChatZhCn]);
+
+/** Resolves one agents message key in the active runtime locale. */
+export function agentsMessage(key: string): string {
+  return agentsLocalizedMessage(agentsMessagesZhCn, agentsMessagesEnUs, key);
+}

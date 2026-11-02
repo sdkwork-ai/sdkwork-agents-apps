@@ -1,0 +1,15 @@
+/* Asset detail: shared app-bar, state, and detail-row styles live in app.wxss. */
+
+.detail-media {
+  display: block;
+  width: 100%;
+  margin-bottom: 24rpx;
+  border-radius: var(--radius-lg);
+  background: var(--muted);
+}
+
+.detail-action {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24rpx;
+}

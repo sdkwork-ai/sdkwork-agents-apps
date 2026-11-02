@@ -37,14 +37,14 @@ interface BotMessageItemProps {
  * Interaction contract (industry-standard reasoning UX, mirroring
  * DeepSeek/Kimi-style thinking panes):
  * - While reasoning deltas stream in (`active`), the block auto-expands and
- *   its capped-height body sticks to the bottom edge so the newest thinking
- *   text stays visible while it streams.
+ * its capped-height body sticks to the bottom edge so the newest thinking
+ * text stays visible while it streams.
  * - When the reasoning phase ends (the first answer delta arrives, or the
- *   stream finishes), the block auto-collapses so the visible answer can
- *   stream below it without pushing the reasoning transcript into view.
+ * stream finishes), the block auto-collapses so the visible answer can
+ * stream below it without pushing the reasoning transcript into view.
  * - A manual toggle always wins while the phase is active (the automatic
- *   behavior only fires on phase transitions); it re-arms on the next
- *   reasoning phase.
+ * behavior only fires on phase transitions); it re-arms on the next
+ * reasoning phase.
  * - Reloaded transcripts render collapsed (streaming is not active).
  */
 const ThinkingBlock: React.FC<{ content: string; streaming: boolean; active: boolean }> = ({
@@ -81,7 +81,7 @@ const ThinkingBlock: React.FC<{ content: string; streaming: boolean; active: boo
 
   if (!content) return null;
   return (
-    <div className="mb-2 overflow-hidden rounded-lg border border-gray-200/80 bg-gray-50/80 dark:border-gray-700/80 dark:bg-[#232323]">
+    <div className="mb-2 overflow-hidden rounded-lg bg-gray-50/80 dark:bg-[#232323]">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -99,7 +99,7 @@ const ThinkingBlock: React.FC<{ content: string; streaming: boolean; active: boo
       {open && (
         <div
           ref={bodyRef}
-          className="max-h-64 overflow-y-auto border-t border-gray-200/80 px-2.5 py-2"
+          className="max-h-64 overflow-y-auto px-2.5 py-2"
         >
           <MarkdownRenderer content={content} streaming={active || streaming} muted />
         </div>
@@ -132,7 +132,7 @@ function mediaDoneLabel(kind: 'image' | 'video' | 'audio'): { key: string; fallb
     case 'audio':
       return { key: 'toolDone.audio', fallback: '音频已生成' };
   }
-}
+  }
 
 /** Stable list key for one generated media asset. */
 function mediaKey(media: { kind: string; url: string }, index: number): string {
@@ -227,7 +227,7 @@ function parseToolArguments(raw?: string): Record<string, unknown> | null {
   } catch {
     return null;
   }
-}
+  }
 
 /** Localized labels for known generation argument keys. */
 const TOOL_ARG_LABELS: Record<string, { key: string; fallback: string }> = {
@@ -289,7 +289,7 @@ function buildArgRows(parsed: Record<string, unknown>): ToolArgRow[] {
     if (typeof rawValue === 'string' || typeof rawValue === 'number' || typeof rawValue === 'boolean') {
       rows.push({ labelKey, label, value: String(rawValue) });
     }
-  }
+    }
   return rows;
 }
 
@@ -302,13 +302,13 @@ const ToolMediaPlaceholder: React.FC<{ kind: ToolMediaKind }> = ({ kind }) => {
     kind === 'image' ? '图片生成中…' : kind === 'video' ? '视频生成中…' : '音频合成中…';
   const Icon = kind === 'image' ? ImageIcon : kind === 'video' ? Video : Volume2;
   return (
-    <div className="mx-2 mb-2 flex items-center gap-3 rounded-md border border-gray-200/80 bg-gradient-to-r from-gray-100/80 to-gray-50/60 px-3 py-3 dark:border-gray-700/80 dark:from-[#2a2a2a] dark:to-[#232323]">
+    <div className="mx-2 mb-2 flex items-center gap-3 rounded-md bg-[var(--ag-color-surface-muted,#EAF1FB)] px-3 py-3">
       <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[#e6f4ff] dark:bg-[#11263d]">
-        <Icon size={18} className="text-[#1890ff]" />
+        <Icon size={18} className="text-[#165DFF]" />
       </div>
       <div className="flex min-w-0 flex-col gap-0.5">
         <span className="flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200">
-          <Loader2 size={12} className="animate-spin text-[#1890ff]" />
+          <Loader2 size={12} className="animate-spin text-[#165DFF]" />
           {tCommon(progressKey, { defaultValue: progressFallback })}
         </span>
         <span className="text-[11px] text-gray-400 dark:text-gray-500">
@@ -316,11 +316,11 @@ const ToolMediaPlaceholder: React.FC<{ kind: ToolMediaKind }> = ({ kind }) => {
         </span>
       </div>
       <div className="ml-auto flex shrink-0 gap-1" aria-hidden>
-        <span className="size-1.5 animate-bounce rounded-full bg-[#1890ff]/70 [animation-delay:0ms]" />
-        <span className="size-1.5 animate-bounce rounded-full bg-[#1890ff]/50 [animation-delay:150ms]" />
-        <span className="size-1.5 animate-bounce rounded-full bg-[#1890ff]/30 [animation-delay:300ms]" />
+        <span className="size-1.5 animate-bounce rounded-full bg-[#165DFF]/70 [animation-delay:0ms]" />
+        <span className="size-1.5 animate-bounce rounded-full bg-[#165DFF]/50 [animation-delay:150ms]" />
+        <span className="size-1.5 animate-bounce rounded-full bg-[#165DFF]/30 [animation-delay:300ms]" />
       </div>
-    </div>
+      </div>
   );
 };
 
@@ -331,7 +331,7 @@ const ToolArgsSummary: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
   if (!parsed) {
     if (!tool.arguments?.trim()) return null;
     return (
-      <pre className="max-h-56 overflow-auto border-t border-gray-200/80 px-2.5 py-2 text-xs whitespace-pre-wrap break-all text-gray-600 dark:border-gray-700/80 dark:text-gray-300">
+      <pre className="max-h-56 overflow-auto px-2.5 py-2 text-xs whitespace-pre-wrap break-all text-gray-600 dark:text-gray-300">
         {tool.arguments}
       </pre>
     );
@@ -342,11 +342,11 @@ const ToolArgsSummary: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
   const briefRows = rows.filter((row) => !row.quoted);
   const quoteRows = rows.filter((row) => row.quoted);
   return (
-    <div className="flex flex-col gap-1.5 border-t border-gray-200/80 px-2.5 py-2 dark:border-gray-700/80">
+    <div className="flex flex-col gap-1.5 px-2.5 py-2">
       {quoteRows.map((row) => (
         <blockquote
           key={row.label}
-          className="rounded-md border-l-2 border-[#1890ff]/60 bg-[#e6f4ff]/60 px-2.5 py-1.5 text-xs leading-relaxed text-gray-700 dark:bg-[#11263d]/60 dark:text-gray-200"
+          className="rounded-md bg-[#e6f4ff]/60 px-2.5 py-1.5 text-xs leading-relaxed text-gray-700 dark:bg-[#11263d]/60 dark:text-gray-200"
         >
           <span className="mb-0.5 block text-[11px] text-gray-400 dark:text-gray-500">
             {rowLabel(row)}
@@ -397,7 +397,7 @@ const ToolMediaResult: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
               src={item.url}
               alt={tCommon('toolDone.image', { defaultValue: '图片已生成' })}
               loading="lazy"
-              className="max-h-56 w-full rounded-md border border-gray-200/80 object-contain dark:border-gray-700/80"
+              className="max-h-56 w-full rounded-md object-contain"
             />
           ))}
         </div>
@@ -408,7 +408,7 @@ const ToolMediaResult: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
           src={images[0].url}
           alt={tCommon('toolDone.image', { defaultValue: '图片已生成' })}
           loading="lazy"
-          className="max-h-72 w-auto max-w-full rounded-md border border-gray-200/80 object-contain dark:border-gray-700/80"
+          className="max-h-72 w-auto max-w-full rounded-md object-contain"
         />
       )}
       {others.map((item, index) => {
@@ -419,7 +419,7 @@ const ToolMediaResult: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
               src={item.url}
               controls
               preload="metadata"
-              className="max-h-72 w-full max-w-full rounded-md border border-gray-200/80 bg-black dark:border-gray-700/80"
+              className="max-h-72 w-full max-w-full rounded-md bg-black"
             />
           );
         }
@@ -455,10 +455,10 @@ const ToolCallCard: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
   return (
     <div
       className={cn(
-        'mb-1.5 w-full overflow-hidden rounded-md border bg-gray-50/60 dark:bg-[#1f1f1f]',
+        'mb-1.5 w-full overflow-hidden rounded-md bg-gray-50/60 dark:bg-[#1f1f1f]',
         failed
-          ? 'border-red-200/80 dark:border-red-900/60'
-          : 'border-gray-200/80 dark:border-gray-700/80',
+        ? ''
+        : '',
       )}
     >
       <button
@@ -468,7 +468,7 @@ const ToolCallCard: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
         aria-expanded={open}
       >
         {running ? (
-          <Loader2 size={13} className="animate-spin text-[#1890ff]" />
+          <Loader2 size={13} className="animate-spin text-[#165DFF]" />
         ) : tool.status === 'completed' ? (
           <CheckCircle2 size={13} className="text-emerald-500 dark:text-emerald-400" />
         ) : (
@@ -476,7 +476,7 @@ const ToolCallCard: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
         )}
         <span className="truncate font-medium">{title}</span>
         {progress && (
-          <span className="ml-1 shrink-0 text-[11px] text-[#1890ff]">
+          <span className="ml-1 shrink-0 text-[11px] text-[#165DFF]">
             {tCommon(progress.key, { defaultValue: progress.fallback })}
           </span>
         )}
@@ -496,7 +496,7 @@ const ToolCallCard: React.FC<{ tool: ChatToolCall }> = ({ tool }) => {
       )}
       {hasMedia && !running && <ToolMediaResult tool={tool} />}
       {open && tool.error && (
-        <pre className="max-h-40 overflow-auto border-t border-red-200/80 px-2.5 py-2 text-xs whitespace-pre-wrap break-all text-red-600 dark:border-red-900/60 dark:text-red-300">
+        <pre className="max-h-40 overflow-auto px-2.5 py-2 text-xs whitespace-pre-wrap break-all text-red-600 dark:text-red-300">
           {tool.error}
         </pre>
       )}
@@ -553,7 +553,7 @@ export const BotMessageItem: React.FC<BotMessageItemProps> = ({
 
         {!isStreaming && message.citations && message.citations.length > 0 && (
           <div
-            className="mt-1 w-full rounded-lg border border-gray-200/80 bg-gray-50/60 px-2.5 py-2 dark:border-[#3a3a3a] dark:bg-[#1f1f1f]/60"
+            className="mt-1 w-full rounded-lg bg-gray-50/60 px-2.5 py-2 dark:bg-[#1f1f1f]/60"
             data-chat-citations
           >
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 dark:text-gray-400">
@@ -594,7 +594,7 @@ export const BotMessageItem: React.FC<BotMessageItemProps> = ({
               className={cn(
                 'rounded-md p-1.5 transition-colors hover:bg-[#e5e5e5] dark:hover:bg-[#2f2f2f]',
                 feedback[message.id] === 'up'
-                  ? 'text-[#1890ff]'
+                ? 'text-[#165DFF]'
                   : 'text-gray-400 hover:text-gray-900 dark:hover:text-gray-200',
               )}
               title={tCommon('goodResponse')}
@@ -617,6 +617,6 @@ export const BotMessageItem: React.FC<BotMessageItemProps> = ({
           </div>
         )}
       </div>
-    </div>
+      </div>
   );
 };

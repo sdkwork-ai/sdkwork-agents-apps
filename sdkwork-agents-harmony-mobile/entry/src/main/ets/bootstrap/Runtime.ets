@@ -5,7 +5,7 @@ import { createAgentsHarmonyEnvironment, type AgentsHarmonyEnvironment } from '.
 import { registerAgentsHarmonyHostAdapters } from './HostAdapters';
 import { createAgentsHarmonyIamRuntime } from './IamRuntime';
 import { createAgentsHarmonySdkClients } from './SdkClients';
-import { createAgentsHarmonyRoutes } from './Routes';
+import { initializeAgentsHarmonyShell, type AgentsHarmonyShellRuntime } from './ShellComposition';
 
 const DOMAIN: number = 0x0000;
 const TAG: string = 'SdkworkAgentsBootstrap';
@@ -14,7 +14,14 @@ const TAG: string = 'SdkworkAgentsBootstrap';
  * Root composition entry.
  *
  * This module assembles the environment, SDK clients, IAM runtime, host
- * adapters, and route registry only. It must not own product business logic.
+ * adapters, shell navigation, and route registry only. It must not own product
+ * business logic.
+ *
+ * Shell composition is installed before runtime-config resolution: the tab
+ * shell, profile hub, and settings form depend on host adapters rather than on
+ * remote transports, so they must render even while the ArkTS SDK adaptation or
+ * the runtime-config projection is still pending. A page then reports the
+ * explicit `unavailable` state for anything it cannot load.
  */
 export interface AgentsHarmonyRuntime {
   readonly environment: AgentsHarmonyEnvironment;
@@ -22,16 +29,17 @@ export interface AgentsHarmonyRuntime {
 }
 
 export function bootstrapAgentsHarmonyApp(context: AbilityContext): AgentsHarmonyRuntime | null {
+  registerAgentsHarmonyHostAdapters();
+  const shell: AgentsHarmonyShellRuntime = initializeAgentsHarmonyShell(context);
+
   try {
     const environment: AgentsHarmonyEnvironment = createAgentsHarmonyEnvironment(
       createAgentsHarmonyRuntimeConfig(),
     );
     createAgentsHarmonySdkClients().initialize(environment.agentsApiBaseUrl);
     createAgentsHarmonyIamRuntime();
-    registerAgentsHarmonyHostAdapters();
-    const routes = createAgentsHarmonyRoutes();
     hilog.info(DOMAIN, TAG, 'bootstrap completed for profile %{public}s', environment.profileId);
-    return { environment, routeCount: routes.length };
+    return { environment, routeCount: shell.routeCount };
   } catch (error) {
     hilog.error(DOMAIN, TAG, 'bootstrap failed: %{public}s', JSON.stringify(error));
     return null;

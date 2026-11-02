@@ -52,8 +52,8 @@ export const MessageList: React.FC<MessageListProps> = ({
   if (messages.length === 0) {
     return (
       <div className="h-[calc(100cqh-200px)] flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500 ease-out">
-        <div className="w-16 h-16 bg-gradient-to-tr from-[#1890ff] to-[#096dd9] text-white rounded-2xl flex items-center justify-center mb-6 shadow-[#1890ff]/20 shadow-xl border border-[#1890ff]/30 ring-4 ring-[#1890ff]/10">
-          <Sparkles size={32} className="text-white drop-shadow-md" />
+        <div className="w-16 h-16 bg-[var(--ag-color-primary,#165DFF)] text-white rounded-2xl flex items-center justify-center mb-6 ring-4 ring-[#165DFF]/10">
+          <Sparkles size={32} className="text-[var(--ag-color-icon-on-primary,#FFFFFF)]" />
         </div>
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
           {welcomeTitle ?? t('howCanIHelp')}

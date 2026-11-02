@@ -1,0 +1,21 @@
+{
+  "agents.membership.title": "Membership",
+  "agents.membership.loading": "Loading membership plans",
+  "agents.membership.loadFailed": "Failed to load membership plans. Please retry.",
+  "agents.membership.unavailable.title": "Membership is not available yet",
+  "agents.membership.unavailable.hint": "This client has no membership service transport. Retry once the service is connected.",
+  "agents.membership.retry": "Retry",
+  "agents.membership.summary.title": "Current membership",
+  "agents.membership.summary.member": "Member",
+  "agents.membership.summary.guest": "Not a member",
+  "agents.membership.summary.points": "Points balance",
+  "agents.membership.summary.expiresAt": "Valid until",
+  "agents.membership.plans.title": "Plans",
+  "agents.membership.plans.empty": "No plans are published yet",
+  "agents.membership.plans.current": "Current plan",
+  "agents.membership.plans.recommended": "Recommended",
+  "agents.membership.checkout": "Subscribe",
+  "agents.membership.checkoutUnavailable": "Checkout is not available yet",
+  "agents.membership.checkoutReady": "Checkout link",
+  "agents.membership.checkoutClose": "Close"
+}

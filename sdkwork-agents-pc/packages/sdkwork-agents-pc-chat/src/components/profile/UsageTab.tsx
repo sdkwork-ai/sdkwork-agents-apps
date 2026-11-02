@@ -21,13 +21,13 @@ export const UsageTab: React.FC<UsageTabProps> = ({ t }) => {
         <p className="text-xs text-gray-500 mt-1">{t('usageSubtitle')}</p>
       </div>
 
-      <div className="p-6 rounded-2xl border border-gray-100 dark:border-zinc-850 bg-gray-50/20 dark:bg-zinc-900/10 flex flex-col items-center justify-center gap-3 text-center">
-        <Info size={20} className="text-[#1890ff]" />
+        <div className="p-6 rounded-2xl bg-gray-50/20 dark:bg-zinc-900/10 flex flex-col items-center justify-center gap-3 text-center">
+          <Info size={20} className="text-[#165DFF]" />
         <p className="text-xs font-bold text-gray-800 dark:text-zinc-200">{t('usageEmptyTitle')}</p>
         <p className="text-[11px] text-gray-500 dark:text-zinc-400 max-w-xs leading-relaxed">
           {t('usageEmptyDescription')}
         </p>
       </div>
-    </div>
+      </div>
   );
 };

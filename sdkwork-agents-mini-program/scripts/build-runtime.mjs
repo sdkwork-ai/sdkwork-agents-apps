@@ -48,6 +48,16 @@ for (const [key, expected] of Object.entries({
 const runtimeDir = path.join(appRoot, "src", "runtime");
 mkdirSync(runtimeDir, { recursive: true });
 
+// The manifest records the page projection the bundle was produced for, so a
+// stale bundle is detectable from the build output alone
+// (`MINI_PROGRAM_APP_ARCHITECTURE_SPEC.md` section 5).
+const appJson = JSON.parse(readFileSync(path.join(appRoot, "src", "app.json"), "utf8"));
+const tabBarPages = (appJson.tabBar?.list ?? []).map((entry) => entry.pagePath);
+const subPackages = (appJson.subPackages ?? []).map((entry) => ({
+  root: entry.root,
+  pages: [...entry.pages],
+}));
+
 await esbuild.build({
   entryPoints: [path.join(appRoot, "src/bootstrap/runtimeBundle.ts")],
   bundle: true,
@@ -79,6 +89,9 @@ writeFileSync(
     profileId,
     runtimeTarget: "mini-program",
     platform: "MP_WEIXIN",
+    pages: appJson.pages,
+    subPackages,
+    tabBarPages,
   }, null, 2)}\n`,
   "utf8",
 );

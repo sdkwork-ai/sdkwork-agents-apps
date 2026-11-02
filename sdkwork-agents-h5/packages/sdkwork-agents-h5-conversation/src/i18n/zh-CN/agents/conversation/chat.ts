@@ -33,6 +33,13 @@ export const agentsConversationChatZhCn = {
   "agents.conversation.sessions.cancel": "取消",
   "agents.conversation.sessions.confirm": "确定",
 
+  "agents.mobile.history.title": "会话历史",
+  "agents.conversation.history.search": "搜索会话",
+  "agents.conversation.history.open": "打开会话",
+  "agents.conversation.history.loadFailed": "会话历史加载失败，请重试。",
+  "agents.conversation.history.deleteFailed": "删除会话失败，请重试。",
+  "agents.conversation.history.updatedAt": "更新于 {{date}}",
+
   "agents.conversation.message.copy": "复制",
   "agents.conversation.message.copied": "已复制",
   "agents.conversation.message.copyFailed": "复制失败",

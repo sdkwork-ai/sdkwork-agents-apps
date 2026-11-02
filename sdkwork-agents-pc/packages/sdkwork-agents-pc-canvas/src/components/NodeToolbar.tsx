@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  Eye, 
-  Edit3, 
-  Bold, 
-  Italic, 
-  Code, 
-  Quote, 
-  Trash2, 
-  Type, 
-  Menu, 
-  Check, 
-  Sparkles, 
-  Image as ImageIcon, 
+import {
+  Eye,
+  Edit3,
+  Bold,
+  Italic,
+  Code,
+  Quote,
+  Trash2,
+  Type,
+  Menu,
+  Check,
+  Sparkles,
+  Image as ImageIcon,
   Video as VideoIcon,
   Play,
   Maximize2
@@ -22,7 +22,7 @@ import { cn } from '@sdkwork/agents-pc-commons';
 const stickyColors: Record<string, { bg: string, ring: string, label: string }> = {
   yellow: { bg: 'bg-[#fef9c3]', ring: 'ring-yellow-400/50', label: '黄色' },
   pink: { bg: 'bg-[#fce7f3]', ring: 'ring-pink-400/50', label: '粉色' },
-  cyan: { bg: 'bg-[#ecfeff]', ring: 'ring-cyan-400/50', label: '蓝色' },
+  cyan: { bg: 'bg-[#FFFFFF]', ring: 'ring-[#4080FF]/50', label: '蓝色' },
   emerald: { bg: 'bg-[#ecfdf5]', ring: 'ring-emerald-400/50', label: '绿色' },
   orange: { bg: 'bg-[#fff7ed]', ring: 'ring-orange-400/50', label: '橙色' },
   purple: { bg: 'bg-[#faf5ff]', ring: 'ring-purple-400/50', label: '紫色' }
@@ -51,9 +51,9 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
     const selectionEnd = textarea.selectionEnd;
     const selectedText = val.substring(selectionStart, selectionEnd);
     const replacement = prefix + selectedText + suffix;
-    
+
     onUpdate(node.id, { content: val.slice(0, selectionStart) + replacement + val.slice(selectionEnd) });
-    
+
     setTimeout(() => {
       textarea.focus();
       const newCursor = selectionStart + prefix.length + selectedText.length;
@@ -67,13 +67,13 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
 
   // Render different tools based on node.type
   return (
-    <div 
+    <div
       onMouseDown={(e) => e.stopPropagation()}
       className={cn(
-        "absolute bottom-full left-0 mb-3.5 flex items-center gap-1.5 p-1 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] z-50 no-drag select-none whitespace-nowrap animate-in fade-in slide-in-from-bottom-2 duration-150 border",
+        "absolute bottom-full left-0 mb-3.5 flex items-center gap-1.5 p-1 rounded-xl z-50 no-drag select-none whitespace-nowrap animate-in fade-in slide-in-from-bottom-2 duration-150",
         node.type === 'sticky'
-          ? "bg-white/95 backdrop-blur-md border-zinc-200 text-zinc-800"
-          : "bg-zinc-950/95 backdrop-blur-xl border-white/10 text-zinc-100"
+        ? "bg-white/95 backdrop-blur-md text-zinc-800"
+        : "bg-zinc-950/95 backdrop-blur-xl text-zinc-100"
       )}
     >
       {/* ========================================================
@@ -82,13 +82,13 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
       {node.type === 'text' && (
         <>
           {/* Mode Toggle */}
-          <div className="flex items-center p-0.5 rounded-lg border bg-black/40 border-white/5">
+          <div className="flex items-center p-0.5 rounded-lg bg-black/40">
             <button
               onClick={() => onUpdate(node.id, { editorMode: 'preview' })}
               className={cn(
                 "px-2 py-1 rounded-md text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer",
-                currentMode === 'preview' 
-                  ? "bg-cyan-500 text-black font-extrabold shadow-sm" 
+                currentMode === 'preview'
+                ? "bg-[#165DFF] text-white font-extrabold"
                   : "text-zinc-400 hover:text-white"
               )}
             >
@@ -99,8 +99,8 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
               onClick={() => onUpdate(node.id, { editorMode: 'edit' })}
               className={cn(
                 "px-2 py-1 rounded-md text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer",
-                currentMode === 'edit' 
-                  ? "bg-cyan-500 text-black font-extrabold shadow-sm" 
+                currentMode === 'edit'
+                ? "bg-[#165DFF] text-white font-extrabold"
                   : "text-zinc-400 hover:text-white"
               )}
             >
@@ -151,14 +151,14 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowFontDropdown(!showFontDropdown)}
-              className="px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all border border-white/5 bg-black/30 text-zinc-300 hover:text-white cursor-pointer"
+              className="px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all bg-black/30 text-zinc-300 hover:text-white cursor-pointer"
             >
-              <Type size={10} className="text-cyan-400" />
+              <Type size={10} className="text-[#4080FF]" />
               <span className="capitalize">{currentFont}</span>
             </button>
 
             {showFontDropdown && (
-              <div className="absolute top-full left-0 mt-1 rounded-lg border shadow-xl p-1 z-50 flex flex-col gap-0.5 min-w-[80px] bg-zinc-950 border-white/10">
+              <div className="absolute top-full left-0 mt-1 rounded-lg p-1 z-50 flex flex-col gap-0.5 min-w-[80px] bg-zinc-950">
                 {['sans', 'serif', 'mono'].map((f) => (
                   <button
                     key={f}
@@ -168,8 +168,8 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
                     }}
                     className={cn(
                       "px-2 py-1 text-left text-[10px] font-bold rounded cursor-pointer flex items-center justify-between",
-                      currentFont === f 
-                        ? "bg-cyan-500/10 text-cyan-400 font-extrabold"
+                      currentFont === f
+                      ? "bg-[#165DFF]/10 text-[#4080FF] font-extrabold"
                         : "text-zinc-400 hover:bg-white/5 hover:text-white"
                     )}
                   >
@@ -187,10 +187,10 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
           <button
             onClick={() => onUpdate(node.id, { showTOC: !currentShowTOC })}
             className={cn(
-              "px-2 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer",
-              currentShowTOC 
-                ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" 
-                : "border-white/5 bg-black/30 text-zinc-400 hover:text-white"
+              "px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer",
+              currentShowTOC
+              ? "bg-[#165DFF]/10 text-[#4080FF]"
+              : "bg-black/30 text-zinc-400 hover:text-white"
             )}
           >
             <Menu size={10} />
@@ -205,7 +205,7 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
       {node.type === 'image-gen' && (
         <>
           <div className="flex items-center gap-1.5 px-1.5">
-            <ImageIcon size={11} className="text-cyan-400 shrink-0" />
+            <ImageIcon size={11} className="text-[#4080FF] shrink-0" />
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">图片属性</span>
           </div>
 
@@ -225,10 +225,10 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
                   onUpdate(node.id, { ratio, height: targetHeight });
                 }}
                 className={cn(
-                  "px-2 py-1 text-[9.5px] font-bold rounded-lg transition-all border cursor-pointer",
-                  node.ratio === ratio 
-                    ? "bg-cyan-500 text-black border-cyan-400 shadow-sm" 
-                    : "border-white/5 bg-black/30 text-zinc-400 hover:text-white"
+                  "px-2 py-1 text-[9.5px] font-bold rounded-lg transition-all cursor-pointer",
+                  node.ratio === ratio
+                  ? "bg-[#165DFF] text-white"
+                  : "bg-black/30 text-zinc-400 hover:text-white"
                 )}
               >
                 {ratio}
@@ -243,7 +243,7 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
             <button
               onClick={() => triggerGeneration()}
               disabled={node.status === 'generating'}
-              className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black hover:scale-102 active:scale-98 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-[#165DFF] hover:bg-[#4080FF] text-white hover:scale-102 active:scale-98 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Sparkles size={10} />
               <span>{node.status === 'completed' ? '重新渲染' : '生成图像'}</span>
@@ -277,10 +277,10 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
                   onUpdate(node.id, { ratio, height: targetHeight });
                 }}
                 className={cn(
-                  "px-2 py-1 text-[9.5px] font-bold rounded-lg transition-all border cursor-pointer",
-                  node.ratio === ratio 
-                    ? "bg-indigo-500 text-white border-indigo-400 shadow-sm" 
-                    : "border-white/5 bg-black/30 text-zinc-400 hover:text-white"
+                  "px-2 py-1 text-[9.5px] font-bold rounded-lg transition-all cursor-pointer",
+                  node.ratio === ratio
+                  ? "bg-indigo-500 text-white"
+                  : "bg-black/30 text-zinc-400 hover:text-white"
                 )}
               >
                 {ratio}
@@ -291,7 +291,7 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
           <div className="w-[1px] h-4 bg-white/10" />
 
           {/* Duration Selector */}
-          <div className="flex items-center gap-1 bg-black/30 border border-white/5 rounded-lg px-1.5 py-0.5">
+          <div className="flex items-center gap-1 bg-black/30 rounded-lg px-1.5 py-0.5">
             <span className="text-[9px] text-zinc-500 font-bold mr-1">时长</span>
             {['5s', '10s'].map((d) => {
               const numVal = parseInt(d);
@@ -338,10 +338,10 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
                 key={col}
                 onClick={() => onUpdate(node.id, { color: col })}
                 className={cn(
-                  "w-4 h-4 rounded-full border border-black/10 transition-transform cursor-pointer hover:scale-110 relative flex items-center justify-center",
+                  "w-4 h-4 rounded-full transition-transform cursor-pointer hover:scale-110 relative flex items-center justify-center",
                   col === 'yellow' ? "bg-yellow-300" :
                   col === 'pink' ? "bg-pink-300" :
-                  col === 'cyan' ? "bg-cyan-300" :
+                  col === 'cyan' ? "bg-[#4080FF]" :
                   col === 'emerald' ? "bg-emerald-300" :
                   col === 'orange' ? "bg-orange-300" : "bg-purple-300",
                   node.color === col ? "ring-2 ring-black/40 scale-105" : ""
@@ -364,9 +364,9 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({
         onClick={() => onDelete(node.id)}
         className={cn(
           "p-1.5 rounded-lg transition-colors cursor-pointer group/trash flex items-center justify-center",
-          node.type === 'sticky' 
-            ? "hover:bg-rose-50 text-zinc-500 hover:text-rose-600" 
-            : "hover:bg-rose-500/15 text-zinc-400 hover:text-rose-400 border border-transparent hover:border-rose-500/20"
+          node.type === 'sticky'
+            ? "hover:bg-rose-50 text-zinc-500 hover:text-rose-600"
+            : "hover:bg-rose-500/15 text-zinc-400 hover:text-rose-400"
         )}
         title="删除节点"
       >

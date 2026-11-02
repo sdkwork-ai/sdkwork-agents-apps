@@ -149,22 +149,22 @@ function AuthLoadingState() {
       role="status"
     >
       <div className="relative flex w-full max-w-sm flex-col items-center text-center">
-        <div className="absolute -top-28 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.055] shadow-2xl shadow-cyan-950/50 backdrop-blur-xl">
-          <Bot className="text-cyan-200" size={30} strokeWidth={1.8} />
-          <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#09090b] bg-cyan-400 text-cyan-950">
+        <div className="absolute -top-28 h-56 w-56 rounded-full bg-[#165DFF]/10 blur-3xl" />
+        <div className="relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.055] backdrop-blur-xl">
+          <Bot className="text-[#4080FF]" size={30} strokeWidth={1.8} />
+          <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#4080FF] text-[#0A1B3D]">
             <ShieldCheck size={13} strokeWidth={2.5} />
           </span>
         </div>
         <h1 className="relative text-lg font-semibold tracking-tight text-zinc-100">SDKWork Agents</h1>
         <div className="relative mt-3 flex items-center gap-2 text-sm text-zinc-400">
-          <LoaderCircle className="animate-spin text-cyan-300" size={16} />
+          <LoaderCircle className="animate-spin text-[#4080FF]" size={16} />
           <span>正在验证安全会话…</span>
         </div>
         <p className="relative mt-3 max-w-xs text-xs leading-5 text-zinc-600">
           正在通过 IAM 确认身份与工作区访问权限
         </p>
       </div>
-    </div>
+      </div>
   );
 }

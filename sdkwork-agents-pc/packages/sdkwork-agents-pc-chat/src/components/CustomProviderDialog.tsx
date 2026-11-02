@@ -91,7 +91,7 @@ export const CustomProviderDialog: React.FC<CustomProviderDialogProps> = ({
       aria-modal="true"
     >
       <div
-        className="w-[460px] max-w-[92vw] rounded-xl bg-white dark:bg-[#1e1e1e] p-5 shadow-xl"
+        className="w-[460px] max-w-[92vw] rounded-xl bg-white dark:bg-[#1e1e1e] p-5"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -114,7 +114,7 @@ export const CustomProviderDialog: React.FC<CustomProviderDialogProps> = ({
                 {t('customProvider.vendorCode')}
               </span>
               <input
-                className="mt-1 w-full rounded-md border border-gray-300 dark:border-[#333] bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
+                className="mt-1 w-full rounded-md bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
                 value={vendorCode}
                 onChange={(event) => setVendorCode(event.target.value)}
                 placeholder="openai"
@@ -126,7 +126,7 @@ export const CustomProviderDialog: React.FC<CustomProviderDialogProps> = ({
                 {t('customProvider.vendorName')}
               </span>
               <input
-                className="mt-1 w-full rounded-md border border-gray-300 dark:border-[#333] bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
+                className="mt-1 w-full rounded-md bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
                 value={vendorName}
                 onChange={(event) => setVendorName(event.target.value)}
                 placeholder="OpenAI"
@@ -139,7 +139,7 @@ export const CustomProviderDialog: React.FC<CustomProviderDialogProps> = ({
               {t('customProvider.baseUrl')}
             </span>
             <input
-              className="mt-1 w-full rounded-md border border-gray-300 dark:border-[#333] bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
+              className="mt-1 w-full rounded-md bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
               value={baseUrl}
               onChange={(event) => setBaseUrl(event.target.value)}
               placeholder="https://api.openai.com/v1"
@@ -152,7 +152,7 @@ export const CustomProviderDialog: React.FC<CustomProviderDialogProps> = ({
             </span>
             <input
               type="password"
-              className="mt-1 w-full rounded-md border border-gray-300 dark:border-[#333] bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
+              className="mt-1 w-full rounded-md bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
               value={apiKey}
               onChange={(event) => setApiKey(event.target.value)}
               maxLength={16384}
@@ -163,7 +163,7 @@ export const CustomProviderDialog: React.FC<CustomProviderDialogProps> = ({
               {t('customProvider.model')}
             </span>
             <input
-              className="mt-1 w-full rounded-md border border-gray-300 dark:border-[#333] bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
+              className="mt-1 w-full rounded-md bg-white dark:bg-[#262626] px-2 py-1.5 text-sm text-gray-800 dark:text-gray-100"
               value={modelId}
               onChange={(event) => setModelId(event.target.value)}
               placeholder="gpt-4o-mini"
@@ -193,6 +193,6 @@ export const CustomProviderDialog: React.FC<CustomProviderDialogProps> = ({
           </div>
         </form>
       </div>
-    </div>
+      </div>
   );
 };

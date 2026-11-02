@@ -91,25 +91,25 @@ export const AgentMarketplaceSearchView: React.FC<AgentMarketplaceSearchViewProp
   }, [query, runSearch]);
 
   return (
-    <div className="flex flex-col h-full bg-[var(--color-bg-color,#f5f5f7)] overflow-hidden">
+    <div className="flex flex-col h-full bg-[var(--color-bg-color,#F4F7FC)] overflow-hidden">
       {/* Header */}
-      <header className="h-[56px] flex items-center px-3 border-b border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))] bg-[var(--color-glass-bg,#f5f5f7)] backdrop-blur-xl sticky top-0 z-10 shrink-0 pt-safe gap-3">
-        <div className="flex-1 flex items-center bg-[var(--color-chat-other-bg,#262626)] rounded-full h-9 px-3 border border-black/5 dark:border-white/10 transition-colors focus-within:border-[#2b5ce7]">
-          <Search className="w-4 h-4 text-gray-400 shrink-0" />
+      <header className="h-[56px] flex items-center px-3 bg-[var(--color-glass-bg,#FFFFFF)] sticky top-0 z-10 shrink-0 pt-safe gap-3">
+        <div className="flex-1 flex items-center bg-[var(--color-chat-other-bg,#FFFFFF)] rounded-full h-9 px-3 transition-colors">
+          <Search className="w-4 h-4 text-[var(--color-icon-default,#5B6B88)] shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t('agents.mobile.market.search.placeholder')}
-            className="flex-1 bg-transparent border-none outline-none px-2 text-[15px] text-[var(--color-text-main,#111827)] placeholder:text-gray-400 min-w-0"
+            className="flex-1 bg-transparent outline-none px-2 text-[15px] text-[var(--color-text-main,#0A1B3D)] placeholder:text-[var(--color-text-secondary,#5B6B88)] min-w-0"
           />
           {query && (
             <button
               type="button"
               aria-label={t('agents.mobile.market.search.clear')}
               onClick={() => setQuery('')}
-              className="p-1 cursor-pointer shrink-0 text-gray-400"
+              className="p-1 cursor-pointer shrink-0 text-[var(--color-text-secondary,#5B6B88)]"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -118,7 +118,7 @@ export const AgentMarketplaceSearchView: React.FC<AgentMarketplaceSearchViewProp
         <button
           type="button"
           onClick={onBack}
-          className="text-[16px] text-[var(--color-primary-blue,#2b5ce7)] font-medium whitespace-nowrap shrink-0 active:opacity-70"
+          className="text-[16px] text-[var(--color-primary-blue,#165DFF)] font-medium whitespace-nowrap shrink-0 active:opacity-70"
         >
           {t('agents.mobile.market.search.cancel')}
         </button>
@@ -129,8 +129,8 @@ export const AgentMarketplaceSearchView: React.FC<AgentMarketplaceSearchViewProp
         {status === 'idle' && (
           <div className="p-4">
             <div className="flex items-center gap-1.5 mb-4">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <h3 className="text-[14px] font-bold text-[var(--color-text-main,#111827)]">
+              <Flame className="w-4 h-4 text-[var(--color-icon-warning,#FF7D00)]" />
+              <h3 className="text-[14px] font-bold text-[var(--color-text-main,#0A1B3D)]">
                 {t('agents.mobile.market.hot.title')}
               </h3>
             </div>
@@ -140,7 +140,7 @@ export const AgentMarketplaceSearchView: React.FC<AgentMarketplaceSearchViewProp
                   key={key}
                   type="button"
                   onClick={() => setQuery(t(key))}
-                  className="px-3 py-1.5 bg-[var(--color-chat-other-bg,#262626)] border border-black/5 dark:border-white/10 rounded-full text-[13px] text-gray-700 dark:text-gray-300 cursor-pointer active:bg-black/5 dark:active:bg-white/10 transition-colors"
+                  className="px-3 py-1.5 bg-[var(--color-chat-other-bg,#FFFFFF)] rounded-full text-[13px] text-[var(--color-text-secondary,#5B6B88)] cursor-pointer active:bg-[var(--color-surface-muted,#EAF1FB)] transition-colors"
                 >
                   {t(key)}
                 </button>
@@ -154,12 +154,12 @@ export const AgentMarketplaceSearchView: React.FC<AgentMarketplaceSearchViewProp
             {Array.from({ length: 4 }, (_, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 rounded-2xl bg-[var(--color-chat-other-bg,#262626)] px-4 py-3.5 animate-pulse"
+                className="flex items-center gap-3 rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] px-4 py-3.5 animate-pulse"
               >
-                <div className="w-[52px] h-[52px] rounded-full bg-black/5 dark:bg-white/10 shrink-0" />
+                <div className="w-[52px] h-[52px] rounded-full bg-[var(--color-surface-muted,#EAF1FB)] shrink-0" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-2/5 rounded bg-black/5 dark:bg-white/10" />
-                  <div className="h-3 w-4/5 rounded bg-black/5 dark:bg-white/10" />
+                  <div className="h-4 w-2/5 rounded bg-[var(--color-surface-muted,#EAF1FB)]" />
+                  <div className="h-3 w-4/5 rounded bg-[var(--color-surface-muted,#EAF1FB)]" />
                 </div>
               </div>
             ))}
@@ -168,14 +168,14 @@ export const AgentMarketplaceSearchView: React.FC<AgentMarketplaceSearchViewProp
 
         {status === 'error' && (
           <div className="flex flex-col items-center justify-center py-16 px-8">
-            <Bot className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
-            <p className="text-[14px] text-[var(--color-text-sub,#6b7280)] mb-4">
+            <Bot className="w-10 h-10 text-[var(--color-icon-strong,#0A1B3D)] mb-3" />
+            <p className="text-[14px] text-[var(--color-text-sub,#5B6B88)] mb-4">
               {t('agents.mobile.market.error.desc')}
             </p>
             <button
               type="button"
               onClick={() => void runSearch(searchedQuery)}
-              className="px-6 h-10 rounded-full bg-[var(--color-primary-blue,#2b5ce7)] text-white text-[14px] font-medium active:scale-95 transition-transform"
+              className="px-6 h-10 rounded-full bg-[var(--color-primary-blue,#165DFF)] text-white text-[14px] font-medium active:scale-95 transition-transform"
             >
               {t('agents.mobile.market.error.retry')}
             </button>
@@ -186,13 +186,13 @@ export const AgentMarketplaceSearchView: React.FC<AgentMarketplaceSearchViewProp
           <div className="py-2">
             {agents.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 px-8">
-                <Bot className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
-                <p className="text-[14px] text-[var(--color-text-sub,#6b7280)]">
+                <Bot className="w-10 h-10 text-[var(--color-icon-strong,#0A1B3D)] mb-3" />
+                <p className="text-[14px] text-[var(--color-text-sub,#5B6B88)]">
                   {t('agents.mobile.market.search.empty')}
                 </p>
               </div>
             ) : (
-              <div className="bg-[var(--color-chat-other-bg,#262626)] rounded-2xl mx-4 overflow-hidden divide-y divide-[var(--color-border-color,rgba(0,0,0,0.05))] dark:divide-[var(--color-border-color,rgba(255,255,255,0.05))]">
+              <div className="bg-[var(--color-chat-other-bg,#FFFFFF)] rounded-2xl mx-4 overflow-hidden">
                 {agents.map((agent) => (
                   <MarketAgentCard
                     key={agent.id}

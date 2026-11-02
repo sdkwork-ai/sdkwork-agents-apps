@@ -36,37 +36,37 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-white dark:bg-[#282828] border border-gray-200 dark:border-gray-800 rounded-2xl w-full max-w-3xl h-[650px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333] flex justify-between items-center bg-gray-50 dark:bg-[#202020]">
+      <div className="bg-white dark:bg-[#282828] rounded-2xl w-full max-w-3xl h-[650px] overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="px-6 py-4 flex justify-between items-center bg-gray-50 dark:bg-[#202020]">
           <h2 className="font-semibold text-lg text-gray-900 dark:text-white">{t('title')}</h2>
           <button onClick={onClose} className="text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white p-1 rounded-md hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
             <X size={20} />
           </button>
         </div>
-        
+
         <div className="flex flex-1 overflow-hidden">
-          <div className="w-48 bg-gray-50 dark:bg-[#202020] border-r border-gray-200 dark:border-[#333] p-4 flex flex-col gap-1">
+          <div className="w-48 bg-gray-50 dark:bg-[#202020] p-4 flex flex-col gap-1">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">{t('providers')}</p>
             {vendors.map(v => (
               <button
                 key={v}
                 onClick={() => setActiveTab(v)}
                 className={`text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                  activeTab === v 
-                    ? 'bg-[#1890ff] text-white font-medium' 
+                  activeTab === v
+                  ? 'bg-[#165DFF] text-white font-medium'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333]'
                 }`}
               >
                 {v}
               </button>
             ))}
-            
+
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4 mb-2 px-2">{t('general')}</p>
             <button
                 onClick={() => setActiveTab('General')}
                 className={`text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                  activeTab === 'General' 
-                    ? 'bg-[#1890ff] text-white font-medium' 
+                  activeTab === 'General'
+                  ? 'bg-[#165DFF] text-white font-medium'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333]'
                 }`}
               >
@@ -81,27 +81,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <h3 className="text-base font-medium text-gray-900 dark:text-white mb-1">{activeTab} {t('configuration')}</h3>
                   <p className="text-sm text-gray-500">{t('apiKeysDescription')}</p>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('apiKeyLabel')}</label>
-                    <input 
-                      type="password" 
+                    <input
+                      type="password"
                       value={settings.apiKey}
                       onChange={(e) => updateSetting('apiKey', e.target.value)}
-                      placeholder={`sk-...`} 
-                      className="w-full bg-white dark:bg-[#333] border border-gray-200 dark:border-[#444] rounded-lg px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-[#1890ff] dark:focus:ring-[#1890ff] outline-none placeholder-gray-400 dark:placeholder-gray-500 focus:border-[#1890ff] transition-colors" 
+                      placeholder={`sk-...`}
+                      className="w-full bg-white dark:bg-[#333] rounded-lg px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-[#165DFF] dark:focus:ring-[#165DFF] outline-none placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('baseUrlLabel')}</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={settings.baseUrl}
                       onChange={(e) => updateSetting('baseUrl', e.target.value)}
-                      placeholder={t('baseUrlDefault')} 
-                      className="w-full bg-white dark:bg-[#333] border border-gray-200 dark:border-[#444] rounded-lg px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-[#1890ff] dark:focus:ring-[#1890ff] outline-none placeholder-gray-400 dark:placeholder-gray-500 focus:border-[#1890ff] transition-colors" 
+                      placeholder={t('baseUrlDefault')}
+                      className="w-full bg-white dark:bg-[#333] rounded-lg px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-[#165DFF] dark:focus:ring-[#165DFF] outline-none placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
                     />
                   </div>
 
@@ -110,16 +110,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <span>{t('temperatureLabel')}</span>
                       <span>{settings.temperature}</span>
                     </label>
-                    <input 
-                      type="range" 
+                    <input
+                      type="range"
                       min="0" max="2" step="0.1"
                       value={settings.temperature}
                       onChange={(e) => updateSetting('temperature', parseFloat(e.target.value))}
-                      className="w-full accent-[#1890ff]" 
+                      className="w-full accent-[#165DFF]"
                     />
                   </div>
-                </div>
-              </div>
+                  </div>
+                  </div>
             ) : (
               <div className="space-y-6">
                 <div>
@@ -136,10 +136,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <button
                         key={tOption.id}
                         onClick={() => setTheme(tOption.id as 'light' | 'dark' | 'system')}
-                        className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
+                        className={`p-4 rounded-xl flex flex-col items-center justify-center transition-all ${
                           theme === tOption.id
-                            ? 'border-[#1890ff] bg-[#1890ff]/5 text-[#1890ff] dark:bg-[#1890ff]/10 dark:text-[#1890ff] shadow-sm'
-                            : 'border-transparent bg-gray-100 dark:bg-[#333] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#444]'
+                          ? 'bg-[#E8F0FF] text-[#165DFF]'
+                          : 'bg-[#EAF1FB] text-[#5B6B88] hover:bg-[#DCE8F9]'
                         }`}
                       >
                         {tOption.icon}
@@ -147,13 +147,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </button>
                     ))}
                   </div>
-                </div>
+                  </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('language')}</label>
                   <select
                     value={i18n.language}
                     onChange={handleLanguageChange}
-                    className="w-full bg-white dark:bg-[#333] border border-gray-200 dark:border-[#444] rounded-lg px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-[#1890ff] outline-none appearance-none cursor-pointer focus:border-[#1890ff] transition-colors"
+                    className="w-full bg-white dark:bg-[#333] rounded-lg px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-[#165DFF] outline-none appearance-none cursor-pointer transition-colors"
                   >
                     <option value="en-US">English</option>
                     <option value="zh-CN">简体中文</option>
@@ -170,10 +170,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           key={option.id}
                           type="button"
                           onClick={() => onWireProtocolChange?.(option.id)}
-                          className={`p-3 rounded-xl border-2 text-left transition-all ${
+                          className={`p-3 rounded-xl text-left transition-all ${
                             selected
-                              ? 'border-[#1890ff] bg-[#1890ff]/5 text-[#1890ff] dark:bg-[#1890ff]/10 dark:text-[#1890ff] shadow-sm'
-                              : 'border-transparent bg-gray-100 dark:bg-[#333] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#444]'
+                            ? 'bg-[#E8F0FF] text-[#165DFF]'
+                            : 'bg-[#EAF1FB] text-[#5B6B88] hover:bg-[#DCE8F9]'
                           }`}
                         >
                           <span className="block text-sm font-medium">{t(option.labelKey)}</span>
@@ -182,16 +182,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       );
                     })}
                   </div>
-                </div>
-              </div>
+                  </div>
+                  </div>
             )}
           </div>
-        </div>
+          </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-[#333] flex justify-end gap-3 bg-gray-50 dark:bg-[#202020]">
-          <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-medium bg-[#1890ff] text-white hover:bg-[#40a9ff] transition-colors shadow-sm shadow-[#1890ff]/20">{t('ok')}</button>
-        </div>
-      </div>
-    </div>
+            <div className="px-6 py-4 flex justify-end gap-3 bg-gray-50 dark:bg-[#202020]">
+              <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-medium bg-[#165DFF] text-white hover:bg-[#40a9ff] transition-colors">{t('ok')}</button>
+          </div>
+          </div>
+          </div>
   );
 };

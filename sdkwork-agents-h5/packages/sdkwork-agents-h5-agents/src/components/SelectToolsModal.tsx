@@ -136,30 +136,30 @@ export const SelectToolsModal: React.FC<SelectToolsModalProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-[var(--color-scrim,rgba(10,27,61,0.45))] z-[100]"
             onClick={onClose}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-[#1e1e1e] rounded-2xl shadow-2xl flex flex-col z-[101] overflow-hidden border border-white/10"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-[var(--color-surface-color,#FFFFFF)] rounded-2xl flex flex-col z-[101] overflow-hidden"
           >
-            <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#202020] shrink-0">
+            <div className="flex items-center justify-between p-6 bg-[var(--color-surface-color,#FFFFFF)] shrink-0">
               <div>
-                <h2 className="text-xl font-bold text-gray-100 mb-1">选择工具与 MCP</h2>
-                <p className="text-xs text-gray-400">为智能体配置外部交互能力，增强处理真实世界任务的效率。</p>
+                <h2 className="text-xl font-bold text-[var(--color-text-primary,#0A1B3D)] mb-1">选择工具与 MCP</h2>
+                <p className="text-xs text-[var(--color-text-secondary,#5B6B88)]">为智能体配置外部交互能力，增强处理真实世界任务的效率。</p>
               </div>
               <button
                 onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[var(--color-surface-strong,#DCE8F9)] text-[var(--color-text-secondary,#5B6B88)] hover:text-[var(--color-primary,#165DFF)] transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
             <div className="flex flex-1 min-h-0">
-              <div className="w-[200px] bg-[#151515] border-r border-white/5 py-5 flex flex-col shrink-0">
+              <div className="w-[200px] bg-[var(--color-input-bg,#EAF1FB)] py-5 flex flex-col shrink-0">
                 <div className="px-5 pb-5">
                   <div className="relative">
                     <input
@@ -167,15 +167,15 @@ export const SelectToolsModal: React.FC<SelectToolsModalProps> = ({
                       placeholder="搜索工具..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-[#202020] border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-sm text-gray-200 outline-none focus:border-emerald-500 transition-colors shadow-inner"
+                      className="w-full bg-[var(--color-surface-color,#FFFFFF)] rounded-xl pl-9 pr-3 py-2.5 text-sm text-[var(--color-text-primary,#0A1B3D)] outline-none transition-colors"
                     />
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-icon-default,#5B6B88)]" size={16} />
                   </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar px-4 space-y-6">
                   <div>
-                    <h3 className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2 px-4">工具类型</h3>
+                    <h3 className="text-[11px] font-semibold text-[var(--color-text-secondary,#5B6B88)] uppercase tracking-wider mb-2 px-4">工具类型</h3>
                     <div className="space-y-1.5">
                       {[
                         { id: 'official' as const, name: '官方预置工具' },
@@ -188,8 +188,8 @@ export const SelectToolsModal: React.FC<SelectToolsModalProps> = ({
                           className={cn(
                             "w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all text-left group",
                             activeTab === tab.id
-                              ? "bg-emerald-600/10 text-emerald-400"
-                              : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
+                              ? "bg-[var(--color-success-bg,#E8FFEF)] text-[var(--color-success,#00B42A)]"
+                              : "text-[var(--color-text-secondary,#5B6B88)] hover:bg-[var(--color-surface-muted,#EAF1FB)] hover:text-[var(--color-text-primary,#0A1B3D)]"
                           )}
                         >
                           {tab.name}
@@ -200,31 +200,31 @@ export const SelectToolsModal: React.FC<SelectToolsModalProps> = ({
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-[#1a1a1a]">
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-[var(--color-surface-color,#FFFFFF)]">
                 {loading ? (
-                  <div className="text-gray-500 text-sm text-center py-32 flex flex-col items-center justify-center gap-3">
-                    <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="text-[var(--color-text-secondary,#5B6B88)] text-sm text-center py-32 flex flex-col items-center justify-center gap-3">
+                    <div className="ag-spinner ag-spinner-lg" />
                     正在加载工具目录...
                   </div>
                 ) : error ? (
                   <div className="text-center py-32 flex flex-col items-center justify-center gap-4">
-                    <p className="text-sm text-red-400 max-w-md">{error}</p>
+                    <p className="text-sm text-[var(--color-danger,#F53F3F)] max-w-md">{error}</p>
                     <button
                       type="button"
                       onClick={() => void loadTools(activeTab, 1, false, activeTab === 'mcp' ? debouncedQuery : '')}
-                      className="px-4 py-2 rounded-xl text-sm bg-white/5 hover:bg-white/10 text-gray-200"
+                      className="px-4 py-2 rounded-xl text-sm bg-[var(--color-surface-muted,#EAF1FB)] hover:bg-[var(--color-surface-strong,#DCE8F9)] text-[var(--color-text-primary,#0A1B3D)]"
                     >
                       重试
                     </button>
                   </div>
                 ) : activeTab === 'custom' ? (
-                  <div className="text-gray-500 text-sm text-center py-32 flex flex-col items-center justify-center">
-                    <Wrench size={32} className="mb-4 text-gray-600 opacity-50" />
+                  <div className="text-[var(--color-text-secondary,#5B6B88)] text-sm text-center py-32 flex flex-col items-center justify-center">
+                    <Wrench size={32} className="mb-4 text-[var(--color-icon-default,#5B6B88)] opacity-50" />
                     请通过 MCP Marketplace 接入自建工具服务，完成后可在第三方 MCP 列表选择
                   </div>
                 ) : visibleItems.length === 0 ? (
-                  <div className="text-gray-500 text-sm text-center py-32 flex flex-col items-center justify-center">
-                    <Wrench size={32} className="mb-4 text-gray-600 opacity-50" />
+                  <div className="text-[var(--color-text-secondary,#5B6B88)] text-sm text-center py-32 flex flex-col items-center justify-center">
+                    <Wrench size={32} className="mb-4 text-[var(--color-icon-default,#5B6B88)] opacity-50" />
                     没有找到匹配的项
                   </div>
                 ) : (
@@ -236,33 +236,33 @@ export const SelectToolsModal: React.FC<SelectToolsModalProps> = ({
                           key={item.id}
                           onClick={() => handleSelect(item)}
                           className={cn(
-                            "relative group bg-[#252528] rounded-xl border p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col",
+                            "relative group bg-[var(--color-surface-muted,#EAF1FB)] rounded-xl  p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col",
                             isSelected
-                              ? "border-emerald-500 shadow-md shadow-emerald-500/10 bg-emerald-500/5"
-                              : "border-white/5 hover:border-white/20 hover:bg-[#2a2a2d]"
+                              ? "   bg-[var(--color-success-bg,#E8FFEF)]"
+                              : "  hover:bg-[var(--color-surface-strong,#DCE8F9)]"
                           )}
                         >
                           {isSelected && (
-                            <div className="absolute top-4 right-4 text-emerald-500">
+                            <div className="absolute top-4 right-4 text-[var(--color-success,#00B42A)]">
                               <Check size={18} strokeWidth={3} />
                             </div>
                           )}
 
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-lg bg-[#1e1e1e] border border-white/5 flex items-center justify-center shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                            <div className="w-10 h-10 rounded-lg bg-[var(--color-surface-color,#FFFFFF)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                               {item.icon}
                             </div>
                             <div className="flex-1 min-w-0 pr-4">
-                              <h3 className={cn("text-[15px] font-semibold truncate", isSelected ? "text-emerald-400" : "text-gray-100 group-hover:text-white transition-colors")}>
+                              <h3 className={cn("text-[15px] font-semibold truncate", isSelected ? "text-[var(--color-success,#00B42A)]" : "text-[var(--color-text-primary,#0A1B3D)] group-hover:text-[var(--color-text-primary,#0A1B3D)] transition-colors")}>
                                 {item.name}
                               </h3>
-                              <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-400">
+                              <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-surface-muted,#EAF1FB)] text-[var(--color-text-secondary,#5B6B88)]">
                                 {item.provider}
                               </span>
                             </div>
                           </div>
 
-                          <p className="text-[13px] text-gray-400 leading-relaxed">
+                          <p className="text-[13px] text-[var(--color-text-secondary,#5B6B88)] leading-relaxed">
                             {item.description}
                           </p>
                         </div>
@@ -276,7 +276,7 @@ export const SelectToolsModal: React.FC<SelectToolsModalProps> = ({
                       type="button"
                       disabled={loadingMore}
                       onClick={() => void loadTools('mcp', page + 1, true, debouncedQuery)}
-                      className="px-5 py-2.5 rounded-xl text-sm font-medium bg-white/5 hover:bg-white/10 text-gray-300 transition-colors disabled:opacity-50"
+                      className="px-5 py-2.5 rounded-xl text-sm font-medium bg-[var(--color-surface-muted,#EAF1FB)] hover:bg-[var(--color-surface-strong,#DCE8F9)] text-[var(--color-text-primary,#0A1B3D)] transition-colors disabled:opacity-50"
                     >
                       {loadingMore ? '加载中...' : '加载更多'}
                     </button>
@@ -285,14 +285,14 @@ export const SelectToolsModal: React.FC<SelectToolsModalProps> = ({
               </div>
             </div>
 
-            <div className="p-5 border-t border-white/5 bg-[#202020] flex items-center justify-between shrink-0">
-              <div className="text-sm text-gray-400">
-                已选中 <span className="text-emerald-400 font-semibold">{currentSelection.length}</span> 项
+            <div className="p-5 bg-[var(--color-surface-color,#FFFFFF)] flex items-center justify-between shrink-0">
+              <div className="text-sm text-[var(--color-text-secondary,#5B6B88)]">
+                已选中 <span className="text-[var(--color-success,#00B42A)] font-semibold">{currentSelection.length}</span> 项
               </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={onClose}
-                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/10 transition-colors"
+                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-[var(--color-text-primary,#0A1B3D)] hover:bg-[var(--color-surface-strong,#DCE8F9)] transition-colors"
                 >
                   取消
                 </button>
@@ -304,7 +304,7 @@ export const SelectToolsModal: React.FC<SelectToolsModalProps> = ({
                     onSave(currentSelection, selectedItems);
                     onClose();
                   }}
-                  className="px-6 py-2.5 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 transition-all"
+                  className="px-6 py-2.5 rounded-xl text-sm font-medium bg-[var(--color-primary,#165DFF)] hover:bg-[var(--color-primary-hover,#4080FF)] text-white transition-all"
                 >
                   确认启用
                 </button>

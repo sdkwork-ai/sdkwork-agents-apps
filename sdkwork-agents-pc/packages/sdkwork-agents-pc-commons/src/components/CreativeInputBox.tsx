@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCreativeInputBox } from '../hooks/useCreativeInputBox';
-import { 
+import {
   Image as ImageIcon, Crop, Type, AtSign, ArrowUp, ChevronDown, ChevronUp, Plus, Sparkles,
   Wand2, PlaySquare, Music, AudioLines, Waves, Smile, Accessibility, Check, Settings2, Wrench, Mic, Box,
   PenTool, RectangleHorizontal, LayoutTemplate, Scan, Minus, Play, Pause, Search, X
@@ -76,10 +76,10 @@ const MOTION_TEMPLATES = [
 ];
 
 
-export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({ 
-  className, 
-  defaultValue = '', 
-  initialMode, 
+export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
+  className,
+  defaultValue = '',
+  initialMode,
   initialSettings,
   onSubmit,
   onChange,
@@ -287,7 +287,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
-    }
+      }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -333,20 +333,20 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
     "描述您想要生成的画面，例如：“一杯冒着热气的咖啡放在木桌上，清晨的阳光透过窗户洒进来，电影感”...";
 
   return (
-    <div className={cn("w-full bg-white rounded-2xl border border-black/5 p-4 relative shadow-lg focus-within:border-black/10 transition-colors z-10 dark:bg-[#1e1e1e] dark:border-white/5 dark:shadow-2xl dark:focus-within:border-white/20", className)}>
+    <div className={cn("w-full bg-white rounded-2xl p-4 relative transition-colors z-10 dark:bg-[#1e1e1e]", className)}>
       <div className="flex gap-4 mb-2">
         {/* Hidden File Input for Image Reference Upload */}
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          onChange={handleFileChange} 
-          multiple 
-          accept="image/*" 
-          className="hidden" 
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          multiple
+          accept="image/*"
+          className="hidden"
         />
 
         {/* Hidden Inputs for Action Mimicry */}
-        <input 
+        <input
           type="file"
           ref={characterInputRef}
           onChange={(e) => {
@@ -369,7 +369,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
           accept="image/*"
           className="hidden"
         />
-        <input 
+        <input
           type="file"
           ref={motionVideoInputRef}
           onChange={(e) => {
@@ -394,7 +394,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
         />
 
         {uploadError ? (
-          <div className="absolute left-4 right-4 top-1 z-20 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+          <div className="absolute left-4 right-4 top-1 z-20 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">
             {uploadError}
           </div>
         ) : null}
@@ -403,7 +403,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
         {isAction ? (
           <div className="flex gap-3 shrink-0 relative select-none">
             {/* 1. Character Card (角色) */}
-            <div 
+            <div
               className="relative cursor-pointer group"
               onClick={(e) => {
                 e.stopPropagation();
@@ -411,8 +411,8 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
               }}
             >
               {characterImage ? (
-                <div 
-                  className="w-[60px] h-[80px] rounded-xl overflow-hidden border border-white/10 shadow-lg transition-all duration-300 -rotate-3 hover:scale-[1.05] hover:rotate-0 relative bg-zinc-900"
+                <div
+                  className="w-[60px] h-[80px] rounded-xl overflow-hidden transition-all duration-300 -rotate-3 hover:scale-[1.05] hover:rotate-0 relative bg-zinc-900"
                 >
                   <img src={characterImage} className="w-full h-full object-cover" alt="Character" referrerPolicy="no-referrer" />
                   {/* Remove Button */}
@@ -424,24 +424,24 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                       setCharacterImageResource(null);
                       if (characterInputRef.current) characterInputRef.current.value = '';
                     }}
-                    className="absolute top-1 right-1 w-4 h-4 bg-black/80 hover:bg-black text-white hover:text-red-400 rounded-full flex items-center justify-center border border-white/20 shadow-md transition-all hover:scale-110 z-10 cursor-pointer"
+                    className="absolute top-1 right-1 w-4 h-4 bg-black/80 hover:bg-black text-white hover:text-red-400 rounded-full flex items-center justify-center transition-all hover:scale-110 z-10 cursor-pointer"
                     title="删除角色图片"
                   >
                     <X size={10} strokeWidth={3} />
                   </button>
                 </div>
               ) : (
-                <div 
-                  className="w-[60px] h-[80px] bg-zinc-100 rounded-xl flex flex-col items-center justify-center border border-dashed border-zinc-300 hover:bg-zinc-200 transition-all duration-300 -rotate-6 hover:scale-[1.05] hover:rotate-0 dark:bg-[#252525] dark:border-white/10 dark:hover:bg-[#2f2f2f] sdk-dark:bg-[#252525] sdk-dark:border-white/10 sdk-dark:hover:bg-[#2f2f2f]"
+                <div
+                  className="w-[60px] h-[80px] bg-zinc-100 rounded-xl flex flex-col items-center justify-center hover:bg-zinc-200 transition-all duration-300 -rotate-6 hover:scale-[1.05] hover:rotate-0 dark:bg-[#252525] dark:hover:bg-[#2f2f2f] sdk-dark:bg-[#252525] sdk-dark:hover:bg-[#2f2f2f]"
                 >
-                  <Plus size={20} className="text-zinc-500 group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300 sdk-dark:text-zinc-500 sdk-dark:group-hover:text-zinc-300" />
-                  <span className="text-[11px] text-zinc-400 mt-1 font-medium dark:text-zinc-500 sdk-dark:text-zinc-500">角色</span>
+                  <Plus size={20} className="text-[var(--ag-color-text-secondary,#5B6B88)] group-hover:text-[var(--ag-color-text-primary,#0A1B3D)]" />
+                  <span className="text-[11px] text-[var(--ag-color-text-secondary,#5B6B88)] mt-1 font-medium">角色</span>
                 </div>
               )}
             </div>
 
             {/* 2. Motion Card (动作) */}
-            <div 
+            <div
               className="relative cursor-pointer group animate-in fade-in duration-300"
               onClick={(e) => {
                 e.stopPropagation();
@@ -449,8 +449,8 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
               }}
             >
               {selectedTemplate || uploadedMotionVideo ? (
-                <div 
-                  className="w-[60px] h-[80px] rounded-xl overflow-hidden border border-white/10 shadow-lg transition-all duration-300 rotate-3 hover:scale-[1.05] hover:rotate-0 relative bg-zinc-900"
+                <div
+                  className="w-[60px] h-[80px] rounded-xl overflow-hidden transition-all duration-300 rotate-3 hover:scale-[1.05] hover:rotate-0 relative bg-zinc-900"
                 >
                   {selectedTemplate ? (
                     <>
@@ -466,7 +466,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                     </>
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-800 text-zinc-300 p-1">
-                      <PlaySquare size={18} className="text-cyan-400" />
+                      <PlaySquare size={18} className="text-[#4080FF]" />
                       <span className="text-[8px] mt-1 text-center truncate max-w-full leading-tight opacity-80">{uploadedMotionVideo?.name}</span>
                     </div>
                   )}
@@ -479,26 +479,26 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                       setSelectedTemplate(null);
                       setUploadedMotionVideo(null);
                     }}
-                    className="absolute top-1 right-1 w-4 h-4 bg-black/80 hover:bg-black text-white hover:text-red-400 rounded-full flex items-center justify-center border border-white/20 shadow-md transition-all hover:scale-110 z-10 cursor-pointer"
+                    className="absolute top-1 right-1 w-4 h-4 bg-black/80 hover:bg-black text-white hover:text-red-400 rounded-full flex items-center justify-center transition-all hover:scale-110 z-10 cursor-pointer"
                     title="删除动作"
                   >
                     <X size={10} strokeWidth={3} />
                   </button>
                 </div>
               ) : (
-                <div 
-                  className="w-[60px] h-[80px] bg-zinc-100 rounded-xl flex flex-col items-center justify-center border border-dashed border-zinc-300 hover:bg-zinc-200 transition-all duration-300 rotate-6 hover:scale-[1.05] hover:rotate-0 dark:bg-[#252525] dark:border-white/10 dark:hover:bg-[#2f2f2f] sdk-dark:bg-[#252525] sdk-dark:border-white/10 sdk-dark:hover:bg-[#2f2f2f]"
+                <div
+                  className="w-[60px] h-[80px] bg-zinc-100 rounded-xl flex flex-col items-center justify-center hover:bg-zinc-200 transition-all duration-300 rotate-6 hover:scale-[1.05] hover:rotate-0 dark:bg-[#252525] dark:hover:bg-[#2f2f2f] sdk-dark:bg-[#252525] sdk-dark:hover:bg-[#2f2f2f]"
                 >
-                  <Sparkles size={18} className="text-zinc-500 group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300 sdk-dark:text-zinc-500 sdk-dark:group-hover:text-zinc-300" />
-                  <span className="text-[11px] text-zinc-400 mt-1 font-medium dark:text-zinc-500 sdk-dark:text-zinc-500">动作</span>
+                  <Sparkles size={18} className="text-[var(--ag-color-text-secondary,#5B6B88)] group-hover:text-[var(--ag-color-text-primary,#0A1B3D)]" />
+                  <span className="text-[11px] text-[var(--ag-color-text-secondary,#5B6B88)] mt-1 font-medium">动作</span>
                 </div>
               )}
 
               {/* Dropdown Menu: "选择模板" or "上传参考视频" */}
               {isMotionMenuOpen && (
-                <div 
+                <div
                   ref={motionMenuRef}
-                  className="absolute left-1/2 -translate-x-1/2 top-[84px] w-[140px] bg-white border border-black/10 rounded-xl p-1 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100 dark:bg-[#222] dark:border-white/10 dark:shadow-2xl"
+                  className="absolute left-1/2 -translate-x-1/2 top-[84px] w-[140px] bg-white rounded-xl p-1 z-50 animate-in fade-in zoom-in-95 duration-100 dark:bg-[#222]"
                 >
                   <button
                     type="button"
@@ -530,13 +530,13 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
 
             {/* Template Selection Popover (shown above the bar) */}
             {isTemplatePopoverOpen && (
-              <div 
+              <div
                 ref={templatePopoverRef}
-                className="absolute left-0 bottom-[96px] w-[350px] bg-white border border-black/10 rounded-2xl p-4 shadow-xl z-55 animate-in fade-in slide-in-from-bottom-2 duration-200 dark:bg-[#1e1e1e] dark:border-white/10 dark:shadow-2xl"
+                className="absolute left-0 bottom-[96px] w-[350px] bg-white rounded-2xl p-4 z-55 animate-in fade-in slide-in-from-bottom-2 duration-200 dark:bg-[#1e1e1e]"
               >
                 <div className="text-[12px] font-semibold text-zinc-400 mb-3 select-none flex items-center justify-between">
                   <span>选择动作模板</span>
-                  <button 
+                  <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -549,7 +549,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                 </div>
                 <div className="grid grid-cols-2 gap-3 max-h-[280px] overflow-y-auto custom-scrollbar pr-1">
                   {MOTION_TEMPLATES.map((tpl) => (
-                    <div 
+                    <div
                       key={tpl.id}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -560,13 +560,13 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                       className="group/item cursor-pointer flex flex-col gap-1.5"
                     >
                       {/* Thumbnail Container */}
-                      <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-white/5 group-hover/item:border-cyan-500/40 transition-colors bg-zinc-900 shadow-md">
-                        <img 
-                          src={tpl.image} 
+                      <div className="relative aspect-[4/3] rounded-xl overflow-hidden transition-colors bg-zinc-900">
+                        <img
+                          src={tpl.image}
                           className={cn(
                             "w-full h-full object-cover transition-transform duration-300 group-hover/item:scale-105",
                             tpl.grayscale ? "grayscale" : ""
-                          )} 
+                          )}
                           alt={tpl.author}
                           referrerPolicy="no-referrer"
                         />
@@ -575,14 +575,14 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                           <Play size={18} className="text-white fill-white" />
                         </div>
                         {/* Duration Overlay */}
-                        <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                        <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
                           {tpl.duration}
                         </div>
                         {/* Expand Icon Overlay */}
                         <div className="absolute bottom-1.5 right-1.5 text-white/80 group-hover/item:text-white transition-colors">
                           <Scan size={12} />
                         </div>
-                      </div>
+                        </div>
                       {/* Description Label below */}
                       <span className="text-[11px] text-zinc-400 font-medium truncate group-hover/item:text-zinc-200 px-1 transition-colors">
                         {tpl.author}
@@ -590,21 +590,21 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                     </div>
                   ))}
                 </div>
-              </div>
+                </div>
             )}
           </div>
         ) : uploadedImages.length === 0 ? (
-          <div 
+          <div
             onClick={triggerUpload}
-            className="w-[60px] h-[80px] bg-zinc-100 rounded-xl flex items-center justify-center border border-dashed border-zinc-300 hover:bg-zinc-200 transition-colors cursor-pointer group shrink-0 dark:bg-[#252525] dark:border-white/10 dark:hover:bg-[#2f2f2f] sdk-dark:bg-[#252525] sdk-dark:border-white/10 sdk-dark:hover:bg-[#2f2f2f]"
+            className="w-[60px] h-[80px] bg-zinc-100 rounded-xl flex items-center justify-center hover:bg-zinc-200 transition-colors cursor-pointer group shrink-0 dark:bg-[#252525] dark:hover:bg-[#2f2f2f] sdk-dark:bg-[#252525] sdk-dark:hover:bg-[#2f2f2f]"
           >
-            <div className="text-zinc-400 group-hover:text-zinc-600 flex flex-col items-center dark:text-zinc-500 dark:group-hover:text-zinc-300 sdk-dark:text-zinc-500 sdk-dark:group-hover:text-zinc-300">
+            <div className="text-[var(--ag-color-text-secondary,#5B6B88)] group-hover:text-[var(--ag-color-text-primary,#0A1B3D)] flex flex-col items-center">
               <Plus size={22} strokeWidth={2} className="mb-0.5" />
               <span className="text-[10px] scale-90 whitespace-nowrap opacity-80 font-medium">参考内容</span>
             </div>
-          </div>
+            </div>
         ) : (
-          <div 
+          <div
             className="relative shrink-0 flex flex-col justify-end"
             onMouseEnter={() => setIsImagesHovered(true)}
             onMouseLeave={() => setIsImagesHovered(false)}
@@ -616,7 +616,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
           >
             {/* If hovered, show the "智能参考" tag floating at the top */}
             {isImagesHovered && (
-              <div className="absolute -top-11 left-1/2 -translate-x-1/2 bg-zinc-800 border border-zinc-700 px-2.5 py-1 rounded-lg text-[10px] font-semibold text-zinc-200 shadow-xl z-50 select-none animate-in fade-in slide-in-from-bottom-2 duration-150 whitespace-nowrap dark:bg-[#252525] dark:border-white/10 dark:text-zinc-300">
+              <div className="absolute -top-11 left-1/2 -translate-x-1/2 bg-zinc-800 px-2.5 py-1 rounded-lg text-[10px] font-semibold text-zinc-200 z-50 select-none animate-in fade-in slide-in-from-bottom-2 duration-150 whitespace-nowrap dark:bg-[#252525] dark:text-zinc-300">
                 智能参考
               </div>
             )}
@@ -632,9 +632,9 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                   ];
                   const style = stackStyles[idx] || { rotate: 'rotate(0deg)', translate: 'translate(0px, 0px)', zIndex: 0 };
                   return (
-                    <div 
+                    <div
                       key={url + '-' + idx}
-                      className="absolute inset-0 w-[60px] h-[80px] rounded-xl overflow-hidden border border-white/15 shadow-lg bg-zinc-900 transition-all duration-300 origin-center"
+                      className="absolute inset-0 w-[60px] h-[80px] rounded-xl overflow-hidden bg-zinc-900 transition-all duration-300 origin-center"
                       style={{
                         transform: `${style.rotate} ${style.translate}`,
                         zIndex: style.zIndex,
@@ -649,7 +649,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                 <button
                   type="button"
                   onClick={triggerUpload}
-                  className="absolute -bottom-1 -right-1 w-6 h-6 bg-zinc-800 hover:bg-zinc-700 text-white rounded-full flex items-center justify-center border border-white/15 shadow-md transition-all hover:scale-110 z-45 flex items-center justify-center cursor-pointer"
+                  className="absolute -bottom-1 -right-1 w-6 h-6 bg-zinc-800 hover:bg-zinc-700 text-white rounded-full flex items-center justify-center transition-all hover:scale-110 z-45 flex items-center justify-center cursor-pointer"
                 >
                   <Plus size={14} strokeWidth={2.5} />
                 </button>
@@ -660,15 +660,15 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                 {uploadedImages.map((url, idx) => {
                   const tiltDegrees = idx % 2 === 0 ? '-rotate-3' : 'rotate-3';
                   return (
-                    <div 
+                    <div
                       key={url + '-' + idx}
                       className={cn(
-                        "relative w-[60px] h-[80px] rounded-xl overflow-visible border border-white/15 shadow-lg bg-zinc-900 group/card cursor-default shrink-0 transition-transform duration-200 hover:scale-[1.04]",
+                        "relative w-[60px] h-[80px] rounded-xl overflow-visible bg-zinc-900 group/card cursor-default shrink-0 transition-transform duration-200 hover:scale-[1.04]",
                         tiltDegrees
                       )}
                     >
                       <img src={url} className="w-full h-full object-cover rounded-xl" alt="" referrerPolicy="no-referrer" />
-                      
+
                       {/* Close / Remove button at the top-right corner of each card */}
                       <button
                         type="button"
@@ -677,7 +677,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                           setUploadedImages(prev => prev.filter((_, i) => i !== idx));
                           setUploadedImageResources(prev => prev.filter((_, i) => i !== idx));
                         }}
-                        className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-black/80 hover:bg-black text-white hover:text-red-400 rounded-full flex items-center justify-center border border-white/20 shadow-md transition-all hover:scale-110 z-50 flex items-center justify-center cursor-pointer"
+                        className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-black/80 hover:bg-black text-white hover:text-red-400 rounded-full flex items-center justify-center transition-all hover:scale-110 z-50 flex items-center justify-center cursor-pointer"
                         title="删除图片"
                       >
                         <X size={10} strokeWidth={3} />
@@ -687,19 +687,19 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                 })}
 
                 {/* Plus placeholder card at the end of the expanded row */}
-                <div 
+                <div
                   onClick={triggerUpload}
-                  className="w-[60px] h-[80px] bg-zinc-100 rounded-xl flex items-center justify-center border border-dashed border-zinc-300 hover:bg-zinc-200 transition-all cursor-pointer group shrink-0 rotate-1 dark:bg-[#252525] dark:border-white/10 dark:hover:bg-[#2f2f2f] sdk-dark:bg-[#252525] sdk-dark:border-white/10 sdk-dark:hover:bg-[#2f2f2f]"
+                  className="w-[60px] h-[80px] bg-zinc-100 rounded-xl flex items-center justify-center hover:bg-zinc-200 transition-all cursor-pointer group shrink-0 rotate-1 dark:bg-[#252525] dark:hover:bg-[#2f2f2f] sdk-dark:bg-[#252525] sdk-dark:hover:bg-[#2f2f2f]"
                 >
-                  <div className="text-zinc-400 group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300 sdk-dark:text-zinc-500 sdk-dark:group-hover:text-zinc-300">
+                  <div className="text-[var(--ag-color-text-secondary,#5B6B88)] group-hover:text-[var(--ag-color-text-primary,#0A1B3D)]">
                     <Plus size={18} strokeWidth={2.5} />
                   </div>
-                </div>
-              </div>
+                  </div>
+                  </div>
             )}
           </div>
         )}
-        
+
         <div className="flex-1">
           <textarea
             ref={textareaRef}
@@ -712,22 +712,22 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
             }}
             onKeyDown={handleKeyDown}
             placeholder={placeholderText}
-            className="w-full bg-transparent border-none text-[15px] resize-none text-zinc-800 placeholder-zinc-400 outline-none leading-relaxed min-h-[80px] pt-1 dark:text-zinc-200 dark:placeholder-zinc-500"
+            className="w-full bg-transparent text-[15px] resize-none text-zinc-800 placeholder-zinc-400 outline-none leading-relaxed min-h-[80px] pt-1 dark:text-zinc-200 dark:placeholder-zinc-500"
           />
         </div>
-      </div>
-      
-      <div className="flex items-end justify-between gap-3 mt-2 pt-2 border-t border-transparent relative w-full min-w-0">
-        <div 
+        </div>
+
+          <div className="flex items-end justify-between gap-3 mt-2 pt-2 relative w-full min-w-0">
+        <div
           className="flex items-center gap-1 text-zinc-500 min-w-0 flex-1 overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden dark:text-zinc-400"
         >
           {/* Creation Type Dropdown */}
           <div className="relative shrink-0" ref={creationWrapperRef}>
-            <button 
+            <button
               onClick={toggleCreationMenu}
               className={cn(
                 "flex items-center gap-1.5 text-[14px] font-medium transition-colors px-2 py-1.5 rounded-md hover:bg-black/5 -ml-2 whitespace-nowrap dark:hover:bg-[#2a2a2a]",
-                isAgent || isImage || isVideo ? "text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300" : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+                isAgent || isImage || isVideo ? "text-[#0E42D2] hover:text-[#0E42D2] dark:text-[#4080FF] dark:hover:text-[#4080FF]" : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
               )}
             >
               <TypeIcon size={16} className="shrink-0" />
@@ -735,26 +735,26 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
               {isCreationMenuOpen ? <ChevronUp size={14} className="opacity-70 ml-0.5 shrink-0" /> : <ChevronDown size={14} className="opacity-70 ml-0.5 shrink-0" />}
             </button>
           </div>
-          
+
           <div className="w-px h-3.5 bg-black/10 mx-1 shrink-0 dark:bg-[#333333]"></div>
-          
+
           {isAgent ? (
             <>
-              <button className="flex items-center gap-1.5 hover:text-zinc-800 transition-colors text-[14px] px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a] whitespace-nowrap shrink-0">
+              <button className="flex items-center gap-1.5 hover:text-zinc-800 transition-colors text-[14px] px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-[var(--ag-color-text-primary,#0A1B3D)] dark:hover:bg-[#2a2a2a] whitespace-nowrap shrink-0">
                 <Settings2 size={16} className="shrink-0" />
                 画面设置
               </button>
-              <button className="flex items-center gap-1.5 hover:text-zinc-800 transition-colors text-[14px] px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a] whitespace-nowrap shrink-0">
+              <button className="flex items-center gap-1.5 hover:text-zinc-800 transition-colors text-[14px] px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-[var(--ag-color-text-primary,#0A1B3D)] dark:hover:bg-[#2a2a2a] whitespace-nowrap shrink-0">
                 <Wrench size={16} className="shrink-0" />
                 使用技能
               </button>
-              <button className="hover:text-zinc-800 transition-colors px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a] shrink-0" title="Mention">
+              <button className="hover:text-zinc-800 transition-colors px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-[var(--ag-color-text-primary,#0A1B3D)] dark:hover:bg-[#2a2a2a] shrink-0" title="Mention">
                 <AtSign size={16} />
               </button>
             </>
           ) : isVideo ? (
             <div className="relative flex items-center flex-nowrap shrink-0" ref={videoSettingsRef}>
-              <div 
+              <div
                 className="flex items-center flex-nowrap cursor-pointer group hover:bg-black/5 rounded-md px-1.5 py-1 transition-colors dark:hover:bg-[#2a2a2a]"
                 onClick={toggleVideoSettings}
               >
@@ -771,7 +771,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                 </div>
                 <div className="w-px h-3 bg-black/10 mx-2 shrink-0 dark:bg-[#333333]"></div>
                 <div className="flex items-center text-[14px] font-medium text-zinc-600 group-hover:text-zinc-900 whitespace-nowrap shrink-0 dark:text-zinc-300 dark:group-hover:text-zinc-100">
-                  {videoResolution} {videoResolution === '1080P' && <Sparkles size={10} className="inline text-cyan-400 fill-cyan-400 -mt-2 ml-0.5 shrink-0" />}
+                  {videoResolution} {videoResolution === '1080P' && <Sparkles size={10} className="inline text-[#4080FF] fill-[#4080FF] -mt-2 ml-0.5 shrink-0" />}
                 </div>
                 <div className="w-px h-3 bg-black/10 mx-2 shrink-0 dark:bg-[#333333]"></div>
                 <div className="text-[14px] font-medium text-zinc-600 group-hover:text-zinc-900 whitespace-nowrap shrink-0 dark:text-zinc-300 dark:group-hover:text-zinc-100">
@@ -781,68 +781,68 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                 <div className="text-[14px] font-medium text-zinc-600 group-hover:text-zinc-900 whitespace-nowrap shrink-0 dark:text-zinc-300 dark:group-hover:text-zinc-100">
                   {videoDuration}s
                 </div>
-              </div>
-              <button className="hover:text-zinc-200 transition-colors p-1.5 rounded-md hover:bg-white/5 shrink-0 ml-1" title="Mention">
+                </div>
+              <button className="hover:text-[var(--ag-color-text-primary,#0A1B3D)] transition-colors p-1.5 rounded-md hover:bg-white/5 shrink-0 ml-1" title="Mention">
                 <AtSign size={16} />
               </button>
             </div>
           ) : isMusic ? (
             <div className="flex items-center">
               <div className="relative shrink-0 flex items-center" ref={musicSettingsRef}>
-                <button 
+                <button
                   onClick={toggleMusicSettings}
-                  className="flex items-center gap-1.5 hover:text-zinc-800 transition-colors text-[14px] px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a] whitespace-nowrap shrink-0"
+                  className="flex items-center gap-1.5 hover:text-zinc-800 transition-colors text-[14px] px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-[var(--ag-color-text-primary,#0A1B3D)] dark:hover:bg-[#2a2a2a] whitespace-nowrap shrink-0"
                 >
-                  <div className="flex items-center justify-center w-[14px] h-[14px] rounded-full border border-current shrink-0">
+                  <div className="flex items-center justify-center w-[14px] h-[14px] rounded-full shrink-0">
                     <div className="w-1.5 h-1.5 rounded-full bg-current"></div>
                   </div>
                   智能时长
                 </button>
               </div>
-              <button className="hover:text-zinc-800 transition-colors px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a] shrink-0 ml-1" title="Mention">
+              <button className="hover:text-zinc-800 transition-colors px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-[var(--ag-color-text-primary,#0A1B3D)] dark:hover:bg-[#2a2a2a] shrink-0 ml-1" title="Mention">
                 <AtSign size={16} />
               </button>
             </div>
           ) : isVoice ? (
             <div className="flex items-center gap-2">
               <div className="relative shrink-0 flex items-center" ref={voiceSettingsRef}>
-                <button 
+                <button
                   onClick={toggleVoiceSettings}
-                  className="flex items-center gap-1.5 hover:text-zinc-200 transition-colors text-[14px] px-3 py-1.5 rounded-md hover:bg-white/5 whitespace-nowrap shrink-0"
+                  className="flex items-center gap-1.5 hover:text-[var(--ag-color-text-primary,#0A1B3D)] transition-colors text-[14px] px-3 py-1.5 rounded-md hover:bg-white/5 whitespace-nowrap shrink-0"
                 >
-                  <AudioLines size={16} className="shrink-0 text-cyan-400" />
-                  <span className="text-cyan-400 font-medium">{VOICE_OPTIONS.find(v => v.id === selectedVoice)?.name || '选择语音'}</span>
-                  {isVoiceSettingsOpen ? <ChevronUp size={14} className="text-cyan-400/70 ml-0.5 shrink-0" /> : <ChevronDown size={14} className="text-cyan-400/70 ml-0.5 shrink-0" />}
+                  <AudioLines size={16} className="shrink-0 text-[#4080FF]" />
+                  <span className="text-[#4080FF] font-medium">{VOICE_OPTIONS.find(v => v.id === selectedVoice)?.name || '选择语音'}</span>
+                    {isVoiceSettingsOpen ? <ChevronUp size={14} className="text-[#4080FF]/70 ml-0.5 shrink-0" /> : <ChevronDown size={14} className="text-[#4080FF]/70 ml-0.5 shrink-0" />}
                 </button>
               </div>
-              <button className="flex items-center gap-1.5 hover:text-zinc-800 transition-colors text-[14px] px-3 py-1.5 rounded-md border border-black/10 hover:bg-black/5 whitespace-nowrap shrink-0 dark:hover:text-zinc-200 dark:border-white/10 dark:hover:bg-[#2a2a2a]">
+                <button className="flex items-center gap-1.5 hover:text-zinc-800 transition-colors text-[14px] px-3 py-1.5 rounded-md hover:bg-black/5 whitespace-nowrap shrink-0 dark:hover:text-[var(--ag-color-text-primary,#0A1B3D)] dark:hover:bg-[#2a2a2a]">
                 <Mic size={16} className="shrink-0" />
                 克隆声音
               </button>
             </div>
           ) : isDigitalHuman ? (
             <div className="flex items-center gap-2">
-              <input 
-                type="file" 
-                ref={audioInputRef} 
-                onChange={handleAudioChange} 
-                accept="audio/*" 
-                className="hidden" 
+              <input
+                type="file"
+                ref={audioInputRef}
+                onChange={handleAudioChange}
+                accept="audio/*"
+                className="hidden"
               />
-              <button 
+              <button
                 onClick={triggerAudioUpload}
                 className={cn(
-                  "flex items-center gap-1.5 text-[14px] px-3.5 py-1.5 rounded-lg border transition-all whitespace-nowrap shrink-0 select-none cursor-pointer",
+                  "flex items-center gap-1.5 text-[14px] px-3.5 py-1.5 rounded-lg transition-all whitespace-nowrap shrink-0 select-none cursor-pointer",
                   uploadedAudioName
-                    ? "bg-cyan-500/10 border-cyan-400/20 text-cyan-600 font-semibold dark:text-cyan-400"
-                    : "bg-zinc-100 border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:bg-[#252525] dark:border-white/10 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
+                  ? "bg-[#165DFF]/10 text-[#0E42D2] font-semibold dark:text-[#4080FF]"
+                  : "bg-zinc-100 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:bg-[#252525] dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
                 )}
                 title="上传音频进行人物对白/配音"
               >
                 <ArrowUp size={14} className="shrink-0" />
                 <span>{uploadedAudioName ? `已上传音频: ${uploadedAudioName}` : '上传音频'}</span>
                 {uploadedAudioName && (
-                  <span 
+                  <span
                     onClick={(e) => {
                       e.stopPropagation();
                       setUploadedAudioName(null);
@@ -859,27 +859,27 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
           ) : isAction ? (
             <div className="flex items-center gap-2 select-none">
               <div className="text-[13px] text-zinc-500 flex items-center gap-1.5 font-medium">
-                <Sparkles size={13} className="text-cyan-400 fill-cyan-400" />
+                <Sparkles size={13} className="text-[#4080FF] fill-[#4080FF]" />
                 <span>智能动作姿态参考</span>
               </div>
-            </div>
+              </div>
           ) : isSfx ? (
             <div className="flex items-center gap-2 select-none">
               <div className="text-[13px] text-zinc-500 flex items-center gap-1.5 font-medium">
-                <Waves size={13} className="text-cyan-400" />
+                <Waves size={13} className="text-[#4080FF]" />
                 <span>描述即得音效，时长与强度由模型自动决定</span>
               </div>
-            </div>
+              </div>
           ) : (
             <>
               <div className="relative shrink-0 flex items-center" ref={imageSettingsRef}>
-                <button 
+                <button
                   onClick={toggleImageSettings}
                   className={cn(
-                    "flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-lg border transition-all whitespace-nowrap shrink-0 hover:bg-white/10 select-none cursor-pointer animate-in fade-in duration-200",
-                    isImageSettingsOpen 
-                      ? "bg-zinc-100 border-zinc-300 text-zinc-900 shadow-lg scale-[1.02] dark:bg-[#333333] dark:border-white/20 dark:text-white" 
-                      : "bg-zinc-100 border-zinc-200 text-zinc-600 hover:text-zinc-900 dark:bg-[#252525] dark:border-white/10 dark:text-zinc-300 dark:hover:text-white"
+                    "flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-lg transition-all whitespace-nowrap shrink-0 hover:bg-white/10 select-none cursor-pointer animate-in fade-in duration-200",
+                    isImageSettingsOpen
+                    ? "bg-zinc-100 text-zinc-900 scale-[1.02] dark:bg-[#333333] dark:text-white"
+                    : "bg-zinc-100 text-zinc-600 hover:text-zinc-900 dark:bg-[#252525] dark:text-zinc-300 dark:hover:text-white"
                   )}
                   title="图片参数设置"
                 >
@@ -888,27 +888,27 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                   <div className="w-px h-3.5 bg-white/10 mx-0.5"></div>
                   <span className="font-semibold">{imageResolution}</span>
                   {imageResolution === '1K' ? (
-                    <span className="bg-cyan-400 text-black px-1.5 py-0.5 rounded text-[8px] font-extrabold tracking-tight uppercase leading-none scale-90 origin-left">
+                    <span className="bg-[#4080FF] text-white px-1.5 py-0.5 rounded text-[8px] font-extrabold tracking-tight uppercase leading-none scale-90 origin-left">
                       限免1次
                     </span>
                   ) : (
-                    <span className="text-cyan-400 text-xs font-semibold">✦</span>
+                    <span className="text-[#4080FF] text-xs font-semibold">✦</span>
                   )}
                 </button>
               </div>
-              <button className="flex items-center hover:text-zinc-800 transition-colors text-[14px] px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a] whitespace-nowrap shrink-0" title="Text">
+              <button className="flex items-center hover:text-zinc-800 transition-colors text-[14px] px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-[var(--ag-color-text-primary,#0A1B3D)] dark:hover:bg-[#2a2a2a] whitespace-nowrap shrink-0" title="Text">
                 <span className="font-serif font-bold text-[15px] leading-none">T</span><span className="text-[10px] leading-none mb-2">+</span>
               </button>
-              <button className="hover:text-zinc-800 transition-colors px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a] shrink-0" title="Mention">
+              <button className="hover:text-zinc-800 transition-colors px-2 py-1.5 rounded-md hover:bg-black/5 dark:hover:text-[var(--ag-color-text-primary,#0A1B3D)] dark:hover:bg-[#2a2a2a] shrink-0" title="Mention">
                 <AtSign size={16} />
               </button>
             </>
           )}
         </div>
-        
+
         <div className="flex items-center gap-1 shrink-0 self-end pl-2 relative" ref={modelWrapperRef}>
           {isAgent ? (
-            <button 
+            <button
               onClick={toggleModelMenu}
               className="flex items-center gap-1.5 text-[14px] text-zinc-600 hover:text-zinc-900 transition-colors px-2 py-1.5 rounded-md hover:bg-black/5 whitespace-nowrap shrink-0 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#2a2a2a]"
             >
@@ -916,19 +916,19 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
               {agentAutoMatch ? '模型·自动' : '模型·自选'} {isModelMenuOpen ? <ChevronUp size={14} className="text-zinc-500 ml-0.5 shrink-0" /> : <ChevronDown size={14} className="text-zinc-500 ml-0.5 shrink-0" />}
             </button>
           ) : (
-            <button 
+            <button
               onClick={toggleModelMenu}
               className="flex items-center gap-1.5 text-[14px] text-zinc-600 hover:text-zinc-900 transition-colors px-3 py-1.5 rounded-md hover:bg-black/5 bg-zinc-100 whitespace-nowrap dark:text-zinc-300 dark:hover:text-white dark:hover:bg-[#333333] dark:bg-[#2f2f2f]"
             >
               <span className="shrink-0"><ModelIcon /></span>
               <span className="max-w-[150px] truncate">{currentModel.label}</span>
-              {currentModel.spark && <Sparkles size={12} className="text-cyan-400 fill-cyan-400 -ml-0.5 shrink-0" />}
+                {currentModel.spark && <Sparkles size={12} className="text-[#4080FF] fill-[#4080FF] -ml-0.5 shrink-0" />}
               {isModelMenuOpen ? <ChevronUp size={14} className="text-zinc-400 ml-0.5 shrink-0" /> : <ChevronDown size={14} className="text-zinc-400 ml-0.5 shrink-0" />}
             </button>
           )}
-          
+
           {isAgent ? (
-            <button className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-white/10 transition-colors mx-1 text-zinc-400 hover:text-zinc-200">
+            <button className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-white/10 transition-colors mx-1 text-zinc-400 hover:text-[var(--ag-color-text-primary,#0A1B3D)]">
               <Mic size={18} />
             </button>
           ) : (
@@ -943,15 +943,15 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
               <span>{creditEstimate.pointsLabel}</span>
             </div>
           )}
-          
-          <button 
+
+          <button
             onClick={handleSubmit}
             disabled={!input.trim()}
             className={cn(
               "w-8 h-8 rounded-full flex items-center justify-center transition-all ml-1.5",
-              input.trim() 
-                ? "bg-zinc-900 text-white hover:bg-zinc-700 cursor-pointer shadow-md dark:bg-white dark:text-black dark:hover:bg-zinc-200" 
-                : "bg-zinc-200 text-zinc-400 cursor-not-allowed dark:bg-[#333333] dark:text-white/30"
+              input.trim()
+              ? "bg-[#165DFF] text-white hover:bg-[#4080FF] active:bg-[#0E42D2] cursor-pointer"
+              : "bg-[#EAF1FB] text-[#8A97AD] cursor-not-allowed"
             )}
           >
             <ArrowUp size={18} strokeWidth={2.5} />
@@ -960,10 +960,10 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
 
         {/* Render Dropdowns here to prevent clipping */}
         {isCreationMenuOpen && (
-          <div 
+          <div
             ref={creationDropdownRef}
             className={cn(
-              "absolute left-0 w-[calc(100vw-32px)] sm:w-[220px] max-w-[220px] bg-white border border-black/10 rounded-xl shadow-xl py-2 z-50 overflow-y-auto custom-scrollbar text-[13px] animate-in fade-in zoom-in-95 duration-100 max-h-[50vh] dark:bg-[#1e1e1e] dark:border-white/10 dark:shadow-2xl",
+              "absolute left-0 w-[calc(100vw-32px)] sm:w-[220px] max-w-[220px] bg-white rounded-xl py-2 z-50 overflow-y-auto custom-scrollbar text-[13px] animate-in fade-in zoom-in-95 duration-100 max-h-[50vh] dark:bg-[#1e1e1e]",
               creationMenuPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
             )}
           >
@@ -973,9 +973,9 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
               return (
                 <button
                   key={type.id}
-                  onClick={() => { 
-                    setCreationType(type.id); 
-                    setIsCreationMenuOpen(false); 
+                  onClick={() => {
+                    setCreationType(type.id);
+                    setIsCreationMenuOpen(false);
                     if (onModeChange) onModeChange(type.id);
                   }}
                   className={cn(
@@ -993,7 +993,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
             })}
           </div>
         )}
-        
+
         {isVideoSettingsOpen && (
           <VideoSettingsDropdown
             videoSettingsMode={videoSettingsMode}
@@ -1067,8 +1067,8 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
               else if (isSfx) setSelectedSfxModel(id);
               else if (isVoice) setSelectedVoiceModel(id);
               else if (isMusic) setSelectedMusicModel(id);
-              else if (isVideo) setSelectedVideoModel(id); 
-              else setSelectedImageModel(id); 
+              else if (isVideo) setSelectedVideoModel(id);
+              else setSelectedImageModel(id);
               setIsModelMenuOpen(false);
             }}
             currentModels={currentModels}
@@ -1081,6 +1081,6 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
           />
         )}
       </div>
-    </div>
+      </div>
   );
 };

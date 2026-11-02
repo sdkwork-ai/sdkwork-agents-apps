@@ -28,7 +28,7 @@
     {
       "file": "APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
       "path": "../../../../../sdkwork-specs/APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
-      "purpose": "Cross-client package taxonomy and dependency direction."
+      "purpose": "Cross-client package taxonomy, route identity, and dependency direction."
     },
     {
       "file": "APP_HARMONY_NATIVE_UI_SPEC.md",
@@ -59,11 +59,19 @@
     "dependencyApiSurfaces": [],
     "providedPorts": [
       {
+        "name": "agentsHarmonyRouteRegistry",
+        "export": "Index.ets"
+      },
+      {
         "name": "agentsHarmonyCatalogViews",
         "export": "Index.ets"
       },
       {
-        "name": "agentsHarmonyRoutes",
+        "name": "agentsHarmonyConversationViews",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyMessages",
         "export": "Index.ets"
       }
     ],
@@ -76,6 +84,11 @@
       {
         "name": "agentsHarmonyCommons",
         "package": "@sdkwork/sdkwork-agents-harmony-mobile-commons",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyShell",
+        "package": "@sdkwork/sdkwork-agents-harmony-mobile-shell",
         "export": "Index.ets"
       }
     ]

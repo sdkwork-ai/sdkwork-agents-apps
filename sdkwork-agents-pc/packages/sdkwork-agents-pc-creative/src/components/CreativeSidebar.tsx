@@ -15,7 +15,7 @@ interface CreativeSidebarProps {
   handleSaveRename: (id: string, customTitle?: string) => void;
   handleTogglePin: (id: string) => void;
   handleDeleteSession: (e: React.MouseEvent, id: string) => void;
-  
+
   // History log props
   historyLogs: PromptHistoryItem[];
   onReRun: (item: PromptHistoryItem) => void;
@@ -34,7 +34,7 @@ export const CreativeSidebar: React.FC<CreativeSidebarProps> = ({
   handleSaveRename,
   handleTogglePin,
   handleDeleteSession,
-  
+
   historyLogs,
   onReRun,
   onLoadConfig,
@@ -52,16 +52,16 @@ export const CreativeSidebar: React.FC<CreativeSidebarProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={cn(
-        "h-full flex flex-col bg-white border-r border-black/5 transition-all duration-300 overflow-hidden shrink-0 dark:bg-[#141414] dark:border-white/5",
-        isSidebarOpen ? "w-[260px]" : "w-0 border-none"
+        "h-full flex flex-col bg-white transition-all duration-300 overflow-hidden shrink-0 dark:bg-[#141414]",
+        isSidebarOpen ? "w-[260px]" : "w-0"
       )}
     >
       {/* Sidebar Header */}
       <div className="p-4 flex items-center justify-between h-14 shrink-0">
         <div className="font-medium text-[15px] text-zinc-800 dark:text-zinc-200">开启创作</div>
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(false)}
           className="p-1.5 rounded-lg hover:bg-black/5 text-zinc-500 hover:text-zinc-800 dark:hover:bg-[#333333] dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors cursor-pointer"
         >
@@ -74,10 +74,10 @@ export const CreativeSidebar: React.FC<CreativeSidebarProps> = ({
         <button
           onClick={() => setActiveTab('sessions')}
           className={cn(
-            "flex-1 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 border transition-all cursor-pointer",
+            "flex-1 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer",
             activeTab === 'sessions'
-              ? "bg-zinc-100 border-zinc-200 text-zinc-900 shadow-sm dark:bg-[#333333] dark:border-white/10 dark:text-white"
-              : "border-transparent text-zinc-500 hover:text-zinc-800 hover:bg-black/5 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a]"
+            ? "bg-zinc-100 text-zinc-900 dark:bg-[#333333] dark:text-white"
+            : "text-zinc-500 hover:text-zinc-800 hover:bg-black/5 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a]"
           )}
         >
           <MessageSquareCode size={13} />
@@ -86,16 +86,16 @@ export const CreativeSidebar: React.FC<CreativeSidebarProps> = ({
         <button
           onClick={() => setActiveTab('history')}
           className={cn(
-            "flex-1 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 border transition-all cursor-pointer",
+            "flex-1 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer",
             activeTab === 'history'
-              ? "bg-zinc-100 border-zinc-200 text-zinc-900 shadow-sm dark:bg-[#333333] dark:border-white/10 dark:text-white"
-              : "border-transparent text-zinc-500 hover:text-zinc-800 hover:bg-black/5 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a]"
+            ? "bg-zinc-100 text-zinc-900 dark:bg-[#333333] dark:text-white"
+            : "text-zinc-500 hover:text-zinc-800 hover:bg-black/5 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-[#2a2a2a]"
           )}
         >
           <History size={13} />
           <span>历史记录</span>
           {historyLogs.length > 0 && (
-            <span className="px-1.5 py-0.2 bg-cyan-500/20 text-cyan-400 rounded-full text-[9px] font-bold">
+            <span className="px-1.5 py-0.2 bg-[var(--ag-color-primary-subtle,#E8F0FF)] text-[var(--ag-color-primary,#165DFF)] rounded-full text-[9px] font-bold">
               {historyLogs.length}
             </span>
           )}
@@ -106,16 +106,16 @@ export const CreativeSidebar: React.FC<CreativeSidebarProps> = ({
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeTab === 'sessions' ? (
           <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
-            <button 
+            <button
               onClick={handleNewChat}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left hover:bg-black/5 text-zinc-500 hover:text-zinc-800 dark:hover:bg-[#2a2a2a] dark:text-zinc-400 dark:hover:text-zinc-200 cursor-pointer"
             >
               <SquarePen size={18} />
               <span className="text-[14px] font-medium">新对话</span>
             </button>
-            
+
             <div className="my-2 h-[1px] bg-black/5 dark:bg-[#2f2f2f] mx-2"></div>
-            
+
             {/* Active default creation session */}
             {sessions.filter(s => s.id === 'default').map(session => (
               <CreativeSidebarItem
@@ -138,7 +138,7 @@ export const CreativeSidebar: React.FC<CreativeSidebarProps> = ({
 
             {/* Recent list label */}
             {sessions.filter(s => s.id !== 'default').length > 0 && (
-              <div className="px-3 pt-4 pb-2 text-[11px] font-medium text-zinc-500 tracking-wider uppercase select-none">
+              <div className="px-3 pt-4 pb-2 text-[11px] font-medium text-zinc-500 dark:text-[var(--ag-color-text-tertiary,#8A97AD)] tracking-wider uppercase select-none">
                 最近
               </div>
             )}
@@ -173,6 +173,6 @@ export const CreativeSidebar: React.FC<CreativeSidebarProps> = ({
           />
         )}
       </div>
-    </div>
+      </div>
   );
 };

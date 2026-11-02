@@ -7,10 +7,10 @@ import 'tab_hosts.dart';
 
 /// Bottom-navigation shell for the Agents Flutter mobile root.
 ///
-/// Owns the selected tab and mounts the five capability hosts. The tab set comes
-/// from the shell package (`agentsMobileTabs`) and was proven against the route
-/// contributions during bootstrap, so the bar can never disagree with the route
-/// registry.
+/// Owns the selected tab and mounts the five capability hosts in the contract
+/// order: 对话, 灵感, 生成, 资产, Agent. The tab set comes from the shell package
+/// (`agentsMobileTabs`) and was proven against the route contributions during
+/// bootstrap, so the bar can never disagree with the route registry.
 class AgentsAppShell extends StatefulWidget {
   const AgentsAppShell({required this.runtime, super.key});
 
@@ -34,10 +34,10 @@ class _AgentsAppShellState extends State<AgentsAppShell> {
       translate: translate,
       destinations: <Widget>[
         AgentsConversationTab(runtime: runtime),
+        AgentsInspirationTab(runtime: runtime),
+        AgentsCreativeTab(runtime: runtime),
+        AgentsAssetsTab(runtime: runtime),
         AgentsCatalogTab(runtime: runtime),
-        AgentsLibraryTab(runtime: runtime),
-        AgentsAutomationTab(runtime: runtime),
-        AgentsProjectsTab(runtime: runtime),
       ],
     );
   }

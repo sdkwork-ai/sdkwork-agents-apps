@@ -20,6 +20,18 @@ const Map<String, Map<String, String>> agentsCatalogMessages =
     'agents.catalog.empty': 'No agents yet',
     'agents.catalog.loadFailed': 'Failed to load agents',
     'agents.catalog.loadMore': 'Load more',
+    'agents.catalog.retry': 'Retry',
+    'agents.mobile.tab.myAgents': 'My agents',
+    'agents.mobile.tab.market': 'Market',
+    'agents.editor.title': 'Edit agent',
+    'agents.editor.name': 'Name',
+    'agents.editor.description': 'Description',
+    'agents.editor.save': 'Save',
+    'agents.editor.saving': 'Saving',
+    'agents.editor.saved': 'Agent saved.',
+    'agents.editor.nameRequired': 'Enter an agent name.',
+    'agents.editor.loadFailed': 'Could not load this agent.',
+    'agents.editor.missing': 'This agent is no longer available.',
   },
   'zh-CN': <String, String>{
     'agents.catalog.title': '智能体',
@@ -28,13 +40,25 @@ const Map<String, Map<String, String>> agentsCatalogMessages =
     'agents.catalog.empty': '暂无智能体',
     'agents.catalog.loadFailed': '智能体加载失败',
     'agents.catalog.loadMore': '加载更多',
+    'agents.catalog.retry': '重试',
+    'agents.mobile.tab.myAgents': '我的智能体',
+    'agents.mobile.tab.market': '市场',
+    'agents.editor.title': '编辑 Agent',
+    'agents.editor.name': '名称',
+    'agents.editor.description': '描述',
+    'agents.editor.save': '保存',
+    'agents.editor.saving': '保存中',
+    'agents.editor.saved': 'Agent 已保存。',
+    'agents.editor.nameRequired': '请输入 Agent 名称。',
+    'agents.editor.loadFailed': 'Agent 加载失败。',
+    'agents.editor.missing': '该 Agent 已不可用。',
   },
 };
 
 String translateAgentsCatalogMessage(String localeTag, String key) {
   final tag = resolveSdkworkAgentsLocaleTag(localeTag);
-  final messages =
-      agentsCatalogMessages[tag] ?? agentsCatalogMessages[sdkworkAgentsDefaultLocaleTag]!;
+  final messages = agentsCatalogMessages[tag] ??
+      agentsCatalogMessages[sdkworkAgentsDefaultLocaleTag]!;
   final value = messages[key];
   return value != null && value.isNotEmpty ? value : key;
 }

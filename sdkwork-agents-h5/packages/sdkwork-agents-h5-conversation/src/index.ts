@@ -8,6 +8,9 @@
 export { ConversationScreen } from "./screens/ConversationScreen";
 export type { ConversationScreenProps } from "./screens/ConversationScreen";
 
+export { ConversationHistoryScreen } from "./screens/ConversationHistoryScreen";
+export type { ConversationHistoryScreenProps } from "./screens/ConversationHistoryScreen";
+
 export {
   ConversationService,
   DEFAULT_CONVERSATION_AGENT_ID,

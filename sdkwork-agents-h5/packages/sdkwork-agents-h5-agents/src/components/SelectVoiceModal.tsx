@@ -147,24 +147,24 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-[var(--color-scrim,rgba(10,27,61,0.45))] z-[100]"
             onClick={onClose}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-[#1e1e1e] rounded-2xl shadow-2xl flex flex-col z-[101] overflow-hidden border border-white/10"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-[var(--color-surface-color,#FFFFFF)] rounded-2xl flex flex-col z-[101] overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#202020] shrink-0">
+            <div className="flex items-center justify-between p-6 bg-[var(--color-surface-color,#FFFFFF)] shrink-0">
               <div>
-                <h2 className="text-xl font-bold text-gray-100 mb-1">选择发音人</h2>
-                <p className="text-xs text-gray-400">为你的智能体挑选合适的声音模型，支持多维度分类与专业克隆音色。</p>
+                <h2 className="text-xl font-bold text-[var(--color-text-primary,#0A1B3D)] mb-1">选择发音人</h2>
+                <p className="text-xs text-[var(--color-text-secondary,#5B6B88)]">为你的智能体挑选合适的声音模型，支持多维度分类与专业克隆音色。</p>
               </div>
               <button
                 onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[var(--color-surface-strong,#DCE8F9)] text-[var(--color-text-secondary,#5B6B88)] hover:text-[var(--color-primary,#165DFF)] transition-colors"
               >
                 <X size={20} />
               </button>
@@ -172,7 +172,7 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
 
             <div className="flex flex-1 min-h-0">
               {/* Sidebar */}
-              <div className="w-[200px] bg-[#151515] border-r border-white/5 py-5 flex flex-col shrink-0">
+              <div className="w-[200px] bg-[var(--color-input-bg,#EAF1FB)] py-5 flex flex-col shrink-0">
                 <div className="px-5 pb-5">
                   <div className="relative">
                     <input 
@@ -180,9 +180,9 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
                       placeholder="搜索声音..." 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-[#202020] border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-sm text-gray-200 outline-none focus:border-purple-500 transition-colors shadow-inner"
+                      className="w-full bg-[var(--color-surface-color,#FFFFFF)] rounded-xl pl-9 pr-3 py-2.5 text-sm text-[var(--color-text-primary,#0A1B3D)] outline-none transition-colors"
                     />
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-icon-default,#5B6B88)]" size={16} />
                   </div>
                 </div>
                 <div className="px-4 space-y-1.5">
@@ -193,8 +193,8 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
                       className={cn(
                         "w-full flex items-center px-4 py-3 rounded-xl text-[14px] font-medium transition-all text-left",
                         activeCategory === cat.id 
-                          ? "bg-purple-600 border border-purple-500 box-border text-white shadow-lg shadow-purple-500/20" 
-                          : "text-gray-400 hover:bg-white/5 hover:text-gray-200 border border-transparent"
+                          ? "bg-[var(--color-primary,#165DFF)]   box-border text-white  " 
+                          : "text-[var(--color-text-secondary,#5B6B88)] hover:bg-[var(--color-surface-muted,#EAF1FB)] hover:text-[var(--color-text-primary,#0A1B3D)]"
                       )}
                     >
                       {cat.name}
@@ -204,15 +204,15 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
               </div>
 
               {/* Grid Content */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-[#1a1a1a]">
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-[var(--color-surface-color,#FFFFFF)]">
                 {loading ? (
-                  <div className="text-gray-500 text-sm text-center py-20 flex flex-col items-center justify-center gap-3">
-                    <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="text-[var(--color-text-secondary,#5B6B88)] text-sm text-center py-20 flex flex-col items-center justify-center gap-3">
+                    <div className="ag-spinner ag-spinner-lg"></div>
                     正在同步声音模型市场...
                   </div>
                 ) : filteredVoices.length === 0 ? (
-                  <div className="text-gray-500 text-sm text-center py-32 flex flex-col items-center justify-center">
-                    <Music size={32} className="mb-4 text-gray-600 opacity-50" />
+                  <div className="text-[var(--color-text-secondary,#5B6B88)] text-sm text-center py-32 flex flex-col items-center justify-center">
+                    <Music size={32} className="mb-4 text-[var(--color-icon-default,#5B6B88)] opacity-50" />
                     未找到符合条件的声音
                   </div>
                 ) : (
@@ -224,36 +224,36 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
                           key={voice.id}
                           onClick={() => handleSelect(voice)}
                           className={cn(
-                            "relative group bg-[#252528] rounded-xl border p-4 cursor-pointer transition-all hover:-translate-y-1",
+                            "relative group bg-[var(--color-surface-muted,#EAF1FB)] rounded-xl  p-4 cursor-pointer transition-all hover:-translate-y-1",
                             isSelected 
-                              ? "border-purple-500 shadow-md shadow-purple-500/10" 
-                              : "border-white/5 hover:border-white/20 hover:bg-[#2a2a2d]"
+                              ? "  " 
+                              : "  hover:bg-[var(--color-surface-strong,#DCE8F9)]"
                           )}
                         >
                           {isSelected && (
-                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white shadow-lg z-10 border-2 border-[#252528]">
+                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-[var(--color-primary,#165DFF)] rounded-full flex items-center justify-center text-white z-10">
                               <Check size={12} strokeWidth={3} />
                             </div>
                           )}
                           
                           <div className="flex items-start gap-4">
-                            <div className={cn("w-12 h-12 rounded-xl flex flex-shrink-0 items-center justify-center text-white shadow-inner", voice.color || 'bg-purple-500')}>
+                            <div className={cn("w-12 h-12 rounded-xl flex flex-shrink-0 items-center justify-center text-white ", voice.color || 'bg-[var(--color-primary,#165DFF)]')}>
                               {getIcon(voice.iconName)}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-1">
-                                <h3 className={cn("font-medium truncate", isSelected ? "text-purple-400" : "text-gray-100 group-hover:text-white transition-colors")}>
+                                <h3 className={cn("font-medium truncate", isSelected ? "text-[var(--color-primary,#165DFF)]" : "text-[var(--color-text-primary,#0A1B3D)] group-hover:text-[var(--color-text-primary,#0A1B3D)] transition-colors")}>
                                   {voice.name}
                                 </h3>
                               </div>
-                              <p className="text-[12px] text-gray-400 line-clamp-2 leading-relaxed">
+                              <p className="text-[12px] text-[var(--color-text-secondary,#5B6B88)] line-clamp-2 leading-relaxed">
                                 {voice.description}
                               </p>
                             </div>
                           </div>
                           
-                          <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
-                            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                          <div className="mt-4 pt-3 flex items-center justify-between">
+                            <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-secondary,#5B6B88)]">
                               <User size={12} />
                               <span>{voice.author || '我'}</span>
                             </div>
@@ -268,7 +268,7 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
                                 }
                                 toast('该音色暂无预览音频', 'info');
                               }}
-                              className="w-7 h-7 rounded-full bg-[#181818] border border-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-purple-500 hover:border-purple-500 transition-all opacity-0 group-hover:opacity-100"
+                              className="w-7 h-7 rounded-full bg-[var(--color-input-bg,#EAF1FB)] flex items-center justify-center text-[var(--color-icon-default,#5B6B88)] hover:text-[var(--color-icon-on-primary,#FFFFFF)] hover:bg-[var(--color-primary,#165DFF)] transition-all"
                             >
                               <Play size={10} fill="currentColor" className="ml-0.5" />
                             </button>
@@ -290,7 +290,7 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
                         )
                       }
                       disabled={loadingMore}
-                      className="px-4 py-2 rounded-lg text-sm bg-white/5 hover:bg-white/10 text-gray-300 disabled:opacity-50"
+                      className="px-4 py-2 rounded-lg text-sm bg-[var(--color-surface-muted,#EAF1FB)] hover:bg-[var(--color-surface-strong,#DCE8F9)] text-[var(--color-text-primary,#0A1B3D)] disabled:opacity-50"
                     >
                       {loadingMore ? '加载中...' : '加载更多'}
                     </button>
@@ -300,15 +300,15 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-white/5 bg-[#202020] flex items-center justify-between shrink-0">
-              <div className="text-sm text-gray-400">
-                已选择 <span className="text-purple-400 font-semibold">{currentSelection.length}</span> 个声音
-                {isMulti && <span className="ml-2 text-xs text-gray-500">(支持多选)</span>}
+            <div className="p-4 bg-[var(--color-surface-color,#FFFFFF)] flex items-center justify-between shrink-0">
+              <div className="text-sm text-[var(--color-text-secondary,#5B6B88)]">
+                已选择 <span className="text-[var(--color-primary,#165DFF)] font-semibold">{currentSelection.length}</span> 个声音
+                {isMulti && <span className="ml-2 text-xs text-[var(--color-text-secondary,#5B6B88)]">(支持多选)</span>}
               </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={onClose}
-                  className="px-5 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-white/10 transition-colors"
+                  className="px-5 py-2 rounded-lg text-sm font-medium text-[var(--color-text-primary,#0A1B3D)] hover:bg-[var(--color-surface-strong,#DCE8F9)] transition-colors"
                 >
                   取消
                 </button>
@@ -320,7 +320,7 @@ export const SelectVoiceModal: React.FC<SelectVoiceModalProps> = ({
                     onSave(currentSelection, selectedItems);
                     onClose();
                   }}
-                  className="px-6 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/20 transition-all"
+                  className="px-6 py-2 rounded-lg text-sm font-medium bg-[var(--color-primary,#165DFF)] hover:bg-[var(--color-primary-hover,#4080FF)] text-white transition-all"
                 >
                   确认关联
                 </button>

@@ -43,7 +43,7 @@ export const SecurityTab: React.FC<SecurityTabProps> = ({
         )}
       </div>
 
-      <div className="rounded-2xl border border-gray-100 dark:border-zinc-800 divide-y divide-gray-100 dark:divide-zinc-850 overflow-hidden bg-gray-50/10 dark:bg-[#1a1a1a]/5">
+        <div className="rounded-2xl dark: overflow-hidden bg-gray-50/10 dark:bg-[#1a1a1a]/5">
         {sessions.map((session) => (
           <div key={session.id} className="p-4 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-zinc-900/30 transition-colors">
             <div className="flex items-center gap-4.5">
@@ -65,7 +65,7 @@ export const SecurityTab: React.FC<SecurityTabProps> = ({
                   {session.browser} • {session.ip} • <span className="font-sans font-medium text-gray-400">{session.location}</span>
                 </p>
               </div>
-            </div>
+              </div>
 
             {!session.activeNow && (
               <button
@@ -73,7 +73,7 @@ export const SecurityTab: React.FC<SecurityTabProps> = ({
                   setSessions(prev => prev.filter(s => s.id !== session.id));
                   triggerToast(t('sessionDisconnected'));
                 }}
-                className="px-3 py-1.5 border border-gray-200 dark:border-zinc-850 text-gray-500 hover:text-red-500 hover:border-red-200 dark:hover:border-red-900 rounded-xl text-[10px] font-bold transition-all bg-white dark:bg-zinc-900"
+                className="px-3 py-1.5 text-gray-500 hover:text-red-500 rounded-xl text-[10px] font-bold transition-all bg-white dark:bg-zinc-900"
               >
                 {t('revokeAccess')}
               </button>
@@ -82,10 +82,10 @@ export const SecurityTab: React.FC<SecurityTabProps> = ({
         ))}
       </div>
 
-      <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/10 text-orange-500 text-xs flex items-start gap-2.5">
+        <div className="p-4 rounded-xl bg-orange-500/5 text-orange-500 text-xs flex items-start gap-2.5">
         <AlertCircle size={15} className="shrink-0 mt-0.5" />
         <p className="leading-relaxed font-medium">{t('suspiciousAlert')}</p>
       </div>
-    </div>
+      </div>
   );
 };

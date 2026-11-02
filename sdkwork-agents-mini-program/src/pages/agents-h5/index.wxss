@@ -1,3 +1,4 @@
+/* The H5 bridge page keeps the light tech-blue shell behind the web-view. */
 page {
-  background: #141414;
+  background: var(--page);
 }

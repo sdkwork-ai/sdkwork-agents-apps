@@ -22,8 +22,8 @@ export const SidebarProjectContextMenu: React.FC<SidebarProjectContextMenuProps>
   onProjectDelete
 }) => {
     return createPortal(
-      <div 
-        className="fixed mt-1 w-[180px] bg-[#2A2A2D] border border-white/10 rounded-xl shadow-2xl py-1.5 z-[9999] animate-in fade-in zoom-in-95 duration-100" 
+      <div
+        className="fixed mt-1 w-[180px] bg-[#2A2A2D] rounded-xl py-1.5 z-[9999] animate-in fade-in zoom-in-95 duration-100"
         style={{ top: dropdownPos.top, left: dropdownPos.left }}
         onClick={e => e.stopPropagation()}
       >
@@ -31,7 +31,7 @@ export const SidebarProjectContextMenu: React.FC<SidebarProjectContextMenuProps>
           <Share size={14} className="text-zinc-400" />
           分享项目
         </button>
-        <button 
+        <button
           onClick={(e) => {
             onClose();
             onProjectRename?.();
@@ -41,7 +41,7 @@ export const SidebarProjectContextMenu: React.FC<SidebarProjectContextMenuProps>
           <Edit3 size={14} className="text-zinc-400" />
           重命名项目
         </button>
-        <button 
+        <button
           onClick={(e) => {
             onClose();
             onProjectSettings?.(project);
@@ -51,22 +51,22 @@ export const SidebarProjectContextMenu: React.FC<SidebarProjectContextMenuProps>
           <Settings size={14} className="text-zinc-400" />
           项目设置
         </button>
-        <button 
+        <button
           onClick={(e) => {
             onClose();
             onProjectSelect?.(project);
           }}
-          className="w-full flex items-center gap-3 px-3 py-2 text-[13px] text-zinc-300 hover:text-white hover:bg-white/5 transition-colors text-left border-b border-white/5 pb-2.5 mb-1.5"
+          className="w-full flex items-center gap-3 px-3 py-2 text-[13px] text-zinc-300 hover:text-white hover:bg-white/5 transition-colors text-left pb-2.5 mb-1.5"
         >
           <Folder size={14} className="text-zinc-400" />
           项目主页
         </button>
-        
+
         <button className="w-full flex items-center gap-3 px-3 py-2 text-[13px] text-zinc-300 hover:text-white hover:bg-white/5 transition-colors text-left">
           <Pin size={14} className="text-zinc-400" />
           置顶项目
         </button>
-        <button 
+        <button
           onClick={(e) => {
             onClose();
             onProjectDelete?.();

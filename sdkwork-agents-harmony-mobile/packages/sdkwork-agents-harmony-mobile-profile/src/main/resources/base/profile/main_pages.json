@@ -1,0 +1,6 @@
+{
+  "src": [
+    "pages/profile/ProfilePage",
+    "pages/settings/SettingsPage"
+  ]
+}

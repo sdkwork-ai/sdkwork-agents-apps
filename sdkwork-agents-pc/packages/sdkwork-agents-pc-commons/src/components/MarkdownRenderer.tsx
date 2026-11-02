@@ -47,7 +47,7 @@ class MarkdownRendererErrorBoundary extends Component<
     }
     return this.props.children;
   }
-}
+  }
 
 /** Eager markdown renderer — lazy loading previously hid chunk failures as plain text. */
 export const MarkdownRenderer: FC<MarkdownRendererProps> = (props) => (

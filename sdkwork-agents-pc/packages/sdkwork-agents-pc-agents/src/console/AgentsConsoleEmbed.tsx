@@ -188,6 +188,6 @@ export function AgentsConsoleEmbed({
           />
         )}
       </div>
-    </div>
+      </div>
   );
 }

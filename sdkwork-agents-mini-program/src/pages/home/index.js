@@ -1,3 +1,5 @@
+const runtime = require("../../runtime/agents-app");
+
 const TASKS_TAB_PAGE = "/pages/conversation/index";
 
 /**
@@ -11,11 +13,16 @@ Page({
   data: {
     title: "SDKWork Agents",
     hasSession: false,
+    themeClass: "",
   },
 
   onShow() {
     const app = getApp();
-    this.setData({ hasSession: Boolean(app?.globalData?.sdkworkAccessToken) });
+    this.setData({
+      hasSession: Boolean(app?.globalData?.sdkworkAccessToken),
+      // Re-apply the stored theme so the landing page follows the preference.
+      themeClass: runtime.resolveAgentsMpThemeClass(),
+    });
   },
 
   onEnter() {

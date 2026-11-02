@@ -26,15 +26,15 @@ export const CanvasContextMenu: React.FC<CanvasContextMenuProps> = ({
   return (
     <>
       <div className="fixed inset-0 z-40" onContextMenu={(e) => { e.preventDefault(); onClose(); }} onClick={onClose} />
-      <div 
-        className="fixed z-50 bg-[#1e1e20] border border-white/10 shadow-2xl rounded-xl py-1.5 min-w-[170px] animate-in fade-in duration-100"
+      <div
+        className="fixed z-50 bg-[#1e1e20] rounded-xl py-1.5 min-w-[170px] animate-in fade-in duration-100"
         style={{ left: x, top: y }}
         onContextMenu={(e) => e.preventDefault()}
       >
         {target === 'canvas' && (
           <>
             <button onClick={(e) => handleAction(e, 'add-text')} className="w-full text-left px-3 py-1.5 hover:bg-white/5 text-zinc-300 hover:text-white text-xs flex items-center gap-2 transition-colors">
-              <Type size={14} className="text-cyan-400" />
+              <Type size={14} className="text-[#4080FF]" />
               新建文本节点
             </button>
             <button onClick={(e) => handleAction(e, 'add-image')} className="w-full text-left px-3 py-1.5 hover:bg-white/5 text-zinc-300 hover:text-white text-xs flex items-center gap-2 transition-colors">
@@ -80,7 +80,7 @@ export const CanvasContextMenu: React.FC<CanvasContextMenuProps> = ({
             {hasMultipleSelection && (
               <>
                 <button onClick={(e) => handleAction(e, 'create-group')} className="w-full text-left px-3 py-1.5 hover:bg-white/5 text-zinc-300 hover:text-white text-xs flex items-center gap-2 transition-colors">
-                  <BoxSelect size={14} className="text-cyan-400" />
+                  <BoxSelect size={14} className="text-[#4080FF]" />
                   组合分组
                 </button>
                 <div className="h-[1px] bg-white/5 my-1" />
@@ -100,16 +100,16 @@ export const CanvasContextMenu: React.FC<CanvasContextMenuProps> = ({
               复制 (Ctrl+C)
             </button>
             <button onClick={(e) => handleAction(e, 'duplicate')} className="w-full text-left px-3 py-1.5 hover:bg-white/5 text-zinc-300 hover:text-white text-xs flex items-center gap-2 transition-colors">
-              <CopyPlus size={14} className="text-cyan-400" />
+              <CopyPlus size={14} className="text-[#4080FF]" />
               创建副本 / 克隆
             </button>
-            <button 
+            <button
               disabled={!hasClipboardContent}
-              onClick={(e) => hasClipboardContent && handleAction(e, 'paste')} 
+              onClick={(e) => hasClipboardContent && handleAction(e, 'paste')}
               className={cn(
                 "w-full text-left px-3 py-1.5 text-xs flex items-center gap-2 transition-colors",
-                hasClipboardContent 
-                  ? "hover:bg-white/5 text-zinc-300 hover:text-white cursor-pointer" 
+                hasClipboardContent
+                  ? "hover:bg-white/5 text-zinc-300 hover:text-white cursor-pointer"
                   : "text-zinc-600 cursor-not-allowed opacity-50"
               )}
             >

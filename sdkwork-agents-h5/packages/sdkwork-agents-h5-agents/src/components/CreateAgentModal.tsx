@@ -60,10 +60,10 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
       width="w-[520px]"
       footer={
         <>
-          <button onClick={onClose} className="px-4 py-2 rounded bg-white/5 text-gray-300 hover:bg-white/10 transition-colors text-sm">取消</button>
+          <button onClick={onClose} className="px-4 py-2 rounded bg-[var(--color-surface-muted,#EAF1FB)] text-[var(--color-text-primary,#0A1B3D)] hover:bg-[var(--color-surface-strong,#DCE8F9)] transition-colors text-sm">取消</button>
           <button
             disabled={!name.trim() || creating}
-            className={`px-4 py-2 rounded text-white transition-colors text-sm flex items-center gap-1 ${name.trim() && !creating ? 'bg-[#00b42a] hover:bg-[#009a24]' : 'bg-[#00b42a]/50 cursor-not-allowed'}`}
+            className={`px-4 py-2 rounded text-white transition-colors text-sm flex items-center gap-1 ${name.trim() && !creating ? 'bg-[var(--color-success,#00B42A)] hover:bg-[var(--color-success,#00B42A)]' : 'bg-[var(--color-success,#00B42A)]/50 cursor-not-allowed'}`}
             onClick={async () => {
               setCreating(true);
               try {
@@ -112,47 +112,47 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
 
         {/* Name */}
         <div>
-          <label className="block text-sm text-gray-400 mb-1.5">智能体名称 <span className="text-red-500">*</span></label>
+          <label className="block text-sm text-[var(--color-text-secondary,#5B6B88)] mb-1.5">智能体名称 <span className="text-[var(--color-danger,#F53F3F)]">*</span></label>
           <input 
             type="text" 
             placeholder="例如：代码助手、翻译专家" 
             value={name}
             onChange={e => setName(e.target.value)}
-            className="w-full bg-[#181818] border border-white/5 rounded-lg py-2.5 px-3 text-sm text-gray-200 outline-none focus:border-white/20 transition-colors" 
+            className="w-full bg-[var(--color-input-bg,#EAF1FB)] rounded-lg py-2.5 px-3 text-sm text-[var(--color-text-primary,#0A1B3D)] outline-none transition-colors" 
           />
         </div>
 
         {/* Type Selection */}
         <div>
-          <label className="block text-sm text-gray-400 mb-1.5">智能体类型</label>
+          <label className="block text-sm text-[var(--color-text-secondary,#5B6B88)] mb-1.5">智能体类型</label>
           <div className="grid grid-cols-2 gap-3">
             <div 
               onClick={() => setType('normal')}
-              className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-3 ${
-                type === 'normal' ? 'bg-[#00b42a]/10 border-[#00b42a]/50' : 'bg-[#181818] border-white/5 hover:border-white/10'
+              className={`p-3 rounded-lg  cursor-pointer transition-all flex items-start gap-3 ${
+                type === 'normal' ? 'bg-[var(--color-success-bg,#E8FFEF)]' : 'bg-[var(--color-input-bg,#EAF1FB)]'
               }`}
             >
-              <div className={`mt-0.5 ${type === 'normal' ? 'text-[#00b42a]' : 'text-gray-500'}`}>
+              <div className={`mt-0.5 ${type === 'normal' ? 'text-[var(--color-success,#00B42A)]' : 'text-[var(--color-text-secondary,#5B6B88)]'}`}>
                 <Bot size={18} />
               </div>
               <div>
-                <div className={`text-sm font-medium mb-0.5 ${type === 'normal' ? 'text-[#00b42a]' : 'text-gray-200'}`}>普通智能体</div>
-                <div className="text-[11px] text-gray-500 leading-tight">在当前工作空间内运行，共享资源</div>
+                <div className={`text-sm font-medium mb-0.5 ${type === 'normal' ? 'text-[var(--color-success,#00B42A)]' : 'text-[var(--color-text-primary,#0A1B3D)]'}`}>普通智能体</div>
+                <div className="text-[11px] text-[var(--color-text-secondary,#5B6B88)] leading-tight">在当前工作空间内运行，共享资源</div>
               </div>
             </div>
             
             <div 
               onClick={() => setType('independent')}
-              className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-3 ${
-                type === 'independent' ? 'bg-[#00b42a]/10 border-[#00b42a]/50' : 'bg-[#181818] border-white/5 hover:border-white/10'
+              className={`p-3 rounded-lg  cursor-pointer transition-all flex items-start gap-3 ${
+                type === 'independent' ? 'bg-[var(--color-success-bg,#E8FFEF)]' : 'bg-[var(--color-input-bg,#EAF1FB)]'
               }`}
             >
-              <div className={`mt-0.5 ${type === 'independent' ? 'text-[#00b42a]' : 'text-gray-500'}`}>
+              <div className={`mt-0.5 ${type === 'independent' ? 'text-[var(--color-success,#00B42A)]' : 'text-[var(--color-text-secondary,#5B6B88)]'}`}>
                 <Server size={18} />
               </div>
               <div>
-                <div className={`text-sm font-medium mb-0.5 ${type === 'independent' ? 'text-[#00b42a]' : 'text-gray-200'}`}>独立部署智能体</div>
-                <div className="text-[11px] text-gray-500 leading-tight">拥有独立的运行环境和专属资源</div>
+                <div className={`text-sm font-medium mb-0.5 ${type === 'independent' ? 'text-[var(--color-success,#00B42A)]' : 'text-[var(--color-text-primary,#0A1B3D)]'}`}>独立部署智能体</div>
+                <div className="text-[11px] text-[var(--color-text-secondary,#5B6B88)] leading-tight">拥有独立的运行环境和专属资源</div>
               </div>
             </div>
           </div>
@@ -160,12 +160,12 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
 
         {/* Description */}
         <div>
-          <label className="block text-sm text-gray-400 mb-1.5">简介</label>
+          <label className="block text-sm text-[var(--color-text-secondary,#5B6B88)] mb-1.5">简介</label>
           <textarea 
             placeholder="一句话描述它的作用" 
             value={desc}
             onChange={e => setDesc(e.target.value)}
-            className="w-full bg-[#181818] border border-white/5 rounded-lg py-2.5 px-3 text-sm text-gray-200 outline-none focus:border-white/20 h-20 resize-none custom-scrollbar transition-colors" 
+            className="w-full bg-[var(--color-input-bg,#EAF1FB)] rounded-lg py-2.5 px-3 text-sm text-[var(--color-text-primary,#0A1B3D)] outline-none h-20 resize-none custom-scrollbar transition-colors" 
           />
         </div>
       </div>

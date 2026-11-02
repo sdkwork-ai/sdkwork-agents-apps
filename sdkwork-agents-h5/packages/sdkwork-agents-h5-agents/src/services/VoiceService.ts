@@ -48,7 +48,7 @@ function mapVoiceRecord(record: Record<string, unknown>, index: number): VoiceCo
     users: pickString(record, ["users", "usageCount"]) ?? "—",
     audioPreview: pickString(record, ["previewUrl", "preview_url", "audioPreview"]),
     iconName: "Mic",
-    color: "bg-blue-500",
+    color: "bg-[var(--color-primary,#165DFF)]",
   };
 }
 

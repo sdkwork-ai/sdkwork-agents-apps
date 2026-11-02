@@ -1,4 +1,24 @@
+/*
+ * Custom bottom tab bar.
+ *
+ * Authority: `specs/client-theme.spec.json` (tech-blue flat).
+ *
+ * The tab bar is a separate component tree from the page, so it declares the
+ * same light/dark token pair on its own root instead of relying on `page`
+ * inheritance. Its glyphs use only the icon scale, so both the light bar and
+ * `.tab-bar.theme-dark` always have a defined, readable icon color. The active
+ * tab is shown with the blue glyph and blue text; there is no top line and no
+ * shadow, the bar separates from the page tint by fill alone.
+ */
 .tab-bar {
+  /* Light tech-blue tokens (the subset this component renders). */
+  --surface: #ffffff;
+  --muted: #eaf1fb;
+  --primary-subtle: #e8f0ff;
+  --icon-default: #5b6b88;
+  --icon-active: #165dff;
+  --icon-on-rail: #c9d6ea;
+
   position: fixed;
   left: 0;
   right: 0;
@@ -7,8 +27,7 @@
   display: flex;
   height: 104rpx;
   padding-bottom: env(safe-area-inset-bottom);
-  background: #ffffff;
-  border-top: 1rpx solid #e2e8f0;
+  background: var(--surface);
 }
 
 .tab-item {
@@ -17,11 +36,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: var(--icon-default);
 }
 
-.tab-item.is-active {
-  color: #0f766e;
+.tab-item:active {
+  background: var(--muted);
 }
 
 .tab-symbol {
@@ -32,4 +51,35 @@
 .tab-label {
   font-size: 22rpx;
   line-height: 28rpx;
+}
+
+/* Active tab: blue glyph on a soft blue pill, blue label. */
+.tab-item.is-active {
+  color: var(--icon-active);
+}
+
+.tab-item.is-active .tab-symbol {
+  box-sizing: border-box;
+  min-width: 72rpx;
+  height: 48rpx;
+  line-height: 48rpx;
+  padding: 0 16rpx;
+  border-radius: 999rpx;
+  background: var(--primary-subtle);
+  color: var(--icon-active);
+  text-align: center;
+  font-weight: 600;
+}
+
+/*
+ * Dark preference: same tokens, navy base with white tonal fills.
+ * Inactive glyphs use the on-rail value (#C9D6EA) and the active glyph moves to
+ * the spec hover blue (#4080FF), which keeps it above 3:1 on the navy bar.
+ */
+.tab-bar.theme-dark {
+  --surface: #0a1b3d;
+  --muted: rgba(255, 255, 255, 0.09);
+  --primary-subtle: rgba(22, 93, 255, 0.28);
+  --icon-default: var(--icon-on-rail);
+  --icon-active: #4080ff;
 }

@@ -1,0 +1,21 @@
+{
+  "agents.settings.title": "设置",
+  "agents.settings.loading": "设置加载中",
+  "agents.settings.loadFailed": "设置加载失败，请稍后重试",
+  "agents.settings.language": "语言",
+  "agents.settings.language.zhCn": "简体中文",
+  "agents.settings.language.enUs": "English",
+  "agents.settings.theme": "主题",
+  "agents.settings.theme.system": "跟随系统",
+  "agents.settings.theme.light": "浅色",
+  "agents.settings.theme.dark": "深色",
+  "agents.settings.notifications": "接收通知",
+  "agents.settings.notifications.hint": "接收生成任务与自动化提醒",
+  "agents.settings.autoplay": "自动播放",
+  "agents.settings.autoplay.hint": "自动播放生成结果",
+  "agents.settings.save": "保存",
+  "agents.settings.saving": "保存中",
+  "agents.settings.saved": "设置已保存",
+  "agents.settings.saveFailed": "设置保存失败，请稍后重试",
+  "agents.settings.retry": "重试"
+}

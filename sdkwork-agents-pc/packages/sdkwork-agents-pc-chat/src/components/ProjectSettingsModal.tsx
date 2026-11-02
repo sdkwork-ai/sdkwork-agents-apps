@@ -130,9 +130,9 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="project-settings-title"
-        className="flex max-h-[min(760px,calc(100vh-32px))] w-full max-w-[620px] flex-col overflow-hidden rounded-lg border border-white/10 bg-[#18181a] shadow-2xl"
+        className="flex max-h-[min(760px,calc(100vh-32px))] w-full max-w-[620px] flex-col overflow-hidden rounded-lg bg-[#18181a]"
       >
-        <header className="flex min-h-16 items-center justify-between border-b border-white/10 px-5">
+        <header className="flex min-h-16 items-center justify-between px-5">
           <div className="flex min-w-0 items-center gap-3">
             <FolderCog size={20} className="shrink-0 text-zinc-400" />
             <h2 id="project-settings-title" className="truncate text-base font-semibold text-white">
@@ -159,7 +159,7 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
           ) : (
             <div className="space-y-5">
               {error && (
-                <div role="alert" className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+                <div role="alert" className="rounded-md bg-red-500/10 px-3 py-2 text-sm text-red-300">
                   {error}
                 </div>
               )}
@@ -171,7 +171,7 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                   onChange={(event) => setName(event.target.value)}
                   maxLength={255}
                   disabled={busy}
-                  className="h-10 w-full rounded-md border border-white/10 bg-[#101012] px-3 text-sm text-white outline-none transition-colors focus:border-emerald-500/60 disabled:opacity-50"
+                  className="h-10 w-full rounded-md bg-[#101012] px-3 text-sm text-white outline-none transition-colors disabled:opacity-50"
                 />
               </label>
 
@@ -182,7 +182,7 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                   onChange={(event) => setDescription(event.target.value)}
                   disabled={busy}
                   rows={3}
-                  className="w-full resize-y rounded-md border border-white/10 bg-[#101012] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-emerald-500/60 disabled:opacity-50"
+                  className="w-full resize-y rounded-md bg-[#101012] px-3 py-2 text-sm text-white outline-none transition-colors disabled:opacity-50"
                 />
               </label>
 
@@ -193,7 +193,7 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                     value={visibility}
                     onChange={(event) => handleVisibilityChange(event.target.value as ChatProject['visibility'])}
                     disabled={busy}
-                    className="h-10 w-full rounded-md border border-white/10 bg-[#101012] px-3 text-sm text-white outline-none focus:border-emerald-500/60 disabled:opacity-50"
+                    className="h-10 w-full rounded-md bg-[#101012] px-3 text-sm text-white outline-none disabled:opacity-50"
                   >
                     <option value="private">{t('projectVisibilityPrivate')}</option>
                     <option value="organization">{t('projectVisibilityOrganization')}</option>
@@ -207,7 +207,7 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                     value={driveAccessMode}
                     onChange={(event) => setDriveAccessMode(event.target.value as ChatProject['driveAccessMode'])}
                     disabled={busy}
-                    className="h-10 w-full rounded-md border border-white/10 bg-[#101012] px-3 text-sm text-white outline-none focus:border-emerald-500/60 disabled:opacity-50"
+                    className="h-10 w-full rounded-md bg-[#101012] px-3 text-sm text-white outline-none disabled:opacity-50"
                   >
                     <option value="disabled">{t('projectDriveDisabled')}</option>
                     <option value="owner_library" disabled={visibility === 'shared'}>
@@ -225,7 +225,7 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                   onChange={(event) => setInstructions(event.target.value)}
                   disabled={busy}
                   rows={6}
-                  className="w-full resize-y rounded-md border border-white/10 bg-[#101012] px-3 py-2 text-sm leading-6 text-white outline-none transition-colors focus:border-emerald-500/60 disabled:opacity-50"
+                  className="w-full resize-y rounded-md bg-[#101012] px-3 py-2 text-sm leading-6 text-white outline-none transition-colors disabled:opacity-50"
                 />
               </label>
 
@@ -235,7 +235,7 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                   value={memorySpaceId}
                   onChange={(event) => setMemorySpaceId(event.target.value)}
                   disabled={busy}
-                  className="h-10 w-full rounded-md border border-white/10 bg-[#101012] px-3 text-sm text-white outline-none focus:border-emerald-500/60 disabled:opacity-50"
+                  className="h-10 w-full rounded-md bg-[#101012] px-3 text-sm text-white outline-none disabled:opacity-50"
                 >
                   <option value="">{t('projectMemoryDefault')}</option>
                   {settings?.memorySpaces.map((space) => (
@@ -247,7 +247,7 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
           )}
         </div>
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-5 py-4">
+          <footer className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
           <button
             type="button"
             onClick={handleDelete}
@@ -278,6 +278,6 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
           </div>
         </footer>
       </div>
-    </div>
+      </div>
   );
 };

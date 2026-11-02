@@ -1,0 +1,176 @@
+<view class="page {{themeClass}}" style="padding-bottom: {{bottomInset}}px;">
+  <view class="app-bar" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
+    <view class="app-bar-inner">
+      <view class="app-bar-titles app-bar-titles-left">
+        <text class="app-bar-title">{{t.title}}</text>
+      </view>
+      <view class="app-bar-actions">
+        <view
+          class="icon-button"
+          bindtap="onOpenCanvas"
+          aria-role="button"
+          aria-label="{{t.openCanvas}}"
+        >
+          <text class="icon-glyph">▦</text>
+        </view>
+        <view
+          class="app-bar-avatar"
+          bindtap="onOpenProfile"
+          aria-role="button"
+          aria-label="{{t.profileEntry}}"
+        >
+          <text class="app-bar-avatar-glyph">我</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="content" style="margin-top: {{headerHeight}}px;">
+    <view wx:if="{{catalogStatus === 'loading'}}" class="status">{{t.loading}}</view>
+
+    <view wx:elif="{{catalogStatus === 'unavailable'}}" class="state-card">
+      <text class="state-title">{{t.unavailable}}</text>
+      <text class="state-detail">{{t.noTools}}</text>
+      <view class="state-actions">
+        <view class="secondary-button" bindtap="onRetry" aria-role="button">{{t.retry}}</view>
+      </view>
+    </view>
+
+    <view wx:elif="{{catalogStatus === 'error'}}" class="state-card">
+      <text class="state-title">{{t.loadFailed}}</text>
+      <view class="state-actions">
+        <view class="secondary-button" bindtap="onRetry" aria-role="button">{{t.retry}}</view>
+      </view>
+    </view>
+
+    <block wx:else>
+      <view class="field">
+        <text class="field-label">{{t.promptLabel}}</text>
+        <textarea
+          class="field-textarea"
+          value="{{prompt}}"
+          placeholder="{{t.promptPlaceholder}}"
+          placeholder-class="input-placeholder"
+          maxlength="2000"
+          auto-height
+          bindinput="onPromptInput"
+        />
+      </view>
+
+      <view class="field">
+        <text class="field-label">{{t.modalityLabel}}</text>
+        <view class="chip-row">
+          <view
+            wx:for="{{modalities}}"
+            wx:key="id"
+            class="chip {{activeModality === item.id ? 'is-active' : ''}}"
+            data-modality="{{item.id}}"
+            bindtap="onModalityTap"
+            aria-role="button"
+          >{{item.label}}</view>
+        </view>
+      </view>
+
+      <view wx:if="{{modalityTools.length > 1}}" class="field">
+        <view class="chip-row">
+          <view
+            wx:for="{{modalityTools}}"
+            wx:key="id"
+            class="chip {{activeToolId === item.id ? 'is-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="onToolTap"
+            aria-role="button"
+          >{{item.label}}</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <text class="field-label">{{t.aspectLabel}}</text>
+        <view class="chip-row">
+          <view
+            wx:for="{{aspects}}"
+            wx:key="id"
+            class="chip {{activeAspect === item.id ? 'is-active' : ''}}"
+            data-aspect="{{item.id}}"
+            bindtap="onAspectTap"
+            aria-role="button"
+          >{{item.label}}</view>
+        </view>
+      </view>
+
+      <view
+        class="primary-button {{submitting ? 'is-disabled' : ''}}"
+        bindtap="onSubmit"
+        aria-role="button"
+        aria-label="{{t.submit}}"
+      >{{submitting ? t.submitting : t.submit}}</view>
+
+      <view wx:if="{{errorMessage}}" class="banner banner-spaced">{{errorMessage}}</view>
+      <view wx:if="{{notice}}" class="notice">{{notice}}</view>
+
+      <view class="section section-spaced">
+        <text class="section-title">{{t.resultsTitle}}</text>
+        <view wx:if="{{results.length === 0}}" class="status status-compact">{{t.resultsEmpty}}</view>
+        <view wx:else class="result-grid">
+          <block wx:for="{{results}}" wx:key="url">
+            <view
+              wx:if="{{item.kind === 'image'}}"
+              class="result-cell"
+              data-url="{{item.url}}"
+              bindtap="onPreviewImage"
+              aria-role="button"
+              aria-label="{{t.resultsTitle}}"
+            >
+              <image class="result-thumb" src="{{item.url}}" mode="aspectFill" lazy-load />
+            </view>
+            <view wx:elif="{{item.kind === 'video'}}" class="result-wide">
+              <video class="result-video" src="{{item.url}}" controls></video>
+            </view>
+            <view wx:elif="{{item.kind === 'audio'}}" class="result-action">
+              <view
+                class="secondary-button"
+                data-url="{{item.url}}"
+                bindtap="onToggleAudio"
+                aria-role="button"
+              >{{activeAudioPlaying && activeAudioUrl === item.url ? t.pause : t.play}}</view>
+            </view>
+            <view wx:else class="result-action">
+              <view
+                class="secondary-button"
+                data-url="{{item.url}}"
+                bindtap="onOpenMedia"
+                aria-role="button"
+              >{{t.open}}</view>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <view class="section">
+        <view class="section-header">
+          <text class="section-title section-title-inline">{{t.sessionsTitle}}</text>
+          <view
+            wx:if="{{runs.length > 0}}"
+            class="text-action"
+            bindtap="onClearRuns"
+            aria-role="button"
+          >{{t.sessionsClear}}</view>
+        </view>
+        <text class="field-note">{{t.localNote}}</text>
+        <view wx:if="{{runs.length === 0}}" class="status status-compact">{{t.sessionsEmpty}}</view>
+        <block wx:for="{{runs}}" wx:key="id">
+          <view
+            class="run-row {{activeRunId === item.id ? 'is-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="onRunTap"
+            aria-role="button"
+            aria-label="{{item.prompt}}"
+          >
+            <text class="run-prompt">{{item.prompt}}</text>
+            <text class="run-meta">{{item.meta}} · {{item.statusText}}</text>
+          </view>
+        </block>
+      </view>
+    </block>
+  </view>
+</view>

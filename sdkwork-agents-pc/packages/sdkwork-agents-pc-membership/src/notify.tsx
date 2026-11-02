@@ -10,9 +10,9 @@ interface Notice {
 }
 
 const NOTICE_STYLE: Record<NoticeTone, string> = {
-  error: 'border-rose-500/25 bg-rose-950/90 text-rose-100',
-  info: 'border-sky-500/25 bg-sky-950/90 text-sky-100',
-  success: 'border-emerald-500/25 bg-emerald-950/90 text-emerald-100',
+  error: 'bg-rose-950/90 text-rose-100',
+  info: 'bg-sky-950/90 text-sky-100',
+  success: 'bg-emerald-950/90 text-emerald-100',
 };
 
 const NOTICE_ICON = {
@@ -48,7 +48,7 @@ function TokenPlanNotice({ notice, onDismiss }: { notice: Notice; onDismiss: () 
   }, [onDismiss]);
 
   return (
-    <div className={`pointer-events-auto flex max-w-lg items-center gap-3 rounded-lg border px-4 py-3 shadow-2xl backdrop-blur ${NOTICE_STYLE[notice.tone]}`}>
+    <div className={`pointer-events-auto flex max-w-lg items-center gap-3 rounded-lg px-4 py-3 backdrop-blur ${NOTICE_STYLE[notice.tone]}`}>
       <Icon aria-hidden="true" className="h-5 w-5 shrink-0" />
       <span className="min-w-0 flex-1 text-sm font-medium">{notice.message}</span>
       <button aria-label="关闭通知" className="rounded-md p-1 hover:bg-white/10" onClick={onDismiss} type="button">

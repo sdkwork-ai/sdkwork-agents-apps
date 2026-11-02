@@ -110,9 +110,9 @@ function AgentsTokenPlanInfoModal({
   if (!isOpen) return null;
   return (
     <TokenPlanDialog onClose={onClose} title="算力积分">
-      <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 px-4 py-4">
+      <div className="flex items-center justify-between rounded-lg bg-black/20 px-4 py-4">
         <span className="text-sm text-zinc-400">当前余额</span>
-        <span className="text-2xl font-semibold text-cyan-300">{currentPoints ?? 0}</span>
+          <span className="text-2xl font-semibold text-[#4080FF]">{currentPoints ?? 0}</span>
       </div>
       <p className="text-sm leading-6 text-zinc-400">积分可用于 SDKWork Agents 中支持的模型调用和智能体能力。</p>
       <div className="flex justify-end"><Button onClick={onClose}>完成</Button></div>
@@ -173,7 +173,7 @@ export function AgentsTokenPlanRedeemModal({ isOpen, onClose }: SdkworkSubscript
     } finally {
       setSubmitting(false);
     }
-  }
+    }
 
   if (!isOpen) return null;
   return (
@@ -189,7 +189,7 @@ export function AgentsTokenPlanRedeemModal({ isOpen, onClose }: SdkworkSubscript
           <label className="block text-sm font-medium text-zinc-200" htmlFor={inputId}>兑换码</label>
           <input
             autoComplete="off"
-            className="h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-sm text-white outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+            className="h-11 w-full rounded-lg bg-zinc-950 px-3 text-sm text-white outline-none focus:ring-2 focus:ring-[#165DFF]/20"
             disabled={submitting}
             id={inputId}
             onChange={(event) => { setCode(event.target.value); setError(''); }}
@@ -215,14 +215,14 @@ function TokenPlanDialog({ children, onClose, title }: { children: ReactNode; on
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       <button aria-label="关闭" className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} type="button" />
-      <div aria-modal="true" className="relative w-full max-w-md rounded-lg border border-white/10 bg-[#1e1e22] shadow-2xl" role="dialog">
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <div className="flex items-center gap-3"><Gem aria-hidden="true" className="h-5 w-5 text-cyan-400" /><h2 className="text-base font-semibold text-white">{title}</h2></div>
+      <div aria-modal="true" className="relative w-full max-w-md rounded-lg bg-[#1e1e22]" role="dialog">
+        <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-3"><Gem aria-hidden="true" className="h-5 w-5 text-[#4080FF]" /><h2 className="text-base font-semibold text-white">{title}</h2></div>
           <button aria-label="关闭" className="rounded-md p-1.5 text-zinc-400 hover:bg-white/10 hover:text-white" onClick={onClose} type="button"><X className="h-5 w-5" /></button>
         </div>
         <div className="space-y-5 p-5">{children}</div>
       </div>
-    </div>
+      </div>
   );
 }
 

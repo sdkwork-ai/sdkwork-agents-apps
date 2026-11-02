@@ -37,12 +37,18 @@ Page({
     sessions: [],
     loading: true,
     errorMessage: "",
+    themeClass: "",
   },
 
   onLoad() {
     this.setData({ t: buildCopy() });
     this.services = runtime.getAgentsMpRuntimeServices();
     this.loadSessions();
+  },
+
+  onShow() {
+    // Re-apply the stored theme so returning from Settings repaints this page.
+    this.setData({ themeClass: runtime.resolveAgentsMpThemeClass() });
   },
 
   loadSessions() {

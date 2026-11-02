@@ -1,0 +1,50 @@
+/* Shared app-bar / card / button / state styles live in app.wxss. */
+
+.membership-card {
+  margin-bottom: 32rpx;
+}
+
+.membership-card .card-title {
+  margin: 8rpx 0;
+  font-size: 32rpx;
+}
+
+.plan-card {
+  margin-bottom: 24rpx;
+}
+
+.plan-header {
+  display: flex;
+  align-items: center;
+}
+
+.plan-name {
+  flex: 1;
+}
+
+.plan-price {
+  font-size: 26rpx;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.plan-benefits {
+  margin: 16rpx 0 8rpx;
+}
+
+.plan-benefit {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.plan-action {
+  margin-top: 24rpx;
+}
+
+.status-compact {
+  padding: 40rpx 0;
+  text-align: left;
+}

@@ -1,31 +1,271 @@
 @import "tailwindcss";
 @source "../packages/sdkwork-agents-h5-agents/src";
+@source "../packages/sdkwork-agents-h5-assets/src";
+@source "../packages/sdkwork-agents-h5-automation/src";
+@source "../packages/sdkwork-agents-h5-canvas/src";
 @source "../packages/sdkwork-agents-h5-commons/src";
+@source "../packages/sdkwork-agents-h5-conversation/src";
+@source "../packages/sdkwork-agents-h5-creative/src";
+@source "../packages/sdkwork-agents-h5-inspiration/src";
+@source "../packages/sdkwork-agents-h5-library/src";
+@source "../packages/sdkwork-agents-h5-membership/src";
+@source "../packages/sdkwork-agents-h5-profile/src";
+@source "../packages/sdkwork-agents-h5-projects/src";
+@source "../packages/sdkwork-agents-h5-settings/src";
 
+/*
+ * SDKWork client theme: tech-blue flat, light base.
+ * Authority: `specs/client-theme.spec.json`.
+ *
+ * The host (`im-h5`) may inject the same names with its own values; every
+ * declaration below therefore carries the standalone light fallback so a
+ * missing host variable can never leak a dark surface.
+ */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   font-family: Inter, system-ui, sans-serif;
+
+  /* ---- color: brand ------------------------------------------------ */
+  --color-primary: #165dff;
+  --color-primary-hover: #4080ff;
+  --color-primary-pressed: #0e42d2;
+  --color-primary-subtle: #e8f0ff;
+  --color-primary-on: #ffffff;
+
+  /* ---- color: neutral surface ladder ------------------------------- */
+  --color-background: #f4f7fc;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eaf1fb;
+  --color-surface-strong: #dce8f9;
+
+  /* ---- color: text -------------------------------------------------- */
+  --color-text-primary: #0a1b3d;
+  --color-text-secondary: #5b6b88;
+  --color-text-tertiary: #8a97ad;
+
+  /* ---- color: icons --------------------------------------------------
+   * Icon colour is its own contract: an icon must never inherit an
+   * ambiguous text colour, and must never resolve to a transparent value
+   * (`--color-border` is transparent and is not an icon colour). Values are
+   * literal so a host that injects legacy `--color-text-*` names cannot
+   * wash an icon out against a light surface.
+   */
+  --color-icon-default: #5b6b88;
+  --color-icon-strong: #0a1b3d;
+  --color-icon-active: #165dff;
+  --color-icon-on-primary: #ffffff;
+  --color-icon-disabled: #8a97ad;
+  --color-icon-danger: #f53f3f;
+  --color-icon-success: #00b42a;
+  --color-icon-warning: #ff7d00;
+
+  /* ---- color: status ------------------------------------------------ */
+  --color-success: #00b42a;
+  --color-warning: #ff7d00;
+  --color-danger: #f53f3f;
+  --color-success-bg: #e8ffef;
+  --color-warning-bg: #fff5e6;
+  --color-warning-border: transparent;
+  --color-warning-text: #a34f00;
+  --color-danger-bg: #fff1f0;
+  --color-danger-border: transparent;
+
+  /* ---- color: overlay ----------------------------------------------- */
+  --color-scrim: rgba(10, 27, 61, 0.45);
+  --color-border: transparent;
+
+  /* ---- shape -------------------------------------------------------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --border-width: 0;
+
+  /* ---- elevation / motion ------------------------------------------ */
+  --shadow-none: none;
+  --ag-motion-fast: 120ms;
+  --ag-motion-base: 200ms;
+  --ag-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- focus -------------------------------------------------------- */
+  --ag-focus-width: 2px;
+  --ag-focus-color: #165dff;
+  --ag-focus-offset: 2px;
+  --ag-focus-ring: var(--ag-focus-width) solid var(--ag-focus-color);
+}
+
+/*
+ * Standalone host theme token bridge (the im-h5 host injects its own values).
+ * Legacy names stay supported so shell, capability packages, and the host all
+ * resolve to the same light tech-blue palette.
+ */
+:root {
+  --color-bg-color: var(--color-background);
+  --color-surface-color: var(--color-surface);
+  --color-text-main: var(--color-text-primary);
+  --color-text-sub: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-tertiary);
+  --color-border-color: transparent;
+  --color-hover-bg: var(--color-surface-muted);
+  --color-active-bg: var(--color-surface-strong);
+  --color-selected-bg: var(--color-primary-subtle);
+  --color-glass-bg: var(--color-surface);
+  --color-search-bg: var(--color-surface-muted);
+  --color-primary-blue: var(--color-primary);
+  --color-primary-blue-hover: var(--color-primary-hover);
+  --color-chat-me-bg: var(--color-primary);
+  --color-chat-me-text: var(--color-primary-on);
+  --color-chat-other-bg: var(--color-surface);
+  --color-input-bg: var(--color-surface-muted);
+  --color-scrim-bg: var(--color-scrim);
+}
+
+/*
+ * Dark token set (`specs/client-theme.spec.json` -> dark). Applied through
+ * `data-theme`; `system` follows the platform appearance setting.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-primary: #4080ff;
+  --color-primary-hover: #6aa0ff;
+  --color-primary-pressed: #165dff;
+  --color-primary-subtle: #16305c;
+  --color-primary-on: #ffffff;
+  --color-background: #0a1224;
+  --color-surface: #111c33;
+  --color-surface-muted: #17233d;
+  --color-surface-strong: #1f2e4d;
+  --color-text-primary: #eaf1fb;
+  --color-text-secondary: #a9b7d0;
+  --color-text-tertiary: #7f91b0;
+  --color-icon-default: #a9b7d0;
+  --color-icon-strong: #eaf1fb;
+  --color-icon-active: #4080ff;
+  --color-icon-on-primary: #ffffff;
+  --color-icon-disabled: #7f91b0;
+  --color-icon-danger: #ff7875;
+  --color-icon-success: #23c343;
+  --color-icon-warning: #ff9a2e;
+  --color-success: #23c343;
+  --color-warning: #ff9a2e;
+  --color-danger: #ff7875;
+  --color-success-bg: #0f2f1b;
+  --color-warning-bg: #3a2a12;
+  --color-warning-text: #ffb066;
+  --color-danger-bg: #3a1515;
+  --color-scrim: rgba(0, 0, 0, 0.6);
+  --ag-focus-color: #4080ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    color-scheme: dark;
+    --color-primary: #4080ff;
+    --color-primary-hover: #6aa0ff;
+    --color-primary-pressed: #165dff;
+    --color-primary-subtle: #16305c;
+    --color-primary-on: #ffffff;
+    --color-background: #0a1224;
+    --color-surface: #111c33;
+    --color-surface-muted: #17233d;
+    --color-surface-strong: #1f2e4d;
+    --color-text-primary: #eaf1fb;
+    --color-text-secondary: #a9b7d0;
+    --color-text-tertiary: #7f91b0;
+    --color-icon-default: #a9b7d0;
+    --color-icon-strong: #eaf1fb;
+    --color-icon-active: #4080ff;
+    --color-icon-on-primary: #ffffff;
+    --color-icon-disabled: #7f91b0;
+    --color-icon-danger: #ff7875;
+    --color-icon-success: #23c343;
+    --color-icon-warning: #ff9a2e;
+    --color-success: #23c343;
+    --color-warning: #ff9a2e;
+    --color-danger: #ff7875;
+    --color-success-bg: #0f2f1b;
+    --color-warning-bg: #3a2a12;
+    --color-warning-text: #ffb066;
+    --color-danger-bg: #3a1515;
+    --color-scrim: rgba(0, 0, 0, 0.6);
+    --ag-focus-color: #4080ff;
+  }
+}
+
+html {
+  background: var(--color-background);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: #141414;
-  color: #f3f4f6;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Standalone host theme tokens (the im-h5 host injects its own values). */
-:root {
-  --color-bg-color: #141414;
-  --color-text-main: #f3f4f6;
-  --color-text-sub: #9ca3af;
-  --color-border-color: rgba(255, 255, 255, 0.1);
-  --color-hover-bg: rgba(255, 255, 255, 0.05);
-  --color-glass-bg: rgba(20, 20, 20, 0.85);
-  --color-primary-blue: #2b5ce7;
-  --color-chat-me-bg: #7c3aed;
-  --color-chat-other-bg: #262626;
-  --color-input-bg: #2b2b2d;
+/*
+ * Focus visibility is preserved with an outline, never with a 1px border
+ * (`client-theme.spec.json` verification rule 1 and 4).
+ */
+:where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+  outline: var(--ag-focus-ring);
+  outline-offset: var(--ag-focus-offset);
+}
+
+:where(input, textarea, select):focus {
+  outline: var(--ag-focus-ring);
+  outline-offset: var(--ag-focus-offset);
+}
+
+/*
+ * Icon contract.
+ *
+ * Icons consume `--color-icon-*` through utilities, e.g.
+ *   text-[var(--color-icon-default,#5B6B88)]
+ * so an icon never inherits an ambiguous text colour and never resolves to a
+ * transparent value. The five roles are: page/card (default), emphasised label
+ * (strong), selected or actionable (active), any saturated fill (on-primary)
+ * and disabled controls (disabled).
+ */
+
+/* Flat surfaces: a card never casts a shadow. */
+:where([data-ag-surface]) {
+  box-shadow: var(--shadow-none);
+}
+
+/*
+ * Loading indicator.
+ *
+ * The track/gap ring is a functional state indicator, not a decorative border,
+ * so it is expressed once here instead of as per-screen `border-*` utilities.
+ */
+.ag-spinner {
+  --ag-spinner-size: 1.25rem;
+  box-sizing: border-box;
+  display: inline-block;
+  width: var(--ag-spinner-size);
+  height: var(--ag-spinner-size);
+  border: 2px solid var(--color-surface-strong);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-pill);
+  animation: ag-spin 1s linear infinite;
+}
+
+.ag-spinner-lg {
+  --ag-spinner-size: 1.5rem;
+}
+
+@keyframes ag-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ag-spinner {
+    animation-duration: 2.4s;
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -34,6 +274,10 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
+  background: rgba(10, 27, 61, 0.18);
+  border-radius: var(--radius-pill);
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }

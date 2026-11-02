@@ -1,0 +1,20 @@
+{
+  "routerMap": [
+    {
+      "name": "app.agents.profile.index",
+      "pageSourceFile": "src/main/ets/pages/profile/ProfilePage.ets",
+      "buildFunction": "ProfilePageBuilder",
+      "data": {
+        "description": "Profile hub (route id app.agents.profile.index)."
+      }
+    },
+    {
+      "name": "app.agents.settings.index",
+      "pageSourceFile": "src/main/ets/pages/settings/SettingsPage.ets",
+      "buildFunction": "SettingsPageBuilder",
+      "data": {
+        "description": "Settings form (route id app.agents.settings.index)."
+      }
+    }
+  ]
+}

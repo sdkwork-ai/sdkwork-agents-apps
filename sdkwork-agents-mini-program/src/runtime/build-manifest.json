@@ -3,5 +3,38 @@
   "environment": "development",
   "profileId": "standalone.development",
   "runtimeTarget": "mini-program",
-  "platform": "MP_WEIXIN"
+  "platform": "MP_WEIXIN",
+  "pages": [
+    "pages/conversation/index",
+    "pages/inspiration/index",
+    "pages/creative/index",
+    "pages/assets/index",
+    "pages/assets/detail",
+    "pages/canvas/index",
+    "pages/agents/index",
+    "pages/library/index",
+    "pages/automation/index",
+    "pages/projects/index",
+    "pages/membership/index",
+    "pages/membership/cashier",
+    "pages/profile/index",
+    "pages/settings/index",
+    "pages/home/index",
+    "pages/agents-h5/index"
+  ],
+  "subPackages": [
+    {
+      "root": "agents-sessions",
+      "pages": [
+        "pages/conversation/history"
+      ]
+    }
+  ],
+  "tabBarPages": [
+    "pages/conversation/index",
+    "pages/inspiration/index",
+    "pages/creative/index",
+    "pages/assets/index",
+    "pages/agents/index"
+  ]
 }

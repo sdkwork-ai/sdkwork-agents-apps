@@ -1,0 +1,13 @@
+{
+  "agents.inspiration.title": "Inspiration",
+  "agents.inspiration.channel.discover": "Discover",
+  "agents.inspiration.channel.featured": "Featured",
+  "agents.inspiration.loading": "Loading inspiration",
+  "agents.inspiration.empty": "No inspiration yet",
+  "agents.inspiration.loadFailed": "Failed to load inspiration. Please retry.",
+  "agents.inspiration.unavailable.title": "Inspiration is not available yet",
+  "agents.inspiration.unavailable.hint": "This client has no inspiration service transport. Retry once the service is connected.",
+  "agents.inspiration.retry": "Retry",
+  "agents.inspiration.likes": "likes",
+  "agents.inspiration.coverUnavailable": "Cover unavailable"
+}

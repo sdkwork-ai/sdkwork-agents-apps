@@ -119,7 +119,8 @@ List<AgentsLibraryFile> filterAgentsLibraryFiles(
     return List<AgentsLibraryFile>.from(files);
   }
   return files
-      .where((AgentsLibraryFile file) => file.name.toLowerCase().contains(needle))
+      .where(
+          (AgentsLibraryFile file) => file.name.toLowerCase().contains(needle))
       .toList(growable: false);
 }
 
@@ -152,8 +153,12 @@ class _AgentsAssetLibrarySource implements AgentsLibrarySource {
     String? cursor,
   }) async {
     final response = await client.ai.agentsAssetsList();
+    final data = response?.data;
+    final records = data is List
+        ? sdkworkAgentsAsMapList(data)
+        : sdkworkAgentsPageItems(data);
     final files = <AgentsLibraryFile>[];
-    for (final record in sdkworkAgentsPageItems(response?.data)) {
+    for (final record in records) {
       final mapped = mapAgentsLibraryAsset(record);
       if (mapped != null) {
         files.add(mapped);

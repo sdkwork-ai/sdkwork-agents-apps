@@ -40,7 +40,8 @@ class AgentsConversationController extends ChangeNotifier {
     notifyListeners();
     try {
       final sessions = await service.listSessions();
-      _state = _state.copyWith(sessions: sessions, loadingSessions: false, errorMessage: '');
+      _state = _state.copyWith(
+          sessions: sessions, loadingSessions: false, errorMessage: '');
     } catch (_) {
       _state = _state.copyWith(
         loadingSessions: false,
@@ -135,9 +136,11 @@ class AgentsConversationController extends ChangeNotifier {
       try {
         final created = await service.createSession(_sessionTitleFor(trimmed));
         sessionId = created.id;
-        _state = _state.copyWith(activeSessionId: created.id, activeSessionTitle: created.title);
+        _state = _state.copyWith(
+            activeSessionId: created.id, activeSessionTitle: created.title);
       } catch (_) {
-        _state = _state.copyWith(errorMessage: translate('agents.conversation.error.send'));
+        _state = _state.copyWith(
+            errorMessage: translate('agents.conversation.error.send'));
         notifyListeners();
         return;
       }
@@ -155,7 +158,11 @@ class AgentsConversationController extends ChangeNotifier {
       streaming: true,
     );
     _state = _state.copyWith(
-      messages: <AgentsConversationMessage>[..._state.messages, userMessage, placeholder],
+      messages: <AgentsConversationMessage>[
+        ..._state.messages,
+        userMessage,
+        placeholder
+      ],
       streaming: true,
       draft: '',
       errorMessage: '',
@@ -173,7 +180,9 @@ class AgentsConversationController extends ChangeNotifier {
       );
       _replaceStreamingMessage(
         _streamingMessage().copyWith(
-          text: result.content.isEmpty ? _streamingMessage().text : result.content,
+          text: result.content.isEmpty
+              ? _streamingMessage().text
+              : result.content,
           streaming: false,
           clearError: true,
         ),
@@ -195,7 +204,9 @@ class AgentsConversationController extends ChangeNotifier {
 
   String _sessionTitleFor(String content) {
     final firstLine = content.split('\n').first.trim();
-    return firstLine.length <= 40 ? firstLine : '${firstLine.substring(0, 40)}…';
+    return firstLine.length <= 40
+        ? firstLine
+        : '${firstLine.substring(0, 40)}…';
   }
 
   AgentsConversationMessage _streamingMessage() {
@@ -268,7 +279,8 @@ class AgentsConversationController extends ChangeNotifier {
           status: event.isError
               ? AgentsConversationToolStatus.error
               : AgentsConversationToolStatus.completed,
-          error: event.isError ? (event.result ?? existing.error) : existing.error,
+          error:
+              event.isError ? (event.result ?? existing.error) : existing.error,
         );
     }
     _replaceStreamingMessage(

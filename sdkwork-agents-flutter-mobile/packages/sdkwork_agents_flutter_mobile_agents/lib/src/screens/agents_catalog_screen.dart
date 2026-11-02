@@ -20,6 +20,7 @@ class AgentsCatalogScreen extends StatelessWidget {
     this.onLoadMore,
     this.onOpenAgent,
     this.trailingActions = const <Widget>[],
+    this.profileAction,
   });
 
   final AgentsCatalogState state;
@@ -30,6 +31,9 @@ class AgentsCatalogScreen extends StatelessWidget {
   final ValueChanged<AgentsCatalogItem>? onOpenAgent;
   final String Function(String key) translate;
   final List<Widget> trailingActions;
+
+  /// Accessible avatar action that opens the profile hub.
+  final Widget? profileAction;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +63,11 @@ class AgentsCatalogScreen extends StatelessWidget {
       onSearchChanged: onQueryChanged,
       onRefresh: onRefresh,
       onRetry: onRefresh,
-      trailingActions: trailingActions,
+      retryLabel: translate('agents.catalog.retry'),
+      trailingActions: <Widget>[
+        ...trailingActions,
+        if (profileAction != null) profileAction!,
+      ],
       itemBuilder: (BuildContext context, int index) {
         if (index >= state.items.length) {
           return Center(
@@ -71,7 +79,10 @@ class AgentsCatalogScreen extends StatelessWidget {
         }
         final item = state.items[index];
         return ListTile(
-          leading: const Icon(Icons.smart_toy_outlined),
+          leading: Icon(
+            Icons.smart_toy_outlined,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           title: Text(item.name, maxLines: 1, overflow: TextOverflow.ellipsis),
           subtitle: item.description.isEmpty ? null : Text(item.description),
           onTap: onOpenAgent == null ? null : () => onOpenAgent!(item),

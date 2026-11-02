@@ -37,7 +37,7 @@ export const MobileActionSheet: React.FC<{
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-50 bg-black/50"
+          className="fixed inset-0 z-50 bg-[var(--color-scrim,rgba(10,27,61,0.45))]"
           onClick={onClose}
         >
           <motion.div
@@ -45,11 +45,11 @@ export const MobileActionSheet: React.FC<{
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-[var(--color-chat-other-bg,#262626)] pb-[env(safe-area-inset-bottom)]"
+            className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] pb-[env(safe-area-inset-bottom)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex justify-center pt-2.5 pb-1">
-              <div className="h-1 w-9 rounded-full bg-black/15 dark:bg-white/20" />
+              <div className="h-1 w-9 rounded-full bg-[var(--color-surface-strong,#DCE8F9)]" />
             </div>
             <div className="px-3 pb-4 pt-1">
               {options.map((option) => (
@@ -62,10 +62,10 @@ export const MobileActionSheet: React.FC<{
                   }}
                   className={cn(
                     'w-full rounded-xl px-4 py-3.5 text-center text-[16px] font-medium transition-colors',
-                    'active:bg-black/5 dark:active:bg-white/10',
+                    'active:bg-[var(--color-surface-muted,#EAF1FB)]',
                     option.danger
-                      ? 'text-red-500'
-                      : 'text-gray-900 dark:text-gray-100',
+                      ? 'text-[var(--color-danger,#F53F3F)]'
+                      : 'text-[var(--color-text-secondary,#5B6B88)]',
                   )}
                 >
                   {option.label}
@@ -74,7 +74,7 @@ export const MobileActionSheet: React.FC<{
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-1.5 w-full rounded-xl bg-black/5 dark:bg-white/10 px-4 py-3.5 text-center text-[16px] font-medium text-gray-600 dark:text-gray-300 transition-colors active:bg-black/10 dark:active:bg-white/15"
+                className="mt-1.5 w-full rounded-xl bg-[var(--color-surface-muted,#EAF1FB)] px-4 py-3.5 text-center text-[16px] font-medium text-[var(--color-text-secondary,#5B6B88)] transition-colors active:bg-[var(--color-surface-muted,#EAF1FB)]"
               >
                 {t('agents.mobile.confirm.cancel')}
               </button>
@@ -104,7 +104,7 @@ export const MobileConfirmDialog: React.FC<{
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-8"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-[var(--color-scrim,rgba(10,27,61,0.45))] px-8"
           onClick={onCancel}
         >
           <motion.div
@@ -112,20 +112,20 @@ export const MobileConfirmDialog: React.FC<{
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.92, opacity: 0 }}
             transition={{ type: 'spring', damping: 26, stiffness: 340 }}
-            className="w-full max-w-[300px] rounded-2xl bg-[var(--color-chat-other-bg,#262626)] p-5"
+            className="w-full max-w-[300px] rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] p-5"
             onClick={(event) => event.stopPropagation()}
           >
-            <h3 className="text-center text-[17px] font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="text-center text-[17px] font-semibold text-[var(--color-text-secondary,#5B6B88)]">
               {title}
             </h3>
-            <p className="mt-2 text-center text-[14px] leading-relaxed text-gray-500 dark:text-gray-400">
+            <p className="mt-2 text-center text-[14px] leading-relaxed text-[var(--color-text-secondary,#5B6B88)]">
               {description}
             </p>
             <div className="mt-5 flex gap-2.5">
               <button
                 type="button"
                 onClick={onCancel}
-                className="flex-1 rounded-lg bg-black/5 dark:bg-white/10 py-2.5 text-[15px] font-medium text-gray-600 dark:text-gray-300 active:bg-black/10 dark:active:bg-white/15"
+                className="flex-1 rounded-lg bg-[var(--color-surface-muted,#EAF1FB)] py-2.5 text-[15px] font-medium text-[var(--color-text-secondary,#5B6B88)] active:bg-[var(--color-surface-muted,#EAF1FB)]"
               >
                 {cancelText}
               </button>
@@ -134,7 +134,7 @@ export const MobileConfirmDialog: React.FC<{
                 onClick={onConfirm}
                 className={cn(
                   'flex-1 rounded-lg py-2.5 text-[15px] font-medium text-white active:opacity-80',
-                  danger ? 'bg-red-500' : 'bg-[#2b5ce7]',
+                  danger ? 'bg-[var(--color-danger,#F53F3F)]' : 'bg-[var(--color-primary,#165DFF)]',
                 )}
               >
                 {confirmText}

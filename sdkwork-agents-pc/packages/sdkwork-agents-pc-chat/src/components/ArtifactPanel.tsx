@@ -21,19 +21,19 @@ export const ArtifactPanel: React.FC<ArtifactPanelProps> = ({ artifact, onClose,
   if (!artifact) return null;
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 h-full bg-[#f5f5f5] dark:bg-[#191919] animate-in slide-in-from-right-4 duration-300">
-      <div className="h-14 border-b border-[#d9d9d9] dark:border-[#1a1a1a] flex items-center justify-between px-4 shrink-0 bg-[#ebebeb] dark:bg-[#202020]">
+    <div className="flex-1 flex flex-col min-w-0 h-full bg-[var(--ag-color-background,#F4F7FC)] dark:bg-[#191919] animate-in slide-in-from-right-4 duration-300">
+      <div className="h-14 flex items-center justify-between px-4 shrink-0 bg-[#ebebeb] dark:bg-[#202020]">
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">{artifact.language} {tCommon('component')}</span>
         </div>
         <div className="flex items-center gap-3">
           {['html', 'svg', 'xml', 'md', 'markdown'].includes(artifact.language) && (
-            <div className="flex bg-[#d9d9d9] dark:bg-[#151515] rounded-lg p-1 border border-[#ccc] dark:border-[#2a2a2a]">
+            <div className="flex bg-[#d9d9d9] dark:bg-[#151515] rounded-lg p-1">
               <button
                 onClick={() => onModeChange('code')}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors text-xs font-medium",
-                  artifact.mode === 'code' ? "bg-white dark:bg-[#333] text-[#1890ff] shadow-sm" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                  artifact.mode === 'code' ? "bg-white dark:bg-[#333] text-[#165DFF]" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                 )}
               >
                 <Code size={14} />
@@ -43,7 +43,7 @@ export const ArtifactPanel: React.FC<ArtifactPanelProps> = ({ artifact, onClose,
                 onClick={() => onModeChange('preview')}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors text-xs font-medium",
-                  artifact.mode === 'preview' ? "bg-white dark:bg-[#333] text-[#1890ff] shadow-sm" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                  artifact.mode === 'preview' ? "bg-white dark:bg-[#333] text-[#165DFF]" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                 )}
               >
                 <Play size={14} />
@@ -51,7 +51,7 @@ export const ArtifactPanel: React.FC<ArtifactPanelProps> = ({ artifact, onClose,
               </button>
             </div>
           )}
-          <button 
+          <button
             onClick={() => {
               const blob = new Blob([artifact.code], { type: 'text/plain' });
               const url = URL.createObjectURL(blob);
@@ -67,15 +67,15 @@ export const ArtifactPanel: React.FC<ArtifactPanelProps> = ({ artifact, onClose,
             <Download size={16} />
           </button>
           <div className="w-px h-4 bg-gray-300 dark:bg-gray-800 mx-1"></div>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333]"
           >
             <X size={18} />
           </button>
         </div>
-      </div>
-      
+        </div>
+
       <div className="flex-1 overflow-hidden relative">
         {artifact.mode === 'preview' ? (
           ['md', 'markdown'].includes(artifact.language) ? (
@@ -85,7 +85,7 @@ export const ArtifactPanel: React.FC<ArtifactPanelProps> = ({ artifact, onClose,
           ) : (
             <iframe
               srcDoc={artifact.code}
-              className="w-full h-full bg-white border-none"
+              className="w-full h-full bg-white"
               sandbox="allow-scripts allow-forms allow-same-origin"
               title={tCommon('artifactPreview')}
             />
@@ -112,6 +112,6 @@ export const ArtifactPanel: React.FC<ArtifactPanelProps> = ({ artifact, onClose,
           />
         )}
       </div>
-    </div>
+      </div>
   );
 };

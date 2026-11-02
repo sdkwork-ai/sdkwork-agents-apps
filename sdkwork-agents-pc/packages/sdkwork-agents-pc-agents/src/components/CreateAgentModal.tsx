@@ -63,7 +63,7 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
           <button onClick={onClose} className="px-4 py-2 rounded bg-slate-900/5 dark:bg-white/5 text-slate-700 dark:text-gray-300 hover:bg-slate-900/10 dark:hover:bg-white/10 transition-colors text-sm">取消</button>
           <button
             disabled={!name.trim() || creating}
-            className={`px-4 py-2 rounded text-white transition-colors text-sm flex items-center gap-1 ${name.trim() && !creating ? 'bg-[#00b42a] hover:bg-[#009a24]' : 'bg-[#00b42a]/50 cursor-not-allowed'}`}
+            className={`px-4 py-2 rounded text-white transition-colors text-sm flex items-center gap-1 ${name.trim() && !creating ? 'bg-[#165DFF] hover:bg-[#4080FF] active:bg-[#0E42D2]' : 'bg-[#165DFF]/50 cursor-not-allowed'}`}
             onClick={async () => {
               setCreating(true);
               try {
@@ -83,7 +83,7 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
                   if (avatarUri) {
                     await agentService.updateAgent(createdAgent.id, { avatar: avatarUri });
                   }
-                }
+                  }
                 toast(`智能体 "${name}" 创建成功`, 'success');
                 onSuccess(createdAgent.id);
               } catch (error) {
@@ -113,12 +113,12 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
         {/* Name */}
         <div>
           <label className="block text-sm text-slate-500 dark:text-gray-400 mb-1.5">智能体名称 <span className="text-red-500">*</span></label>
-          <input 
-            type="text" 
-            placeholder="例如：代码助手、翻译专家" 
+          <input
+            type="text"
+            placeholder="例如：代码助手、翻译专家"
             value={name}
             onChange={e => setName(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-[#181818] border border-slate-200 dark:border-white/5 rounded-lg py-2.5 px-3 text-sm text-slate-800 dark:text-gray-200 outline-none focus:border-slate-300 dark:focus:border-white/20 transition-colors" 
+            className="w-full bg-slate-50 dark:bg-[#181818] rounded-lg py-2.5 px-3 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors"
           />
         </div>
 
@@ -126,10 +126,10 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
         <div>
           <label className="block text-sm text-slate-500 dark:text-gray-400 mb-1.5">智能体类型</label>
           <div className="grid grid-cols-2 gap-3">
-            <div 
+            <div
               onClick={() => setType('normal')}
-              className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-3 ${
-                type === 'normal' ? 'bg-[#00b42a]/10 border-[#00b42a]/50' : 'bg-slate-50 dark:bg-[#181818] border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10'
+              className={`p-3 rounded-lg cursor-pointer transition-all flex items-start gap-3 ${
+                type === 'normal' ? 'bg-[#00b42a]/10' : 'bg-slate-50 dark:bg-[#181818]'
               }`}
             >
               <div className={`mt-0.5 ${type === 'normal' ? 'text-[#00b42a]' : 'text-slate-500 dark:text-gray-500'}`}>
@@ -139,12 +139,12 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
                 <div className={`text-sm font-medium mb-0.5 ${type === 'normal' ? 'text-[#00b42a]' : 'text-slate-800 dark:text-gray-200'}`}>普通智能体</div>
                 <div className="text-[11px] text-slate-500 dark:text-gray-500 leading-tight">在当前工作空间内运行，共享资源</div>
               </div>
-            </div>
-            
-            <div 
+              </div>
+
+            <div
               onClick={() => setType('independent')}
-              className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-3 ${
-                type === 'independent' ? 'bg-[#00b42a]/10 border-[#00b42a]/50' : 'bg-slate-50 dark:bg-[#181818] border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10'
+              className={`p-3 rounded-lg cursor-pointer transition-all flex items-start gap-3 ${
+                type === 'independent' ? 'bg-[#00b42a]/10' : 'bg-slate-50 dark:bg-[#181818]'
               }`}
             >
               <div className={`mt-0.5 ${type === 'independent' ? 'text-[#00b42a]' : 'text-slate-500 dark:text-gray-500'}`}>
@@ -154,21 +154,21 @@ export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; 
                 <div className={`text-sm font-medium mb-0.5 ${type === 'independent' ? 'text-[#00b42a]' : 'text-slate-800 dark:text-gray-200'}`}>独立部署智能体</div>
                 <div className="text-[11px] text-slate-500 dark:text-gray-500 leading-tight">拥有独立的运行环境和专属资源</div>
               </div>
-            </div>
-          </div>
-        </div>
+              </div>
+              </div>
+              </div>
 
         {/* Description */}
         <div>
           <label className="block text-sm text-slate-500 dark:text-gray-400 mb-1.5">简介</label>
-          <textarea 
-            placeholder="一句话描述它的作用" 
+          <textarea
+            placeholder="一句话描述它的作用"
             value={desc}
             onChange={e => setDesc(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-[#181818] border border-slate-200 dark:border-white/5 rounded-lg py-2.5 px-3 text-sm text-slate-800 dark:text-gray-200 outline-none focus:border-slate-300 dark:focus:border-white/20 h-20 resize-none custom-scrollbar transition-colors" 
+            className="w-full bg-slate-50 dark:bg-[#181818] rounded-lg py-2.5 px-3 text-sm text-slate-800 dark:text-gray-200 outline-none h-20 resize-none custom-scrollbar transition-colors"
           />
         </div>
-      </div>
+        </div>
     </ModalWrapper>
   );
 };

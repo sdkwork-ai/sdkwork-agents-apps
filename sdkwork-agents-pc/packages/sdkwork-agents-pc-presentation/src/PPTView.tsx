@@ -42,8 +42,8 @@ export const PPTView = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#0d0d0d] border-l border-gray-200 dark:border-gray-800">
-      <PPTHeader 
+    <div className="flex flex-col h-full bg-white dark:bg-[#0d0d0d]">
+      <PPTHeader
         layout={layout}
         setLayout={setLayout}
         theme={theme}
@@ -51,12 +51,12 @@ export const PPTView = () => {
         themes={themes}
         onExport={handleExport}
       />
-      
+
       {/* Main split area */}
       <div className="flex-1 flex min-h-0 overflow-hidden">
         <PPTEditor content={content} setContent={setContent} layout={layout} />
         <PPTPreview srcDoc={srcDoc} layout={layout} />
       </div>
-    </div>
+      </div>
   );
 };

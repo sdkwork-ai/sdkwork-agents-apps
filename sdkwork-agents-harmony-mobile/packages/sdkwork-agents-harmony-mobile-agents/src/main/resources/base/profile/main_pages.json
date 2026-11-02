@@ -1,0 +1,11 @@
+{
+  "src": [
+    "pages/conversation/ConversationHistory",
+    "pages/agents/CreateAgent",
+    "pages/projects/ProjectsPage",
+    "pages/library/LibraryPage",
+    "pages/automation/AutomationPage",
+    "pages/agents/AgentConversation",
+    "pages/agents/AgentsList"
+  ]
+}

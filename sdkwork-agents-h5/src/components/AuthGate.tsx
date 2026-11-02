@@ -30,15 +30,15 @@ export function AuthGate({ children }: AuthGateProps) {
 
   if (!authenticated) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#141414] px-6 text-center text-gray-100">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-bg-color,#F4F7FC)] px-6 text-center text-[var(--color-text-main,#0A1B3D)]">
         <h1 className="text-xl font-semibold">登录后继续</h1>
-        <p className="mt-2 max-w-md text-sm text-gray-400">
+        <p className="mt-2 max-w-md text-sm text-[var(--color-text-sub,#5B6B88)]">
           SDKWork Agents 需要有效的 IAM 会话。请通过 Appbase 登录，或在开发环境配置
           SDKWORK_ACCESS_TOKEN。
         </p>
         <a
           href={loginUrl}
-          className="mt-6 rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-purple-500"
+          className="mt-6 rounded-lg bg-[var(--color-primary,#165DFF)] px-5 py-2.5 text-sm font-medium text-[var(--color-primary-on,#FFFFFF)] transition-colors hover:bg-[var(--color-primary-hover,#4080FF)]"
         >
           前往登录
         </a>

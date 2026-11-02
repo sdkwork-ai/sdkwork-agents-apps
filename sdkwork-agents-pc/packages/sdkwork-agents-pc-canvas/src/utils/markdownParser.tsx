@@ -100,7 +100,7 @@ export function parseMarkdownToBlocks(text: string): Block[] {
         lineIndex: i
       });
     }
-  }
+    }
 
   if (inCodeBlock) {
     blocks.push({
@@ -116,23 +116,23 @@ export function parseMarkdownToBlocks(text: string): Block[] {
 
 export function renderInlineStyles(text: string): React.ReactNode {
   if (!text) return '';
-  
+
   const parts: React.ReactNode[] = [];
   let currentIndex = 0;
   const regex = /(`[^`]+`|\*\*[^*]+\*\*|__[^*]+__|_[^_]+_|==[^=]+==|~~[^~]+~~)/g;
   let match;
-  
+
   while ((match = regex.exec(text)) !== null) {
     const matchStr = match[0];
     const matchIndex = match.index;
-    
+
     if (matchIndex > currentIndex) {
       parts.push(text.slice(currentIndex, matchIndex));
     }
-    
+
     if (matchStr.startsWith('`') && matchStr.endsWith('`')) {
       parts.push(
-        <code key={matchIndex} className="px-1.5 py-0.5 bg-white/10 text-cyan-300 rounded font-mono text-[11px] border border-white/5 mx-0.5">
+        <code key={matchIndex} className="px-1.5 py-0.5 bg-white/10 text-[#4080FF] rounded font-mono text-[11px] mx-0.5">
           {matchStr.slice(1, -1)}
         </code>
       );
@@ -156,7 +156,7 @@ export function renderInlineStyles(text: string): React.ReactNode {
       );
     } else if (matchStr.startsWith('==') && matchStr.endsWith('==')) {
       parts.push(
-        <mark key={matchIndex} className="bg-yellow-500/20 text-yellow-200 px-1 py-0.5 rounded border border-yellow-500/10 mx-0.5 font-medium">
+        <mark key={matchIndex} className="bg-yellow-500/20 text-yellow-200 px-1 py-0.5 rounded mx-0.5 font-medium">
           {matchStr.slice(2, -2)}
         </mark>
       );
@@ -167,13 +167,13 @@ export function renderInlineStyles(text: string): React.ReactNode {
         </span>
       );
     }
-    
+
     currentIndex = regex.lastIndex;
   }
-  
+
   if (currentIndex < text.length) {
     parts.push(text.slice(currentIndex));
   }
-  
+
   return parts.length > 0 ? parts : text;
 }

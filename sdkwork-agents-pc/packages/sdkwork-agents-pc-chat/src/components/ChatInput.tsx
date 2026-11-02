@@ -66,10 +66,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   }, [input, textareaRef]);
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#f5f5f5] dark:from-[#191919] via-[#f5f5f5]/90 dark:via-[#191919]/90 to-transparent pt-20 z-10 pointer-events-none">
-      <div className="max-w-4xl mx-auto w-full bg-[#f4f4f4] dark:bg-[#2f2f2f] rounded-[24px] relative transition-all pointer-events-auto">
+    <div className="absolute bottom-0 left-0 right-0 p-6 bg-[var(--ag-color-background,#F4F7FC)] dark:bg-[#191919] pt-20 z-10 pointer-events-none">
+      <div className="max-w-4xl mx-auto w-full bg-[var(--ag-color-surface-muted,#EAF1FB)] dark:bg-[#2f2f2f] rounded-2xl relative transition-colors pointer-events-auto">
         <div className="relative flex flex-col focus-within:ring-0 transition-shadow">
-          
+
           {/* Plus Menu Popup */}
           {showMenu && (
             <PlusMenuPopup
@@ -81,9 +81,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           )}
 
           {selectedImages.length > 0 && (
-            <div className="flex flex-wrap gap-2 p-3 border-b border-[#f0f0f0] dark:border-[#333]">
+            <div className="flex flex-wrap gap-2 p-3">
               {selectedImages.map((img, i) => (
-                <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden group shadow-sm">
+                <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden group">
                   <img src={img} alt="preview" className="w-full h-full object-cover" />
                   <button
                     onClick={() => handleRemoveImage(i)}
@@ -108,7 +108,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               />
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-2 rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#3d3d3d] transition-colors"
+                className="p-2 rounded-full text-[var(--ag-color-icon-default,#5B6B88)] hover:text-[var(--ag-color-icon-strong,#0A1B3D)] transition-colors hover:bg-[var(--ag-color-surface-strong,#DCE8F9)]"
                 title={t('attachFile')}
               >
                 <Plus size={22} strokeWidth={2} />
@@ -117,17 +117,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
             <div className="flex-1 min-h-[44px] flex items-center px-1 py-3 mb-0.5 gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {inputMode === 'image' && (
-                <div onClick={() => setInputMode(null)} className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 transition-colors text-blue-500 dark:text-[#5e9bfa] rounded-[14px] text-[14px] font-medium shrink-0">
+                <div onClick={() => setInputMode(null)} className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-[var(--ag-color-primary-subtle,#E8F0FF)] hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] transition-colors text-[var(--ag-color-primary,#165DFF)] rounded-xl text-[14px] font-medium shrink-0">
                   <ImageIcon size={16} /> 创建图片
                 </div>
               )}
               {inputMode === 'search' && (
-                <div onClick={() => setInputMode(null)} className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 transition-colors text-blue-500 dark:text-[#5e9bfa] rounded-[14px] text-[14px] font-medium shrink-0">
+                <div onClick={() => setInputMode(null)} className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-[var(--ag-color-primary-subtle,#E8F0FF)] hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] transition-colors text-[var(--ag-color-primary,#165DFF)] rounded-xl text-[14px] font-medium shrink-0">
                   <Globe size={16} /> 网页搜索
                 </div>
               )}
               {inputMode === 'research' && (
-                <div onClick={() => setInputMode(null)} className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 transition-colors text-blue-500 dark:text-[#5e9bfa] rounded-[14px] text-[14px] font-medium shrink-0">
+                <div onClick={() => setInputMode(null)} className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-[var(--ag-color-primary-subtle,#E8F0FF)] hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] transition-colors text-[var(--ag-color-primary,#165DFF)] rounded-xl text-[14px] font-medium shrink-0">
                   <Telescope size={16} /> 深度研究
                 </div>
               )}
@@ -138,14 +138,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 onKeyDown={handleKeyDownWithMode}
                 placeholder="有问题，尽管问"
                 disabled={inputDisabled}
-                className="w-full bg-transparent border-none focus:ring-0 text-[16px] resize-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 outline-none p-0 m-0 leading-relaxed max-h-[200px] disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full bg-transparent focus:ring-0 text-[16px] resize-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 outline-none p-0 m-0 leading-relaxed max-h-[200px] disabled:cursor-not-allowed disabled:opacity-60"
                 rows={1}
               />
             </div>
-            
+
             <div className="flex items-center flex-shrink-0 gap-1.5 mb-1.5 mr-1.5">
               <button
-                className="p-2 rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#3d3d3d] transition-colors mr-1"
+                className="p-2 rounded-full text-[var(--ag-color-icon-default,#5B6B88)] hover:text-[var(--ag-color-icon-strong,#0A1B3D)] hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] transition-colors mr-1"
                 title="Voice Input"
               >
                 <Mic size={22} strokeWidth={2} />
@@ -154,7 +154,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               {isGenerating ? (
                 <button
                   onClick={handleStop}
-                  className="w-[34px] h-[34px] flex items-center justify-center bg-black dark:bg-white text-white dark:text-black rounded-full shadow-sm hover:opacity-80 transition-all transform active:scale-95"
+                  className="w-[34px] h-[34px] flex items-center justify-center bg-[var(--ag-color-primary,#165DFF)] text-[var(--ag-color-icon-on-primary,#FFFFFF)] rounded-full hover:bg-[var(--ag-color-primary-hover,#4080FF)] active:bg-[var(--ag-color-primary-pressed,#0E42D2)] transition-colors transform active:scale-95"
                   title={t('stopGenerating')}
                 >
                   <Square size={14} fill="currentColor" />
@@ -163,7 +163,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 <button
                   onClick={handleSend}
                   disabled={inputDisabled || (!input.trim() && selectedImages.length === 0)}
-                  className={`w-[34px] h-[34px] flex items-center justify-center rounded-full shadow-sm transition-all transform active:scale-95 ${!inputDisabled && (input.trim() || selectedImages.length > 0) ? 'bg-black dark:bg-white text-white dark:text-black hover:opacity-80' : 'bg-transparent text-gray-400 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3d3d3d] disabled:cursor-not-allowed disabled:opacity-60'}`}
+                  className={`w-[34px] h-[34px] flex items-center justify-center rounded-full transition-all transform active:scale-95 ${!inputDisabled && (input.trim() || selectedImages.length > 0) ? 'bg-[var(--ag-color-primary,#165DFF)] text-[var(--ag-color-icon-on-primary,#FFFFFF)] hover:bg-[var(--ag-color-primary-hover,#4080FF)]' : 'bg-transparent text-[var(--ag-color-icon-disabled,#8A97AD)] hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] disabled:cursor-not-allowed disabled:opacity-60'}`}
                   title={t('sendMessage')}
                 >
                   {input.trim() || selectedImages.length > 0 ? (
@@ -174,12 +174,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 </button>
               )}
             </div>
-          </div>
-        </div>
-      </div>
+            </div>
+            </div>
+            </div>
       <div className="text-center mt-4 text-[11px] text-gray-400 dark:text-gray-500 font-medium pointer-events-auto">
         {t('disclaimer')}
       </div>
-    </div>
+      </div>
   );
 };

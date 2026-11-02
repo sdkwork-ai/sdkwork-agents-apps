@@ -1,4 +1,4 @@
-<view class="tab-bar">
+<view class="tab-bar {{themeClass}}">
   <view
     wx:for="{{items}}"
     wx:key="tab"

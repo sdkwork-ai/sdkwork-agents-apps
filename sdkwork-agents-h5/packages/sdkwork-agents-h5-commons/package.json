@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "clsx": "catalog:",
+    "lucide-react": "catalog:",
     "motion": "catalog:",
     "tailwind-merge": "catalog:"
   }

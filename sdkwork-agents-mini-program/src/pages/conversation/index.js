@@ -37,6 +37,7 @@ function buildCopy() {
     sendFailed: translate("agents.conversation.error.send"),
     loadSessionsFailed: translate("agents.conversation.error.loadSessions"),
     loadMessagesFailed: translate("agents.conversation.error.loadMessages"),
+    profileEntry: runtime.translateAgentsMpShellText("agents.mobile.nav.profileEntry"),
   };
 }
 
@@ -70,6 +71,7 @@ Page({
     errorMessage: "",
     scrollTop: 0,
     hasMessages: false,
+    themeClass: "",
   },
 
   onLoad() {
@@ -93,10 +95,17 @@ Page({
   },
 
   onShow() {
+    // Re-apply the stored theme so returning from Settings repaints this page.
+    this.setData({ themeClass: runtime.resolveAgentsMpThemeClass() });
     const tabBar = this.getTabBar && this.getTabBar();
     if (tabBar) {
-      tabBar.setActive("tasks");
+      tabBar.setActive("chat");
     }
+  },
+
+  /** Avatar entry: every tab page reaches the profile hub the same way. */
+  onOpenProfile() {
+    wx.navigateTo({ url: runtime.AGENTS_MP_PROFILE_PAGE_URL });
   },
 
   onPullDownRefresh() {

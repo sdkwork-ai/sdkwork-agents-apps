@@ -22,7 +22,7 @@ function mapSkillRecord(record: SkillRecord): SkillItem {
     description: record.description ?? record.summary ?? "Skill from sdkwork-skills",
     provider: "sdkwork-skills",
     category: "preset",
-    icon: createElement(Blocks, { size: 20, className: "text-cyan-500" }),
+    icon: createElement(Blocks, { size: 20, className: "text-[#165DFF]" }),
   };
 }
 
@@ -33,7 +33,7 @@ function mapSkillPackageRecord(record: SkillPackageRecord): SkillItem {
     description: record.description ?? record.summary ?? "Skill package from sdkwork-skills",
     provider: "sdkwork-skills",
     category: "workflow",
-    icon: createElement(Blocks, { size: 20, className: "text-cyan-500" }),
+    icon: createElement(Blocks, { size: 20, className: "text-[#165DFF]" }),
   };
 }
 

@@ -21,7 +21,7 @@ export const ModalWrapper: React.FC<ModalWrapperProps> = ({ isOpen, onClose, tit
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--color-scrim,rgba(10,27,61,0.45))]"
           onClick={onClose}
         >
           <motion.div
@@ -30,11 +30,11 @@ export const ModalWrapper: React.FC<ModalWrapperProps> = ({ isOpen, onClose, tit
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             onClick={e => e.stopPropagation()}
-            className={`bg-[#2b2b2d] border border-white/10 rounded-xl shadow-2xl overflow-hidden flex flex-col ${width} ${height ?? 'max-h-[80vh]'} max-w-[calc(100vw-32px)] max-h-[calc(100vh-40px)]`}
+            className={`bg-[var(--color-surface-color,#FFFFFF)] rounded-xl overflow-hidden flex flex-col ${width} ${height ?? 'max-h-[80vh]'} max-w-[calc(100vw-32px)] max-h-[calc(100vh-40px)]`}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
-              <h3 className="text-gray-200 font-medium">{title}</h3>
-              <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors">
+            <div className="flex items-center justify-between px-5 py-4 shrink-0">
+              <h3 className="text-[var(--color-text-primary,#0A1B3D)] font-medium">{title}</h3>
+              <button onClick={onClose} className="text-[var(--color-text-secondary,#5B6B88)] hover:text-[var(--color-text-primary,#0A1B3D)] transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -42,7 +42,7 @@ export const ModalWrapper: React.FC<ModalWrapperProps> = ({ isOpen, onClose, tit
               {children}
             </div>
             {footer && (
-              <div className="px-5 py-4 border-t border-white/5 bg-[#222] shrink-0 flex justify-end gap-3">
+              <div className="px-5 py-4 bg-[var(--color-surface-muted,#EAF1FB)] shrink-0 flex justify-end gap-3">
                 {footer}
               </div>
             )}

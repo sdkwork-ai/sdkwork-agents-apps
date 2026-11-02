@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/design_tokens.dart';
+import '../theme/tech_blue_theme.dart';
 import 'mobile_app_bar.dart';
 import 'screen_states.dart';
 
@@ -10,7 +10,8 @@ import 'screen_states.dart';
 /// bar, an optional search field, an optional notice banner, and a stateful
 /// list. Keeping that shape here means the capability packages own only their
 /// rows and their copy (`APP_FLUTTER_UI_SPEC.md` — shared widgets stay
-/// payload-free).
+/// payload-free). Rows are separated by tonal spacing, never by 1px dividers
+/// (`specs/client-theme.spec.json`).
 class SdkworkAgentsListTabScaffold extends StatelessWidget {
   const SdkworkAgentsListTabScaffold({
     super.key,
@@ -30,10 +31,10 @@ class SdkworkAgentsListTabScaffold extends StatelessWidget {
     this.bannerEmphasis = false,
     this.onRefresh,
     this.onRetry,
-    this.retryLabel = 'Retry',
+    this.retryLabel,
     this.trailingActions = const <Widget>[],
     this.onLeadingPressed,
-    this.leadingIcon = Icons.menu,
+    this.leadingIcon,
     this.leadingTooltip,
   });
 
@@ -65,11 +66,11 @@ class SdkworkAgentsListTabScaffold extends StatelessWidget {
 
   final Future<void> Function()? onRefresh;
   final VoidCallback? onRetry;
-  final String retryLabel;
+  final String? retryLabel;
 
   final List<Widget> trailingActions;
   final VoidCallback? onLeadingPressed;
-  final IconData leadingIcon;
+  final IconData? leadingIcon;
   final String? leadingTooltip;
 
   @override
@@ -77,11 +78,13 @@ class SdkworkAgentsListTabScaffold extends StatelessWidget {
     final bannerText = banner;
     final search = searchHint;
     final headerWidget = header;
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final TechBlueThemeColors colors = techBlueThemeColors(context);
     final list = status == SdkworkAgentsScreenStatus.ready
         ? ListView.separated(
             padding: const EdgeInsets.only(bottom: 24),
             itemCount: itemCount,
-            separatorBuilder: (_, __) => const Divider(height: 1),
+            separatorBuilder: (_, __) => const SizedBox(height: 4),
             itemBuilder: itemBuilder,
           )
         : status == SdkworkAgentsScreenStatus.loading
@@ -90,7 +93,9 @@ class SdkworkAgentsListTabScaffold extends StatelessWidget {
                 headline: status == SdkworkAgentsScreenStatus.error
                     ? statusMessage
                     : emptyHeadline,
-                hint: status == SdkworkAgentsScreenStatus.error ? null : emptyHint,
+                hint: status == SdkworkAgentsScreenStatus.error
+                    ? null
+                    : emptyHint,
                 glyph: emptyGlyph,
                 onRetry: onRetry,
                 retryLabel: retryLabel,
@@ -113,15 +118,10 @@ class SdkworkAgentsListTabScaffold extends StatelessWidget {
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 hintText: search,
-                isDense: true,
-                prefixIcon: const Icon(Icons.search, size: 18),
-                filled: true,
-                fillColor: const Color(0xFFF1F5F9),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                prefixIcon: Icon(
+                  Icons.search,
+                  size: 18,
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -141,8 +141,8 @@ class SdkworkAgentsListTabScaffold extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   color: bannerEmphasis
-                      ? const Color(0xFFB45309)
-                      : const Color(SdkworkAgentsFlutterTokens.colorTextMuted),
+                      ? colors.warningText
+                      : scheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -152,7 +152,7 @@ class SdkworkAgentsListTabScaffold extends StatelessWidget {
     );
 
     return Scaffold(
-      backgroundColor: const Color(SdkworkAgentsFlutterTokens.colorBackground),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: <Widget>[
           SdkworkAgentsMobileAppBar(

@@ -23,11 +23,11 @@ export interface AgentMobileViewProps {
 type ViewStatus = 'loading' | 'error' | 'ready';
 
 const STATUS_BADGE_STYLES: Record<AgentLifecycleStatus, string> = {
-  draft: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
-  active: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
-  disabled: 'bg-gray-500/15 text-[var(--color-text-sub,#6b7280)]',
-  archived: 'bg-gray-500/15 text-[var(--color-text-sub,#6b7280)]',
-  deleted: 'bg-red-500/15 text-red-500 dark:text-red-400',
+  draft: 'bg-[var(--color-primary-subtle,#E8F0FF)] text-[var(--color-warning,#FF7D00)]',
+  active: 'bg-[var(--color-success-bg,#E8FFEF)] text-[var(--color-success,#00B42A)]',
+  disabled: 'bg-[var(--color-surface-strong,#DCE8F9)] text-[var(--color-text-sub,#5B6B88)]',
+  archived: 'bg-[var(--color-surface-strong,#DCE8F9)] text-[var(--color-text-sub,#5B6B88)]',
+  deleted: 'bg-[var(--color-danger-bg,#FFF1F0)] text-[var(--color-danger,#F53F3F)]',
 };
 
 function statusLabel(status: AgentLifecycleStatus | undefined): string {
@@ -219,22 +219,22 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
   const deletedAgents = agents.filter((agent) => isDeletedAgent(agent));
 
   return (
-    <div className="flex flex-col h-full bg-[var(--color-bg-color,#f5f5f7)] overflow-hidden">
+    <div className="flex flex-col h-full bg-[var(--color-bg-color,#F4F7FC)] overflow-hidden">
       {/* Header */}
-      <header className="h-[56px] shrink-0 flex items-center justify-between px-2 bg-[var(--color-glass-bg,#f5f5f7)] backdrop-blur-xl border-b border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))] z-10">
+      <header className="h-[56px] shrink-0 flex items-center justify-between px-2 bg-[var(--color-glass-bg,#FFFFFF)] z-10">
         <div className="flex items-center flex-1 gap-1">
           {onBack && (
             <button
               type="button"
               aria-label={t('agents.mobile.back')}
               onClick={onBack}
-              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-black/5 dark:active:bg-white/10 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-[var(--color-surface-muted,#EAF1FB)] transition-colors"
             >
-              <ArrowLeft className="w-6 h-6 text-[var(--color-text-main,#111827)]" />
+              <ArrowLeft className="w-6 h-6 text-[var(--color-icon-strong,#0A1B3D)]" />
             </button>
           )}
         </div>
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-[var(--color-text-main,#111827)]">
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-[var(--color-text-main,#0A1B3D)]">
           {t('agents.mobile.title')}
         </h1>
         <div className="flex items-center flex-1 justify-end">
@@ -243,9 +243,9 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
               type="button"
               aria-label={t('agents.mobile.create')}
               onClick={onCreateAgent}
-              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-black/5 dark:active:bg-white/10 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-[var(--color-surface-muted,#EAF1FB)] transition-colors"
             >
-              <Plus className="w-6 h-6 text-[var(--color-text-main,#111827)]" />
+              <Plus className="w-6 h-6 text-[var(--color-icon-strong,#0A1B3D)]" />
             </button>
           )}
         </div>
@@ -254,7 +254,7 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
       {/* Pull-to-refresh indicator */}
       {pullDistance > 0 && (
         <div
-          className="shrink-0 flex items-center justify-center gap-2 text-[13px] text-[var(--color-text-sub,#6b7280)] transition-[height] overflow-hidden"
+          className="shrink-0 flex items-center justify-center gap-2 text-[13px] text-[var(--color-text-sub,#5B6B88)] transition-[height] overflow-hidden"
           style={{ height: pullDistance }}
         >
           <RefreshCw className={cn('w-4 h-4', refreshing ? 'animate-spin' : '')} />
@@ -279,12 +279,12 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
             {Array.from({ length: 6 }, (_, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 rounded-2xl bg-[var(--color-chat-other-bg,#262626)] px-4 py-3.5 animate-pulse"
+                className="flex items-center gap-3 rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] px-4 py-3.5 animate-pulse"
               >
-                <div className="w-14 h-14 rounded-2xl bg-black/5 dark:bg-white/10 shrink-0" />
+                <div className="w-14 h-14 rounded-2xl bg-[var(--color-surface-muted,#EAF1FB)] shrink-0" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-2/5 rounded bg-black/5 dark:bg-white/10" />
-                  <div className="h-3 w-4/5 rounded bg-black/5 dark:bg-white/10" />
+                  <div className="h-4 w-2/5 rounded bg-[var(--color-surface-muted,#EAF1FB)]" />
+                  <div className="h-3 w-4/5 rounded bg-[var(--color-surface-muted,#EAF1FB)]" />
                 </div>
               </div>
             ))}
@@ -293,13 +293,13 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
 
         {status === 'error' && (
           <div className="flex flex-col items-center justify-center h-full px-8">
-            <div className="w-16 h-16 rounded-3xl bg-[var(--color-chat-other-bg,#262626)] flex items-center justify-center mb-4">
-              <Bot className="w-8 h-8 text-gray-400" />
+            <div className="w-16 h-16 rounded-3xl bg-[var(--color-chat-other-bg,#FFFFFF)] flex items-center justify-center mb-4">
+              <Bot className="w-8 h-8 text-[var(--color-icon-default,#5B6B88)]" />
             </div>
-            <h3 className="text-[16px] font-semibold text-[var(--color-text-main,#111827)] mb-1">
+            <h3 className="text-[16px] font-semibold text-[var(--color-text-main,#0A1B3D)] mb-1">
               {t('agents.mobile.error.title')}
             </h3>
-            <p className="text-[13px] text-[var(--color-text-sub,#6b7280)] mb-6 text-center leading-relaxed">
+            <p className="text-[13px] text-[var(--color-text-sub,#5B6B88)] mb-6 text-center leading-relaxed">
               {t('agents.mobile.error.desc')}
             </p>
             <button
@@ -308,7 +308,7 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
                 setStatus('loading');
                 void refresh();
               }}
-              className="flex items-center gap-2 px-7 h-11 rounded-full bg-[var(--color-primary-blue,#2b5ce7)] text-white text-[15px] font-medium active:scale-95 transition-transform"
+              className="flex items-center gap-2 px-7 h-11 rounded-full bg-[var(--color-primary-blue,#165DFF)] text-white text-[15px] font-medium active:scale-95 transition-transform"
             >
               <RefreshCw className="w-4 h-4" />
               {t('agents.mobile.error.retry')}
@@ -318,20 +318,20 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
 
         {status === 'ready' && agents.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full px-8">
-            <div className="w-20 h-20 rounded-[24px] bg-[var(--color-chat-other-bg,#262626)] flex items-center justify-center mb-5 shadow-sm">
-              <Bot className="w-10 h-10 text-[var(--color-primary-blue,#2b5ce7)]" />
+            <div className="w-20 h-20 rounded-[24px] bg-[var(--color-chat-other-bg,#FFFFFF)] flex items-center justify-center mb-5">
+              <Bot className="w-10 h-10 text-[var(--color-icon-active,#165DFF)]" />
             </div>
-            <h3 className="text-[17px] font-semibold text-[var(--color-text-main,#111827)] mb-2">
+            <h3 className="text-[17px] font-semibold text-[var(--color-text-main,#0A1B3D)] mb-2">
               {t('agents.mobile.empty.title')}
             </h3>
-            <p className="text-[13px] text-[var(--color-text-sub,#6b7280)] mb-8 max-w-[240px] text-center leading-relaxed">
+            <p className="text-[13px] text-[var(--color-text-sub,#5B6B88)] mb-8 max-w-[240px] text-center leading-relaxed">
               {t('agents.mobile.empty.desc')}
             </p>
             {onCreateAgent && (
               <button
                 type="button"
                 onClick={onCreateAgent}
-                className="px-8 h-12 rounded-full bg-[var(--color-primary-blue,#2b5ce7)] text-white text-[15px] font-medium active:scale-95 transition-transform shadow-lg shadow-[var(--color-primary-blue,#2b5ce7)]/25"
+                className="px-8 h-12 rounded-full bg-[var(--color-primary-blue,#165DFF)] text-white text-[15px] font-medium active:scale-95 transition-transform"
               >
                 {t('agents.mobile.empty.create')}
               </button>
@@ -344,7 +344,7 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
             {/* Active agents */}
             <section>
               {activeAgents.length > 0 && (
-                <div className="rounded-2xl bg-[var(--color-chat-other-bg,#262626)] overflow-hidden divide-y divide-[var(--color-border-color,rgba(0,0,0,0.05))] dark:divide-[var(--color-border-color,rgba(255,255,255,0.05))]">
+                <div className="rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] overflow-hidden">
                   {activeAgents.map((agent) => (
                     <AgentRow
                       key={agent.id}
@@ -362,10 +362,10 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
             {/* Deleted agents */}
             {deletedAgents.length > 0 && (
               <section>
-                <div className="px-1 mb-2 text-[12px] text-[var(--color-text-sub,#9ca3af)]">
+                <div className="px-1 mb-2 text-[12px] text-[var(--color-text-sub,#5B6B88)]">
                   {t('agents.mobile.group.deleted')}
                 </div>
-                <div className="rounded-2xl bg-[var(--color-chat-other-bg,#262626)] overflow-hidden divide-y divide-[var(--color-border-color,rgba(0,0,0,0.05))] dark:divide-[var(--color-border-color,rgba(255,255,255,0.05))]">
+                <div className="rounded-2xl bg-[var(--color-chat-other-bg,#FFFFFF)] overflow-hidden">
                   {deletedAgents.map((agent) => (
                     <AgentRow
                       key={agent.id}
@@ -378,7 +378,7 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
                         <button
                           type="button"
                           onClick={() => void handleRestore(agent)}
-                          className="flex items-center gap-1 shrink-0 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-1.5 text-[12px] font-medium active:bg-emerald-500/20 transition-colors"
+                          className="flex items-center gap-1 shrink-0 rounded-lg bg-[var(--color-success-bg,#E8FFEF)] text-[var(--color-success,#00B42A)] px-2.5 py-1.5 text-[12px] font-medium active:bg-[var(--color-success-bg,#E8FFEF)] transition-colors"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                           {t('agents.mobile.menu.restore')}
@@ -393,7 +393,7 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
             {/* Load more footer */}
             <div ref={sentinelRef} className="flex justify-center pb-4">
               {loadingMore && (
-                <span className="text-[13px] text-[var(--color-text-sub,#9ca3af)]">
+                <span className="text-[13px] text-[var(--color-text-sub,#5B6B88)]">
                   {t('agents.mobile.loadingMore')}
                 </span>
               )}
@@ -401,7 +401,7 @@ export const MyAgentsView: React.FC<AgentMobileViewProps> = ({
                 <button
                   type="button"
                   onClick={() => void loadMore()}
-                  className="flex items-center gap-1 text-[13px] text-[var(--color-text-sub,#9ca3af)] active:opacity-70"
+                  className="flex items-center gap-1 text-[13px] text-[var(--color-text-sub,#5B6B88)] active:opacity-70"
                 >
                   {t('agents.mobile.noMore')}
                   <ChevronDown className="w-3.5 h-3.5" />
@@ -483,7 +483,7 @@ const AgentRow: React.FC<{
     <div
       role="button"
       tabIndex={0}
-      className="flex items-center gap-3 px-4 py-3.5 select-none touch-callout-none transition-colors active:bg-black/5 dark:active:bg-white/5 cursor-pointer"
+      className="flex items-center gap-3 px-4 py-3.5 select-none touch-callout-none transition-colors active:bg-[var(--color-surface-muted,#EAF1FB)] cursor-pointer"
       onClick={() => {
         if (longPressTriggered.current) {
           longPressTriggered.current = false;
@@ -503,12 +503,12 @@ const AgentRow: React.FC<{
         if (event.key === 'Enter' && onPress) onPress();
       }}
     >
-      <div className="w-14 h-14 rounded-2xl overflow-hidden bg-black/5 dark:bg-white/10 shrink-0 border border-black/5 dark:border-white/10">
+      <div className="w-14 h-14 rounded-2xl overflow-hidden bg-[var(--color-surface-muted,#EAF1FB)] shrink-0">
         <img src={avatar} alt={agent.name} className="w-full h-full object-cover" draggable={false} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className="font-medium text-[16px] text-[var(--color-text-main,#111827)] truncate">
+          <span className="font-medium text-[16px] text-[var(--color-text-main,#0A1B3D)] truncate">
             {agent.name}
           </span>
           {showStatusBadge && agent.status && (
@@ -522,7 +522,7 @@ const AgentRow: React.FC<{
             </span>
           )}
         </div>
-        <p className="text-[13px] text-[var(--color-text-sub,#6b7280)] truncate">
+        <p className="text-[13px] text-[var(--color-text-sub,#5B6B88)] truncate">
           {agent.description || agent.systemPrompt || ''}
         </p>
       </div>
@@ -535,7 +535,7 @@ const AgentRow: React.FC<{
             event.stopPropagation();
             onMore();
           }}
-          className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-[var(--color-text-sub,#9ca3af)] active:bg-black/5 dark:active:bg-white/10"
+          className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-[var(--color-text-sub,#5B6B88)] active:bg-[var(--color-surface-muted,#EAF1FB)]"
         >
           <MoreHorizontal className="w-5 h-5" />
         </button>

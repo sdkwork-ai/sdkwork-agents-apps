@@ -71,14 +71,14 @@ export const InspirationView = () => {
   // If a specific activity detail page is active, show the details instead
   if (activeActivity) {
     return (
-      <div className="flex-1 w-full h-full bg-[#141414] overflow-y-auto overflow-x-hidden text-white relative">
-        <ActivityDetailView 
+      <div className="flex-1 w-full h-full bg-[var(--ag-color-background,#F4F7FC)] overflow-y-auto overflow-x-hidden text-[var(--ag-color-text-primary,#0A1B3D)] relative">
+        <ActivityDetailView
           activity={activeActivity}
           onClose={() => setActiveActivity(null)}
           onPlayVideo={(work) => setSelectedVideo(work)}
         />
-        
-        <VideoDetailModal 
+
+        <VideoDetailModal
           isOpen={!!selectedVideo}
           onClose={() => setSelectedVideo(null)}
           video={selectedVideo}
@@ -88,82 +88,82 @@ export const InspirationView = () => {
   }
 
   return (
-    <div className="flex-1 w-full h-full bg-[#141414] overflow-y-auto overflow-x-hidden text-white relative">
+    <div className="flex-1 w-full h-full bg-[var(--ag-color-background,#F4F7FC)] overflow-y-auto overflow-x-hidden text-[var(--ag-color-text-primary,#0A1B3D)] relative">
       <div className="w-full py-16 flex flex-col items-center">
         {/* Top Centered Section */}
         <div className="w-full max-w-[1200px] px-8 flex flex-col items-center">
           <h1 className="text-2xl font-medium mb-12 flex items-center gap-2">
-            开启你的 <span className="text-cyan-400 flex items-center cursor-pointer hover:text-cyan-300 transition-colors">{resolveCreativeCreationType(inputBoxMode).label} <ChevronDown size={18} className="ml-0.5" /></span> 即刻造梦！
+            开启你的 <span className="text-[var(--ag-color-primary,#165DFF)] flex items-center cursor-pointer hover:text-[var(--ag-color-primary-hover,#4080FF)] transition-colors">{resolveCreativeCreationType(inputBoxMode).label} <ChevronDown size={18} className="ml-0.5" /></span> 即刻造梦！
           </h1>
-          
+
           {/* Input Box */}
-          <CreativeInputBox 
+          <CreativeInputBox
             key={inputBoxMode}
             initialMode={inputBoxMode}
             onSubmit={handleInputSubmit}
-            className="w-full mb-8" 
+            className="w-full mb-8"
           />
 
           {/* Feature Cards */}
-          <InspirationFeatureCards 
-            inputBoxMode={inputBoxMode} 
-            setInputBoxMode={setInputBoxMode} 
+          <InspirationFeatureCards
+            inputBoxMode={inputBoxMode}
+            setInputBoxMode={setInputBoxMode}
           />
         </div>
 
         {/* Gallery Section - Full Width */}
         <div className="w-full px-4 md:px-8 lg:px-12 xl:px-16">
-          <InspirationTabs 
-            activeTab={activeTab} 
+          <InspirationTabs
+            activeTab={activeTab}
             setActiveTab={setActiveTab}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
           />
 
           {/* Tab Views */}
-          
+
           {/* 1. DISCOVER TAB VIEW */}
           {activeTab === '发现' && discoverData && (
-            <DiscoverTab 
-              discoverData={discoverData} 
-              onSelectImage={setSelectedImage} 
+            <DiscoverTab
+              discoverData={discoverData}
+              onSelectImage={setSelectedImage}
             />
           )}
 
           {/* 2. SKILL TAB VIEW */}
           {activeTab === '技能' && (
-            <SkillsTab 
-              filteredSkills={filteredSkills} 
+            <SkillsTab
+              filteredSkills={filteredSkills}
             />
           )}
 
           {/* 3. SHORT VIDEO TAB VIEW */}
           {activeTab === '短片' && (
-            <ShortVideosTab 
-              filteredVideos={filteredVideos} 
-              onPlayVideo={setSelectedVideo} 
+            <ShortVideosTab
+              filteredVideos={filteredVideos}
+              onPlayVideo={setSelectedVideo}
             />
           )}
 
           {/* 4. ACTIVITY TAB VIEW */}
           {activeTab === '活动' && (
-            <ActivitiesTab 
-              filteredActivities={filteredActivities} 
-              onSelectActivity={setActiveActivity} 
+            <ActivitiesTab
+              filteredActivities={filteredActivities}
+              onSelectActivity={setActiveActivity}
             />
           )}
 
         </div>
-      </div>
+        </div>
 
       {/* Media Detail Modals */}
-      <ImageDetailModal 
-        isOpen={!!selectedImage} 
-        onClose={() => setSelectedImage(null)} 
-        image={selectedImage} 
+      <ImageDetailModal
+        isOpen={!!selectedImage}
+        onClose={() => setSelectedImage(null)}
+        image={selectedImage}
       />
 
-      <VideoDetailModal 
+      <VideoDetailModal
         isOpen={!!selectedVideo}
         onClose={() => setSelectedVideo(null)}
         video={selectedVideo}

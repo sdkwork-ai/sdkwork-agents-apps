@@ -83,22 +83,22 @@ export const MyCharactersView: React.FC<MyCharactersViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--color-bg-color,#f5f5f7)] overflow-hidden">
+    <div className="flex flex-col h-full bg-[var(--color-bg-color,#F4F7FC)] overflow-hidden">
       {/* Header */}
-      <header className="h-[56px] shrink-0 flex items-center justify-between px-2 bg-[var(--color-glass-bg,#f5f5f7)] backdrop-blur-xl border-b border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))] z-10">
+      <header className="h-[56px] shrink-0 flex items-center justify-between px-2 bg-[var(--color-glass-bg,#FFFFFF)] z-10">
         <div className="flex items-center flex-1 gap-1">
           {onBack && (
             <button
               type="button"
               aria-label={t('agents.mobile.back')}
               onClick={onBack}
-              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-black/5 dark:active:bg-white/10 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-[var(--color-surface-muted,#EAF1FB)] transition-colors"
             >
-              <ArrowLeft className="w-6 h-6 text-[var(--color-text-main,#111827)]" />
+              <ArrowLeft className="w-6 h-6 text-[var(--color-icon-strong,#0A1B3D)]" />
             </button>
           )}
         </div>
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-[var(--color-text-main,#111827)]">
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-[var(--color-text-main,#0A1B3D)]">
           {t('agents.mobile.characters.title')}
         </h1>
         <div className="flex items-center flex-1 justify-end">
@@ -107,9 +107,9 @@ export const MyCharactersView: React.FC<MyCharactersViewProps> = ({
               type="button"
               aria-label={t('agents.mobile.characters.create')}
               onClick={onCreateCharacter}
-              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-black/5 dark:active:bg-white/10 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full active:bg-[var(--color-surface-muted,#EAF1FB)] transition-colors"
             >
-              <Plus className="w-6 h-6 text-[var(--color-text-main,#111827)]" />
+              <Plus className="w-6 h-6 text-[var(--color-icon-strong,#0A1B3D)]" />
             </button>
           )}
         </div>
@@ -119,20 +119,20 @@ export const MyCharactersView: React.FC<MyCharactersViewProps> = ({
       <div className="flex-1 overflow-y-auto overscroll-contain">
         {characters.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full px-8">
-            <div className="w-20 h-20 rounded-[24px] bg-[var(--color-chat-other-bg,#262626)] flex items-center justify-center mb-5 shadow-sm">
-              <UserRound className="w-10 h-10 text-[var(--color-primary-blue,#2b5ce7)]" />
+            <div className="w-20 h-20 rounded-[24px] bg-[var(--color-chat-other-bg,#FFFFFF)] flex items-center justify-center mb-5">
+              <UserRound className="w-10 h-10 text-[var(--color-icon-active,#165DFF)]" />
             </div>
-            <h3 className="text-[17px] font-semibold text-[var(--color-text-main,#111827)] mb-2">
+            <h3 className="text-[17px] font-semibold text-[var(--color-text-main,#0A1B3D)] mb-2">
               {t('agents.mobile.characters.title')}
             </h3>
-            <p className="text-[13px] text-[var(--color-text-sub,#6b7280)] mb-8 max-w-[240px] text-center leading-relaxed">
+            <p className="text-[13px] text-[var(--color-text-sub,#5B6B88)] mb-8 max-w-[240px] text-center leading-relaxed">
               {t('agents.mobile.characters.empty')}
             </p>
             {onCreateCharacter && (
               <button
                 type="button"
                 onClick={onCreateCharacter}
-                className="px-8 h-12 rounded-full bg-[var(--color-primary-blue,#2b5ce7)] text-white text-[15px] font-medium active:scale-95 transition-transform shadow-lg shadow-[var(--color-primary-blue,#2b5ce7)]/25"
+                className="px-8 h-12 rounded-full bg-[var(--color-primary-blue,#165DFF)] text-white text-[15px] font-medium active:scale-95 transition-transform"
               >
                 {t('agents.mobile.characters.create')}
               </button>
@@ -140,7 +140,7 @@ export const MyCharactersView: React.FC<MyCharactersViewProps> = ({
           </div>
         ) : (
           <div className="mt-2 w-full">
-            <div className="flex flex-col border-y border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))]">
+            <div className="flex flex-col">
               {characters.map((char) => (
                 <CharacterCard
                   key={char.id}

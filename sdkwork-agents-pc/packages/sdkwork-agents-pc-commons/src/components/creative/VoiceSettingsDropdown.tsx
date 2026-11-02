@@ -42,24 +42,24 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
 
   const filteredOptions = VOICE_OPTIONS.filter(v => {
     const matchesCategory = activeVoiceCategory === 'all' || v.category === activeVoiceCategory;
-    const matchesSearch = v.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           v.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
   return (
-    <div 
-      ref={dropdownRef} 
+    <div
+      ref={dropdownRef}
       className={cn(
-        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[420px] max-w-[420px] bg-white border border-black/10 rounded-2xl shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col max-h-[450px] dark:bg-[#222222] dark:border-white/10 dark:shadow-2xl",
+        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[420px] max-w-[420px] bg-white rounded-2xl z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col max-h-[450px] dark:bg-[#222222]",
         voiceSettingsPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
       )}
     >
       {/* Header & Categories */}
-      <div className="p-3 pb-2 border-b border-black/5 dark:border-white/5 shrink-0">
+      <div className="p-3 pb-2 shrink-0">
         <div className="flex items-center justify-between mb-3 px-1">
           <span className="text-[14px] font-medium text-zinc-800 dark:text-zinc-200">选择音色</span>
-          <button className="text-[12px] flex items-center gap-1 text-cyan-400 hover:text-cyan-300 transition-colors">
+            <button className="text-[12px] flex items-center gap-1 text-[#4080FF] hover:text-[#4080FF] transition-colors">
             <Mic size={12} /> 我的声音
           </button>
         </div>
@@ -72,31 +72,31 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
                 setActiveVoiceCategory(category.id);
               }}
               className={cn(
-                "px-3 py-1.5 rounded-full text-[13px] whitespace-nowrap transition-colors border",
+                "px-3 py-1.5 rounded-full text-[13px] whitespace-nowrap transition-colors",
                 activeVoiceCategory === category.id
-                  ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20"
-                  : "bg-black/5 dark:bg-[#1a1a1a] text-zinc-500 dark:text-zinc-400 border-transparent hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-black/10 dark:hover:bg-[#2a2a2a]"
+                ? "bg-[#165DFF]/10 text-[#4080FF]"
+                : "bg-black/5 dark:bg-[#1a1a1a] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-black/10 dark:hover:bg-[#2a2a2a]"
               )}
             >
               {category.label}
             </button>
           ))}
         </div>
-      </div>
+        </div>
 
       {/* Search Input */}
-      <div className="px-3 py-2 shrink-0 border-b border-black/5 dark:border-white/5">
+      <div className="px-3 py-2 shrink-0">
         <div className="relative flex items-center w-full">
           <Search size={14} className="absolute left-3 text-zinc-500" />
-          <input 
-            type="text" 
-            placeholder="搜索音色..." 
+          <input
+            type="text"
+            placeholder="搜索音色..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-8 bg-zinc-100 dark:bg-black/40 border border-transparent focus:border-black/10 dark:focus:border-white/10 rounded-lg pl-8 pr-3 text-[13px] text-zinc-800 dark:text-zinc-200 outline-none transition-colors placeholder:text-zinc-600"
+            className="w-full h-8 bg-zinc-100 dark:bg-black/40 rounded-lg pl-8 pr-3 text-[13px] text-zinc-800 dark:text-zinc-200 outline-none transition-colors placeholder:text-zinc-600"
           />
         </div>
-      </div>
+        </div>
 
       {/* Voice List */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
@@ -105,7 +105,7 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
             key={voice.id}
             className={cn(
               "group flex flex-col gap-2 p-3 rounded-xl transition-colors cursor-pointer relative overflow-hidden",
-              selectedVoice === voice.id ? "bg-cyan-500/10 border border-cyan-500/20" : "hover:bg-black/5 dark:hover:bg-[#2a2a2a] border border-transparent"
+              selectedVoice === voice.id ? "bg-[#165DFF]/10" : "hover:bg-black/5 dark:hover:bg-[#2a2a2a]"
             )}
             onClick={() => {
               setSelectedVoice(voice.id);
@@ -115,12 +115,12 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
           >
             <div className="flex justify-between items-start w-full relative z-10">
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   className={cn(
                     "w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all",
-                    playingVoiceId === voice.id 
-                      ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20" 
-                      : "bg-[#333] text-zinc-300 group-hover:bg-cyan-500/20 group-hover:text-cyan-400"
+                    playingVoiceId === voice.id
+                    ? "bg-[#165DFF] text-white"
+                    : "bg-[#333] text-zinc-300 group-hover:bg-[#165DFF]/20 group-hover:text-[#4080FF]"
                   )}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -131,7 +131,7 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
                 </button>
                 <div className="flex flex-col gap-0.5">
                   <div className="flex items-center gap-2">
-                    <span className={cn("text-[14px] font-medium", selectedVoice === voice.id ? "text-cyan-400" : "text-zinc-800 dark:text-zinc-200")}>
+                    <span className={cn("text-[14px] font-medium", selectedVoice === voice.id ? "text-[#4080FF]" : "text-zinc-800 dark:text-zinc-200")}>
                       {voice.name}
                     </span>
                     {voice.premium && (
@@ -147,11 +147,11 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
                       </span>
                     ))}
                   </div>
-                </div>
-              </div>
+                  </div>
+                  </div>
               <div className="flex flex-col items-end gap-2">
                 {selectedVoice === voice.id && (
-                  <div className="bg-cyan-500 rounded-full p-1 shadow-md shadow-cyan-500/20">
+                  <div className="bg-[#165DFF] rounded-full p-1">
                      <Check size={12} className="text-white stroke-[3]" />
                   </div>
                 )}
@@ -159,10 +159,10 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
                    {voice.duration}
                 </span>
               </div>
-            </div>
-          </div>
+              </div>
+              </div>
         ))}
-        
+
         {filteredOptions.length === 0 && (
           <div className="py-10 flex flex-col items-center justify-center text-zinc-500 gap-2">
             <Mic size={24} className="opacity-50" />
@@ -170,6 +170,6 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
           </div>
         )}
       </div>
-    </div>
+      </div>
   );
 };

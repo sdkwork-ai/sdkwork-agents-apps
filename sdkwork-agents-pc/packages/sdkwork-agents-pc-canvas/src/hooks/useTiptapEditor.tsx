@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { parseMarkdownToBlocks } from '../utils/markdownParser';
-import { 
-  Heading1, 
-  Heading2, 
-  Heading3, 
-  List, 
-  ListOrdered, 
-  CheckSquare, 
-  Quote, 
-  Code, 
-  Info, 
-  Plus 
+import {
+  Heading1,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  CheckSquare,
+  Quote,
+  Code,
+  Info,
+  Plus
 } from 'lucide-react';
 
 interface Command {
@@ -22,8 +22,8 @@ interface Command {
 }
 
 export function useTiptapEditor(
-  content: string, 
-  onChange: (value: string) => void, 
+  content: string,
+  onChange: (value: string) => void,
   nodeId: string,
   externalMode?: 'edit' | 'preview',
   externalFontStyle?: 'sans' | 'serif' | 'mono',
@@ -74,8 +74,8 @@ export function useTiptapEditor(
     { id: 'divider', label: '分割线', desc: 'Horizontal Rule', icon: <Plus size={14} className="rotate-45" />, template: '\n---\n' }
   ];
 
-  const filteredCommands = commands.filter(cmd => 
-    cmd.label.toLowerCase().includes(slashQuery.toLowerCase()) || 
+  const filteredCommands = commands.filter(cmd =>
+    cmd.label.toLowerCase().includes(slashQuery.toLowerCase()) ||
     cmd.desc.toLowerCase().includes(slashQuery.toLowerCase()) ||
     cmd.id.toLowerCase().includes(slashQuery.toLowerCase())
   );
@@ -90,7 +90,7 @@ export function useTiptapEditor(
     if (lastSlash !== -1) {
       const before = val.slice(0, lastSlash);
       const after = val.slice(cursor);
-      
+
       let finalInsert = cmd.template;
       let newCursorPos = lastSlash + finalInsert.length;
 
@@ -134,31 +134,31 @@ export function useTiptapEditor(
         const val = textarea.value;
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
-        const nextVal = val.substring(0, start) + '  ' + val.substring(end);
+        const nextVal = val.substring(0, start) + ' ' + val.substring(end);
         onChange(nextVal);
         setTimeout(() => {
           textarea.setSelectionRange(start + 2, start + 2);
         }, 10);
       }
-    }
+      }
   };
 
   const handleTextareaKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
     const val = textarea.value;
     const cursor = textarea.selectionStart;
-    
+
     // Check for "/" triggers
     const lastSlash = val.lastIndexOf('/', cursor - 1);
     const lastNewline = val.lastIndexOf('\n', cursor - 1);
-    
+
     if (lastSlash !== -1 && lastSlash >= lastNewline) {
       const query = val.slice(lastSlash + 1, cursor);
       if (!query.includes(' ') && query.length < 10) {
         setSlashMenuOpen(true);
         setSlashQuery(query);
         setSlashIndex(0);
-        
+
         // Position dropdown inside container gracefully
         const lineCount = val.slice(0, lastSlash).split('\n').length;
         setSlashPosition({
@@ -167,7 +167,7 @@ export function useTiptapEditor(
         });
         return;
       }
-    }
+      }
     setSlashMenuOpen(false);
   };
 
@@ -196,9 +196,9 @@ export function useTiptapEditor(
     const selectionEnd = textarea.selectionEnd;
     const selectedText = val.substring(selectionStart, selectionEnd);
     const replacement = prefix + selectedText + suffix;
-    
+
     onChange(val.slice(0, selectionStart) + replacement + val.slice(selectionEnd));
-    
+
     setTimeout(() => {
       textarea.focus();
       const newCursor = selectionStart + prefix.length + selectedText.length;
@@ -210,7 +210,7 @@ export function useTiptapEditor(
   const toggleChecklistItem = (lineIdx: number) => {
     const lines = content.split('\n');
     const targetLine = lines[lineIdx];
-    
+
     if (targetLine.includes('- [ ]')) {
       lines[lineIdx] = targetLine.replace('- [ ]', '- [x]');
     } else if (targetLine.includes('- [x]')) {
@@ -220,7 +220,7 @@ export function useTiptapEditor(
     } else if (targetLine.includes('* [x]')) {
       lines[lineIdx] = targetLine.replace('* [x]', '* [ ]');
     }
-    
+
     onChange(lines.join('\n'));
   };
 

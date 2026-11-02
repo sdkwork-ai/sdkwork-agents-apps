@@ -19,7 +19,7 @@ export const UserMessageItem: React.FC<UserMessageItemProps> = ({
 
   return (
     <div className="group relative flex w-fit max-w-full flex-col items-end gap-1">
-      <div className="chat-markdown-user rounded-[20px] rounded-tr-[4px] border border-[#e8e8e8] bg-[#f4f4f4] px-4 py-3 text-[15px] leading-relaxed text-gray-900 shadow-sm dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100 sm:px-5 sm:py-3.5">
+      <div className="chat-markdown-user rounded-[20px] rounded-tr-[4px] bg-[#f4f4f4] px-4 py-3 text-[15px] leading-relaxed text-gray-900 dark:bg-[#2a2a2a] dark:text-gray-100 sm:px-5 sm:py-3.5">
         <MarkdownRenderer
           content={message.text}
           streaming={false}
@@ -39,6 +39,6 @@ export const UserMessageItem: React.FC<UserMessageItemProps> = ({
           )}
         </button>
       </div>
-    </div>
+      </div>
   );
 };

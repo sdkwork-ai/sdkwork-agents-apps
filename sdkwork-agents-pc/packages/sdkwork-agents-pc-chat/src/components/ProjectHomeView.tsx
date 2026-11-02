@@ -22,75 +22,75 @@ export const ProjectHomeView: React.FC<ProjectHomeViewProps> = ({ projectId }) =
   };
 
   return (
-    <div className="flex-1 flex justify-center w-full bg-[#f5f5f5] dark:bg-[#0d0d0d] overflow-y-auto pt-16">
+    <div className="flex-1 flex justify-center w-full bg-[var(--ag-color-background,#F4F7FC)] overflow-y-auto pt-16">
       <div className="w-full max-w-3xl px-6 flex flex-col items-center">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <Folder size={24} className="text-zinc-200" />
-            <h1 className="text-2xl font-semibold text-white">{projectName}</h1>
+            <Folder size={24} className="text-[var(--ag-color-text-secondary,#5B6B88)]" />
+            <h1 className="text-2xl font-semibold text-[var(--ag-color-text-primary,#0A1B3D)]">{projectName}</h1>
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300 text-[13px] transition-colors border border-white/5">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--ag-color-surface-muted,#EAF1FB)] hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] text-[var(--ag-color-text-secondary,#5B6B88)] text-[13px] transition-colors">
               <Share size={14} />
               分享
             </button>
-            <button className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300 transition-colors border border-white/5">
+              <button className="p-1.5 rounded-full bg-[var(--ag-color-surface-muted,#EAF1FB)] hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] text-[var(--ag-color-text-secondary,#5B6B88)] transition-colors">
               <MoreHorizontal size={16} />
             </button>
           </div>
-        </div>
-        
+          </div>
+
         {/* Search / Input Box */}
-        <div className="w-full max-w-2xl bg-[#1C1C1E] border border-white/10 rounded-2xl flex items-center px-4 py-3 shadow-sm mb-6">
-          <Plus size={20} className="text-zinc-400 mr-3" />
-          <input 
-            type="text" 
+        <div className="w-full max-w-2xl bg-[var(--ag-color-surface,#FFFFFF)] rounded-2xl flex items-center px-4 py-3 mb-6">
+          <Plus size={20} className="text-[var(--ag-color-text-secondary,#5B6B88)] mr-3" />
+          <input
+            type="text"
             placeholder={`${projectName}中的新聊天`}
-            className="flex-1 bg-transparent border-none outline-none text-white text-[15px] placeholder:text-zinc-500"
+            className="flex-1 bg-transparent outline-none text-[var(--ag-color-text-primary,#0A1B3D)] text-[15px] placeholder:text-[var(--ag-color-text-tertiary,#8A97AD)]"
           />
           <div className="flex items-center gap-3 ml-2">
-            <button className="flex items-center gap-1 text-[13px] text-zinc-400 hover:text-zinc-200 transition-colors">
+            <button className="flex items-center gap-1 text-[13px] text-[var(--ag-color-text-secondary,#5B6B88)] hover:text-[var(--ag-color-text-secondary,#5B6B88)] transition-colors">
               Instant
               <ChevronDown size={14} />
             </button>
-            <button className="text-zinc-400 hover:text-zinc-200 transition-colors">
+              <button className="text-[var(--ag-color-text-secondary,#5B6B88)] hover:text-[var(--ag-color-text-secondary,#5B6B88)] transition-colors">
               <Mic size={18} />
             </button>
-            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center cursor-pointer">
-               <SlidersHorizontal size={16} className="text-black" />
+              <div className="w-8 h-8 rounded-full bg-[var(--ag-color-primary,#165DFF)] flex items-center justify-center cursor-pointer">
+                <SlidersHorizontal size={16} className="text-[var(--ag-color-text-primary,#0A1B3D)]" />
             </div>
-          </div>
-        </div>
-        
+            </div>
+            </div>
+
         {/* Tabs */}
-        <div className="w-full max-w-2xl flex items-center gap-6 border-b border-white/5 pb-3 mb-4">
-          <button className="text-[14px] font-medium text-white px-3 py-1 bg-white/10 rounded-full">
+        <div className="w-full max-w-2xl flex items-center gap-6 pb-3 mb-4">
+          <button className="text-[14px] font-medium text-[var(--ag-color-text-primary,#0A1B3D)] px-3 py-1 bg-[var(--ag-color-surface-strong,#DCE8F9)] rounded-full">
             聊天
           </button>
-          <button className="text-[14px] font-medium text-zinc-500 hover:text-zinc-300 transition-colors">
+            <button className="text-[14px] font-medium text-[var(--ag-color-text-tertiary,#8A97AD)] hover:text-[var(--ag-color-text-primary,#0A1B3D)] transition-colors">
             来源
           </button>
         </div>
-        
+
         {/* Chat List */}
         <div className="w-full max-w-2xl flex flex-col gap-2">
           {!projectDetails ? (
-             <div className="text-center text-zinc-500 py-4">加载中...</div>
+            <div className="text-center text-[var(--ag-color-text-tertiary,#8A97AD)] py-4">加载中...</div>
           ) : (
             projectDetails.chats.map(chat => (
-              <button key={chat.id} className="w-full text-left flex justify-between items-start py-4 group hover:bg-white/5 rounded-xl px-2 -mx-2 transition-colors">
+              <button key={chat.id} className="w-full text-left flex justify-between items-start py-4 group hover:bg-[var(--ag-color-surface-muted,#EAF1FB)] rounded-xl px-2 -mx-2 transition-colors">
                 <div>
-                  <div className="text-[15px] font-medium text-white mb-1">{chat.title}</div>
-                  <div className="text-[13px] text-zinc-500 line-clamp-1">{chat.messages[0]?.text || '无内容'}</div>
+                  <div className="text-[15px] font-medium text-[var(--ag-color-text-primary,#0A1B3D)] mb-1">{chat.title}</div>
+                    <div className="text-[13px] text-[var(--ag-color-text-tertiary,#8A97AD)] line-clamp-1">{chat.messages[0]?.text || '无内容'}</div>
                 </div>
-                <span className="text-[13px] text-zinc-500 pt-0.5 group-hover:text-zinc-400 transition-colors">{formatDate(chat.updatedAt)}</span>
+                  <span className="text-[13px] text-[var(--ag-color-text-tertiary,#8A97AD)] pt-0.5 group-hover:text-[var(--ag-color-text-secondary,#5B6B88)] transition-colors">{formatDate(chat.updatedAt)}</span>
               </button>
             ))
           )}
         </div>
-      </div>
-    </div>
+        </div>
+        </div>
   );
 };

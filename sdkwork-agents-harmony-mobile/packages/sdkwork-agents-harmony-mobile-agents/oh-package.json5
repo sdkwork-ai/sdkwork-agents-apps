@@ -1,9 +1,13 @@
 {
   "name": "@sdkwork/sdkwork-agents-harmony-mobile-agents",
   "version": "0.1.0",
-  "description": "SDKWork Agents HarmonyOS mobile agents capability: agent catalog, creation, and conversation screens.",
+  "description": "SDKWork Agents HarmonyOS mobile agents capability: root route registry, agent catalog, and conversation screens.",
   "main": "src/main/ets/Index.ets",
   "author": "SDKWork",
   "license": "Apache-2.0",
-  "dependencies": {}
+  "dependencies": {
+    "@sdkwork/sdkwork-agents-harmony-mobile-core": "file:../sdkwork-agents-harmony-mobile-core",
+    "@sdkwork/sdkwork-agents-harmony-mobile-commons": "file:../sdkwork-agents-harmony-mobile-commons",
+    "@sdkwork/sdkwork-agents-harmony-mobile-shell": "file:../sdkwork-agents-harmony-mobile-shell"
+  }
 }

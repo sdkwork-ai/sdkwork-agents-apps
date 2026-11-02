@@ -51,10 +51,10 @@ const getObstacleAvoidingPath = (
 
   const obstacles = nodes.filter(node => {
     if (node.id === fromNodeId || node.id === toNodeId) return false;
-    
+
     const w = typeof node.width === 'number' && !isNaN(node.width) ? node.width : 260;
     const h = node.isCollapsed ? 36 : (typeof node.height === 'number' && !isNaN(node.height) ? node.height : 250);
-    
+
     // Add a buffer around the node to prevent close scrapes
     const buffer = 40;
     const left = node.x - buffer;
@@ -63,7 +63,7 @@ const getObstacleAvoidingPath = (
     const bottom = node.y + h + buffer;
 
     // Check if the line segment intersects any of the four buffered rectangle boundaries
-    const intersectsAnyEdge = 
+    const intersectsAnyEdge =
       lineSegmentsIntersect(startX, startY, endX, endY, left, top, right, top) ||
       lineSegmentsIntersect(startX, startY, endX, endY, left, bottom, right, bottom) ||
       lineSegmentsIntersect(startX, startY, endX, endY, left, top, left, bottom) ||
@@ -91,7 +91,7 @@ const getObstacleAvoidingPath = (
   // Find the obstacle closest to the center of the path
   const midX = (startX + endX) / 2;
   const midY = (startY + endY) / 2;
-  
+
   obstacles.sort((a, b) => {
     const aW = typeof a.width === 'number' && !isNaN(a.width) ? a.width : 260;
     const aH = a.isCollapsed ? 36 : (typeof a.height === 'number' && !isNaN(a.height) ? a.height : 250);
@@ -126,7 +126,7 @@ const getObstacleAvoidingPath = (
     } else {
       bypassX = obstacle.x + obW + bufferDist;
     }
-  }
+    }
 
   // Calculate quadratic Bezier control point
   const cpX = 2 * bypassX - 0.5 * startX - 0.5 * endX;
@@ -138,7 +138,7 @@ const getObstacleAvoidingPath = (
     cpY,
     isRouted: true
   };
-};
+  };
 
 export const CanvasConnections: React.FC<CanvasConnectionsProps> = ({
   connections,
@@ -160,20 +160,20 @@ export const CanvasConnections: React.FC<CanvasConnectionsProps> = ({
           <path d="M0,0 L6,2 L0,4" fill="#3b82f6" />
         </marker>
         <marker id="arrowhead-selected" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
-          <path d="M0,0 L6,2 L0,4" fill="#22d3ee" />
+          <path d="M0,0 L6,2 L0,4" fill="#165DFF" />
         </marker>
         <marker id="arrowhead-dragging" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
           <path d="M0,0 L6,2 L0,4" fill="#3b82f6" />
         </marker>
-        
+
         {/* Animated Gradient for Data Flow */}
         <linearGradient id="flow-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
-          <stop offset="50%" stopColor="#22d3ee" stopOpacity="1" />
+          <stop offset="50%" stopColor="#165DFF" stopOpacity="1" />
           <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.8" />
         </linearGradient>
       </defs>
-      
+
       {connections.map(conn => {
         const fromNode = nodes.find(n => n.id === conn.fromNodeId);
         const toNode = nodes.find(n => n.id === conn.toNodeId);
@@ -185,12 +185,12 @@ export const CanvasConnections: React.FC<CanvasConnectionsProps> = ({
 
         const startX = fromNode.x + fromW;
         const startY = fromNode.y + (fromH / 2);
-        
+
         const endX = toNode.x;
         const endY = toNode.y + (toH / 2);
 
         const isSelected = selectedConnectionId === conn.id;
-        
+
         // Check if either node is actively generating to enhance the flow line
         const isGenerating = fromNode.status === 'generating' || toNode.status === 'generating';
 
@@ -207,8 +207,8 @@ export const CanvasConnections: React.FC<CanvasConnectionsProps> = ({
         );
 
         return (
-          <g 
-            key={conn.id} 
+          <g
+            key={conn.id}
             className="group cursor-pointer pointer-events-auto"
             onClick={(e) => onSelectConnection(e, conn.id)}
             onContextMenu={(e) => onContextMenuConnection?.(e, conn.id)}
@@ -221,26 +221,26 @@ export const CanvasConnections: React.FC<CanvasConnectionsProps> = ({
               strokeWidth={20}
               className="transition-colors"
             />
-            
+
             {/* Background path to show the track */}
             <path
               d={pathData}
               fill="none"
-              stroke={isSelected ? '#22d3ee' : '#27272a'}
+              stroke={isSelected ? '#165DFF' : '#27272a'}
               strokeWidth={isSelected ? 4 : 2}
-              className={isSelected ? "drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" : "transition-colors"}
+              className={isSelected ? "" : "transition-colors"}
             />
 
             {/* Foreground path for the animated data flow dashes */}
             <path
               d={pathData}
               fill="none"
-              stroke={isGenerating ? "url(#flow-gradient)" : isSelected ? '#22d3ee' : '#3b82f6'}
+              stroke={isGenerating ? "url(#flow-gradient)" : isSelected ? '#165DFF' : '#3b82f6'}
               strokeWidth={isSelected ? 4 : 2}
               markerEnd={isSelected || isGenerating ? "url(#arrowhead-selected)" : "url(#arrowhead)"}
               className={cn(
                 "transition-all duration-300",
-                (isGenerating || isSelected) ? "opacity-100 flow-line-animated drop-shadow-[0_0_5px_rgba(34,211,238,0.6)]" : "opacity-60 hover:opacity-100",
+                (isGenerating || isSelected) ? "opacity-100 flow-line-animated" : "opacity-60 hover:opacity-100",
                 !isGenerating && !isSelected && "flow-line-animated-slow"
               )}
             />
@@ -250,13 +250,13 @@ export const CanvasConnections: React.FC<CanvasConnectionsProps> = ({
               cx={cpX}
               cy={cpY}
               r={6}
-              fill={isSelected ? "#22d3ee" : "#3b82f6"}
+              fill={isSelected ? "#165DFF" : "#3b82f6"}
               stroke="#0d0d0e"
               strokeWidth={2}
               className={cn(
                 "cursor-grab active:cursor-grabbing pointer-events-auto transition-all hover:scale-150 z-50",
                 isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100 scale-90 hover:opacity-100",
-                draggingConnectionId === conn.id && "scale-150 fill-cyan-400 animate-pulse"
+                draggingConnectionId === conn.id && "scale-150 fill-[#4080FF] animate-pulse"
               )}
               onMouseDown={(e) => {
                 e.stopPropagation();
@@ -278,17 +278,17 @@ export const CanvasConnections: React.FC<CanvasConnectionsProps> = ({
       {activePortDrag && (
         <path
           d={
-            activePortDrag.type === 'output' 
+            activePortDrag.type === 'output'
               ? calculateBezierPath(activePortDrag.startX, activePortDrag.startY, portDragCurrentPos.x, portDragCurrentPos.y)
               : calculateBezierPath(portDragCurrentPos.x, portDragCurrentPos.y, activePortDrag.startX, activePortDrag.startY)
           }
           fill="none"
-          stroke={snappingTargetNodeId ? '#22d3ee' : '#3b82f6'}
+          stroke={snappingTargetNodeId ? '#165DFF' : '#3b82f6'}
           strokeWidth={snappingTargetNodeId ? 4 : 2}
           markerEnd={snappingTargetNodeId ? "url(#arrowhead-selected)" : "url(#arrowhead-dragging)"}
           className={cn(
             "flow-line-animated",
-            snappingTargetNodeId ? "drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]" : "opacity-80"
+            snappingTargetNodeId ? "" : "opacity-80"
           )}
         />
       )}

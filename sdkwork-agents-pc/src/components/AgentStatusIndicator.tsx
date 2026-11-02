@@ -9,7 +9,7 @@ export const AgentStatusIndicator = () => {
   const { connectionStatus, agentState, agentName, addEvent } = useAgentState();
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  
+
   // Track previous states to emit events on change
   const prevConnectionStatus = useRef(connectionStatus);
   const prevAgentState = useRef(agentState);

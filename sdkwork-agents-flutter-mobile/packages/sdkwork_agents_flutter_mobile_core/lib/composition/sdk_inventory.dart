@@ -4,4 +4,5 @@ const List<String> sdkworkAgentsFlutterCoreSdkInventory = <String>[
   'sdkwork-agents-app-sdk',
 ];
 
-List<String> listSdkworkCoreSdkInventory() => sdkworkAgentsFlutterCoreSdkInventory;
+List<String> listSdkworkCoreSdkInventory() =>
+    sdkworkAgentsFlutterCoreSdkInventory;

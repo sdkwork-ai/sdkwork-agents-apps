@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-agents-harmony-mobile-creative",
+    "displayName": "SDKWork Agents HarmonyOS Mobile Creative",
+    "version": "0.1.0",
+    "type": "arkts-package",
+    "root": "apps/sdkwork-agents-harmony-mobile/packages/sdkwork-agents-harmony-mobile-creative",
+    "domain": "agents",
+    "capability": "creative",
+    "surface": "app",
+    "languages": [
+      "arkts"
+    ],
+    "generated": false,
+    "manifests": [
+      "oh-package.json5",
+      "specs/component.spec.json"
+    ]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "path": "../../../../../sdkwork-specs/HARMONY_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "purpose": "HarmonyOS mobile application root architecture."
+    },
+    {
+      "file": "APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md",
+      "purpose": "Cross-client package taxonomy and route identity."
+    },
+    {
+      "file": "APP_HARMONY_NATIVE_UI_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_HARMONY_NATIVE_UI_SPEC.md",
+      "purpose": "Harmony native ArkUI capability package rules."
+    },
+    {
+      "file": "I18N_SPEC.md",
+      "path": "../../../../../sdkwork-specs/I18N_SPEC.md",
+      "purpose": "Runtime locale and message catalog rules."
+    }
+  ],
+  "contracts": {
+    "layerRole": "frontend-feature",
+    "publicExports": [
+      "Index.ets"
+    ],
+    "sdkClients": [],
+    "sdkDependencies": [],
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": [],
+    "providedPorts": [
+      {
+        "name": "agentsHarmonyCreativeViews",
+        "export": "Index.ets"
+      }
+    ],
+    "requiredPorts": [
+      {
+        "name": "agentsHarmonyCommons",
+        "package": "@sdkwork/sdkwork-agents-harmony-mobile-commons",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyShell",
+        "package": "@sdkwork/sdkwork-agents-harmony-mobile-shell",
+        "export": "Index.ets"
+      }
+    ]
+  },
+  "verification": {
+    "commands": [
+      "node ../sdkwork-specs/tools/check-frontend-composition.mjs --root ."
+    ]
+  }
+}

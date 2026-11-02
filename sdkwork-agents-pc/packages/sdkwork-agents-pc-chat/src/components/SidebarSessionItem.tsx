@@ -73,19 +73,19 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
       }}
       className={cn(
         "group flex items-center justify-between gap-2 rounded-[8px] cursor-pointer transition-all px-2.5 py-2.5 text-[13px] w-full relative",
-        currentSessionId === session.id 
-          ? "bg-[#27272A] text-white font-medium shadow-sm ring-1 ring-white/5" 
-          : "hover:bg-[#27272A]/50 text-zinc-400 hover:text-zinc-100"
+        currentSessionId === session.id
+        ? "bg-[#27272A] text-white font-medium"
+        : "hover:bg-[#27272A]/50 text-[var(--ag-color-rail-text-muted,#7F91B0)] hover:text-[var(--ag-color-rail-text,#C9D6EA)]"
       )}
     >
       <div className="flex items-center gap-2.5 truncate flex-1 min-w-0 pr-10 relative">
         <div className={cn(
-          "w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-[10px] font-bold shadow-sm transition-colors", 
-          currentSessionId === session.id ? "bg-[#3f3f46] text-white" : "bg-[#27272A] text-zinc-400 group-hover:bg-[#3f3f46] group-hover:text-white"
+          "w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-[10px] font-bold transition-colors",
+          currentSessionId === session.id ? "bg-[#3f3f46] text-white" : "bg-[#27272A] text-[var(--ag-color-rail-text-muted,#7F91B0)] group-hover:bg-[#3f3f46] group-hover:text-white"
         )}>
           {session.title.substring(0, 1).toUpperCase()}
         </div>
-        
+
         {isEditingTitle ? (
           <input
             ref={inputRef}
@@ -97,19 +97,13 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
               if (e.key === 'Escape') handleCancelRename(e);
             }}
             onClick={e => e.stopPropagation()}
-            className="flex-1 bg-[#1a1a1c] border border-[#1890ff] text-white text-[13px] rounded px-1.5 py-0.5 outline-none w-full"
+            className="flex-1 bg-[#1a1a1c] text-white text-[13px] rounded px-1.5 py-0.5 outline-none w-full"
           />
         ) : (
-          <>
             <span className="truncate flex-1 z-10">{session.title}</span>
-            <div className={cn(
-              "absolute right-0 top-0 bottom-0 w-8 z-20 transition-all",
-              currentSessionId === session.id ? "bg-gradient-to-l from-[#27272A] to-transparent" : "opacity-0 group-hover:opacity-100 bg-gradient-to-l from-[#1C1C1E] group-hover:from-[#212124] to-transparent border-none"
-            )} />
-          </>
         )}
       </div>
-      
+
       {!isEditingTitle && (
         <div className="absolute right-2 top-2.5 flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity z-30">
           <button
@@ -117,11 +111,11 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
               e.stopPropagation();
               togglePin(e, session.id);
             }}
-            className="p-1 rounded text-zinc-400 hover:text-amber-400 hover:bg-zinc-700/50 transition-colors"
+            className="p-1 rounded text-[var(--ag-color-rail-text-muted,#7F91B0)] hover:text-amber-400 hover:bg-zinc-700/50 transition-colors"
             title={isPinned ? t('unpinChat') : t('pinChat')}
           >
             {isPinned ? (
-              <Pin size={12} className="fill-zinc-400 text-zinc-400 hover:fill-amber-400 hover:text-amber-400" />
+              <Pin size={12} className="fill-zinc-400 text-[var(--ag-color-rail-text-muted,#7F91B0)] hover:fill-amber-400 hover:text-amber-400" />
             ) : (
               <Pin size={12} />
             )}
@@ -129,7 +123,7 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
           <div className="relative">
             <button
               onClick={(e) => handleDropdownClick(e, session.id)}
-              className="p-1 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
+              className="p-1 rounded text-[var(--ag-color-rail-text-muted,#7F91B0)] hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
             >
               <MoreHorizontal size={14} />
             </button>
@@ -151,7 +145,7 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
               />
             )}
           </div>
-        </div>
+          </div>
       )}
     </div>
   );

@@ -44,7 +44,40 @@
     "sdkClients": [],
     "sdkDependencies": [],
     "dependencyApiExports": [],
-    "dependencyApiSurfaces": []
+    "dependencyApiSurfaces": [],
+    "providedPorts": [
+      {
+        "name": "agentsHarmonyRouteRegistry",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyRouteStack",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyNavigation",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyTabModel",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyShellState",
+        "export": "Index.ets"
+      },
+      {
+        "name": "agentsHarmonyShellMessages",
+        "export": "Index.ets"
+      }
+    ],
+    "requiredPorts": [
+      {
+        "name": "agentsHarmonyCommons",
+        "package": "@sdkwork/sdkwork-agents-harmony-mobile-commons",
+        "export": "Index.ets"
+      }
+    ]
   },
   "verification": {
     "commands": [

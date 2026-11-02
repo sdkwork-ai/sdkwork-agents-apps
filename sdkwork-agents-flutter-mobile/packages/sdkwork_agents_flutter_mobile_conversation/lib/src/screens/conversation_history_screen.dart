@@ -39,7 +39,8 @@ class _AgentsConversationHistoryScreenState
     final title = await showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text(widget.translate('agents.conversation.sessions.renameTitle')),
+        title:
+            Text(widget.translate('agents.conversation.sessions.renameTitle')),
         content: TextField(controller: controller, autofocus: true),
         actions: <Widget>[
           TextButton(
@@ -63,7 +64,8 @@ class _AgentsConversationHistoryScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        content: Text(widget.translate('agents.conversation.sessions.deleteConfirm')),
+        content: Text(
+            widget.translate('agents.conversation.sessions.deleteConfirm')),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -71,7 +73,8 @@ class _AgentsConversationHistoryScreenState
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(widget.translate('agents.conversation.sessions.delete')),
+            child:
+                Text(widget.translate('agents.conversation.sessions.delete')),
           ),
         ],
       ),
@@ -84,21 +87,25 @@ class _AgentsConversationHistoryScreenState
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final TechBlueThemeColors colors = techBlueThemeColors(context);
     return Scaffold(
-      backgroundColor: const Color(SdkworkAgentsFlutterTokens.colorBackground),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: <Widget>[
           SdkworkAgentsMobileAppBar(
             title: widget.translate('agents.conversation.sessions.title'),
             leading: Icons.arrow_back,
-            onLeadingPressed: widget.onClose ?? () => Navigator.of(context).maybePop(),
+            onLeadingPressed:
+                widget.onClose ?? () => Navigator.of(context).maybePop(),
           ),
           if (state.loadingSessions)
             const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (state.sessions.isEmpty)
             Expanded(
               child: SdkworkAgentsEmptyState(
-                headline: widget.translate('agents.conversation.sessions.empty'),
+                headline:
+                    widget.translate('agents.conversation.sessions.empty'),
                 glyph: '▣',
               ),
             )
@@ -106,17 +113,21 @@ class _AgentsConversationHistoryScreenState
             Expanded(
               child: ListView.separated(
                 itemCount: state.sessions.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
+                separatorBuilder: (_, __) => const SizedBox(height: 4),
                 itemBuilder: (BuildContext context, int index) {
                   final session = state.sessions[index];
                   final active = session.id == state.activeSessionId;
                   return ListTile(
                     title: Text(session.title),
                     subtitle: Text(
-                      DateTime.fromMillisecondsSinceEpoch(session.updatedAtMillis)
+                      DateTime.fromMillisecondsSinceEpoch(
+                              session.updatedAtMillis)
                           .toLocal()
                           .toString(),
-                      style: const TextStyle(fontSize: 12),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                     selected: active,
                     onTap: () => widget.onSelect(session),
@@ -124,12 +135,16 @@ class _AgentsConversationHistoryScreenState
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         IconButton(
-                          tooltip: widget.translate('agents.conversation.sessions.rename'),
+                          tooltip: widget
+                              .translate('agents.conversation.sessions.rename'),
+                          color: colors.iconDefault,
                           onPressed: () => _promptRename(session),
                           icon: const Icon(Icons.edit_outlined, size: 18),
                         ),
                         IconButton(
-                          tooltip: widget.translate('agents.conversation.sessions.delete'),
+                          tooltip: widget
+                              .translate('agents.conversation.sessions.delete'),
+                          color: colors.dangerText,
                           onPressed: () => _promptDelete(session),
                           icon: const Icon(Icons.delete_outline, size: 18),
                         ),

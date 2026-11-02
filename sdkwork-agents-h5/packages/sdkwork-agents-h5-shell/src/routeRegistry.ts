@@ -31,18 +31,34 @@ export interface AgentsH5RouteContribution {
 /** Route ids, aligned across the H5, mini program, Flutter, and Harmony roots. */
 export const CONVERSATION_CHAT_ROUTE_ID = "app.agents.conversation.chat" as const;
 export const AGENT_CATALOG_LIST_ROUTE_ID = "app.agents.catalog.list" as const;
+export const AGENT_CATALOG_EDITOR_ROUTE_ID = "app.agents.catalog.editor" as const;
 export const CONVERSATION_LIST_ROUTE_ID = "app.agents.conversation.list" as const;
+export const INSPIRATION_DISCOVER_ROUTE_ID = "app.agents.inspiration.discover" as const;
+export const CREATIVE_STUDIO_ROUTE_ID = "app.agents.creative.studio" as const;
+export const ASSETS_LIST_ROUTE_ID = "app.agents.assets.list" as const;
+export const ASSETS_DETAIL_ROUTE_ID = "app.agents.assets.detail" as const;
+export const CANVAS_BOARD_ROUTE_ID = "app.agents.canvas.board" as const;
+export const MEMBERSHIP_CATALOG_ROUTE_ID = "app.agents.membership.catalog" as const;
+export const PROFILE_INDEX_ROUTE_ID = "app.agents.profile.index" as const;
 export const LIBRARY_LIST_ROUTE_ID = "app.agents.library.list" as const;
 export const AUTOMATION_INDEX_ROUTE_ID = "app.agents.automation.index" as const;
 export const PROJECTS_LIST_ROUTE_ID = "app.agents.projects.list" as const;
+export const SETTINGS_INDEX_ROUTE_ID = "app.agents.settings.index" as const;
 
 /** Physical H5 paths for the mobile surfaces. */
 export const CONVERSATION_PATH = "/" as const;
 export const CONVERSATION_LIST_PATH = "/conversation/history" as const;
 export const EXPERTS_PATH = "/experts" as const;
+export const INSPIRATION_PATH = "/inspiration" as const;
+export const CREATIVE_PATH = "/creative" as const;
+export const ASSETS_PATH = "/assets" as const;
+export const CANVAS_PATH = "/canvas" as const;
+export const MEMBERSHIP_PATH = "/membership" as const;
+export const PROFILE_PATH = "/profile" as const;
 export const LIBRARY_PATH = "/library" as const;
 export const AUTOMATION_PATH = "/automation" as const;
 export const PROJECTS_PATH = "/projects" as const;
+export const SETTINGS_PATH = "/settings" as const;
 
 /**
  * Assembles the root route registry from the contributions published by the

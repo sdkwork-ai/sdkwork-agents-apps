@@ -1,26 +1,32 @@
 /**
  * Bottom tab descriptors for the Agents mini program shell.
  *
- * The tab set and the route id behind each tab are identical to the H5 and
- * Flutter mobile roots; only the physical page path differs
- * (`APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md` sections 4 and 7).
+ * The tab set and the route id behind each tab are identical to the PC
+ * workbench sidebar's primary surfaces and to the H5 and Flutter mobile roots;
+ * only the physical page path differs
+ * (`APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md` sections 4 and 7,
+ * `specs/client-page-parity.spec.json` `navigation.mobileBottomTabs`).
+ *
+ * Secondary surfaces (projects, library, automation, history, settings,
+ * membership) stay registered as normal pages and are reached from the profile
+ * surface instead of consuming a tab slot.
  */
 
 import {
-  AGENTS_MP_AUTOMATION_INDEX_ROUTE_ID,
+  AGENTS_MP_ASSETS_LIST_ROUTE_ID,
+  AGENTS_MP_ASSETS_PAGE,
   AGENTS_MP_CATALOG_LIST_ROUTE_ID,
   AGENTS_MP_CONVERSATION_CHAT_ROUTE_ID,
-  AGENTS_MP_LIBRARY_LIST_ROUTE_ID,
-  AGENTS_MP_PROJECTS_LIST_ROUTE_ID,
-  AGENTS_MP_AUTOMATION_PAGE,
   AGENTS_MP_CONVERSATION_PAGE,
+  AGENTS_MP_CREATIVE_PAGE,
+  AGENTS_MP_CREATIVE_STUDIO_ROUTE_ID,
   AGENTS_MP_EXPERTS_PAGE,
-  AGENTS_MP_LIBRARY_PAGE,
-  AGENTS_MP_PROJECTS_PAGE,
+  AGENTS_MP_INSPIRATION_DISCOVER_ROUTE_ID,
+  AGENTS_MP_INSPIRATION_PAGE,
 } from "./routeRegistry";
 
 /** Stable tab identifiers shared by every mobile root. */
-export type AgentsMpTabId = "tasks" | "experts" | "library" | "automation" | "projects";
+export type AgentsMpTabId = "chat" | "inspiration" | "creative" | "assets" | "agents";
 
 export interface AgentsMpTabDescriptor {
   readonly tab: AgentsMpTabId;
@@ -46,41 +52,45 @@ function toTab(
   return { tab, routeId, pagePath, url: `/${pagePath}`, labelKey, glyph };
 }
 
+/**
+ * The five PC-primary surfaces, in the contract's order:
+ * 对话, 灵感, 生成, 资产, Agent.
+ */
 export const AGENTS_MP_TABS: readonly AgentsMpTabDescriptor[] = [
   toTab(
-    "tasks",
+    "chat",
     AGENTS_MP_CONVERSATION_CHAT_ROUTE_ID,
     AGENTS_MP_CONVERSATION_PAGE,
     "agents.mobile.tab.tasks",
     "message-square",
   ),
   toTab(
-    "experts",
+    "inspiration",
+    AGENTS_MP_INSPIRATION_DISCOVER_ROUTE_ID,
+    AGENTS_MP_INSPIRATION_PAGE,
+    "agents.mobile.tab.inspiration",
+    "sparkles",
+  ),
+  toTab(
+    "creative",
+    AGENTS_MP_CREATIVE_STUDIO_ROUTE_ID,
+    AGENTS_MP_CREATIVE_PAGE,
+    "agents.mobile.tab.creative",
+    "palette",
+  ),
+  toTab(
+    "assets",
+    AGENTS_MP_ASSETS_LIST_ROUTE_ID,
+    AGENTS_MP_ASSETS_PAGE,
+    "agents.mobile.tab.assets",
+    "image",
+  ),
+  toTab(
+    "agents",
     AGENTS_MP_CATALOG_LIST_ROUTE_ID,
     AGENTS_MP_EXPERTS_PAGE,
     "agents.mobile.tab.experts",
     "infinity",
-  ),
-  toTab(
-    "library",
-    AGENTS_MP_LIBRARY_LIST_ROUTE_ID,
-    AGENTS_MP_LIBRARY_PAGE,
-    "agents.mobile.tab.library",
-    "book-open",
-  ),
-  toTab(
-    "automation",
-    AGENTS_MP_AUTOMATION_INDEX_ROUTE_ID,
-    AGENTS_MP_AUTOMATION_PAGE,
-    "agents.mobile.tab.automation",
-    "timer",
-  ),
-  toTab(
-    "projects",
-    AGENTS_MP_PROJECTS_LIST_ROUTE_ID,
-    AGENTS_MP_PROJECTS_PAGE,
-    "agents.mobile.tab.projects",
-    "share-2",
   ),
 ];
 
@@ -100,6 +110,9 @@ export function resolveAgentsMpTabByRouteId(routeId: string): AgentsMpTabDescrip
  */
 const TAB_GLYPH_SYMBOLS: Record<string, string> = {
   "message-square": "▣",
+  sparkles: "✦",
+  palette: "◒",
+  image: "▨",
   infinity: "∞",
   "book-open": "▤",
   timer: "◷",

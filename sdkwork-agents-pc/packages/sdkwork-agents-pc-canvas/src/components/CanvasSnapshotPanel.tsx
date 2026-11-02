@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Camera, 
-  Trash2, 
-  Plus, 
-  Bookmark, 
-  Play, 
-  Edit2, 
-  Check, 
-  X, 
-  Download, 
-  Upload, 
+import {
+  Camera,
+  Trash2,
+  Plus,
+  Bookmark,
+  Play,
+  Edit2,
+  Check,
+  X,
+  Download,
+  Upload,
   History,
   FileJson
 } from 'lucide-react';
@@ -88,7 +88,7 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
   // Create Snapshot
   const handleCreateSnapshot = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    
+
     const trimmedName = newSnapshotName.trim();
     const finalName = trimmedName || `快照 #${snapshots.length + 1} (${new Date().toLocaleTimeString()})`;
 
@@ -200,16 +200,16 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
   if (!showSnapshots) return null;
 
   return (
-    <div className="absolute top-[84px] right-6 w-80 bg-[#141416]/95 border border-white/10 backdrop-blur-md p-5 rounded-2xl shadow-2xl z-40 select-none flex flex-col max-h-[calc(100vh-120px)] animate-in slide-in-from-right duration-200">
+    <div className="absolute top-[84px] right-6 w-80 bg-[#141416]/95 backdrop-blur-md p-5 rounded-2xl z-40 select-none flex flex-col max-h-[calc(100vh-120px)] animate-in slide-in-from-right duration-200">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4 shrink-0">
+      <div className="flex items-center justify-between pb-3 mb-4 shrink-0">
         <div className="flex items-center gap-2">
           <span className="p-1 rounded bg-amber-500/10 text-amber-400">
             <Camera size={14} />
           </span>
           <span className="text-[13px] font-extrabold text-zinc-100 tracking-wide">快照书签管理</span>
         </div>
-        <button 
+        <button
           onClick={() => setShowSnapshots(false)}
           className="text-xs text-zinc-500 hover:text-zinc-300 bg-white/5 hover:bg-white/10 px-2 py-1 rounded cursor-pointer transition-colors"
         >
@@ -229,11 +229,11 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
           placeholder="给当前进度起个名字..."
           value={newSnapshotName}
           onChange={(e) => setNewSnapshotName(e.target.value)}
-          className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-cyan-500/50 transition-colors"
+          className="flex-1 bg-black/40 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none transition-colors"
         />
         <button
           type="submit"
-          className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white p-2 rounded-xl flex items-center justify-center transition-all cursor-pointer shadow-[0_4px_12px_rgba(6,182,212,0.15)] shrink-0"
+          className="bg-[var(--ag-color-primary,#165DFF)] text-white p-2 rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0"
           title="保存当前快照"
         >
           <Plus size={16} />
@@ -241,16 +241,16 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
       </form>
 
       {/* Action utilities (Export/Import) */}
-      <div className="flex gap-2 mb-4 text-[10px] shrink-0 border-b border-white/5 pb-3">
+      <div className="flex gap-2 mb-4 text-[10px] shrink-0 pb-3">
         <button
           onClick={handleExportSnapshots}
-          className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
+          className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
         >
           <Download size={11} />
           <span>导出备份</span>
         </button>
         <label
-          className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer transition-colors text-center"
+          className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer transition-colors text-center"
         >
           <Upload size={11} />
           <span>导入备份</span>
@@ -274,7 +274,7 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
           snapshots.map((snap) => {
             const hasGroups = snap.groups && snap.groups.length > 0;
             const hasConnections = snap.connections && snap.connections.length > 0;
-            
+
             // Count type frequencies
             const counts = { text: 0, image: 0, video: 0, sticky: 0 };
             snap.nodes.forEach(n => {
@@ -285,9 +285,9 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
             });
 
             return (
-              <div 
-                key={snap.id} 
-                className="group p-3 bg-white/5 hover:bg-white/[0.08] border border-white/5 hover:border-white/10 rounded-xl transition-all duration-200"
+              <div
+                key={snap.id}
+                className="group p-3 bg-white/5 hover:bg-white/[0.08] rounded-xl transition-all duration-200"
               >
                 {/* Name / Rename Section */}
                 <div className="flex items-start justify-between gap-2 mb-1.5">
@@ -297,16 +297,16 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
                         type="text"
                         value={editingName}
                         onChange={(e) => setEditingName(e.target.value)}
-                        className="flex-1 bg-black/60 border border-cyan-500/40 rounded px-1.5 py-0.5 text-xs text-white focus:outline-none focus:border-cyan-500"
+                        className="flex-1 bg-black/60 rounded px-1.5 py-0.5 text-xs text-white focus:outline-none"
                         autoFocus
                       />
-                      <button 
+                      <button
                         onClick={() => saveNameEdit(snap.id)}
                         className="text-emerald-400 hover:text-emerald-300 p-0.5"
                       >
                         <Check size={12} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => setEditingId(null)}
                         className="text-zinc-500 hover:text-zinc-400 p-0.5"
                       >
@@ -315,7 +315,7 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
                     </div>
                   ) : (
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-bold text-zinc-200 truncate group-hover:text-cyan-400 transition-colors">
+                      <h4 className="text-xs font-bold text-zinc-200 truncate group-hover:text-[#4080FF] transition-colors">
                         {snap.name}
                       </h4>
                       <span className="text-[9px] text-zinc-500 block mt-0.5">
@@ -350,7 +350,7 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
                     卡片: {snap.nodes.length}
                   </span>
                   {hasConnections && (
-                    <span className="px-1.5 py-0.5 rounded bg-cyan-950/40 text-cyan-400 text-[9px] font-medium">
+                    <span className="px-1.5 py-0.5 rounded bg-[#0A1B3D]/40 text-[#4080FF] text-[9px] font-medium">
                       连线: {snap.connections.length}
                     </span>
                   )}
@@ -362,28 +362,28 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
                 </div>
 
                 {/* Nodes breakdown row */}
-                <div className="flex items-center gap-2 border-t border-white/5 pt-2 mt-2 shrink-0">
+                <div className="flex items-center gap-2 pt-2 mt-2 shrink-0">
                   <div className="flex-1 flex gap-2 text-[9px] text-zinc-500">
                     {counts.text > 0 && <span>文本:{counts.text}</span>}
                     {counts.image > 0 && <span className="text-teal-500">图片:{counts.image}</span>}
                     {counts.video > 0 && <span className="text-purple-400">视频:{counts.video}</span>}
                     {counts.sticky > 0 && <span className="text-yellow-500">便签:{counts.sticky}</span>}
                   </div>
-                  
+
                   {/* Restore CTA */}
                   <button
                     onClick={() => handleRestore(snap)}
-                    className="px-2 py-1 rounded bg-cyan-500/10 hover:bg-cyan-500 hover:text-black text-cyan-400 flex items-center gap-1 text-[10px] font-bold cursor-pointer transition-all"
+                    className="px-2 py-1 rounded bg-[#165DFF]/10 hover:bg-[#165DFF] hover:text-white text-[#4080FF] flex items-center gap-1 text-[10px] font-bold cursor-pointer transition-all"
                   >
                     <Play size={10} className="fill-current shrink-0" />
                     <span>恢复此进度</span>
                   </button>
                 </div>
-              </div>
+                </div>
             );
           })
         )}
       </div>
-    </div>
+      </div>
   );
 };

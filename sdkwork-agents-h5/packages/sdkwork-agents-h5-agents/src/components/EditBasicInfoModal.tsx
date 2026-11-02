@@ -122,14 +122,14 @@ export const EditBasicInfoModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-scrim,rgba(10,27,61,0.45))]">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-[480px] bg-[#222] border border-white/10 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+        className="w-[480px] bg-[var(--color-surface-color,#FFFFFF)] rounded-xl flex flex-col overflow-hidden"
       >
-        <div className="flex items-center justify-between p-4 border-b border-white/5 bg-[#1a1a1a]">
-          <h3 className="font-medium text-gray-200">编辑基础信息</h3>
+        <div className="flex items-center justify-between p-4 bg-[var(--color-surface-color,#FFFFFF)]">
+          <h3 className="font-medium text-[var(--color-text-primary,#0A1B3D)]">编辑基础信息</h3>
         </div>
         <div className="p-6 space-y-4">
           <div className="flex flex-col items-center justify-center mb-2">
@@ -143,20 +143,20 @@ export const EditBasicInfoModal: React.FC<{
             />
           </div>
           <div>
-             <label className="block text-sm text-gray-400 mb-1.5">智能体名称</label>
-             <input type="text" value={tempName} onChange={e => setTempName(e.target.value)} className="w-full bg-[#181818] border border-white/5 rounded-lg py-2.5 px-3 text-sm text-gray-200 outline-none focus:border-white/20 transition-colors" />
+             <label className="block text-sm text-[var(--color-text-secondary,#5B6B88)] mb-1.5">智能体名称</label>
+             <input type="text" value={tempName} onChange={e => setTempName(e.target.value)} className="w-full bg-[var(--color-input-bg,#EAF1FB)] rounded-lg py-2.5 px-3 text-sm text-[var(--color-text-primary,#0A1B3D)] outline-none transition-colors" />
           </div>
           <div>
-             <label className="block text-sm text-gray-400 mb-1.5">简介</label>
-             <textarea value={tempDesc} onChange={e => setTempDesc(e.target.value)} className="w-full bg-[#181818] border border-white/5 rounded-lg py-2.5 px-3 text-sm text-gray-200 outline-none focus:border-white/20 h-20 resize-none transition-colors custom-scrollbar" />
+             <label className="block text-sm text-[var(--color-text-secondary,#5B6B88)] mb-1.5">简介</label>
+             <textarea value={tempDesc} onChange={e => setTempDesc(e.target.value)} className="w-full bg-[var(--color-input-bg,#EAF1FB)] rounded-lg py-2.5 px-3 text-sm text-[var(--color-text-primary,#0A1B3D)] outline-none h-20 resize-none transition-colors custom-scrollbar" />
           </div>
         </div>
-        <div className="flex justify-end gap-2 p-4 border-t border-white/5 bg-[#1a1a1a]">
-          <button onClick={onClose} className="px-4 py-2 rounded bg-white/5 text-gray-300 hover:bg-white/10 transition-colors text-sm">取消</button>
+        <div className="flex justify-end gap-2 p-4 bg-[var(--color-surface-color,#FFFFFF)]">
+          <button onClick={onClose} className="px-4 py-2 rounded bg-[var(--color-surface-muted,#EAF1FB)] text-[var(--color-text-primary,#0A1B3D)] hover:bg-[var(--color-surface-strong,#DCE8F9)] transition-colors text-sm">取消</button>
           <button
             disabled={!tempName.trim() || avatarSnapshot.isUploading || anchoringAvatar}
             onClick={() => void handleSave()}
-            className="px-4 py-2 rounded bg-[#00b42a] hover:bg-[#009a24] disabled:bg-[#00b42a]/50 text-white transition-colors text-sm"
+            className="px-4 py-2 rounded bg-[var(--color-success,#00B42A)] hover:bg-[var(--color-success,#00B42A)] disabled:bg-[var(--color-success,#00B42A)]/50 text-white transition-colors text-sm"
           >{avatarSnapshot.isUploading || anchoringAvatar ? '上传中' : '保存'}</button>
         </div>
       </motion.div>

@@ -1,0 +1,7 @@
+# Release signing for the SDKWork Agents Flutter Android app.
+# Copy to `android/key.properties` and fill in the real keystore. The file is
+# gitignored; never commit the keystore or its passwords.
+storePassword=REPLACE_ME
+keyPassword=REPLACE_ME
+keyAlias=REPLACE_ME
+storeFile=../keystore/sdkwork-agents-release.jks

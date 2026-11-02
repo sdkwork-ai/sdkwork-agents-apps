@@ -32,20 +32,19 @@ function ToolCallCard({ call }: { call: ConversationToolCall }) {
     <div
       className={cn(
         "mt-2 flex items-center gap-2 rounded-xl px-3 py-2 text-[12px]",
-        "bg-[var(--color-surface-color,#ffffff)]",
-        "border border-[var(--color-border-color,rgba(0,0,0,0.06))]",
+        "bg-[var(--color-surface-muted,#EAF1FB)]",
       )}
     >
-      <Wrench size={13} aria-hidden="true" className="shrink-0 text-[var(--color-text-sub,#8c8c8c)]" />
-      <span className="min-w-0 flex-1 truncate font-medium text-[var(--color-text-main,#1f1f1f)]">
+      <Wrench size={13} aria-hidden="true" className="shrink-0 text-[var(--color-text-sub,#5B6B88)]" />
+      <span className="min-w-0 flex-1 truncate font-medium text-[var(--color-text-main,#0A1B3D)]">
         {call.name ?? call.id}
       </span>
       <span
         className={cn(
           "shrink-0",
           call.status === "error"
-            ? "text-[var(--color-danger,#dc2626)]"
-            : "text-[var(--color-text-sub,#8c8c8c)]",
+            ? "text-[var(--color-danger,#F53F3F)]"
+            : "text-[var(--color-text-sub,#5B6B88)]",
         )}
       >
         {toolStatusLabel(call)}
@@ -87,7 +86,7 @@ function CopyButton({ text }: { text: string }) {
       aria-label={translateAgentsConversationText("agents.conversation.message.copy")}
       className={cn(
         "mt-1 flex items-center gap-1 self-start text-[11px] transition",
-        "text-[var(--color-text-sub,#8c8c8c)] active:scale-95",
+        "text-[var(--color-text-sub,#5B6B88)] active:scale-95",
       )}
     >
       {copied ? <Check size={12} /> : <Copy size={12} />}
@@ -106,21 +105,20 @@ function AssistantMessage({ message }: { message: ConversationMessage }) {
       <div
         className={cn(
           "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
-          "bg-[var(--color-surface-color,#ffffff)]",
+          "bg-[var(--color-primary-subtle,#E8F0FF)]",
         )}
       >
-        <Bot size={15} aria-hidden="true" className="text-[var(--color-primary-blue,#2b5ce7)]" />
+        <Bot size={15} aria-hidden="true" className="text-[var(--color-primary-blue,#165DFF)]" />
       </div>
       <div className="flex min-w-0 flex-col">
         <div
           className={cn(
             "rounded-2xl rounded-tl-md px-3.5 py-2.5 text-[15px] leading-6",
-            "bg-[var(--color-surface-color,#ffffff)] text-[var(--color-text-main,#1f1f1f)]",
-            "shadow-[0_1px_2px_rgba(0,0,0,0.04)]",
+            "bg-[var(--color-surface-color,#FFFFFF)] text-[var(--color-text-main,#0A1B3D)]",
           )}
         >
           {message.reasoning?.trim() ? (
-            <details className="mb-2 text-[12px] text-[var(--color-text-sub,#8c8c8c)]">
+            <details className="mb-2 text-[12px] text-[var(--color-text-sub,#5B6B88)]">
               <summary className="cursor-pointer select-none">
                 {translateAgentsConversationText("agents.conversation.reasoning.title")}
               </summary>
@@ -130,7 +128,7 @@ function AssistantMessage({ message }: { message: ConversationMessage }) {
           {message.text.trim() ? (
             <p className="whitespace-pre-wrap break-words">{message.text}</p>
           ) : message.streaming ? (
-            <span className="inline-flex items-center gap-2 text-[var(--color-text-sub,#8c8c8c)]">
+            <span className="inline-flex items-center gap-2 text-[var(--color-text-sub,#5B6B88)]">
               <Loader2 size={13} className="animate-spin" aria-hidden="true" />
               {translateAgentsConversationText("agents.conversation.status.sending")}
             </span>
@@ -141,7 +139,7 @@ function AssistantMessage({ message }: { message: ConversationMessage }) {
           {message.failure ? (
             <ConversationFailureCard failure={message.failure} />
           ) : message.error ? (
-            <p className="mt-2 text-[12px] text-[var(--color-danger,#dc2626)]">{message.error}</p>
+            <p className="mt-2 text-[12px] text-[var(--color-danger,#F53F3F)]">{message.error}</p>
           ) : null}
         </div>
         {message.text.trim() && !message.streaming ? <CopyButton text={message.text} /> : null}
@@ -156,7 +154,7 @@ function UserMessage({ message }: { message: ConversationMessage }) {
       <div
         className={cn(
           "rounded-2xl rounded-tr-md px-3.5 py-2.5 text-[15px] leading-6 text-white",
-          "bg-[var(--color-primary-blue,#2b5ce7)]",
+          "bg-[var(--color-primary-blue,#165DFF)]",
         )}
       >
         <p className="whitespace-pre-wrap break-words">{message.text}</p>
@@ -216,7 +214,7 @@ export function ConversationMessageList({
           disabled={loading}
           className={cn(
             "self-center rounded-full px-3 py-1 text-[12px] transition",
-            "text-[var(--color-text-sub,#8c8c8c)] disabled:opacity-50",
+            "text-[var(--color-text-sub,#5B6B88)] disabled:opacity-50",
           )}
         >
           {translateAgentsConversationText("agents.conversation.status.loading")}

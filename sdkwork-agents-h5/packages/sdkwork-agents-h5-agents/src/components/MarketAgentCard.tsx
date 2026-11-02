@@ -44,7 +44,7 @@ export const MarketAgentCard: React.FC<MarketAgentCardProps> = ({
     <div
       role="button"
       tabIndex={0}
-      className="flex items-start gap-3 px-4 py-3.5 select-none touch-callout-none transition-colors active:bg-black/5 dark:active:bg-white/5 cursor-pointer"
+      className="flex items-start gap-3 px-4 py-3.5 select-none touch-callout-none transition-colors active:bg-[var(--color-surface-muted,#EAF1FB)] cursor-pointer"
       onClick={() => {
         if (longPressTriggered.current) {
           longPressTriggered.current = false;
@@ -60,27 +60,27 @@ export const MarketAgentCard: React.FC<MarketAgentCardProps> = ({
       }}
     >
       <div className="relative shrink-0">
-        <div className="w-[52px] h-[52px] rounded-full overflow-hidden bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10">
+        <div className="w-[52px] h-[52px] rounded-full overflow-hidden bg-[var(--color-surface-muted,#EAF1FB)]">
           <img src={avatar} alt={agent.name} className="w-full h-full object-cover" draggable={false} />
         </div>
       </div>
 
-      <div className="flex-1 min-w-0 border-b border-[var(--color-border-color,rgba(0,0,0,0.05))] dark:border-[var(--color-border-color,rgba(255,255,255,0.05))] pb-3.5 pt-1">
+      <div className="flex-1 min-w-0 pb-3.5 pt-1">
         <div className="flex items-center mb-1">
-          <h3 className="text-[16px] font-semibold text-[var(--color-text-main,#111827)] truncate">
+          <h3 className="text-[16px] font-semibold text-[var(--color-text-main,#0A1B3D)] truncate">
             {agent.name}
           </h3>
         </div>
-        <p className="text-[14px] text-[var(--color-text-main,#4b5563)] leading-[1.4] line-clamp-2 mb-1.5">
+        <p className="text-[14px] text-[var(--color-text-main,#0A1B3D)] leading-[1.4] line-clamp-2 mb-1.5">
           {agent.description}
         </p>
         {meta && (
-          <p className="text-[12px] text-[var(--color-text-sub,#9ca3af)] truncate">{meta}</p>
+          <p className="text-[12px] text-[var(--color-text-sub,#5B6B88)] truncate">{meta}</p>
         )}
       </div>
 
       <div className="shrink-0 ml-2 self-center flex items-center h-[52px]">
-        <div className="w-7 h-7 rounded-full bg-[var(--color-primary-blue,#2b5ce7)] flex items-center justify-center text-white">
+        <div className="w-7 h-7 rounded-full bg-[var(--color-primary-blue,#165DFF)] flex items-center justify-center text-white">
           <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
         </div>
       </div>

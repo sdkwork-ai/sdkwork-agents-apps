@@ -18,6 +18,7 @@ const Map<String, Map<String, String>> agentsLibraryMessages =
     'agents.library.loadFailed': 'Failed to load the library. Please retry.',
     'agents.library.truncated': 'Many entries: showing the most recent ones',
     'agents.library.openFailed': 'Unable to open this file',
+    'agents.library.retry': 'Retry',
   },
   'zh-CN': <String, String>{
     'agents.library.title': '资料库',
@@ -27,13 +28,14 @@ const Map<String, Map<String, String>> agentsLibraryMessages =
     'agents.library.loadFailed': '资料库加载失败，请稍后重试',
     'agents.library.truncated': '内容较多，仅展示最近的部分',
     'agents.library.openFailed': '无法打开该文件',
+    'agents.library.retry': '重试',
   },
 };
 
 String translateAgentsLibraryMessage(String localeTag, String key) {
   final tag = resolveSdkworkAgentsLocaleTag(localeTag);
-  final messages =
-      agentsLibraryMessages[tag] ?? agentsLibraryMessages[sdkworkAgentsDefaultLocaleTag]!;
+  final messages = agentsLibraryMessages[tag] ??
+      agentsLibraryMessages[sdkworkAgentsDefaultLocaleTag]!;
   final value = messages[key];
   return value != null && value.isNotEmpty ? value : key;
 }

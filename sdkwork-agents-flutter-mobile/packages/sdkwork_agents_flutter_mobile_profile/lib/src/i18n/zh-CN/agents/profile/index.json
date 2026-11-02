@@ -1,0 +1,19 @@
+{
+  "agents.profile.title": "我的",
+  "agents.profile.signedInTitle": "已登录账户",
+  "agents.profile.signedOutTitle": "未登录",
+  "agents.profile.signedInHint": "当前会话已授权",
+  "agents.profile.signedOutHint": "安装访问令牌后即可使用",
+  "agents.profile.accountLabel": "当前账号",
+  "agents.profile.localeLabel": "语言",
+  "agents.profile.loading": "个人资料加载中",
+  "agents.profile.loadFailed": "个人资料加载失败，请稍后重试",
+  "agents.profile.retry": "重试",
+  "agents.profile.links.title": "更多",
+  "agents.profile.link.membership": "会员",
+  "agents.profile.link.projects": "项目",
+  "agents.profile.link.library": "资料库",
+  "agents.profile.link.automation": "自动化",
+  "agents.profile.link.history": "会话历史",
+  "agents.profile.link.settings": "设置"
+}

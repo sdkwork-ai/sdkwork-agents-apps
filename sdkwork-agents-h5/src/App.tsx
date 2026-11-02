@@ -1,10 +1,11 @@
 import { useMemo, useState, type ReactNode } from "react";
 import {
-  BookOpen,
+  Images,
   Infinity as InfinityIcon,
   MessageSquare,
-  Share2,
-  Timer,
+  Sparkles,
+  UserRound,
+  Wand2,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -29,26 +30,57 @@ import {
   type Agent,
   type AgentConfig,
 } from "@sdkwork/agents-h5-agents";
-import { AutomationScreen, automationRouteContributions } from "@sdkwork/agents-h5-automation";
 import {
+  AssetDetailScreen,
+  AssetsScreen,
+  assetsRouteContributions,
+} from "@sdkwork/agents-h5-assets";
+import { AutomationScreen, automationRouteContributions } from "@sdkwork/agents-h5-automation";
+import { CanvasScreen, canvasRouteContributions } from "@sdkwork/agents-h5-canvas";
+import {
+  ConversationHistoryScreen,
   ConversationScreen,
   conversationRouteContributions,
 } from "@sdkwork/agents-h5-conversation";
-import { LibraryScreen, libraryRouteContributions } from "@sdkwork/agents-h5-library";
-import { ProjectsScreen, projectsRouteContributions } from "@sdkwork/agents-h5-projects";
+import { CreativeScreen, creativeRouteContributions } from "@sdkwork/agents-h5-creative";
 import {
+  InspirationScreen,
+  inspirationRouteContributions,
+} from "@sdkwork/agents-h5-inspiration";
+import { LibraryScreen, libraryRouteContributions } from "@sdkwork/agents-h5-library";
+import {
+  MembershipScreen,
+  membershipRouteContributions,
+} from "@sdkwork/agents-h5-membership";
+import { ProfileScreen, profileRouteContributions } from "@sdkwork/agents-h5-profile";
+import { ProjectsScreen, projectsRouteContributions } from "@sdkwork/agents-h5-projects";
+import { SettingsScreen, settingsRouteContributions } from "@sdkwork/agents-h5-settings";
+import {
+  AGENTS_H5_PROFILE_LINKS,
   AGENTS_MOBILE_TABS,
+  AGENT_CATALOG_EDITOR_ROUTE_ID,
   AGENT_CATALOG_LIST_ROUTE_ID,
   AGENT_MARKET_ROUTE,
   AGENT_MARKET_SEARCH_ROUTE,
+  ASSETS_LIST_ROUTE_ID,
+  ASSETS_PATH,
   AUTOMATION_INDEX_ROUTE_ID,
+  AUTOMATION_PATH,
+  CANVAS_PATH,
   CHAT_ROUTE,
   CONVERSATION_CHAT_ROUTE_ID,
+  CONVERSATION_LIST_PATH,
   CREATE_AGENT_ROUTE,
+  CREATIVE_PATH,
+  CREATIVE_STUDIO_ROUTE_ID,
   EXPERTS_PATH,
-  LIBRARY_LIST_ROUTE_ID,
+  INSPIRATION_DISCOVER_ROUTE_ID,
+  LIBRARY_PATH,
+  MEMBERSHIP_PATH,
   MY_AGENTS_ROUTE,
-  PROJECTS_LIST_ROUTE_ID,
+  PROFILE_PATH,
+  PROJECTS_PATH,
+  SETTINGS_PATH,
   assembleAgentsH5RouteRegistry,
   translateAgentsShellText,
   type AgentsH5RouteContribution,
@@ -70,10 +102,24 @@ const expertsRouteContribution: AgentsH5RouteContribution = {
   capability: "catalog",
   screen: "list",
   path: EXPERTS_PATH,
-  titleKey: "agents.mobile.tab.experts",
+  titleKey: "agents.mobile.tab.agents",
   auth: "required",
   permissionHint: "ai.agents.read",
   presentation: { h5Mobile: "tab" },
+};
+
+/** Agent create/edit surface mounted as a stack route behind the catalog. */
+const agentEditorRouteContribution: AgentsH5RouteContribution = {
+  id: AGENT_CATALOG_EDITOR_ROUTE_ID,
+  surface: "app",
+  domain: "agents",
+  capability: "catalog",
+  screen: "editor",
+  path: `/${CREATE_AGENT_ROUTE}`,
+  titleKey: "agents.mobile.tab.createAgent",
+  auth: "required",
+  permissionHint: "ai.agents.manage",
+  presentation: { h5Mobile: "stack" },
 };
 
 /**
@@ -83,23 +129,30 @@ const expertsRouteContribution: AgentsH5RouteContribution = {
  */
 const ROUTE_REGISTRY = assembleAgentsH5RouteRegistry([
   ...conversationRouteContributions,
+  ...inspirationRouteContributions,
+  ...creativeRouteContributions,
+  ...assetsRouteContributions,
+  ...canvasRouteContributions,
   ...libraryRouteContributions,
   ...projectsRouteContributions,
   ...automationRouteContributions,
+  ...membershipRouteContributions,
+  ...profileRouteContributions,
+  ...settingsRouteContributions,
   expertsRouteContribution,
+  agentEditorRouteContribution,
 ]);
 
-/** Path behind a tab, resolved from the assembled registry. */
-function tabPath(routeId: string): string {
+/** Path behind a tab, resolved from the assembled registry. */function tabPath(routeId: string): string {
   return ROUTE_REGISTRY.find((contribution) => contribution.id === routeId)?.path ?? "/";
 }
 
 const TAB_GLYPH_ICONS: Readonly<Record<string, LucideIcon>> = {
   "message-square": MessageSquare,
+  sparkles: Sparkles,
+  "wand-2": Wand2,
+  images: Images,
   infinity: InfinityIcon,
-  "book-open": BookOpen,
-  timer: Timer,
-  "share-2": Share2,
 };
 
 const TAB_ICONS = Object.fromEntries(
@@ -113,23 +166,31 @@ const TAB_ICONS = Object.fromEntries(
  *
  * The standalone H5 root is opened from desktops as well (built-in preview,
  * plain browsers); constraining the shell to a phone width keeps the mobile
- * layout honest instead of stretching it across the whole viewport.
+ * layout honest instead of stretching it across the whole viewport. The
+ * backdrop outside the phone is a neutral tonal fill, never a dark surface.
  */
 function MobileFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[100dvh] justify-center bg-[#0b0b0c]">
-      <div className="flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-[var(--color-bg-color,#141414)] text-[var(--color-text-main,#f3f4f6)]">
+    <div className="flex min-h-[100dvh] justify-center bg-[var(--color-surface-muted,#EAF1FB)]">
+      <div className="flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-[var(--color-bg-color,#F4F7FC)] text-[var(--color-text-main,#0A1B3D)]">
         {children}
       </div>
     </div>
   );
 }
 
-function AgentsMobileTabBar({ activeTab }: { activeTab: AgentsMobileTabId | null }) {
+/** One bottom-bar item: blue on the active route, secondary text elsewhere. */
+function AgentsMobileTabBar({
+  activeTab,
+  profileActive,
+}: {
+  activeTab: AgentsMobileTabId | null;
+  profileActive: boolean;
+}) {
   const navigate = useNavigate();
 
   return (
-    <nav className="flex shrink-0 items-stretch justify-around border-t border-[var(--color-border-color,rgba(255,255,255,0.1))] bg-[var(--color-glass-bg,rgba(20,20,20,0.85))] px-1 pb-[max(env(safe-area-inset-bottom),6px)] pt-1.5 backdrop-blur">
+    <nav className="flex shrink-0 items-stretch justify-around bg-[var(--color-surface-color,#FFFFFF)] px-1 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-1.5">
       {AGENTS_MOBILE_TABS.map((tab) => {
         const Icon = TAB_ICONS[tab.tab];
         const active = tab.tab === activeTab;
@@ -141,8 +202,8 @@ function AgentsMobileTabBar({ activeTab }: { activeTab: AgentsMobileTabId | null
             aria-current={active ? "page" : undefined}
             className={
               active
-                ? "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1 text-[10px] font-medium text-[var(--color-primary-blue,#2b5ce7)]"
-                : "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1 text-[10px] font-medium text-[var(--color-text-sub,#9ca3af)] transition-colors hover:text-[var(--color-text-main,#f3f4f6)]"
+                ? "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl bg-[var(--color-primary-subtle,#E8F0FF)] px-1 py-1.5 text-[10px] font-medium text-[var(--color-icon-active,#165DFF)] transition-colors"
+                : "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[10px] font-medium text-[var(--color-icon-default,#5B6B88)] transition-colors hover:bg-[var(--color-surface-muted,#EAF1FB)] hover:text-[var(--color-icon-strong,#0A1B3D)]"
             }
           >
             <Icon size={20} aria-hidden />
@@ -150,12 +211,41 @@ function AgentsMobileTabBar({ activeTab }: { activeTab: AgentsMobileTabId | null
           </button>
         );
       })}
+      <button
+        type="button"
+        onClick={() => navigate(PROFILE_PATH)}
+        aria-current={profileActive ? "page" : undefined}
+        aria-label={translateAgentsShellText("agents.mobile.nav.profileEntry")}
+        className={
+          profileActive
+            ? "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl bg-[var(--color-primary-subtle,#E8F0FF)] px-1 py-1.5 text-[10px] font-medium text-[var(--color-icon-active,#165DFF)] transition-colors"
+            : "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[10px] font-medium text-[var(--color-icon-default,#5B6B88)] transition-colors hover:bg-[var(--color-surface-muted,#EAF1FB)] hover:text-[var(--color-icon-strong,#0A1B3D)]"
+        }
+      >
+        <UserRound size={20} aria-hidden />
+        <span className="truncate">{translateAgentsShellText("agents.mobile.tab.profile")}</span>
+      </button>
     </nav>
   );
 }
 
 interface ChatRouteState {
   agent?: Agent;
+}
+
+/**
+ * Conversation tab entry.
+ *
+ * The history screen opens a session by pushing `/` with `sessionId` state; the
+ * controller already accepts an initial session, so no second transcript path is
+ * introduced.
+ */
+function ConversationTabPage() {
+  const location = useLocation();
+  const state = (location.state ?? {}) as { sessionId?: string };
+  return (
+    <ConversationScreen {...(state.sessionId ? { initialSessionId: state.sessionId } : {})} />
+  );
 }
 
 function AgentChatRoutePage() {
@@ -178,11 +268,22 @@ function AgentChatRoutePage() {
   );
 }
 
+function AssetDetailRoutePage() {
+  const navigate = useNavigate();
+  const { assetId = "" } = useParams();
+
+  if (!assetId) {
+    return <Navigate to={ASSETS_PATH} replace />;
+  }
+
+  return <AssetDetailScreen assetId={assetId} onBack={() => navigate(-1)} />;
+}
+
 /**
- * Experts tab: the pre-existing agent catalog, plus entry points into the two
+ * Agents tab: the pre-existing agent catalog, plus entry points into the two
  * secondary agent surfaces that used to sit in the top navigation.
  */
-function ExpertsTabPage({
+function AgentsTabPage({
   onStartChat,
   onCreateAgent,
   onEditAgent,
@@ -196,21 +297,21 @@ function ExpertsTabPage({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <header className="flex shrink-0 items-center justify-between px-4 pb-1 pt-3">
-        <h1 className="text-[20px] font-semibold text-[var(--color-text-main,#f3f4f6)]">
-          {translateAgentsShellText("agents.mobile.tab.experts")}
+        <h1 className="text-[20px] font-semibold text-[var(--color-text-main,#0A1B3D)]">
+          {translateAgentsShellText("agents.mobile.tab.agents")}
         </h1>
         <div className="flex items-center gap-4 text-[13px]">
           <button
             type="button"
             onClick={() => navigate(`/${MY_AGENTS_ROUTE}`)}
-            className="text-[var(--color-text-sub,#9ca3af)] transition-colors hover:text-[var(--color-text-main,#f3f4f6)]"
+            className="rounded-lg px-1 text-[var(--color-text-secondary,#5B6B88)] transition-colors hover:text-[var(--color-text-primary,#0A1B3D)]"
           >
             {translateAgentsShellText("agents.mobile.tab.myAgents")}
           </button>
           <button
             type="button"
             onClick={() => navigate(`/${AGENT_MARKET_ROUTE}`)}
-            className="font-medium text-[var(--color-primary-blue,#2b5ce7)]"
+            className="rounded-lg px-1 font-medium text-[var(--color-primary,#165DFF)] transition-colors hover:text-[var(--color-primary-hover,#4080FF)]"
           >
             {translateAgentsShellText("agents.mobile.tab.market")}
           </button>
@@ -238,6 +339,9 @@ function AgentsMobileShell() {
     const match = AGENTS_MOBILE_TABS.find((tab) => tabPath(tab.routeId) === location.pathname);
     return match?.tab ?? null;
   }, [location.pathname]);
+
+  /** The profile hub is a bottom-bar entry, so it renders as an active item. */
+  const profileActive = location.pathname === PROFILE_PATH;
 
   const openCreateAgent = () => setIsCreateAgentModalOpen(true);
 
@@ -267,25 +371,33 @@ function AgentsMobileShell() {
     });
   };
 
+  const profileLinks = AGENTS_H5_PROFILE_LINKS.map((link) => ({
+    id: link.id,
+    label: translateAgentsShellText(link.labelKey),
+    path: link.path,
+  }));
+
+  const backLabel = translateAgentsShellText("agents.mobile.nav.back");
+
   /** Screen behind each tab route id (`APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md` §4). */
   const renderTabScreen = (routeId: string): ReactNode => {
     switch (routeId) {
       case CONVERSATION_CHAT_ROUTE_ID:
-        return <ConversationScreen />;
+        return <ConversationTabPage />;
+      case INSPIRATION_DISCOVER_ROUTE_ID:
+        return <InspirationScreen />;
+      case CREATIVE_STUDIO_ROUTE_ID:
+        return <CreativeScreen onOpenCanvas={() => navigate(CANVAS_PATH)} />;
+      case ASSETS_LIST_ROUTE_ID:
+        return <AssetsScreen />;
       case AGENT_CATALOG_LIST_ROUTE_ID:
         return (
-          <ExpertsTabPage
+          <AgentsTabPage
             onStartChat={handleStandaloneStartChat}
             onCreateAgent={openCreateAgent}
             onEditAgent={openEditAgent}
           />
         );
-      case LIBRARY_LIST_ROUTE_ID:
-        return <LibraryScreen />;
-      case AUTOMATION_INDEX_ROUTE_ID:
-        return <AutomationScreen />;
-      case PROJECTS_LIST_ROUTE_ID:
-        return <ProjectsScreen />;
       default:
         return null;
     }
@@ -302,6 +414,7 @@ function AgentsMobileShell() {
 
           {/* Stack-pushed surfaces: the tab bar is intentionally hidden. */}
           <Route path={`/${CHAT_ROUTE}/:agentId`} element={<AgentChatRoutePage />} />
+          <Route path={`${ASSETS_PATH}/:assetId`} element={<AssetDetailRoutePage />} />
           <Route
             path={`/${CREATE_AGENT_ROUTE}`}
             element={
@@ -349,10 +462,57 @@ function AgentsMobileShell() {
               />
             }
           />
+
+          {/* Profile hub and the secondary PC surfaces it links to. */}
+          <Route
+            path={PROFILE_PATH}
+            element={
+              <ProfileScreen
+                links={profileLinks}
+                onNavigate={(path) => navigate(path)}
+                onBack={() => navigate(-1)}
+                backLabel={backLabel}
+              />
+            }
+          />
+          <Route
+            path={MEMBERSHIP_PATH}
+            element={<MembershipScreen onBack={() => navigate(-1)} backLabel={backLabel} />}
+          />
+          <Route
+            path={LIBRARY_PATH}
+            element={<LibraryScreen onBack={() => navigate(-1)} backLabel={backLabel} />}
+          />
+          <Route
+            path={PROJECTS_PATH}
+            element={<ProjectsScreen onBack={() => navigate(-1)} backLabel={backLabel} />}
+          />
+          <Route
+            path={AUTOMATION_PATH}
+            element={<AutomationScreen onBack={() => navigate(-1)} backLabel={backLabel} />}
+          />
+          <Route
+            path={SETTINGS_PATH}
+            element={<SettingsScreen onBack={() => navigate(-1)} backLabel={backLabel} />}
+          />
+          <Route
+            path={CONVERSATION_LIST_PATH}
+            element={
+              <ConversationHistoryScreen
+                onOpenSession={(sessionId) => navigate("/", { state: { sessionId } })}
+                onBack={() => navigate(-1)}
+                backLabel={backLabel}
+              />
+            }
+          />
+          <Route
+            path={CANVAS_PATH}
+            element={<CanvasScreen onBack={() => navigate(-1)} backLabel={backLabel} />}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      {activeTab ? <AgentsMobileTabBar activeTab={activeTab} /> : null}
+      {activeTab ? <AgentsMobileTabBar activeTab={activeTab} profileActive={profileActive} /> : null}
       <CreateAgentModal
         isOpen={isCreateAgentModalOpen}
         onClose={() => setIsCreateAgentModalOpen(false)}

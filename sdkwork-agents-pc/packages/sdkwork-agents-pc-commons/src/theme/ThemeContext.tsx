@@ -5,36 +5,28 @@ type ResolvedTheme = 'dark' | 'light';
 
 interface ThemeContextType {
   theme: Theme;
-  /** OS/user-resolved color mode: the single resolved value consumers render against. */
+  /** Resolved color mode: the single value consumers render against. */
   resolvedTheme: ResolvedTheme;
   setTheme: (theme: Theme) => void;
 }
 
-const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
-
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const resolveSystemTheme = (): ResolvedTheme =>
-  window.matchMedia(DARK_MEDIA_QUERY).matches ? 'dark' : 'light';
+/**
+  * The PC workbench ships the light tech-blue theme
+    * (`specs/client-theme.spec.json`, base: light). Light is the default rendering
+      * for every stored value except an explicit `dark`, so a dark OS preference can
+        * never turn on the retained `dark:` utilities (light icon/text colors) on top
+          * of the light token surfaces — that combination made icons invisible.
+            */
+const resolveThemeMode = (theme: Theme): ResolvedTheme => (theme === 'dark' ? 'dark' : 'light');
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem('sdkwork-agents-theme');
-    return (savedTheme as Theme) || 'system';
+    return (savedTheme as Theme) || 'light';
   });
-  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(resolveSystemTheme);
-  const resolvedTheme: ResolvedTheme = theme === 'system' ? systemTheme : theme;
-
-  // Single OS-preference listener: the provider owns system resolution (THEME_DARKMODE_SPEC §3.2).
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(DARK_MEDIA_QUERY);
-    const handleChange = () => {
-      setSystemTheme(mediaQuery.matches ? 'dark' : 'light');
-    };
-    setSystemTheme(mediaQuery.matches ? 'dark' : 'light');
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  const resolvedTheme: ResolvedTheme = resolveThemeMode(theme);
 
   useEffect(() => {
     localStorage.setItem('sdkwork-agents-theme', theme);
@@ -42,6 +34,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(resolvedTheme);
+    root.dataset.agColorMode = resolvedTheme;
   }, [theme, resolvedTheme]);
 
   return (

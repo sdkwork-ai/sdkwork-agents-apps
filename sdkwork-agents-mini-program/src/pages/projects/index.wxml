@@ -1,6 +1,7 @@
-<view class="page" style="padding-bottom: {{bottomInset}}px;">
+<view class="page {{themeClass}}" style="padding-bottom: {{bottomInset}}px;">
   <view class="app-bar" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
     <view class="app-bar-inner">
+      <view class="app-bar-back" bindtap="onBack" aria-role="button">‹</view>
       <view class="app-bar-titles app-bar-titles-left">
         <text class="app-bar-title">{{t.title}}</text>
       </view>
@@ -13,6 +14,7 @@
         class="search-input"
         value="{{query}}"
         placeholder="{{t.searchPlaceholder}}"
+        placeholder-class="input-placeholder"
         bindinput="onSearchInput"
       />
     </view>

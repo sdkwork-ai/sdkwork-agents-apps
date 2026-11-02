@@ -6,7 +6,7 @@
     text-rendering: optimizeLegibility;
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    --sdk-color-brand-primary: #22d3ee;
+    --sdk-color-brand-primary: var(--ag-color-primary, #165DFF);
   }
 
   .sdkwork-agents-console :where(button, input, textarea, select) {
@@ -14,7 +14,7 @@
   }
 
   .sdkwork-agents-console :where(button, input, textarea, select, a):focus-visible {
-    outline: 2px solid #22d3ee;
+    outline: 2px solid var(--ag-color-primary, #165DFF);
     outline-offset: 2px;
   }
 }
@@ -29,12 +29,12 @@
   gap: 0.25rem;
   overflow-x: auto;
   padding: 0.5rem 0.75rem 0;
-  border-bottom: 1px solid var(--sdk-color-border-default, #e2e8f0);
+  border-bottom: 0;
   background: var(--sdk-color-surface-panel, #fff);
 }
 
 .dark .sdkwork-agents-console .sdkwork-agents-console-nav {
-  border-bottom-color: rgba(255, 255, 255, 0.07);
+  border-bottom-color: transparent;
   background: #1e1e1e;
 }
 
@@ -60,7 +60,7 @@
 .sdkwork-agents-console .sdkwork-agents-console-nav-item.is-active {
   background: var(--sdk-color-surface-panel, #fff);
   color: #0f172a;
-  box-shadow: inset 0 -2px 0 0 #22d3ee;
+  border-bottom: 2px solid var(--ag-color-primary, #165DFF);
 }
 
 .dark .sdkwork-agents-console .sdkwork-agents-console-nav-item {
@@ -75,7 +75,7 @@
 .dark .sdkwork-agents-console .sdkwork-agents-console-nav-item.is-active {
   background: rgba(255, 255, 255, 0.06);
   color: #fafafa;
-  box-shadow: inset 0 -2px 0 0 #22d3ee;
+  border-bottom: 2px solid var(--ag-color-primary, #165DFF);
 }
 
 .sdkwork-agents-console ::-webkit-scrollbar {

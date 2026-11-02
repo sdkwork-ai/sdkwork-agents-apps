@@ -1,0 +1,67 @@
+<view class="page {{themeClass}}" style="padding-bottom: {{bottomInset}}px;">
+  <view class="app-bar" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
+    <view class="app-bar-inner">
+      <view
+        class="app-bar-back"
+        bindtap="onBack"
+        aria-role="button"
+        aria-label="{{t.back}}"
+      >‹</view>
+      <view class="app-bar-titles">
+        <text class="app-bar-title">{{t.title}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content" style="margin-top: {{headerHeight}}px;">
+    <view wx:if="{{status === 'loading'}}" class="status">{{t.loading}}</view>
+
+    <view wx:elif="{{status === 'error'}}" class="state-card">
+      <text class="state-title">{{t.loadFailed}}</text>
+      <view class="state-actions">
+        <view class="secondary-button" bindtap="onRetry" aria-role="button">{{t.retry}}</view>
+      </view>
+    </view>
+
+    <view wx:elif="{{status === 'empty'}}" class="status">{{t.empty}}</view>
+
+    <block wx:elif="{{detail}}">
+      <image
+        wx:if="{{detail.kind === 'image' && detail.previewUrl}}"
+        class="detail-media"
+        src="{{detail.previewUrl}}"
+        mode="widthFix"
+        show-menu-by-longpress
+        bindtap="onPreviewImage"
+      />
+      <video
+        wx:elif="{{detail.kind === 'video' && detail.previewUrl}}"
+        class="detail-media"
+        src="{{detail.previewUrl}}"
+        controls
+      ></video>
+      <view wx:elif="{{detail.kind === 'audio' && detail.previewUrl}}" class="detail-action">
+        <view class="secondary-button" bindtap="onToggleAudio" aria-role="button">
+          {{detailPlaying ? t.pause : t.play}}
+        </view>
+      </view>
+      <view wx:elif="{{detail.previewUrl}}" class="detail-action">
+        <view class="secondary-button" bindtap="onOpenDocument" aria-role="button">{{t.open}}</view>
+      </view>
+      <text wx:else class="state-detail">{{t.emptyPreview}}</text>
+
+      <view class="detail-row">
+        <text class="detail-key">{{t.detailKind}}</text>
+        <text class="detail-value">{{detail.kindLabel}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-key">{{t.detailCreatedAt}}</text>
+        <text class="detail-value">{{detail.createdAtText}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-key">{{t.detailSource}}</text>
+        <text class="detail-value">{{detail.title}}</text>
+      </view>
+    </block>
+  </view>
+</view>

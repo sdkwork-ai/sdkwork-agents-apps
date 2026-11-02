@@ -10,4 +10,5 @@ export const agentsMpCatalogListZhCn: Record<string, string> = {
   "agents.catalog.empty": "暂无智能体",
   "agents.catalog.loadFailed": "智能体加载失败",
   "agents.catalog.loadMore": "加载更多",
+  "agents.catalog.openFullVersion": "打开完整版",
 };

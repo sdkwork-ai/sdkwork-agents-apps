@@ -12,25 +12,25 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #0f766e;
+  background: var(--primary);
 }
 
 .home-avatar-glyph {
   font-size: 64rpx;
-  color: #ffffff;
+  color: var(--icon-on-primary);
 }
 
 .home-title {
   margin-top: 32rpx;
   font-size: 40rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .home-hint {
   margin-top: 16rpx;
   font-size: 26rpx;
-  color: #64748b;
+  color: var(--text-muted);
   text-align: center;
   line-height: 1.6;
 }
@@ -41,8 +41,13 @@
   height: 88rpx;
   line-height: 88rpx;
   text-align: center;
-  border-radius: 44rpx;
-  background: #0f766e;
-  color: #ffffff;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: var(--primary-on);
   font-size: 30rpx;
+  font-weight: 600;
+}
+
+.home-entry:active {
+  background: var(--primary-pressed);
 }

@@ -1,0 +1,52 @@
+<view class="page {{themeClass}}" style="padding-bottom: {{bottomInset}}px;">
+  <view class="app-bar" style="padding-top: {{statusBarHeight}}px; height: {{headerHeight}}px;">
+    <view class="app-bar-inner">
+      <view
+        class="app-bar-back"
+        bindtap="onBack"
+        aria-role="button"
+        aria-label="{{t.back}}"
+      >‹</view>
+      <view class="app-bar-titles">
+        <text class="app-bar-title">{{t.title}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content" style="margin-top: {{headerHeight}}px;">
+    <view wx:if="{{status === 'loading'}}" class="status">{{t.loading}}</view>
+
+    <view wx:elif="{{status === 'error'}}" class="state-card">
+      <text class="state-title">{{t.loadFailed}}</text>
+      <view class="state-actions">
+        <view class="secondary-button" bindtap="onRetry" aria-role="button">{{t.retry}}</view>
+      </view>
+    </view>
+
+    <view wx:elif="{{status === 'empty'}}" class="status">{{t.empty}}</view>
+
+    <block wx:else>
+      <view class="banner">{{t.readOnly}}</view>
+      <text wx:if="{{connectionsText}}" class="status status-note">{{connectionsText}}</text>
+      <view class="list">
+        <view wx:for="{{nodes}}" wx:key="id" class="card">
+          <view class="card-row">
+            <text class="card-title">{{item.title}}</text>
+            <text class="card-badge">{{item.typeLabel}}</text>
+          </view>
+          <image
+            wx:if="{{item.mediaUrl && item.type === 'image-gen'}}"
+            class="canvas-media"
+            src="{{item.mediaUrl}}"
+            mode="widthFix"
+            lazy-load
+            data-url="{{item.mediaUrl}}"
+            bindtap="onPreviewImage"
+          />
+          <text wx:if="{{item.body}}" class="card-subtitle">{{item.body}}</text>
+          <text class="card-subtitle">{{item.status}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

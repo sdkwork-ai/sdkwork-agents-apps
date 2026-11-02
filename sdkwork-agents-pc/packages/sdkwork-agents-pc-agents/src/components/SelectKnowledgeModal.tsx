@@ -64,14 +64,14 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
   }, [isOpen, selectedKbIds, loadKbs]);
 
   const handleSelect = (id: string) => {
-    setCurrentSelection(prev => 
+    setCurrentSelection(prev =>
       prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
     );
   };
 
   const filteredKbs = kbs.filter(kb => {
-    const matchesSearch = !searchQuery.trim() || 
-      kb.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = !searchQuery.trim() ||
+      kb.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (kb.description || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesTab = activeTab === 'all' || kb.type === activeTab;
     return matchesSearch && matchesTab;
@@ -92,10 +92,10 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl flex flex-col z-[101] overflow-hidden border border-slate-300 dark:border-white/10"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1024px] h-[720px] bg-white dark:bg-[#1e1e1e] rounded-2xl flex flex-col z-[101] overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#202020] shrink-0">
+            <div className="flex items-center justify-between p-6 bg-slate-50 dark:bg-[#202020] shrink-0">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-gray-100 mb-1">关联知识库</h2>
                 <p className="text-xs text-slate-500 dark:text-gray-400">选择要挂载到智能体的结构化语料，增强其生成质量和事实准确性。</p>
@@ -110,7 +110,7 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
 
             <div className="flex flex-1 min-h-0">
               {/* Sidebar: Tabs */}
-              <div className="w-[180px] bg-slate-100 dark:bg-[#151515] border-r border-slate-200 dark:border-white/5 py-5 flex flex-col shrink-0">
+              <div className="w-[180px] bg-slate-100 dark:bg-[#151515] py-5 flex flex-col shrink-0">
                 <div className="px-4 space-y-1.5 flex-1">
                   {[
                     { id: 'all', name: '全部空间' },
@@ -122,34 +122,34 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                       onClick={() => setActiveTab(tab.id as any)}
                       className={cn(
                         "w-full flex items-center px-4 py-3 rounded-xl text-[14px] font-medium transition-all text-left",
-                        activeTab === tab.id 
-                          ? "bg-blue-600/10 border border-blue-500/30 text-blue-400 shadow-sm" 
-                          : "text-slate-500 dark:text-gray-400 hover:bg-slate-900/5 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-gray-200 border border-transparent"
+                        activeTab === tab.id
+                        ? "bg-blue-600/10 text-blue-400"
+                        : "text-slate-500 dark:text-gray-400 hover:bg-slate-900/5 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-gray-200"
                       )}
                     >
                       {tab.name}
                     </button>
                   ))}
                 </div>
-              </div>
+                </div>
 
               {/* Object List */}
               <div className="flex-1 flex flex-col bg-slate-50 dark:bg-[#1a1a1a] min-w-0">
-                <div className="p-6 pb-4 shrink-0 border-b border-slate-200 dark:border-white/5 flex items-center justify-between">
+                <div className="p-6 pb-4 shrink-0 flex items-center justify-between">
                   <div className="relative w-72">
-                    <input 
-                      type="text" 
-                      placeholder="搜索知识库名称或描述..." 
+                    <input
+                      type="text"
+                      placeholder="搜索知识库名称或描述..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-[#202020] border border-slate-300 dark:border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none focus:border-blue-500 transition-colors shadow-inner"
+                      className="w-full bg-slate-50 dark:bg-[#202020] rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors"
                     />
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-gray-500" size={16} />
                   </div>
                   <div className="text-[13px] text-slate-500 dark:text-gray-500 font-medium">
                     共 {filteredKbs.length} 个项目
                   </div>
-                </div>
+                  </div>
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
                   {loading ? (
                     <div className="text-slate-500 dark:text-gray-500 text-sm text-center py-20 flex flex-col items-center justify-center gap-3">
@@ -162,7 +162,7 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                       <button
                         type="button"
                         onClick={() => void loadKbs(undefined, false)}
-                        className="px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 transition-colors"
+                        className="px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors"
                       >
                         重试
                       </button>
@@ -181,10 +181,10 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                             key={kb.id}
                             onClick={() => handleSelect(kb.id)}
                             className={cn(
-                              "relative group bg-slate-100 dark:bg-[#252528] rounded-xl border p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col h-full",
-                              isSelected 
-                                ? "border-blue-500 shadow-md shadow-blue-500/10 bg-blue-500/5" 
-                                : "border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-200 dark:hover:bg-[#2a2a2d]"
+                              "relative group bg-slate-100 dark:bg-[#252528] rounded-xl p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col h-full",
+                              isSelected
+                              ? "bg-blue-500/5"
+                              : "hover:bg-slate-200 dark:hover:bg-[#2a2a2d]"
                             )}
                           >
                             {isSelected && (
@@ -192,9 +192,9 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                                 <Check size={18} strokeWidth={3} />
                               </div>
                             )}
-                            
+
                             <div className="flex items-start gap-4 mb-4">
-                              <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-[#2a2a2d] border border-slate-200 dark:border-white/5 flex items-center justify-center text-2xl shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                              <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-[#2a2a2d] flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
                                 {kb.logo}
                               </div>
                               <div className="flex-1 min-w-0 pr-6">
@@ -206,22 +206,22 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                                     {kb.type}
                                   </span>
                                 </div>
-                              </div>
-                            </div>
-                            
+                                </div>
+                                </div>
+
                             <p className="text-[13px] text-slate-500 dark:text-gray-400 leading-relaxed mb-4 flex-1 line-clamp-2">
                               {kb.description || '暂无描述'}
                             </p>
-                            
-                            <div className="mt-auto pt-3 border-t border-slate-200 dark:border-white/5 flex items-center justify-between text-xs text-slate-500 dark:text-gray-500">
+
+                              <div className="mt-auto pt-3 flex items-center justify-between text-xs text-slate-500 dark:text-gray-500">
                               <div className="flex items-center gap-1.5">
                                 <FileText size={14} /> {kb.count} 篇文档
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <Clock size={14} /> {kb.updatedAt ? new Date(kb.updatedAt).toLocaleDateString() : '-'}
                               </div>
-                            </div>
-                          </div>
+                              </div>
+                              </div>
                         );
                       })}
                     </div>
@@ -239,11 +239,11 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
+                </div>
+                </div>
 
             {/* Footer */}
-            <div className="p-5 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#202020] flex items-center justify-between shrink-0">
+            <div className="p-5 bg-slate-50 dark:bg-[#202020] flex items-center justify-between shrink-0">
               <div className="text-sm text-slate-500 dark:text-gray-400">
                 已选中 <span className="text-blue-400 font-semibold">{currentSelection.length}</span> 个知识库
               </div>
@@ -260,12 +260,12 @@ export const SelectKnowledgeModal: React.FC<SelectKnowledgeModalProps> = ({
                     onSave(currentSelection, selectedItems);
                     onClose();
                   }}
-                  className="px-6 py-2.5 rounded-xl text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 transition-all font-semibold"
+                  className="px-6 py-2.5 rounded-xl text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white transition-all font-semibold"
                 >
                   确认挂载
                 </button>
               </div>
-            </div>
+              </div>
           </motion.div>
         </>
       )}

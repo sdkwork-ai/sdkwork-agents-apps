@@ -88,17 +88,17 @@
 .sdkwork-model-picker-menu {
   box-sizing: border-box;
   overflow: hidden;
-  border: 1px solid #d9d9d9;
+  border: 0;
   border-radius: 12px;
   background: #ffffff;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
   z-index: 10000;
 }
 
 .dark .sdkwork-model-picker-menu {
-  border-color: #1a1a1a;
+  border-color: transparent;
   background: #282828;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 /* Vendor column */
@@ -109,13 +109,13 @@
   flex-direction: column;
   align-self: stretch;
   background: #f7f7f7;
-  border-right: 1px solid #d9d9d9;
+  border-right: 0;
   overflow: hidden;
 }
 
 .dark .sdkwork-model-picker-vendors {
   background: #202020;
-  border-right-color: #1a1a1a;
+  border-right-color: transparent;
 }
 
 .sdkwork-model-picker-panel-head {
@@ -187,14 +187,14 @@
 
 .sdkwork-model-picker-vendor-button[data-active='true'] {
   background: #e5f0ff;
-  border-left-color: #1890ff;
-  color: #1890ff;
+  border-left-color: #165DFF;
+  color: #165DFF;
 }
 
 .dark .sdkwork-model-picker-vendor-button[data-active='true'] {
-  background: #1890ff20;
-  border-left-color: #1890ff;
-  color: #1890ff;
+  background: #165DFF20;
+  border-left-color: #165DFF;
+  color: #165DFF;
 }
 
 .sdkwork-model-picker-vendor-name {
@@ -260,12 +260,12 @@
 
 .sdkwork-model-picker-model-button[data-active='true'] {
   background: #f0f0f0;
-  border-left-color: #1890ff;
+  border-left-color: #165DFF;
 }
 
 .dark .sdkwork-model-picker-model-button[data-active='true'] {
   background: #333333;
-  border-left-color: #1890ff;
+  border-left-color: #165DFF;
 }
 
 .sdkwork-model-picker-model-copy {
@@ -307,7 +307,7 @@
 
 .sdkwork-model-picker-model-check {
   flex: none;
-  color: #1890ff;
+  color: #165DFF;
 }
 
 .sdkwork-model-picker-empty {

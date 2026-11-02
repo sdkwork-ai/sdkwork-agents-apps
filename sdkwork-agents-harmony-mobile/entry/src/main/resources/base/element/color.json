@@ -2,7 +2,95 @@
   "color": [
     {
       "name": "start_window_background",
+      "value": "#F4F7FC"
+    },
+    {
+      "name": "theme_primary",
+      "value": "#165DFF"
+    },
+    {
+      "name": "theme_primary_hover",
+      "value": "#4080FF"
+    },
+    {
+      "name": "theme_primary_pressed",
+      "value": "#0E42D2"
+    },
+    {
+      "name": "theme_primary_subtle",
+      "value": "#E8F0FF"
+    },
+    {
+      "name": "theme_on_primary",
       "value": "#FFFFFF"
+    },
+    {
+      "name": "theme_background",
+      "value": "#F4F7FC"
+    },
+    {
+      "name": "theme_surface",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "theme_surface_muted",
+      "value": "#EAF1FB"
+    },
+    {
+      "name": "theme_surface_strong",
+      "value": "#DCE8F9"
+    },
+    {
+      "name": "theme_rail",
+      "value": "#0A1B3D"
+    },
+    {
+      "name": "theme_rail_active",
+      "value": "#165DFF"
+    },
+    {
+      "name": "theme_rail_text",
+      "value": "#C9D6EA"
+    },
+    {
+      "name": "theme_rail_text_muted",
+      "value": "#7F91B0"
+    },
+    {
+      "name": "theme_text_primary",
+      "value": "#0A1B3D"
+    },
+    {
+      "name": "theme_text_secondary",
+      "value": "#5B6B88"
+    },
+    {
+      "name": "theme_text_tertiary",
+      "value": "#8A97AD"
+    },
+    {
+      "name": "theme_success",
+      "value": "#00B42A"
+    },
+    {
+      "name": "theme_warning",
+      "value": "#FF7D00"
+    },
+    {
+      "name": "theme_danger",
+      "value": "#F53F3F"
+    },
+    {
+      "name": "theme_scrim",
+      "value": "#730A1B3D"
+    },
+    {
+      "name": "theme_border",
+      "value": "#00000000"
+    },
+    {
+      "name": "theme_focus_outline",
+      "value": "#165DFF"
     }
   ]
 }

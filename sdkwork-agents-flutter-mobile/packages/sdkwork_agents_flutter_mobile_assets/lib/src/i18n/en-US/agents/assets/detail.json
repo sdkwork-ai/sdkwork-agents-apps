@@ -1,0 +1,9 @@
+{
+  "agents.assets.detail.title": "Asset details",
+  "agents.assets.detail.kind": "Kind",
+  "agents.assets.detail.createdAt": "Created",
+  "agents.assets.detail.tool": "Tool",
+  "agents.assets.detail.driveUri": "Drive URI",
+  "agents.assets.detail.close": "Close",
+  "agents.assets.previewUnavailable": "Preview unavailable"
+}

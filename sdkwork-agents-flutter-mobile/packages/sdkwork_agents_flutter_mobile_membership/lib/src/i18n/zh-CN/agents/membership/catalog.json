@@ -1,0 +1,21 @@
+{
+  "agents.membership.title": "会员",
+  "agents.membership.loading": "会员方案加载中",
+  "agents.membership.loadFailed": "会员方案加载失败，请稍后重试",
+  "agents.membership.unavailable.title": "会员服务暂未接入",
+  "agents.membership.unavailable.hint": "当前客户端还没有会员服务通道，接入后即可重试。",
+  "agents.membership.retry": "重试",
+  "agents.membership.summary.title": "当前会员",
+  "agents.membership.summary.member": "会员",
+  "agents.membership.summary.guest": "未开通会员",
+  "agents.membership.summary.points": "积分余额",
+  "agents.membership.summary.expiresAt": "有效期至",
+  "agents.membership.plans.title": "会员方案",
+  "agents.membership.plans.empty": "暂未发布会员方案",
+  "agents.membership.plans.current": "当前方案",
+  "agents.membership.plans.recommended": "推荐",
+  "agents.membership.checkout": "立即开通",
+  "agents.membership.checkoutUnavailable": "暂无法发起开通",
+  "agents.membership.checkoutReady": "开通链接",
+  "agents.membership.checkoutClose": "关闭"
+}

@@ -17,6 +17,15 @@ export const AGENTS_MP_CATALOG_EDITOR_ROUTE_ID = "app.agents.catalog.editor" as 
 export const AGENTS_MP_LIBRARY_LIST_ROUTE_ID = "app.agents.library.list" as const;
 export const AGENTS_MP_AUTOMATION_INDEX_ROUTE_ID = "app.agents.automation.index" as const;
 export const AGENTS_MP_PROJECTS_LIST_ROUTE_ID = "app.agents.projects.list" as const;
+/** M1 primary surfaces of the PC workbench (`specs/client-page-parity.spec.json`). */
+export const AGENTS_MP_INSPIRATION_DISCOVER_ROUTE_ID = "app.agents.inspiration.discover" as const;
+export const AGENTS_MP_CREATIVE_STUDIO_ROUTE_ID = "app.agents.creative.studio" as const;
+export const AGENTS_MP_ASSETS_LIST_ROUTE_ID = "app.agents.assets.list" as const;
+export const AGENTS_MP_ASSETS_DETAIL_ROUTE_ID = "app.agents.assets.detail" as const;
+export const AGENTS_MP_CANVAS_BOARD_ROUTE_ID = "app.agents.canvas.board" as const;
+export const AGENTS_MP_MEMBERSHIP_CATALOG_ROUTE_ID = "app.agents.membership.catalog" as const;
+export const AGENTS_MP_PROFILE_INDEX_ROUTE_ID = "app.agents.profile.index" as const;
+export const AGENTS_MP_SETTINGS_INDEX_ROUTE_ID = "app.agents.settings.index" as const;
 
 /** Physical mini program page paths. */
 export const AGENTS_MP_CONVERSATION_PAGE = "pages/conversation/index" as const;
@@ -26,6 +35,14 @@ export const AGENTS_MP_AGENT_EDITOR_PAGE = "pages/agents-h5/index" as const;
 export const AGENTS_MP_LIBRARY_PAGE = "pages/library/index" as const;
 export const AGENTS_MP_AUTOMATION_PAGE = "pages/automation/index" as const;
 export const AGENTS_MP_PROJECTS_PAGE = "pages/projects/index" as const;
+export const AGENTS_MP_INSPIRATION_PAGE = "pages/inspiration/index" as const;
+export const AGENTS_MP_CREATIVE_PAGE = "pages/creative/index" as const;
+export const AGENTS_MP_ASSETS_PAGE = "pages/assets/index" as const;
+export const AGENTS_MP_ASSETS_DETAIL_PAGE = "pages/assets/detail" as const;
+export const AGENTS_MP_CANVAS_PAGE = "pages/canvas/index" as const;
+export const AGENTS_MP_MEMBERSHIP_PAGE = "pages/membership/index" as const;
+export const AGENTS_MP_PROFILE_PAGE = "pages/profile/index" as const;
+export const AGENTS_MP_SETTINGS_PAGE = "pages/settings/index" as const;
 
 /**
  * Verifies that a contribution id decomposes into its own segment fields.

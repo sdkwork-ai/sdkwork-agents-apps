@@ -18,8 +18,6 @@ const List<AgentsRouteContribution> libraryRouteContributions =
     permissionHint: 'ai.agents.read',
     flutter: AgentsFlutterRoutePlacement(
       routeName: agentsLibraryRouteName,
-      tab: AgentsMobileTabId.library,
-      rootTab: true,
     ),
   ),
 ];

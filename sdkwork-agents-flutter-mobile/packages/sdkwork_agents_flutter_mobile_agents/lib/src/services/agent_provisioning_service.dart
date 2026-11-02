@@ -19,10 +19,14 @@ const String agentsDefaultAssistantAgentId = 'agent.chat.default';
 const String _defaultBindingId = 'binding.manifest.default';
 const String _defaultProviderId = 'provider.agent.manifest';
 const String _defaultConfigurationProfileId = 'profile.agent.manifest.default';
-const List<String> _defaultProviderCapabilities = <String>['model.chat', 'tool.invoke'];
+const List<String> _defaultProviderCapabilities = <String>[
+  'model.chat',
+  'tool.invoke'
+];
 
 const String _assistantName = 'SDKWork Agents';
-const String _assistantDescription = 'SDKWork Agents built-in conversational assistant.';
+const String _assistantDescription =
+    'SDKWork Agents built-in conversational assistant.';
 const String _assistantSystemPrompt =
     'You are SDKWork Agents. Provide accurate, concise, secure, and useful answers.';
 const String _assistantWelcomeMessage = 'How can I help?';
@@ -101,7 +105,8 @@ abstract class AgentsAssistantProvisioner {
   Future<void> publishAssistant(String agentId);
 }
 
-AgentsAssistantProvisioner createAgentsAssistantProvisioner(SdkworkAppClient client) {
+AgentsAssistantProvisioner createAgentsAssistantProvisioner(
+    SdkworkAppClient client) {
   return _AgentsAssistantProvisionerImpl(client: client);
 }
 
@@ -113,10 +118,13 @@ class _AgentsAssistantProvisionerImpl implements AgentsAssistantProvisioner {
   @override
   Future<String> ensureBuiltInAssistant(String model) async {
     try {
-      final existing = await client.ai.agentsRetrieve(agentsDefaultAssistantAgentId);
+      final existing =
+          await client.ai.agentsRetrieve(agentsDefaultAssistantAgentId);
       final record = sdkworkAgentsResourceItem(existing?.data);
       final agentId = record?['agentId']?.toString();
-      return agentId == null || agentId.isEmpty ? agentsDefaultAssistantAgentId : agentId;
+      return agentId == null || agentId.isEmpty
+          ? agentsDefaultAssistantAgentId
+          : agentId;
     } catch (error) {
       if (!isAgentsNotFoundError(error)) {
         rethrow;
@@ -144,7 +152,9 @@ class _AgentsAssistantProvisionerImpl implements AgentsAssistantProvisioner {
     );
     final record = sdkworkAgentsResourceItem(created?.data);
     final agentId = record?['agentId']?.toString();
-    return agentId == null || agentId.isEmpty ? agentsDefaultAssistantAgentId : agentId;
+    return agentId == null || agentId.isEmpty
+        ? agentsDefaultAssistantAgentId
+        : agentId;
   }
 
   @override
@@ -188,7 +198,8 @@ class _AgentsAssistantProvisionerImpl implements AgentsAssistantProvisioner {
       );
     } catch (error) {
       final message = error.toString();
-      if (!message.contains(_defaultBindingId) && !message.contains('already exists')) {
+      if (!message.contains(_defaultBindingId) &&
+          !message.contains('already exists')) {
         rethrow;
       }
     }

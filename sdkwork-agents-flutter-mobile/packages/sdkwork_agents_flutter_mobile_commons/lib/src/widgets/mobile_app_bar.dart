@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../theme/design_tokens.dart';
+import '../theme/tech_blue_theme.dart';
 
 /// Mobile app bar shared by the Agents Flutter capability screens.
 ///
-/// Matches the mobile design language used on the H5 root: a compact bar with a
-/// leading round affordance, a title with an optional second line (the active
-/// task or expert), and trailing actions
+/// Matches the mobile design language used on the H5 root: a compact flat bar
+/// on the page background, a leading round affordance, a title with an optional
+/// second line (the active task or expert), and trailing actions
 /// (`APP_FLUTTER_UI_SPEC.md` — capability packages own their screen chrome).
+/// There is no bottom border and no elevation (`specs/client-theme.spec.json`).
 class SdkworkAgentsMobileAppBar extends StatelessWidget {
   const SdkworkAgentsMobileAppBar({
     super.key,
@@ -22,7 +23,8 @@ class SdkworkAgentsMobileAppBar extends StatelessWidget {
   final String title;
   final String? subtitle;
 
-  /// Leading glyph. Defaults to the shell menu glyph when null.
+  /// Leading glyph. When null no leading affordance is rendered, so a tab does
+  /// not expose a dead menu button.
   final IconData? leading;
   final String? leadingTooltip;
   final List<Widget> actions;
@@ -31,8 +33,10 @@ class SdkworkAgentsMobileAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final subtitleText = subtitle;
+    final leadingIcon = leading;
+    final ColorScheme scheme = Theme.of(context).colorScheme;
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: SafeArea(
         bottom: false,
         child: SizedBox(
@@ -40,11 +44,12 @@ class SdkworkAgentsMobileAppBar extends StatelessWidget {
           child: Row(
             children: <Widget>[
               const SizedBox(width: SdkworkAgentsFlutterTokens.spacingSm),
-              _RoundIconButton(
-                icon: leading ?? Icons.menu,
-                tooltip: leadingTooltip,
-                onPressed: onLeadingPressed,
-              ),
+              if (leadingIcon != null)
+                _RoundIconButton(
+                  icon: leadingIcon,
+                  tooltip: leadingTooltip,
+                  onPressed: onLeadingPressed,
+                ),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -54,10 +59,10 @@ class SdkworkAgentsMobileAppBar extends StatelessWidget {
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(SdkworkAgentsFlutterTokens.colorText),
+                        color: scheme.onSurface,
                       ),
                     ),
                     if (subtitleText != null && subtitleText.isNotEmpty)
@@ -68,16 +73,16 @@ class SdkworkAgentsMobileAppBar extends StatelessWidget {
                               subtitleText,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: Color(SdkworkAgentsFlutterTokens.colorTextMuted),
+                                color: scheme.onSurfaceVariant,
                               ),
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right,
                             size: 14,
-                            color: Color(SdkworkAgentsFlutterTokens.colorTextMuted),
+                            color: scheme.onSurfaceVariant,
                           ),
                         ],
                       ),
@@ -103,20 +108,26 @@ class _RoundIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final TechBlueThemeColors colors = techBlueThemeColors(context);
     final button = IconButton(
       onPressed: onPressed,
       icon: Icon(icon, size: 20),
       style: IconButton.styleFrom(
-        backgroundColor: const Color(0xFFF1F5F9),
-        foregroundColor: const Color(SdkworkAgentsFlutterTokens.colorText),
-        minimumSize: const Size(36, 36),
+        backgroundColor: scheme.surfaceContainer,
+        disabledBackgroundColor: scheme.surfaceContainer,
+        foregroundColor: colors.iconDefault,
+        disabledForegroundColor: colors.iconDisabled,
+        minimumSize: const Size(48, 48),
         padding: EdgeInsets.zero,
       ),
     );
     final label = tooltip;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: label == null || label.isEmpty ? button : Tooltip(message: label, child: button),
+      child: label == null || label.isEmpty
+          ? button
+          : Tooltip(message: label, child: button),
     );
   }
 }

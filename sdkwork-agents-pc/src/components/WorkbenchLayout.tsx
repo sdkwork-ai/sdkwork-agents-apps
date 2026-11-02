@@ -8,6 +8,7 @@ import {
 import { GlobalSidebar } from './GlobalSidebar';
 import { AgentStatusIndicator } from './AgentStatusIndicator';
 import { DEFAULT_WORKBENCH_TAB, isWorkbenchTab, type WorkbenchTab } from './workbenchTabs';
+import { AGENTS_PAGE_IDS, resolvePageIdForWorkbenchTab } from './workbenchPages';
 
 const AgentWorkspace = lazy(async () => {
   const [agentsModule, knowledgebaseRuntime] = await Promise.all([
@@ -34,12 +35,12 @@ const WORKBENCH_VIEW_BY_TAB: Record<WorkbenchTab, LazyExoticComponent<ComponentT
 };
 
 const AVATAR_COLOR_TEMPLATES = [
-  'bg-[#1890ff] text-white',
+  'bg-[var(--ag-color-primary,#165DFF)] text-white',
   'bg-emerald-500 text-white',
   'bg-violet-500 text-white',
   'bg-orange-500 text-white',
   'bg-rose-500 text-white',
-  'bg-zinc-800 border border-zinc-700 text-white'
+  'bg-[var(--ag-color-rail,#0A1B3D)] text-[var(--ag-color-rail-text,#C9D6EA)]'
 ];
 
 export type WorkbenchViewportMode = 'embedded' | 'fixed';
@@ -137,19 +138,22 @@ export const WorkbenchLayout = ({
   const avatarBg = AVATAR_COLOR_TEMPLATES[avatarIndex] || AVATAR_COLOR_TEMPLATES[0];
   const safeActiveTab = hiddenTabs.includes(activeTab) ? DEFAULT_WORKBENCH_TAB : activeTab;
   const ActiveWorkspace = WORKBENCH_VIEW_BY_TAB[safeActiveTab];
+  // Cross-client page identity: every client renders the same page system, so
+  // the active page id is observable here for contract tests and automation.
+  const activePageId = resolvePageIdForWorkbenchTab(safeActiveTab);
   const workbenchLayoutStyle: WorkbenchLayoutStyle = {
     '--sdkwork-agents-overlay-top-inset': overlayTopInset,
   };
 
   return (
     <div
-      className={`sdkwork-agents-workbench flex min-h-0 w-full bg-[#f5f5f5] font-sans text-gray-900 dark:bg-[#191919] dark:text-gray-100 overflow-hidden ${viewportMode === 'fixed' ? 'h-[100dvh]' : 'h-full'}`}
+      className={`sdkwork-agents-workbench flex min-h-0 w-full bg-[var(--ag-color-background,#F4F7FC)] font-sans text-[var(--ag-color-text-primary,#0A1B3D)] dark:bg-[#191919] dark:text-gray-100 overflow-hidden ${viewportMode === 'fixed' ? 'h-[100dvh]' : 'h-full'}`}
       style={workbenchLayoutStyle}
     >
       <AgentStatusIndicator />
-      <GlobalSidebar 
-        activeTab={safeActiveTab} 
-        avatarBg={avatarBg} 
+      <GlobalSidebar
+        activeTab={safeActiveTab}
+        avatarBg={avatarBg}
         hiddenTabs={hiddenTabs}
         isTokenPlanOpen={isTokenPlanOpen}
         onOpenTokenPlan={() => {
@@ -161,40 +165,43 @@ export const WorkbenchLayout = ({
           setActiveTab(tab);
         }}
         showSidebarLogo={showSidebarLogo}
-        username={username} 
+        username={username}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 w-0 flex flex-col relative overflow-hidden bg-[#f5f5f5] dark:bg-[#191919]">
-        <Suspense fallback={<div className="flex flex-1 items-center justify-center text-sm text-gray-500">正在加载工作台…</div>}>
-          {isTokenPlanOpen ? <AgentsTokenPlanView /> : <ActiveWorkspace />}
-        </Suspense>
-      </div>
-
-      {isTokenPlanOverlayOpen && (
         <div
-          className="sdkwork-agents-token-plan-overlay fixed inset-0 z-[9999] flex h-[100dvh] w-full flex-col bg-black/70 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label={tCommon('tokenPlan', 'Token Plan')}
+          className="flex-1 w-0 flex flex-col relative overflow-hidden bg-[var(--ag-color-background,#F4F7FC)] dark:bg-[#191919]"
+          data-page-id={isTokenPlanOpen ? AGENTS_PAGE_IDS.membershipCatalog : activePageId}
         >
-          <div className="relative flex h-full w-full flex-col overflow-hidden bg-[#0e0e11] shadow-2xl">
-            <button
-              aria-label={tCommon('close', 'Close')}
-              className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-300 transition-colors hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60"
-              onClick={closeTokenPlanOverlay}
-              title={tCommon('close', 'Close')}
-              type="button"
-            >
-              <X aria-hidden size={18} />
-            </button>
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <Suspense fallback={<div className="flex h-full items-center justify-center text-sm text-zinc-400">正在加载会员方案...</div>}>
-                <AgentsTokenPlanView />
+          <Suspense fallback={<div className="flex flex-1 items-center justify-center text-sm text-[var(--ag-color-text-secondary,#5B6B88)]">正在加载工作台…</div>}>
+            {isTokenPlanOpen ? <AgentsTokenPlanView /> : <ActiveWorkspace />}
               </Suspense>
             </div>
-          </div>
-        </div>
+
+              {isTokenPlanOverlayOpen && (
+                <div
+                  className="sdkwork-agents-token-plan-overlay fixed inset-0 z-[9999] flex h-[100dvh] w-full flex-col bg-[var(--ag-color-scrim)]"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label={tCommon('tokenPlan', 'Token Plan')}
+                >
+                  <div className="relative flex h-full w-full flex-col overflow-hidden bg-[var(--ag-color-surface,#FFFFFF)]">
+                    <button
+                      aria-label={tCommon('close', 'Close')}
+                      className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--ag-color-surface-muted,#EAF1FB)] text-[var(--ag-color-icon-default,#5B6B88)] transition-colors hover:bg-[var(--ag-color-surface-strong,#DCE8F9)] hover:text-[var(--ag-color-text-primary,#0A1B3D)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ag-color-primary,#165DFF)]"
+                      onClick={closeTokenPlanOverlay}
+                      title={tCommon('close', 'Close')}
+                      type="button"
+                    >
+                      <X aria-hidden size={18} />
+                    </button>
+                      <div className="min-h-0 flex-1 overflow-y-auto">
+                        <Suspense fallback={<div className="flex h-full items-center justify-center text-sm text-[var(--ag-color-text-tertiary,#8A97AD)]">正在加载会员方案...</div>}>
+                          <AgentsTokenPlanView />
+                        </Suspense>
+            </div>
+            </div>
+            </div>
       )}
     </div>
   );

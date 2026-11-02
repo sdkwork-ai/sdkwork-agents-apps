@@ -18,6 +18,8 @@ class AgentsLibraryScreen extends StatelessWidget {
     required this.onOpen,
     required this.translate,
     this.trailingActions = const <Widget>[],
+    this.onNavigateBack,
+    this.backTooltip,
   });
 
   final AgentsLibraryState state;
@@ -29,6 +31,10 @@ class AgentsLibraryScreen extends StatelessWidget {
   final ValueChanged<AgentsLibraryFile> onOpen;
   final String Function(String key) translate;
   final List<Widget> trailingActions;
+
+  /// When set, the app bar exposes a back affordance for a pushed page.
+  final VoidCallback? onNavigateBack;
+  final String? backTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +57,18 @@ class AgentsLibraryScreen extends StatelessWidget {
       banner: state.truncated ? translate('agents.library.truncated') : null,
       onRefresh: onRefresh,
       onRetry: onRefresh,
+      retryLabel: translate('agents.library.retry'),
+      onLeadingPressed: onNavigateBack,
+      leadingIcon: onNavigateBack == null ? null : Icons.arrow_back,
+      leadingTooltip: backTooltip,
       trailingActions: trailingActions,
       itemBuilder: (BuildContext context, int index) {
         final file = files[index];
         return ListTile(
-          leading: const Icon(Icons.insert_drive_file_outlined),
+          leading: Icon(
+            Icons.insert_drive_file_outlined,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           title: Text(file.name, maxLines: 2, overflow: TextOverflow.ellipsis),
           subtitle: file.mimeType == null ? null : Text(file.mimeType!),
           onTap: () => onOpen(file),

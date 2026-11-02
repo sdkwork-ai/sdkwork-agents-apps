@@ -15,6 +15,11 @@
  * yet, so this module deliberately declares the port and the adapter seam
  * instead of vendoring a transport copy. Feature packages must never fill
  * this gap with raw request APIs or manual auth headers.
+ *
+ * Capability ports are optional: a generated ArkTS adaptation attaches the
+ * sub-clients it can actually serve. A missing sub-client is reported by the
+ * owning service as an explicit `unavailable` page state (never as empty data),
+ * which is the seam milestone M3 fills.
  */
 
 export interface AgentsAppSdkClientConfig {
@@ -24,9 +29,50 @@ export interface AgentsAppSdkClientConfig {
   readonly platform?: string;
 }
 
+/** Wire record for one agent catalog entry, mapped by the catalog service. */
+export interface AgentsAppSdkAgentRecord {
+  readonly id: string;
+  readonly name: string;
+  readonly description?: string;
+  readonly avatarUrl?: string;
+}
+
+export interface AgentsAppSdkAgentPage {
+  readonly items: AgentsAppSdkAgentRecord[];
+  readonly nextCursor?: string;
+}
+
+/** Wire record for one conversation message, mapped by the conversation service. */
+export interface AgentsAppSdkMessageRecord {
+  readonly id: string;
+  readonly role: string;
+  readonly text: string;
+  readonly createdAt?: string;
+}
+
+export interface AgentsAppSdkMessagePage {
+  readonly items: AgentsAppSdkMessageRecord[];
+  readonly nextCursor?: string;
+}
+
+/** Agent catalog operations exposed by the adapted app SDK client. */
+export interface AgentsAppSdkAgentCatalogPort {
+  listAgents(pageSize: number, cursor?: string): Promise<AgentsAppSdkAgentPage>;
+}
+
+/** Conversation operations exposed by the adapted app SDK client. */
+export interface AgentsAppSdkConversationsPort {
+  listMessages(sessionId: string, pageSize: number): Promise<AgentsAppSdkMessagePage>;
+  sendMessage(sessionId: string, text: string): Promise<AgentsAppSdkMessageRecord>;
+}
+
 export interface AgentsAppSdkClient {
   readonly baseUrl: string;
   readonly platform: string;
+  /** Absent until the ArkTS adaptation provides the catalog transport. */
+  readonly agentCatalog?: AgentsAppSdkAgentCatalogPort;
+  /** Absent until the ArkTS adaptation provides the conversation transport. */
+  readonly conversations?: AgentsAppSdkConversationsPort;
 }
 
 const APP_API_SUFFIX: string = '/app/v3/api';
