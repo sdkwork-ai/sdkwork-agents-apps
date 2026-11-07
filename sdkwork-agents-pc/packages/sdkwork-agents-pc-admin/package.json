@@ -1,0 +1,32 @@
+{
+  "name": "@sdkwork/agents-pc-admin",
+  "version": "0.1.0",
+  "private": true,
+  "license": "SEE LICENSE IN ../../../../../LICENSE",
+  "type": "module",
+  "description": "SDKWork Agents PC admin management block (backend-api managed agents).",
+  "main": "./src/index.tsx",
+  "module": "./src/index.tsx",
+  "types": "./src/index.tsx",
+  "exports": {
+    ".": {
+      "types": "./src/index.tsx",
+      "import": "./src/index.tsx",
+      "default": "./src/index.tsx"
+    },
+    "./agentsAdminService": "./src/agentsAdminService.ts"
+  },
+  "dependencies": {
+    "@sdkwork/agents-backend-sdk": "workspace:*",
+    "@sdkwork/utils": "workspace:*",
+    "react": "^19.1.0"
+  },
+  "sdkwork": {
+    "workspace": "sdkwork-agents",
+    "architecture": "pc-react",
+    "domain": "agents",
+    "capability": "agents-admin",
+    "surface": "admin",
+    "status": "ready"
+  }
+}
