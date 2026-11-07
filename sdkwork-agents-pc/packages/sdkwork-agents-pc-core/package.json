@@ -14,6 +14,7 @@
       "default": "./src/index.ts"
     },
     "./sdk": "./src/sdk/index.ts",
+    "./sdk/agentsBackendSdkClient": "./src/sdk/agentsBackendSdkClient.ts",
     "./sdk/agentsAppSdkClient": "./src/sdk/agentsAppSdkClient.ts",
     "./sdk/assetsAppSdkClient": "./src/sdk/assetsAppSdkClient.ts",
     "./sdk/communityAppSdkClient": "./src/sdk/communityAppSdkClient.ts",
@@ -37,6 +38,7 @@
   },
   "dependencies": {
     "@sdkwork/agents-app-sdk": "workspace:*",
+    "@sdkwork/agents-backend-sdk": "workspace:*",
     "@sdkwork/assets-app-sdk": "workspace:*",
     "@sdkwork/community-app-sdk": "workspace:*",
     "@sdkwork/drive-app-sdk": "workspace:*",

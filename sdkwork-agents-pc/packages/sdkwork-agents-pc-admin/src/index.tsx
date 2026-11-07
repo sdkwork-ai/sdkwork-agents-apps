@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { isBlank, trim } from '@sdkwork/utils';
 import type {
   AgentRecord,
-} from '@sdkwork/agents-backend-sdk';
+} from '@sdkwork/agents-pc-core/sdk/agentsBackendSdkClient';
 
 import {
   createManagedAgent,

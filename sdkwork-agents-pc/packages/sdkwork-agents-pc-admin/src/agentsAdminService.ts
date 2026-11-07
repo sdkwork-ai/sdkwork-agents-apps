@@ -1,12 +1,12 @@
-import {
+import type {
+  AgentRecord,
+  CreateAgentRequest,
+  RestoreAgentRequest,
+  SdkWorkPageData,
   SdkworkBackendClient,
-  type AgentRecord,
-  type CreateAgentRequest,
-  type RestoreAgentRequest,
-  type SdkWorkPageData,
-  type UpdateAgentRequest,
-  type UpdateAgentStatusRequest,
-} from '@sdkwork/agents-backend-sdk';
+  UpdateAgentRequest,
+  UpdateAgentStatusRequest,
+} from '@sdkwork/agents-pc-core/sdk/agentsBackendSdkClient';
 
 /**
  * List query parameters of the generated backend client. The generated API

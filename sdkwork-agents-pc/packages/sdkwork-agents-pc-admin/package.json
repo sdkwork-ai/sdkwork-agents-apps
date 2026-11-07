@@ -17,7 +17,7 @@
     "./agentsAdminService": "./src/agentsAdminService.ts"
   },
   "dependencies": {
-    "@sdkwork/agents-backend-sdk": "workspace:*",
+    "@sdkwork/agents-pc-core": "workspace:*",
     "@sdkwork/utils": "workspace:*",
     "react": "^19.1.0"
   },
