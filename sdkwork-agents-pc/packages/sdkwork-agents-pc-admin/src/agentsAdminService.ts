@@ -1,4 +1,6 @@
 import type {
+  AgentCategoryRecord,
+  AgentCategoryUpsertRequest,
   AgentRecord,
   CreateAgentRequest,
   RestoreAgentRequest,
@@ -17,7 +19,14 @@ export type AgentsAdminListParams = Parameters<
   SdkworkBackendClient['ai']['agents']['list']
 >[0];
 
+/** List query parameters of the managed category catalog. */
+export type AgentCategoriesAdminListParams = Parameters<
+  SdkworkBackendClient['ai']['agentCategories']['list']
+>[0];
+
 export type {
+  AgentCategoryRecord,
+  AgentCategoryUpsertRequest,
   AgentRecord,
   CreateAgentRequest,
   RestoreAgentRequest,
@@ -100,4 +109,17 @@ export async function restoreManagedAgent(
     requestedAt: nowIso(),
   };
   return getAgentsAdminBackendSdkClient().ai.agents.restore(agentId, body);
+}
+
+export async function listAgentCategories(
+  params?: AgentCategoriesAdminListParams,
+): Promise<SdkWorkPageData & { items: AgentCategoryRecord[] }> {
+  return getAgentsAdminBackendSdkClient().ai.agentCategories.list(params);
+}
+
+export async function upsertAgentCategory(
+  categoryCode: string,
+  body: AgentCategoryUpsertRequest,
+): Promise<AgentCategoryRecord> {
+  return getAgentsAdminBackendSdkClient().ai.agentCategories.update(categoryCode, body);
 }

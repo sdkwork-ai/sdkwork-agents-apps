@@ -4,7 +4,7 @@
   "private": true,
   "license": "SEE LICENSE IN ../../../../../LICENSE",
   "type": "module",
-  "description": "SDKWork Agents PC admin management block (backend-api managed agents).",
+  "description": "SDKWork Agents PC admin management block (backend-api managed agents and categories).",
   "main": "./src/index.tsx",
   "module": "./src/index.tsx",
   "types": "./src/index.tsx",

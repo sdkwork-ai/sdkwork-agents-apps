@@ -8,6 +8,8 @@
  * client contract belong here, next to the other Agents SDK boundaries.
  */
 export type {
+  AgentCategoryRecord,
+  AgentCategoryUpsertRequest,
   AgentRecord,
   CreateAgentRequest,
   RestoreAgentRequest,

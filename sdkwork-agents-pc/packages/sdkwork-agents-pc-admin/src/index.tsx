@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 
 import { isBlank, trim } from '@sdkwork/utils';
 import type {
+  AgentCategoryRecord,
   AgentRecord,
 } from '@sdkwork/agents-pc-core/sdk/agentsBackendSdkClient';
 
 import {
   createManagedAgent,
+  listAgentCategories,
   listManagedAgents,
   restoreManagedAgent,
   updateManagedAgent,
@@ -52,6 +54,7 @@ const STATUS_TRANSITIONS: Record<string, readonly StatusTransition[]> = {
  */
 export function AgentsAdminPage() {
   const [records, setRecords] = useState<AgentRecord[]>([]);
+  const [categories, setCategories] = useState<AgentCategoryRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -83,6 +86,29 @@ export function AgentsAdminPage() {
       active = false;
     };
   }, [reloadToken]);
+
+  useEffect(() => {
+    let active = true;
+    listAgentCategories({ pageSize: 200 })
+      .then((page) => {
+        if (active) setCategories(page.items);
+      })
+      .catch(() => {
+        // Category lookup is a presentation enhancement for the agent list;
+        // the page still works when the catalog is unavailable.
+      });
+    return () => {
+      active = false;
+    };
+  }, [reloadToken]);
+
+  const categoryNameByCode = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const category of categories) {
+      map.set(category.categoryCode, category.name);
+    }
+    return map;
+  }, [categories]);
 
   const runAction = useCallback(
     async (action: () => Promise<unknown>, successNotice: string): Promise<boolean> => {
@@ -143,6 +169,7 @@ export function AgentsAdminPage() {
                   <th className="px-3 py-2">Agent</th>
                   <th className="px-3 py-2">Code</th>
                   <th className="px-3 py-2">Implementation</th>
+                  <th className="px-3 py-2">Category</th>
                   <th className="px-3 py-2">Visibility</th>
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2">Version</th>
@@ -159,6 +186,23 @@ export function AgentsAdminPage() {
                     </td>
                     <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{record.code}</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{record.implementationType}</td>
+                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">
+                      {(() => {
+                        const categoryId = record.managementProfile?.categoryId;
+                        if (!categoryId) {
+                          return (
+                            <span className="text-xs italic text-slate-400 dark:text-zinc-600">
+                              Uncategorized
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-white/5 dark:text-zinc-400">
+                            {categoryNameByCode.get(categoryId) ?? categoryId}
+                          </span>
+                        );
+                      })()}
+                    </td>
                     <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{record.visibility}</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{record.status}</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{String(record.version)}</td>
@@ -220,6 +264,7 @@ export function AgentsAdminPage() {
       ) : null}
       {editTarget ? (
         <EditAgentModal
+          categories={categories}
           record={editTarget}
           onClose={() => setEditTarget(null)}
           onUpdate={async (agentId, body) => {
@@ -407,6 +452,7 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
 
 type EditAgentModalProps = {
   record: AgentRecord;
+  categories: readonly AgentCategoryRecord[];
   onClose: () => void;
   onUpdate: (
     agentId: string,
@@ -414,9 +460,10 @@ type EditAgentModalProps = {
   ) => Promise<unknown>;
 };
 
-function EditAgentModal({ record, onClose, onUpdate }: EditAgentModalProps) {
+function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModalProps) {
   const [displayName, setDisplayName] = useState(record.displayName);
   const [description, setDescription] = useState(record.description ?? '');
+  const [categoryId, setCategoryId] = useState(record.managementProfile?.categoryId ?? '');
   const [visibility, setVisibility] = useState<(typeof VISIBILITY_OPTIONS)[number]>(
     (VISIBILITY_OPTIONS as readonly string[]).includes(record.visibility)
       ? record.visibility
@@ -427,12 +474,27 @@ function EditAgentModal({ record, onClose, onUpdate }: EditAgentModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const categoryOptions = categories
+    .filter(
+      (category) =>
+        category.lifecycleStatus === 'active' || category.categoryCode === categoryId,
+    )
+    .slice()
+    .sort((left, right) => left.name.localeCompare(right.name));
+  const currentCategory = categories.find((category) => category.categoryCode === categoryId);
+
   const submit = (event: FormEvent) => {
     event.preventDefault();
     const parsedManifest = parseJsonRecord(manifest);
     if (typeof parsedManifest === 'string') {
       setFormError(parsedManifest);
       return;
+    }
+    const managementProfile = { ...(record.managementProfile ?? {}) };
+    if (categoryId) {
+      managementProfile.categoryId = categoryId;
+    } else {
+      delete managementProfile.categoryId;
     }
     setSubmitting(true);
     setFormError(null);
@@ -442,6 +504,7 @@ function EditAgentModal({ record, onClose, onUpdate }: EditAgentModalProps) {
       visibility,
       tags: parseTags(tags),
       manifest: parsedManifest,
+      managementProfile,
       expectedVersion: String(record.version),
     })
       .catch((cause: unknown) => {
@@ -498,6 +561,27 @@ function EditAgentModal({ record, onClose, onUpdate }: EditAgentModalProps) {
             </select>
           </label>
           <label className="grid gap-1 text-sm">
+            <span className="text-slate-600 dark:text-zinc-300">Category</span>
+            <select
+              className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+              value={categoryId}
+              onChange={(event) => setCategoryId(event.target.value)}
+            >
+              <option value="">Uncategorized</option>
+              {categoryOptions.map((category) => (
+                <option key={category.id} value={category.categoryCode}>
+                  {category.name} ({category.categoryCode})
+                </option>
+              ))}
+              {categoryId && !currentCategory ? (
+                <option value={categoryId}>{categoryId} (inactive)</option>
+              ) : null}
+            </select>
+            <span className="text-xs text-slate-500 dark:text-zinc-400">
+              Category taxonomy is curated in Agent categories.
+            </span>
+          </label>
+          <label className="grid gap-1 text-sm">
             <span className="text-slate-600 dark:text-zinc-300">Tags (comma separated)</span>
             <input
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
@@ -538,3 +622,5 @@ function EditAgentModal({ record, onClose, onUpdate }: EditAgentModalProps) {
     </div>
   );
 }
+
+export { AgentCategoriesPage } from './agentCategoriesPage.tsx';
