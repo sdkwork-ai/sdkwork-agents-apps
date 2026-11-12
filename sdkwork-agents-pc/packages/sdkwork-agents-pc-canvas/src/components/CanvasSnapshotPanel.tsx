@@ -14,6 +14,10 @@ import {
   FileJson
 } from 'lucide-react';
 import { CanvasNode, CanvasGroup, Connection } from '../types';
+import {
+  readAccountScopedItem,
+  writeAccountScopedItem,
+} from '@sdkwork/agents-pc-core/session';
 
 interface Snapshot {
   id: string;
@@ -62,10 +66,10 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
 
-  // Load snapshots from localStorage on mount
+  // Load this account's snapshots on mount (account-scoped storage).
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const saved = readAccountScopedItem(LOCAL_STORAGE_KEY);
       if (saved) {
         setSnapshots(JSON.parse(saved));
       }
@@ -74,10 +78,10 @@ export const CanvasSnapshotPanel: React.FC<CanvasSnapshotPanelProps> = ({
     }
   }, []);
 
-  // Save snapshots to localStorage helper
+  // Save snapshots to account-scoped storage helper
   const saveToStorage = (updatedList: Snapshot[]) => {
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedList));
+      writeAccountScopedItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedList));
       setSnapshots(updatedList);
     } catch (e) {
       console.error('Failed to save snapshots:', e);

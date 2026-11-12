@@ -5,6 +5,10 @@ import {
   creativeModelCatalogService,
   STATIC_DEFAULT_MODEL_IDS,
 } from '@sdkwork/agents-pc-commons';
+import {
+  readAccountScopedItem,
+  writeAccountScopedItem,
+} from '@sdkwork/agents-pc-core/session';
 
 import type { CanvasGroup, CanvasNode, Connection } from '../types';
 
@@ -84,10 +88,13 @@ export class CanvasService {
    * Media generation (image/video) already calls the real generations API;
    * server-side persistence of the workflow graph itself is a product
    * decision pending a backend resource. No server state is implied.
+   *
+   * The entry is account-scoped: a second account on this browser starts from
+   * the shipped graph instead of inheriting the previous account's workflow.
    */
   static async getInitialWorkflow() {
     try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const saved = readAccountScopedItem(LOCAL_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && Array.isArray(parsed.nodes)) {
@@ -137,7 +144,7 @@ export class CanvasService {
 
   static saveWorkflow(data: { nodes: CanvasNode[], groups: CanvasGroup[], connections: Connection[] }) {
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+      writeAccountScopedItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
       console.warn('Failed to save workflow', e);
     }

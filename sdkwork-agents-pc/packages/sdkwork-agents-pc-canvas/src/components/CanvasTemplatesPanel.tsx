@@ -15,6 +15,10 @@ import {
   Upload
 } from 'lucide-react';
 import { CanvasNode, CanvasGroup, Connection } from '../types';
+import {
+  readAccountScopedItem,
+  writeAccountScopedItem,
+} from '@sdkwork/agents-pc-core/session';
 
 import { Template, SYSTEM_TEMPLATES } from '../data/templates';
 
@@ -48,10 +52,10 @@ export const CanvasTemplatesPanel: React.FC<CanvasTemplatesPanelProps> = ({
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateDesc, setNewTemplateDesc] = useState('');
 
-  // Load custom templates on mount
+  // Load this account's custom templates on mount (account-scoped storage)
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const saved = readAccountScopedItem(LOCAL_STORAGE_KEY);
       if (saved) {
         setCustomTemplates(JSON.parse(saved));
       }
@@ -62,7 +66,7 @@ export const CanvasTemplatesPanel: React.FC<CanvasTemplatesPanelProps> = ({
 
   const saveToStorage = (updated: Template[]) => {
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+      writeAccountScopedItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
       setCustomTemplates(updated);
     } catch (e) {
       showToast('模板保存失败，可能存储空间不足', 'error');

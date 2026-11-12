@@ -1,6 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 
-import { useCreativeModelCatalog } from '../creative-model-catalog';
+import {
+  readAccountScopedItem,
+  removeAccountScopedItem,
+  writeAccountScopedItem,
+} from '@sdkwork/agents-pc-core/session';
+
+import {
+  clampDurationSeconds,
+  resolveVideoGenerationMode,
+  supportedImageAspectRatios,
+  supportedVideoAspectRatios,
+  supportedVideoResolutions,
+  supportedVideoSettingsModes,
+  useCreativeModelCatalog,
+  type CreativeVideoSettingsMode,
+} from '../creative-model-catalog';
+import { imageDimensionsFor } from '../components/creative/imageDimensions';
+
+/** Account-scoped draft key (see `@sdkwork/agents-pc-core/session`). */
+const CREATIVE_INPUT_DRAFT_KEY = 'creative_input_draft';
 
 export interface CreativeInputSettings {
   model?: string;
@@ -8,6 +27,14 @@ export interface CreativeInputSettings {
   resolution?: string;
   duration?: number;
   videoMode?: 'all_around' | 'first_last' | 'smart_multi';
+  /** Precise generation mode submitted as `parameters.generationMode`. */
+  generationMode?: string;
+  /** Selected vendor voice id for speech synthesis. */
+  voiceId?: string;
+  /** Seamless looping for sound effects. */
+  loop?: boolean;
+  /** Whether the generated video carries synchronized audio. */
+  audio?: boolean;
   count?: number;
   imageWidth?: number;
   imageHeight?: number;
@@ -21,18 +48,14 @@ export function useCreativeInputBox(
 ) {
   const [input, setInput] = useState(() => {
     if (defaultValue) return defaultValue;
-    try {
-      return localStorage.getItem('creative_input_draft') || '';
-    } catch {
-      return '';
-    }
+    return readAccountScopedItem(CREATIVE_INPUT_DRAFT_KEY) ?? '';
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem('creative_input_draft', input);
-    } catch {
-      // ignore
+    if (input) {
+      writeAccountScopedItem(CREATIVE_INPUT_DRAFT_KEY, input);
+    } else {
+      removeAccountScopedItem(CREATIVE_INPUT_DRAFT_KEY);
     }
   }, [input]);
   const [creationType, setCreationType] = useState(initialMode || 'video'); // Default to video based on prompt
@@ -65,6 +88,7 @@ export function useCreativeInputBox(
   const [isVideoSettingsOpen, setIsVideoSettingsOpen] = useState(false);
   const [isMusicSettingsOpen, setIsMusicSettingsOpen] = useState(false);
   const [isVoiceSettingsOpen, setIsVoiceSettingsOpen] = useState(false);
+  const [isSfxSettingsOpen, setIsSfxSettingsOpen] = useState(false);
   
   const [creationMenuPlacement, setCreationMenuPlacement] = useState<'top' | 'bottom'>('top');
   const [modelMenuPlacement, setModelMenuPlacement] = useState<'top' | 'bottom'>('top');
@@ -72,23 +96,27 @@ export function useCreativeInputBox(
   const [musicSettingsPlacement, setMusicSettingsPlacement] = useState<'top' | 'bottom'>('top');
   const [voiceSettingsPlacement, setVoiceSettingsPlacement] = useState<'top' | 'bottom'>('top');
   const [imageSettingsPlacement, setImageSettingsPlacement] = useState<'top' | 'bottom'>('top');
+  const [sfxSettingsPlacement, setSfxSettingsPlacement] = useState<'top' | 'bottom'>('top');
 
   const [videoSettingsMode, setVideoSettingsMode] = useState<'all_around' | 'first_last' | 'smart_multi'>(initialSettings?.videoMode || 'all_around');
   const [videoRatio, setVideoRatio] = useState(initialSettings?.ratio || '16:9');
   const [videoResolution, setVideoResolution] = useState(initialSettings?.resolution || '720P');
-  const [videoCount, setVideoCount] = useState(initialSettings?.count ? String(initialSettings.count) : '1');
   const [videoDuration, setVideoDuration] = useState(initialSettings?.duration || 4);
+  const [videoAudio, setVideoAudio] = useState(true);
 
   const [imageRatio, setImageRatio] = useState(initialSettings?.ratio || '1:1');
   const [imageResolution, setImageResolution] = useState(initialSettings?.resolution || '2K');
   const [imageWidth, setImageWidth] = useState(1328);
   const [imageHeight, setImageHeight] = useState(1328);
+  const [imageCount, setImageCount] = useState(initialSettings?.count && initialSettings.count > 0 ? initialSettings.count : 1);
   const [imageAspectRatioLocked, setImageAspectRatioLocked] = useState(true);
   const [isImageSettingsOpen, setIsImageSettingsOpen] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
   const [musicSmartDuration, setMusicSmartDuration] = useState(true);
   const [musicDuration, setMusicDuration] = useState(120);
+  const [sfxDuration, setSfxDuration] = useState(initialSettings?.duration && initialSettings.duration > 0 ? initialSettings.duration : 4);
+  const [sfxLoop, setSfxLoop] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState('zh_male_1');
   const [activeVoiceCategory, setActiveVoiceCategory] = useState('all');
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
@@ -99,6 +127,7 @@ export function useCreativeInputBox(
   const videoSettingsRef = useRef<HTMLDivElement>(null);
   const musicSettingsRef = useRef<HTMLDivElement>(null);
   const voiceSettingsRef = useRef<HTMLDivElement>(null);
+  const sfxSettingsRef = useRef<HTMLDivElement>(null);
   const imageSettingsRef = useRef<HTMLDivElement>(null);
   
   const creationDropdownRef = useRef<HTMLDivElement>(null);
@@ -106,6 +135,7 @@ export function useCreativeInputBox(
   const videoSettingsDropdownRef = useRef<HTMLDivElement>(null);
   const musicSettingsDropdownRef = useRef<HTMLDivElement>(null);
   const voiceSettingsDropdownRef = useRef<HTMLDivElement>(null);
+  const sfxSettingsDropdownRef = useRef<HTMLDivElement>(null);
   const imageSettingsDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -147,6 +177,12 @@ export function useCreativeInputBox(
       const clickInVoiceDropdown = voiceSettingsDropdownRef.current?.contains(target);
       if (!clickInVoiceBtn && !clickInVoiceDropdown) {
         setIsVoiceSettingsOpen(false);
+      }
+
+      const clickInSfxBtn = sfxSettingsRef.current?.contains(target);
+      const clickInSfxDropdown = sfxSettingsDropdownRef.current?.contains(target);
+      if (!clickInSfxBtn && !clickInSfxDropdown) {
+        setIsSfxSettingsOpen(false);
       }
 
       const clickInImageBtn = imageSettingsRef.current?.contains(target);
@@ -241,6 +277,19 @@ export function useCreativeInputBox(
     setIsVoiceSettingsOpen(false);
   };
 
+  const toggleSfxSettings = () => {
+    if (!isSfxSettingsOpen) {
+      setSfxSettingsPlacement(getDropdownPlacement(sfxSettingsRef, 200));
+    }
+    setIsSfxSettingsOpen(!isSfxSettingsOpen);
+    setIsCreationMenuOpen(false);
+    setIsModelMenuOpen(false);
+    setIsVideoSettingsOpen(false);
+    setIsMusicSettingsOpen(false);
+    setIsVoiceSettingsOpen(false);
+    setIsImageSettingsOpen(false);
+  };
+
   const isVideo = creationType === 'video';
   const isImage = creationType === 'image';
   const isAgent = creationType === 'agent';
@@ -252,12 +301,146 @@ export function useCreativeInputBox(
 
   const selectedModelId = isSfx ? selectedSfxModel : isDigitalHuman ? selectedAvatarModel : isAction ? selectedActionModel : isVoice ? selectedVoiceModel : isMusic ? selectedMusicModel : isVideo ? selectedVideoModel : selectedImageModel;
 
+  // Per-model parameter support. The picker renders only the knobs the selected
+  // model's vendor surface accepts, and the submit carries only those values.
+  const currentCatalog = isSfx ? soundEffectsCatalog
+    : isDigitalHuman ? digitalHumanCatalog
+      : isAction ? actionCatalog
+        : isVoice ? voiceCatalog
+          : isMusic ? musicCatalog
+            : isVideo ? videoCatalog : imageCatalog;
+  const currentParameters = currentCatalog.getDefinition(selectedModelId)?.parameters;
+  const videoParameters = currentParameters?.video;
+  const imageParameters = currentParameters?.image;
+  const musicParameters = currentParameters?.music;
+  const voiceParameters = currentParameters?.voice;
+  const sfxParameters = currentParameters?.sound_effects;
+  const videoSettingsModeOptions = useMemo(
+    () => supportedVideoSettingsModes(videoParameters),
+    [videoParameters],
+  );
+  const videoAspectRatioOptions = useMemo(
+    () => supportedVideoAspectRatios(videoParameters),
+    [videoParameters],
+  );
+  const videoResolutionOptions = useMemo(
+    () => supportedVideoResolutions(videoParameters),
+    [videoParameters],
+  );
+  const imageAspectRatioOptions = useMemo(
+    () => supportedImageAspectRatios(imageParameters),
+    [imageParameters],
+  );
+  const imageResolutionOptions = imageParameters?.resolutions;
+  const voiceOptions = voiceParameters?.voices;
+  const videoGenerationMode = useMemo(
+    () => (isVideo
+      ? resolveVideoGenerationMode(
+        videoSettingsMode as CreativeVideoSettingsMode,
+        uploadedImages.length > 0,
+        videoParameters,
+      )
+      : undefined),
+    [isVideo, videoSettingsMode, uploadedImages.length, videoParameters],
+  );
+
+  // Clamp pending selections whenever the selected model changes: a resolution
+  // or duration the new model does not accept must never reach the wire.
+  useEffect(() => {
+    if (videoAspectRatioOptions && videoAspectRatioOptions.length > 0
+      && !videoAspectRatioOptions.includes(videoRatio)) {
+      setVideoRatio(videoAspectRatioOptions[0]);
+    }
+    if (videoResolutionOptions && videoResolutionOptions.length > 0
+      && !videoResolutionOptions.includes(videoResolution.toUpperCase())) {
+      setVideoResolution(videoResolutionOptions[0]);
+    }
+    if (videoParameters?.duration) {
+      const next = clampDurationSeconds(videoDuration, videoParameters.duration);
+      if (next !== videoDuration) setVideoDuration(next);
+    }
+    if (videoSettingsModeOptions && videoSettingsModeOptions.length > 0
+      && !videoSettingsModeOptions.includes(videoSettingsMode as CreativeVideoSettingsMode)) {
+      setVideoSettingsMode(videoSettingsModeOptions[0]);
+    }
+  }, [
+    videoAspectRatioOptions,
+    videoResolutionOptions,
+    videoParameters,
+    videoSettingsModeOptions,
+    videoRatio,
+    videoResolution,
+    videoDuration,
+    videoSettingsMode,
+  ]);
+
+  // Audio starts at the selected model's capability; switching models resets
+  // the toggle, and a model without synchronized audio can never submit it.
+  useEffect(() => {
+    if (lastAudioModelRef.current === selectedModelId) return;
+    lastAudioModelRef.current = selectedModelId;
+    setVideoAudio(videoParameters?.outputAudio ?? false);
+  }, [selectedModelId, videoParameters]);
+
+  useEffect(() => {
+    if (videoParameters !== undefined && !videoParameters.outputAudio && videoAudio) {
+      setVideoAudio(false);
+    }
+  }, [videoParameters, videoAudio]);
+
+  useEffect(() => {
+    if (imageAspectRatioOptions && imageAspectRatioOptions.length > 0
+      && !imageAspectRatioOptions.includes(imageRatio)) {
+      const next = imageAspectRatioOptions[0] ?? '1:1';
+      setImageRatio(next);
+      const dimensions = imageDimensionsFor(next, imageResolution);
+      setImageWidth(dimensions.w);
+      setImageHeight(dimensions.h);
+    }
+    if (imageResolutionOptions && imageResolutionOptions.length > 0
+      && !imageResolutionOptions.includes(imageResolution)) {
+      const next = imageResolutionOptions[0] ?? '1K';
+      setImageResolution(next);
+      const dimensions = imageDimensionsFor(imageRatio, next);
+      setImageWidth(dimensions.w);
+      setImageHeight(dimensions.h);
+    }
+  }, [imageAspectRatioOptions, imageResolutionOptions, imageRatio, imageResolution]);
+
+  useEffect(() => {
+    if (!musicParameters?.duration) return;
+    const next = clampDurationSeconds(musicDuration, musicParameters.duration);
+    if (next !== musicDuration) setMusicDuration(next);
+  }, [musicParameters, musicDuration]);
+
+  useEffect(() => {
+    const maxCount = imageParameters?.maxCount ?? 1;
+    if (imageCount > maxCount) setImageCount(maxCount);
+    if (imageCount < 1) setImageCount(1);
+  }, [imageParameters, imageCount]);
+
+  useEffect(() => {
+    if (!sfxParameters?.duration) return;
+    const next = clampDurationSeconds(sfxDuration, sfxParameters.duration);
+    if (next !== sfxDuration) setSfxDuration(next);
+  }, [sfxParameters, sfxDuration]);
+
+  useEffect(() => {
+    const options = voiceOptions;
+    if (!options || options.length === 0) return;
+    if (!options.some((option) => option.id === selectedVoice)) {
+      setSelectedVoice(options[0].id);
+    }
+  }, [voiceOptions, selectedVoice]);
+
   const onSettingsChangeRef = useRef(onSettingsChange);
   useEffect(() => {
     onSettingsChangeRef.current = onSettingsChange;
   }, [onSettingsChange]);
 
   const lastSettingsRef = useRef<string>('');
+  /** Model whose audio capability last initialized the toggle. */
+  const lastAudioModelRef = useRef<string | undefined>(undefined);
 
   // Real-time synchronization of state settings with the parent component
   useEffect(() => {
@@ -267,9 +450,17 @@ export function useCreativeInputBox(
       resolution: isVideo ? videoResolution : (isImage ? imageResolution : undefined),
       imageWidth: isImage ? imageWidth : undefined,
       imageHeight: isImage ? imageHeight : undefined,
-      duration: isVideo ? videoDuration : (isMusic ? musicDuration : undefined),
+      duration: isVideo
+        ? videoDuration
+        : (isMusic
+          ? (musicSmartDuration ? undefined : musicDuration)
+          : (isSfx ? sfxDuration : undefined)),
       videoMode: isVideo ? videoSettingsMode : undefined,
-      count: isVideo ? Number(videoCount) : undefined
+      generationMode: isVideo ? videoGenerationMode : undefined,
+      audio: isVideo ? videoAudio : undefined,
+      voiceId: isVoice ? selectedVoice : undefined,
+      count: isImage ? imageCount : undefined,
+      loop: isSfx ? sfxLoop : undefined,
     };
 
     const nextSettingsStr = JSON.stringify(nextSettings);
@@ -285,12 +476,18 @@ export function useCreativeInputBox(
     videoResolution,
     videoDuration,
     musicDuration,
+    musicSmartDuration,
+    sfxDuration,
+    sfxLoop,
     videoSettingsMode,
-    videoCount,
+    videoGenerationMode,
+    videoAudio,
+    selectedVoice,
     imageRatio,
     imageResolution,
     imageWidth,
     imageHeight,
+    imageCount,
     isVideo,
     isImage,
     isMusic,
@@ -336,25 +533,46 @@ export function useCreativeInputBox(
     isVideoSettingsOpen, setIsVideoSettingsOpen,
     isMusicSettingsOpen, setIsMusicSettingsOpen,
     isVoiceSettingsOpen, setIsVoiceSettingsOpen,
+    isSfxSettingsOpen, setIsSfxSettingsOpen,
     isImageSettingsOpen, setIsImageSettingsOpen,
     creationMenuPlacement,
     modelMenuPlacement,
     videoSettingsPlacement,
     musicSettingsPlacement,
     voiceSettingsPlacement,
+    sfxSettingsPlacement,
     imageSettingsPlacement,
     videoSettingsMode, setVideoSettingsMode,
     videoRatio, setVideoRatio,
     videoResolution, setVideoResolution,
-    videoCount, setVideoCount,
     videoDuration, setVideoDuration,
+    // Per-model parameter support (undefined for unprofiled remote entries)
+    videoSettingsModeOptions,
+    videoAspectRatioOptions,
+    videoResolutionOptions,
+    videoGenerationMode,
+    videoOutputAudio: videoParameters?.outputAudio,
+    videoDurationRange: videoParameters?.duration ?? null,
+    videoAudio, setVideoAudio,
+    imageAspectRatioOptions,
+    imageResolutionOptions,
+    imageMaxCount: imageParameters?.maxCount ?? 1,
+    imageCustomSize: imageParameters?.customSize,
+    musicDurationRange: musicParameters?.duration ?? null,
+    musicSmartDurationAllowed: musicParameters?.smartDuration ?? false,
+    voiceOptions,
     imageRatio, setImageRatio,
     imageResolution, setImageResolution,
     imageWidth, setImageWidth,
     imageHeight, setImageHeight,
+    imageCount, setImageCount,
     imageAspectRatioLocked, setImageAspectRatioLocked,
     musicSmartDuration, setMusicSmartDuration,
     musicDuration, setMusicDuration,
+    sfxDuration, setSfxDuration,
+    sfxLoop, setSfxLoop,
+    sfxDurationRange: sfxParameters?.duration ?? null,
+    sfxSupportsLoop: sfxParameters?.supportsLoop ?? false,
     selectedVoice, setSelectedVoice,
     activeVoiceCategory, setActiveVoiceCategory,
     playingVoiceId, setPlayingVoiceId,
@@ -367,18 +585,21 @@ export function useCreativeInputBox(
     videoSettingsRef,
     musicSettingsRef,
     voiceSettingsRef,
+    sfxSettingsRef,
     imageSettingsRef,
     creationDropdownRef,
     modelDropdownRef,
     videoSettingsDropdownRef,
     musicSettingsDropdownRef,
     voiceSettingsDropdownRef,
+    sfxSettingsDropdownRef,
     imageSettingsDropdownRef,
     toggleCreationMenu,
     toggleModelMenu,
     toggleVideoSettings,
     toggleMusicSettings,
     toggleVoiceSettings,
+    toggleSfxSettings,
     toggleImageSettings,
     uploadedImages, setUploadedImages,
     isVideo, isImage, isAgent, isMusic, isVoice, isSfx, isDigitalHuman, isAction,

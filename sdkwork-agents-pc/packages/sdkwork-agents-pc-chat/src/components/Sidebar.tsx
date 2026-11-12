@@ -31,7 +31,11 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChatSession, type ChatProject } from "@sdkwork/agents-pc-chat";
-import { cn } from "@sdkwork/agents-pc-commons";
+import { cn, readProfileAvatarIndex } from "@sdkwork/agents-pc-commons";
+import {
+  SDKWORK_AGENTS_PC_SESSION_CHANGED_EVENT,
+  resolveAppSdkDisplayName,
+} from "@sdkwork/agents-pc-core/session";
 import { BirdCoderModal } from "./BirdCoderModal";
 import { SearchModal } from "./SearchModal";
 import { SidebarSessionItem } from "./SidebarSessionItem";
@@ -96,11 +100,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { t } = useTranslation("chat");
   const { t: tCommon } = useTranslation("common");
 
+  // Identity comes from the IAM session (never a local copy); the avatar style
+  // is an account-scoped presentation choice.
   const [username, setUsername] = useState(
-    () => localStorage.getItem("profile_username") || tCommon("mockUserName"),
+    () => resolveAppSdkDisplayName() ?? tCommon("mockUserName"),
   );
-  const [avatarIndex, setAvatarIndex] = useState(() =>
-    parseInt(localStorage.getItem("profile_avatar_index") || "0", 10),
+  const [avatarIndex, setAvatarIndex] = useState(
+    () => readProfileAvatarIndex(AVATAR_COLOR_TEMPLATES.length),
   );
   const [isBirdCoderModalOpen, setIsBirdCoderModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -144,19 +150,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      setUsername(
-        localStorage.getItem("profile_username") || tCommon("mockUserName"),
-      );
-      setAvatarIndex(
-        parseInt(localStorage.getItem("profile_avatar_index") || "0", 10),
-      );
+    const syncProfile = () => {
+      setUsername(resolveAppSdkDisplayName() ?? tCommon("mockUserName"));
+      setAvatarIndex(readProfileAvatarIndex(AVATAR_COLOR_TEMPLATES.length));
     };
-    window.addEventListener("storage", handleStorageChange);
-    const interval = setInterval(handleStorageChange, 800);
+    window.addEventListener(SDKWORK_AGENTS_PC_SESSION_CHANGED_EVENT, syncProfile);
+    window.addEventListener("storage", syncProfile);
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
+      window.removeEventListener(SDKWORK_AGENTS_PC_SESSION_CHANGED_EVENT, syncProfile);
+      window.removeEventListener("storage", syncProfile);
     };
   }, [tCommon]);
 

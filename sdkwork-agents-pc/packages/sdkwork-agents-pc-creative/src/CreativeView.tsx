@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CreativeInputBox, consumeCreativeHandoff, creativeModelCatalogService } from '@sdkwork/agents-pc-commons';
+import { CreativeInputBox, consumeCreativeHandoff, creativeModelCatalogService, wireAspectRatio } from '@sdkwork/agents-pc-commons';
 import { resolveCreativeCreationType } from '@sdkwork/agents-pc-core/sdk/creationTypes';
+import {
+  readAccountScopedItem,
+  removeAccountScopedItem,
+  writeAccountScopedItem,
+} from '@sdkwork/agents-pc-core/session';
 import { ImageDetailModal } from '@sdkwork/agents-pc-inspiration';
 import { VideoDetailModal } from '@sdkwork/agents-pc-inspiration';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +21,9 @@ import { PromptHistoryItem } from './components/CreativeHistoryLog';
 
 import { CreativeService, CreativeSessionStore } from './services/CreativeService';
 import { uuid } from '@sdkwork/utils';
+
+/** Account-scoped prompt history (see `@sdkwork/agents-pc-core/session`). */
+const CREATIVE_PROMPT_HISTORY_KEY = 'creative_prompt_history_logs';
 
 function createDefaultCreativeSession(): CreativeSession {
   return { id: 'default', title: '默认创作', messages: [] };
@@ -81,16 +89,23 @@ function buildCreativeCommandOptions(
     (resource.kind === 'audio' || resource.kind === 'voice') && Boolean(resource.url || resource.uri)
   ));
   const generationConfig = compactCreativeRecord({
-    aspectRatio: settings?.ratio,
+    // `智能` lets the model choose; the explicit pixel `size` still applies.
+    aspectRatio: wireAspectRatio(settings?.ratio as string | undefined),
     resolution: settings?.resolution,
     durationSeconds: settings?.duration,
     imageCount: settings?.count,
-    videoMode: settings?.videoMode,
+    loop: settings?.loop,
+    audio: settings?.audio,
     size: settings?.imageWidth && settings?.imageHeight
       ? `${settings.imageWidth}x${settings.imageHeight}`
       : undefined,
   });
   const commandParameters = compactCreativeRecord({
+    // Precise generation mode (`reference_to_video`, `start_end_frame`, ...);
+    // the vendor adapter picks the matching surface from it.
+    generationMode: settings?.generationMode,
+    // Vendor voice id for speech synthesis.
+    voice: settings?.voiceId,
     generationConfig,
     referenceImages: imageResources.map(toCreativeReference),
     referenceVideos: videoResources.map(toCreativeReference),
@@ -118,7 +133,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
   const [activeSessionId, setActiveSessionId] = useState('default');
 
   const [historyLogs, setHistoryLogs] = useState<PromptHistoryItem[]>(() => {
-    const saved = localStorage.getItem('creative_prompt_history_logs');
+    const saved = readAccountScopedItem(CREATIVE_PROMPT_HISTORY_KEY);
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -172,7 +187,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
   const onDeleteLog = (id: string) => {
     setHistoryLogs(prev => {
       const updated = prev.filter(x => x.id !== id);
-      localStorage.setItem('creative_prompt_history_logs', JSON.stringify(updated));
+      writeAccountScopedItem(CREATIVE_PROMPT_HISTORY_KEY, JSON.stringify(updated));
       return updated;
     });
     showToast("已删除该条历史记录");
@@ -180,7 +195,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
 
   const onClearLogs = () => {
     setHistoryLogs([]);
-    localStorage.removeItem('creative_prompt_history_logs');
+    removeAccountScopedItem(CREATIVE_PROMPT_HISTORY_KEY);
     showToast("历史生成记录已清空");
   };
 
@@ -406,7 +421,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
     setHistoryLogs(prev => {
       const filtered = prev.filter(x => x.prompt.trim() !== text.trim());
       const updated = [newLogItem, ...filtered].slice(0, 50);
-      localStorage.setItem('creative_prompt_history_logs', JSON.stringify(updated));
+      writeAccountScopedItem(CREATIVE_PROMPT_HISTORY_KEY, JSON.stringify(updated));
       return updated;
     });
 
@@ -455,6 +470,8 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
         // Reference images change the operation (image_edit / image_to_video)
         // rather than only decorating it.
         hasReferenceImages: Array.isArray(settings?.refImages) && settings.refImages.length > 0,
+        // Precise generation mode chosen by the model profile + composer mode.
+        ...(typeof settings?.generationMode === 'string' ? { generationMode: settings.generationMode } : {}),
         ...buildCreativeCommandOptions(text, mode, settings),
         // The first upload previews on the pending card while the command runs.
         previewImageUrl: (Array.isArray(settings?.mediaResources) ? settings.mediaResources : [])

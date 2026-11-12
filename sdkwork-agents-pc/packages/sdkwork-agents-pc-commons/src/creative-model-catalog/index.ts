@@ -2,9 +2,18 @@ export type {
   CreativeModelCatalogSyncState,
   CreativeModelCatalogSyncStats,
   CreativeModelDefinition,
+  CreativeModelDuration,
+  CreativeModelImageParameters,
   CreativeModelLifecycle,
   CreativeModelModality,
+  CreativeModelMusicParameters,
+  CreativeModelParameters,
+  CreativeModelSelectionProfile,
+  CreativeModelSfxParameters,
   CreativeModelSource,
+  CreativeModelVideoParameters,
+  CreativeModelVoiceOption,
+  CreativeModelVoiceParameters,
   RemoteCreativeModelItem,
 } from './creativeModelCatalogTypes';
 export {
@@ -12,7 +21,22 @@ export {
   CREATIVE_MODEL_SHELF_STATE,
 } from './creativeModelCatalogTypes';
 export {
-  REMOTE_MODALITY_QUERY,
+  clampDurationSeconds,
+  generationOperationType,
+  resolveVideoGenerationMode,
+  supportedImageAspectRatios,
+  supportedVideoAspectRatios,
+  supportedVideoResolutions,
+  supportedVideoSettingsModes,
+  vendorDefaultParameters,
+  VIDEO_SETTINGS_MODE_GENERATION_MODES,
+  wireAspectRatio,
+} from './creativeModelParameters';
+export type {
+  CreativeVideoSettingsMode,
+} from './creativeModelParameters';
+export {
+  CREATIVE_MODEL_SELECTION_PROFILES,
   REMOTE_SYNC_MODALITIES,
   STATIC_CREATIVE_MODEL_CATALOG_VERSION,
   STATIC_CREATIVE_MODELS,
@@ -21,6 +45,7 @@ export {
   STATIC_DIGITAL_HUMAN_MODELS,
   STATIC_IMAGE_MODELS,
   STATIC_MUSIC_MODELS,
+  STATIC_SOUND_EFFECT_MODELS,
   STATIC_VIDEO_MODELS,
   STATIC_VOICE_MODELS,
 } from './staticCreativeModelCatalog';

@@ -9,6 +9,7 @@ import { cn } from './MarkdownRenderer';
 import { VideoSettingsDropdown } from './creative/VideoSettingsDropdown';
 import { MusicSettingsDropdown } from './creative/MusicSettingsDropdown';
 import { VoiceSettingsDropdown, VOICE_OPTIONS } from './creative/VoiceSettingsDropdown';
+import { SoundEffectSettingsDropdown } from './creative/SoundEffectSettingsDropdown';
 import { ImageSettingsDropdown } from './creative/ImageSettingsDropdown';
 import { ModelDropdown } from './creative/ModelDropdown';
 import {
@@ -98,25 +99,31 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
     isVideoSettingsOpen, setIsVideoSettingsOpen,
     isMusicSettingsOpen, setIsMusicSettingsOpen,
     isVoiceSettingsOpen, setIsVoiceSettingsOpen,
+    isSfxSettingsOpen, setIsSfxSettingsOpen,
     isImageSettingsOpen, setIsImageSettingsOpen,
     creationMenuPlacement,
     modelMenuPlacement,
     videoSettingsPlacement,
     musicSettingsPlacement,
     voiceSettingsPlacement,
+    sfxSettingsPlacement,
     imageSettingsPlacement,
     videoSettingsMode, setVideoSettingsMode,
     videoRatio, setVideoRatio,
     videoResolution, setVideoResolution,
-    videoCount, setVideoCount,
     videoDuration, setVideoDuration,
     imageRatio, setImageRatio,
     imageResolution, setImageResolution,
     imageWidth, setImageWidth,
     imageHeight, setImageHeight,
+    imageCount, setImageCount,
     imageAspectRatioLocked, setImageAspectRatioLocked,
     musicSmartDuration, setMusicSmartDuration,
     musicDuration, setMusicDuration,
+    sfxDuration, setSfxDuration,
+    sfxLoop, setSfxLoop,
+    sfxDurationRange,
+    sfxSupportsLoop,
     selectedVoice, setSelectedVoice,
     activeVoiceCategory, setActiveVoiceCategory,
     playingVoiceId, setPlayingVoiceId,
@@ -129,18 +136,21 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
     videoSettingsRef,
     musicSettingsRef,
     voiceSettingsRef,
+    sfxSettingsRef,
     imageSettingsRef,
     creationDropdownRef,
     modelDropdownRef,
     videoSettingsDropdownRef,
     musicSettingsDropdownRef,
     voiceSettingsDropdownRef,
+    sfxSettingsDropdownRef,
     imageSettingsDropdownRef,
     toggleCreationMenu,
     toggleModelMenu,
     toggleVideoSettings,
     toggleMusicSettings,
     toggleVoiceSettings,
+    toggleSfxSettings,
     toggleImageSettings,
     uploadedImages, setUploadedImages,
     isVideo, isImage, isAgent, isMusic, isVoice, isSfx, isDigitalHuman, isAction,
@@ -148,7 +158,22 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
     selectedAvatarModel, setSelectedAvatarModel,
     selectedActionModel, setSelectedActionModel,
     selectedSfxModel, setSelectedSfxModel,
-    selectedModelId
+    selectedModelId,
+    // Per-model parameter support (undefined for unprofiled remote entries)
+    videoSettingsModeOptions,
+    videoAspectRatioOptions,
+    videoResolutionOptions,
+    videoGenerationMode,
+    videoOutputAudio,
+    videoDurationRange,
+    videoAudio, setVideoAudio,
+    imageAspectRatioOptions,
+    imageResolutionOptions,
+    imageCustomSize,
+    imageMaxCount,
+    musicDurationRange,
+    musicSmartDurationAllowed,
+    voiceOptions
   } = useCreativeInputBox(defaultValue, initialMode, initialSettings, onSettingsChange);
 
   const [isImagesHovered, setIsImagesHovered] = React.useState(false);
@@ -252,12 +277,27 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
       onSubmit(input, creationType, {
         model: selectedModelId,
         ratio: isVideo ? videoRatio : (isImage ? imageRatio : '1:1'),
-        resolution: isVideo ? videoResolution : (isImage ? imageResolution : undefined),
+        // Vendor surfaces take lowercase tiers (`720p`, `4k`); the picker
+        // displays the uppercase form.
+        resolution: isVideo
+          ? videoResolution.toLowerCase()
+          : (isImage ? imageResolution : undefined),
         imageWidth: isImage ? imageWidth : undefined,
         imageHeight: isImage ? imageHeight : undefined,
-        duration: isVideo ? videoDuration : (isMusic ? musicDuration : undefined),
+        count: isImage ? imageCount : undefined,
+        duration: isVideo
+          ? videoDuration
+          : (isMusic
+            ? (musicSmartDuration ? undefined : musicDuration)
+            : (isSfx ? sfxDuration : undefined)),
+        loop: isSfx ? sfxLoop : undefined,
+        // Composer reference mode plus the precise catalog generation mode the
+        // vendor adapter dispatches on (`reference_to_video`, `start_end_frame`).
         videoMode: isVideo ? videoSettingsMode : undefined,
-        count: isVideo ? Number(videoCount) : undefined,
+        generationMode: isVideo ? videoGenerationMode : undefined,
+        // Speech synthesis must send the vendor voice id the user selected.
+        voiceId: isVoice ? selectedVoice : undefined,
+        audio: isVideo ? videoAudio : undefined,
         refImages: isAction
           ? [characterImageResource?.uri].filter(Boolean)
           : uploadedImageResources.map((media) => media.uri),
@@ -311,12 +351,19 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
     modelId: selectedModelId,
     settings: {
       ratio: isVideo ? videoRatio : (isImage ? imageRatio : '1:1'),
-      resolution: isVideo ? videoResolution : (isImage ? imageResolution : undefined),
-      duration: isVideo ? videoDuration : (isMusic && !musicSmartDuration ? musicDuration : undefined),
-      count: isVideo ? Number(videoCount) : undefined,
+      resolution: isVideo
+        ? videoResolution.toLowerCase()
+        : (isImage ? imageResolution : undefined),
+      duration: isVideo
+        ? videoDuration
+        : (isMusic
+          ? (musicSmartDuration ? undefined : musicDuration)
+          : (isSfx ? sfxDuration : undefined)),
       videoMode: isVideo ? videoSettingsMode : undefined,
+      audio: isVideo ? videoAudio : undefined,
       imageWidth: isImage ? imageWidth : undefined,
       imageHeight: isImage ? imageHeight : undefined,
+      count: isImage ? imageCount : undefined,
     },
     prompt: input,
     hasReferenceImages: uploadedImages.length > 0,
@@ -775,10 +822,6 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                 </div>
                 <div className="w-px h-3 bg-black/10 mx-2 shrink-0 dark:bg-[#333333]"></div>
                 <div className="text-[14px] font-medium text-zinc-600 group-hover:text-zinc-900 whitespace-nowrap shrink-0 dark:text-zinc-300 dark:group-hover:text-zinc-100">
-                  {videoCount}
-                </div>
-                <div className="w-px h-3 bg-black/10 mx-2 shrink-0 dark:bg-[#333333]"></div>
-                <div className="text-[14px] font-medium text-zinc-600 group-hover:text-zinc-900 whitespace-nowrap shrink-0 dark:text-zinc-300 dark:group-hover:text-zinc-100">
                   {videoDuration}s
                 </div>
                 </div>
@@ -811,7 +854,7 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
                   className="flex items-center gap-1.5 hover:text-[var(--ag-color-text-primary,#0A1B3D)] transition-colors text-[14px] px-3 py-1.5 rounded-md hover:bg-white/5 whitespace-nowrap shrink-0"
                 >
                   <AudioLines size={16} className="shrink-0 text-[#4080FF]" />
-                  <span className="text-[#4080FF] font-medium">{VOICE_OPTIONS.find(v => v.id === selectedVoice)?.name || '选择语音'}</span>
+                  <span className="text-[#4080FF] font-medium">{voiceOptions?.find(v => v.id === selectedVoice)?.label || VOICE_OPTIONS.find(v => v.id === selectedVoice)?.name || '选择语音'}</span>
                     {isVoiceSettingsOpen ? <ChevronUp size={14} className="text-[#4080FF]/70 ml-0.5 shrink-0" /> : <ChevronDown size={14} className="text-[#4080FF]/70 ml-0.5 shrink-0" />}
                 </button>
               </div>
@@ -864,12 +907,16 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
               </div>
               </div>
           ) : isSfx ? (
-            <div className="flex items-center gap-2 select-none">
-              <div className="text-[13px] text-zinc-500 flex items-center gap-1.5 font-medium">
-                <Waves size={13} className="text-[#4080FF]" />
-                <span>描述即得音效，时长与强度由模型自动决定</span>
-              </div>
-              </div>
+            <div className="flex items-center gap-2 select-none" ref={sfxSettingsRef}>
+              <button
+                onClick={toggleSfxSettings}
+                className="flex items-center gap-1.5 hover:text-[var(--ag-color-text-primary,#0A1B3D)] transition-colors text-[14px] px-3 py-1.5 rounded-md hover:bg-white/5 whitespace-nowrap shrink-0"
+              >
+                <Waves size={16} className="shrink-0 text-[#4080FF]" />
+                <span className="text-[#4080FF] font-medium">{sfxDuration}s</span>
+                {isSfxSettingsOpen ? <ChevronUp size={14} className="text-[#4080FF]/70 ml-0.5 shrink-0" /> : <ChevronDown size={14} className="text-[#4080FF]/70 ml-0.5 shrink-0" />}
+              </button>
+            </div>
           ) : (
             <>
               <div className="relative shrink-0 flex items-center" ref={imageSettingsRef}>
@@ -1002,12 +1049,17 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
             setVideoRatio={setVideoRatio}
             videoResolution={videoResolution}
             setVideoResolution={setVideoResolution}
-            videoCount={videoCount}
-            setVideoCount={setVideoCount}
             videoDuration={videoDuration}
             setVideoDuration={setVideoDuration}
             videoSettingsPlacement={videoSettingsPlacement}
             dropdownRef={videoSettingsDropdownRef}
+            modeOptions={videoSettingsModeOptions}
+            ratioOptions={videoAspectRatioOptions}
+            resolutionOptions={videoResolutionOptions}
+            durationRange={videoDurationRange}
+            outputAudio={videoOutputAudio}
+            audio={videoAudio}
+            setAudio={setVideoAudio}
           />
         )}
 
@@ -1019,6 +1071,8 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
             setMusicDuration={setMusicDuration}
             musicSettingsPlacement={musicSettingsPlacement}
             dropdownRef={musicSettingsDropdownRef}
+            durationRange={musicDurationRange}
+            smartDuration={musicSmartDurationAllowed}
           />
         )}
 
@@ -1029,6 +1083,20 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
             voiceSettingsPlacement={voiceSettingsPlacement}
             dropdownRef={voiceSettingsDropdownRef}
             onClose={() => setIsVoiceSettingsOpen(false)}
+            voices={voiceOptions}
+          />
+        )}
+
+        {isSfxSettingsOpen && (
+          <SoundEffectSettingsDropdown
+            sfxDuration={sfxDuration}
+            setSfxDuration={setSfxDuration}
+            sfxLoop={sfxLoop}
+            setSfxLoop={setSfxLoop}
+            sfxSettingsPlacement={sfxSettingsPlacement}
+            dropdownRef={sfxSettingsDropdownRef}
+            durationRange={sfxDurationRange}
+            supportsLoop={sfxSupportsLoop}
           />
         )}
 
@@ -1046,6 +1114,12 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
             setImageAspectRatioLocked={setImageAspectRatioLocked}
             imageSettingsPlacement={imageSettingsPlacement}
             dropdownRef={imageSettingsDropdownRef}
+            ratioOptions={imageAspectRatioOptions}
+            resolutionOptions={imageResolutionOptions}
+            customSize={imageCustomSize}
+            imageCount={imageCount}
+            setImageCount={setImageCount}
+            maxCount={imageMaxCount}
           />
         )}
 

@@ -127,9 +127,10 @@ test('media resolution is deferred unless the caller asks for it', async () => {
 
 test('locally deleted turns stay deleted across a reload', async () => {
   // Node has no localStorage; the presentation store degrades gracefully and
-  // the test seeds the hidden set through the same window global.
+  // the test seeds the hidden set through the same window global. The key is
+  // account-scoped, and with no session the scope is the anonymous bucket.
   const backingStore = new Map<string, string>([
-    ['creative_hidden_record_ids', JSON.stringify(['g-dropped'])],
+    ['creative_hidden_record_ids::anonymous', JSON.stringify(['g-dropped'])],
   ]);
   (globalThis as { localStorage?: unknown }).localStorage = {
     getItem: (key: string) => backingStore.get(key) ?? null,

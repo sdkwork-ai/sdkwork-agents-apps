@@ -24,6 +24,112 @@ export type CreativeModelLifecycle = 'active' | 'preview' | 'deprecated' | 'reti
 
 export type CreativeModelSource = 'static' | 'remote';
 
+/**
+ * How one creation type selects its model from the sdkwork-models catalog.
+ *
+ * `capability` is the catalog capability a listed row must declare and
+ * `outputModalities` are the modalities it must produce: together they scope
+ * the list to models *producing* this creation type (the catalog's own
+ * `modalities` field unions input and output, so an input modality alone would
+ * also match a model that merely accepts this media). `vendorCodes` keeps only
+ * catalog vendor codes the generations provider adapter can dispatch.
+ */
+export interface CreativeModelSelectionProfile {
+  /**
+   * Catalog capability a listed row must declare; `null` accepts any.
+   *
+   * `capabilities` and `queryCapabilities` differ where the capability code
+   * collides on the wire (sound effects share the music code), so the query is
+   * left broad and the client filters that type itself.
+   */
+  readonly capability: string | null;
+  /** `capabilities` filter values; empty leaves the query unfiltered. */
+  readonly queryCapabilities: readonly string[];
+  /** Output modalities the model must produce. */
+  readonly outputModalities: readonly string[];
+  /** Catalog vendor codes the generations provider adapter dispatches. */
+  readonly vendorCodes: readonly string[];
+  /**
+   * Model-id tokens that disqualify a row. Realtime voice models declare the
+   * `audio` capability like speech models, but the generation plane only wires
+   * text-to-speech surfaces.
+   */
+  readonly excludedModelIdTokens: readonly string[];
+}
+
+/** Duration control a model accepts. */
+export interface CreativeModelDuration {
+  /** Lowest accepted seconds. */
+  minSeconds: number;
+  /** Highest accepted seconds. */
+  maxSeconds: number;
+  /** Accepted increment; 1 when any integer is valid. */
+  stepSeconds: number;
+  /** Discrete accepted values (fixed/discrete vendor policies); empty for ranges. */
+  values: readonly number[];
+  /** Default seconds the picker starts at. */
+  defaultSeconds: number;
+}
+
+/** Video generation knobs a catalog model actually accepts. */
+export interface CreativeModelVideoParameters {
+  /** Generation modes the generations adapter can dispatch for this model. */
+  generationModes: readonly string[];
+  aspectRatios: readonly string[];
+  /** Catalog resolutions, lowercase (`480p` ... `4k`). */
+  resolutions: readonly string[];
+  /** Accepted durations; `null` when the vendor decides and no knob applies. */
+  duration: CreativeModelDuration | null;
+  /** Whether the vendor returns synchronized audio. */
+  outputAudio: boolean;
+}
+
+/** Image generation knobs a catalog model actually accepts. */
+export interface CreativeModelImageParameters {
+  aspectRatios: readonly string[];
+  /** Resolution tiers the model's vendor accepts (`1K`, `2K`, `4K`). */
+  resolutions: readonly string[];
+  /** Whether free-form pixel width/height is accepted. */
+  customSize: boolean;
+  /** Maximum images per command the vendor accepts. */
+  maxCount: number;
+}
+
+/** Music generation knobs. */
+export interface CreativeModelMusicParameters {
+  /** Duration control; `null` when the vendor decides the length. */
+  duration: CreativeModelDuration | null;
+  /** Whether the vendor can choose a length itself ("智能时长"). */
+  smartDuration: boolean;
+}
+
+/** One selectable voice for a speech model. */
+export interface CreativeModelVoiceOption {
+  /** Vendor voice id sent on the command (`voice` / `voiceId`). */
+  id: string;
+  label: string;
+}
+
+/** Speech synthesis knobs. */
+export interface CreativeModelVoiceParameters {
+  voices: readonly CreativeModelVoiceOption[];
+}
+
+/** Sound-effect knobs. */
+export interface CreativeModelSfxParameters {
+  duration: CreativeModelDuration | null;
+  supportsLoop: boolean;
+}
+
+/** Every parameter facet a creative model may declare. */
+export interface CreativeModelParameters {
+  video?: CreativeModelVideoParameters;
+  image?: CreativeModelImageParameters;
+  music?: CreativeModelMusicParameters;
+  voice?: CreativeModelVoiceParameters;
+  sound_effects?: CreativeModelSfxParameters;
+}
+
 export interface CreativeModelDefinition {
   /** Stable model id submitted with generation commands. */
   id: string;
@@ -47,6 +153,8 @@ export interface CreativeModelDefinition {
    * vendor adapter instead of the modality default.
    */
   vendorCode?: string | null;
+  /** Per-model parameter support the picker must constrain itself to. */
+  parameters?: CreativeModelParameters;
   source: CreativeModelSource;
   /** Display order hint; static entries keep catalog order, remote entries follow server order. */
   order: number;
@@ -83,7 +191,16 @@ export interface RemoteCreativeModelItem {
   vendorCode: string;
   description: string | null;
   capabilityIntro?: string | null;
+  /**
+   * Union of the model's input and output modalities. Kept for display and as
+   * a last-resort match; creation filtering uses `outputModalities` so a model
+   * that merely *accepts* a video cannot list under video generation.
+   */
   modalities: string[];
+  /** Modalities the model produces (absent on older app API responses). */
+  outputModalities?: string[];
+  /** Capability codes the catalog declares (`video`, `image`, `chat`, ...). */
+  capabilities?: string[];
   releaseStage: number | null;
   shelfState: number | null;
   routingState: number | null;

@@ -10,6 +10,11 @@ export const VOICE_CATEGORIES = [
   { id: 'dialect', label: '方言' }
 ];
 
+/**
+ * Fallback voices for a speech model whose vendor voice list is unknown (the
+ * catalog publishes dynamic voice bindings for ElevenLabs / Seed TTS). A model
+ * with a known vendor voice list renders that list instead.
+ */
 export const VOICE_OPTIONS = [
   { id: 'zh_male_1', name: '阳光青年', category: 'zh', tags: ['男声', '朝气', '清晰'], premium: true, duration: '0:05' },
   { id: 'zh_female_1', name: '温柔知性', category: 'zh', tags: ['女声', '播音', '抒情'], premium: false, duration: '0:06' },
@@ -21,12 +26,21 @@ export const VOICE_OPTIONS = [
   { id: 'dialect_1', name: '川渝幺妹', category: 'dialect', tags: ['女声', '四川话', '活泼'], premium: false, duration: '0:06' },
 ];
 
+/** One vendor voice the selected speech model exposes. */
+export interface VoiceSettingsVoiceOption {
+  /** Vendor voice id submitted as `parameters.voice`. */
+  id: string;
+  label: string;
+}
+
 interface VoiceSettingsDropdownProps {
   selectedVoice: string;
   setSelectedVoice: (voice: string) => void;
   voiceSettingsPlacement: 'top' | 'bottom';
   dropdownRef: React.RefObject<HTMLDivElement | null>;
   onClose: () => void;
+  /** Vendor voices of the selected model; absent for unprofiled models. */
+  voices?: readonly VoiceSettingsVoiceOption[];
 }
 
 export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
@@ -34,11 +48,15 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
   setSelectedVoice,
   voiceSettingsPlacement,
   dropdownRef,
-  onClose
+  onClose,
+  voices
 }) => {
   const [activeVoiceCategory, setActiveVoiceCategory] = useState('all');
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const offersVendorVoices = voices !== undefined && voices.length > 0;
+  const vendorVoices = offersVendorVoices ? [...(voices ?? [])] : [];
 
   const filteredOptions = VOICE_OPTIONS.filter(v => {
     const matchesCategory = activeVoiceCategory === 'all' || v.category === activeVoiceCategory;
@@ -46,6 +64,55 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
                           v.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
+
+  if (offersVendorVoices) {
+    return (
+      <div
+        ref={dropdownRef}
+        className={cn(
+          "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[380px] max-w-[380px] bg-white rounded-2xl z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col max-h-[360px] dark:bg-[#222222]",
+          voiceSettingsPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
+        )}
+      >
+        <div className="p-3 pb-2 shrink-0 flex items-center justify-between px-4">
+          <span className="text-[14px] font-medium text-zinc-800 dark:text-zinc-200">选择音色</span>
+          <span className="text-[11px] text-zinc-500 dark:text-zinc-400">由所选模型提供</span>
+        </div>
+        <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+          {vendorVoices.map(voice => (
+            <button
+              key={voice.id}
+              onClick={() => {
+                setSelectedVoice(voice.id);
+                onClose();
+              }}
+              className={cn(
+                "w-full flex items-center justify-between gap-3 p-3 rounded-xl transition-colors text-left",
+                selectedVoice === voice.id ? "bg-[#165DFF]/10" : "hover:bg-black/5 dark:hover:bg-[#2a2a2a]"
+              )}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-black/5 text-zinc-500 dark:bg-[#333333] dark:text-zinc-300">
+                  <Mic size={16} />
+                </div>
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className={cn("text-[14px] font-medium truncate", selectedVoice === voice.id ? "text-[#4080FF]" : "text-zinc-800 dark:text-zinc-200")}>
+                    {voice.label}
+                  </span>
+                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono truncate">{voice.id}</span>
+                </div>
+              </div>
+              {selectedVoice === voice.id && (
+                <div className="bg-[#165DFF] rounded-full p-1 shrink-0">
+                  <Check size={12} className="text-white stroke-[3]" />
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

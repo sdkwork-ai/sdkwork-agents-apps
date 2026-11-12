@@ -8,6 +8,14 @@ export {
   creativeModelCatalogService,
   useCreativeModelCatalog,
   STATIC_DEFAULT_MODEL_IDS,
+  clampDurationSeconds,
+  generationOperationType,
+  resolveVideoGenerationMode,
+  supportedImageAspectRatios,
+  supportedVideoAspectRatios,
+  supportedVideoResolutions,
+  supportedVideoSettingsModes,
+  wireAspectRatio,
 } from "./creative-model-catalog";
 export type {
   CreativeModelDefinition,
@@ -18,6 +26,16 @@ export type {
   CreativeCreditEstimateInput,
   CreativeCreditEstimateState,
 } from "./hooks/useCreativeCreditEstimate";
+export {
+  AVATAR_TEMPLATE_COUNT,
+  PROFILE_AVATAR_STORAGE_KEY,
+  PROFILE_BIO_STORAGE_KEY,
+  normalizeAvatarIndex,
+  readProfileAvatarIndex,
+  readProfileBio,
+  writeProfileAvatarIndex,
+  writeProfileBio,
+} from "./profile/accountProfile";
 export { Avatar } from "./components/Avatar";
 export { CreativeInputBox } from "./components/CreativeInputBox";
 export { IconButton } from "./components/IconButton";

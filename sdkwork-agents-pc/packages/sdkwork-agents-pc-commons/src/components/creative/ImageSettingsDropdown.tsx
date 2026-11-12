@@ -1,6 +1,11 @@
-import React, { useEffect, useRef } from 'react';
-import { cn } from '../MarkdownRenderer';
+import React from 'react';
 import { Link2, Link2Off } from 'lucide-react';
+import { cn } from '../MarkdownRenderer';
+import {
+  IMAGE_RATIO_OPTIONS,
+  IMAGE_RESOLUTION_OPTIONS,
+  imageDimensionsFor,
+} from './imageDimensions';
 
 // Ratio Icon specifically designed for all aspect ratios
 const ImageRatioIcon = ({ ratio, active }: { ratio: string; active: boolean }) => {
@@ -66,45 +71,18 @@ interface ImageSettingsDropdownProps {
   setImageAspectRatioLocked: (locked: boolean) => void;
   imageSettingsPlacement: 'top' | 'bottom';
   dropdownRef: React.RefObject<HTMLDivElement | null>;
+  /** Images generated per command. */
+  imageCount?: number;
+  setImageCount?: (count: number) => void;
+  /** Maximum images per command the selected model accepts. */
+  maxCount?: number;
+  /** Aspect ratios the selected model accepts; `undefined` means unprofiled. */
+  ratioOptions?: readonly string[];
+  /** Resolution tiers the selected model accepts; `undefined` means unprofiled. */
+  resolutionOptions?: readonly string[];
+  /** Whether the selected model accepts free-form pixel sizes. */
+  customSize?: boolean;
 }
-
-const RATIOS = ['智能', '21:9', '16:9', '3:2', '4:3', '1:1', '3:4', '2:3', '9:16'];
-
-const DIMENSIONS_MAP: Record<string, Record<string, { w: number; h: number }>> = {
-  '1K': {
-    '智能': { w: 1024, h: 1024 },
-    '21:9': { w: 1536, h: 648 },
-    '16:9': { w: 1344, h: 756 },
-    '3:2': { w: 1200, h: 800 },
-    '4:3': { w: 1152, h: 864 },
-    '1:1': { w: 1024, h: 1024 },
-    '3:4': { w: 864, h: 1152 },
-    '2:3': { w: 800, h: 1200 },
-    '9:16': { w: 756, h: 1344 },
-  },
-  '2K': {
-    '智能': { w: 1328, h: 1328 },
-    '21:9': { w: 1920, h: 816 },
-    '16:9': { w: 1728, h: 972 },
-    '3:2': { w: 1600, h: 1066 },
-    '4:3': { w: 1536, h: 1152 },
-    '1:1': { w: 1328, h: 1328 },
-    '3:4': { w: 1152, h: 1536 },
-    '2:3': { w: 1066, h: 1600 },
-    '9:16': { w: 972, h: 1728 },
-  },
-  '4K': {
-    '智能': { w: 2048, h: 2048 },
-    '21:9': { w: 3072, h: 1296 },
-    '16:9': { w: 2688, h: 1512 },
-    '3:2': { w: 2400, h: 1600 },
-    '4:3': { w: 2304, h: 1728 },
-    '1:1': { w: 2048, h: 2048 },
-    '3:4': { w: 1728, h: 2304 },
-    '2:3': { w: 1600, h: 2400 },
-    '9:16': { w: 1512, h: 2688 },
-  }
-};
 
 const getRatioFactor = (ratio: string): number => {
   if (ratio === '智能') return 1;
@@ -131,12 +109,25 @@ export const ImageSettingsDropdown: React.FC<ImageSettingsDropdownProps> = ({
   imageAspectRatioLocked,
   setImageAspectRatioLocked,
   imageSettingsPlacement,
-  dropdownRef
+  dropdownRef,
+  imageCount = 1,
+  setImageCount,
+  maxCount = 1,
+  ratioOptions,
+  resolutionOptions,
+  customSize = true
 }) => {
+  const ratios = ratioOptions && ratioOptions.length > 0 ? ratioOptions : IMAGE_RATIO_OPTIONS;
+  const resolutions = resolutionOptions && resolutionOptions.length > 0 ? resolutionOptions : IMAGE_RESOLUTION_OPTIONS;
+  const recommended = [
+    { ratio: '1:1', label: '1:1 正方形', desc: '社交头像 / 设计插画' },
+    { ratio: '16:9', label: '16:9 电脑宽屏', desc: '影视壁纸 / 宣传横幅' },
+    { ratio: '9:16', label: '9:16 手机竖屏', desc: '小红书 / 抖音短视频' },
+  ].filter((preset) => ratios.includes(preset.ratio));
+
   // Update dimensions when ratio or resolution changes
   const updateDimensions = (ratio: string, resolution: string) => {
-    const map = DIMENSIONS_MAP[resolution] || DIMENSIONS_MAP['2K'];
-    const dims = map[ratio] || map['1:1'];
+    const dims = imageDimensionsFor(ratio, resolution);
     setImageWidth(dims.w);
     setImageHeight(dims.h);
   };
@@ -199,11 +190,7 @@ export const ImageSettingsDropdown: React.FC<ImageSettingsDropdownProps> = ({
             <span className="text-[10px] text-zinc-500 font-medium">点击快速应用</span>
           </div>
           <div className="grid grid-cols-3 gap-2.5">
-            {[
-              { ratio: '1:1', label: '1:1 正方形', desc: '社交头像 / 设计插画' },
-              { ratio: '16:9', label: '16:9 电脑宽屏', desc: '影视壁纸 / 宣传横幅' },
-              { ratio: '9:16', label: '9:16 手机竖屏', desc: '小红书 / 抖音短视频' }
-            ].map(preset => (
+            {recommended.map(preset => (
               <button
                 key={preset.ratio}
                 onClick={() => handleRatioSelect(preset.ratio)}
@@ -237,7 +224,7 @@ export const ImageSettingsDropdown: React.FC<ImageSettingsDropdownProps> = ({
         <div className="flex flex-col gap-2">
           <div className="text-[12px] text-zinc-500 font-semibold">所有比例</div>
           <div className="grid grid-cols-5 gap-2">
-            {RATIOS.map(ratio => (
+            {ratios.map(ratio => (
               <button
                 key={ratio}
                 onClick={() => handleRatioSelect(ratio)}
@@ -261,66 +248,66 @@ export const ImageSettingsDropdown: React.FC<ImageSettingsDropdownProps> = ({
       <div className="flex flex-col gap-3">
         <div className="text-[12px] text-zinc-500 font-medium">选择分辨率</div>
         <div className="flex gap-2.5 relative">
-          {/* 1K Option with '限免1次' badge */}
-          <div className="flex-1 relative flex flex-col pt-2.5">
-            <span className="absolute top-0 left-1/2 -translate-x-1/2 bg-[#4080FF]/20 text-[#4080FF] px-1.5 py-0.5 rounded-md text-[9px] font-bold scale-90 whitespace-nowrap z-20">
-              限免1次
-            </span>
-            <button
-              onClick={() => handleResolutionSelect('1K')}
-              className={cn(
-                "w-full py-2.5 rounded-xl transition-all text-[13px] font-medium cursor-pointer",
-                imageResolution === '1K'
-                ? "bg-zinc-100 text-zinc-900 dark:bg-[#333333] dark:text-white"
-                : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 dark:bg-[#2f2f2f] dark:text-zinc-400 dark:hover:bg-[#333333] dark:hover:text-white"
+          {resolutions.map((resolution) => (
+            <div key={resolution} className="flex-1 relative flex flex-col pt-2.5">
+              {resolution === '1K' && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 bg-[#4080FF]/20 text-[#4080FF] px-1.5 py-0.5 rounded-md text-[9px] font-bold scale-90 whitespace-nowrap z-20">
+                  限免1次
+                </span>
               )}
-            >
-              标清 1K
-            </button>
+              <button
+                onClick={() => handleResolutionSelect(resolution)}
+                className={cn(
+                  "w-full py-2.5 rounded-xl transition-all text-[13px] font-medium cursor-pointer flex items-center justify-center gap-1",
+                  imageResolution === resolution
+                  ? "bg-zinc-100 text-zinc-900 dark:bg-[#333333] dark:text-white"
+                  : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 dark:bg-[#2f2f2f] dark:text-zinc-400 dark:hover:bg-[#333333] dark:hover:text-white"
+                )}
+              >
+                <span>{resolution === '1K' ? '标清 1K' : resolution === '2K' ? '高清 2K' : '超清 4K'}</span>
+                {resolution !== '1K' && <span className="text-[#4080FF] text-xs font-semibold">✦</span>}
+              </button>
+            </div>
+          ))}
+          </div>
           </div>
 
-          <div className="flex-1 pt-2.5">
-            <button
-              onClick={() => handleResolutionSelect('2K')}
-              className={cn(
-                "w-full py-2.5 rounded-xl transition-all text-[13px] font-medium cursor-pointer flex items-center justify-center gap-1",
-                imageResolution === '2K'
-                ? "bg-zinc-100 text-zinc-900 dark:bg-[#333333] dark:text-white"
-                : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 dark:bg-[#2f2f2f] dark:text-zinc-400 dark:hover:bg-[#333333] dark:hover:text-white"
-              )}
-            >
-              <span>高清 2K</span>
-                <span className="text-[#4080FF] text-xs font-semibold">✦</span>
-            </button>
+      {maxCount > 1 && setImageCount !== undefined && (
+        <div className="flex flex-col gap-3">
+          <div className="text-[12px] text-zinc-500 font-medium">生成数量</div>
+          <div className="flex gap-2.5">
+            {Array.from({ length: maxCount }, (_, index) => index + 1).map((count) => (
+              <button
+                key={count}
+                onClick={() => setImageCount(count)}
+                className={cn(
+                  "flex-1 py-2.5 rounded-xl transition-all text-[13px] font-medium cursor-pointer",
+                  imageCount === count
+                  ? "bg-zinc-100 text-zinc-900 dark:bg-[#333333] dark:text-white"
+                  : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 dark:bg-[#2f2f2f] dark:text-zinc-400 dark:hover:bg-[#333333] dark:hover:text-white"
+                )}
+              >
+                {count}
+              </button>
+            ))}
           </div>
-
-          <div className="flex-1 pt-2.5">
-            <button
-              onClick={() => handleResolutionSelect('4K')}
-              className={cn(
-                "w-full py-2.5 rounded-xl transition-all text-[13px] font-medium cursor-pointer flex items-center justify-center gap-1",
-                imageResolution === '4K'
-                ? "bg-zinc-100 text-zinc-900 dark:bg-[#333333] dark:text-white"
-                : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 dark:bg-[#2f2f2f] dark:text-zinc-400 dark:hover:bg-[#333333] dark:hover:text-white"
-              )}
-            >
-              <span>超清 4K</span>
-                <span className="text-[#4080FF] text-xs font-semibold">✦</span>
-            </button>
-          </div>
-          </div>
-          </div>
+        </div>
+      )}
 
       {/* Manual Dimensions Section */}
       <div className="flex flex-col gap-3">
-        <div className="text-[12px] text-zinc-500 font-medium">尺寸</div>
-        <div className="flex items-center gap-3">
+        <div className="text-[12px] text-zinc-500 font-medium flex items-center justify-between">
+          <span>尺寸</span>
+          {!customSize && <span className="text-[10px] text-zinc-500">该模型由所选比例决定尺寸</span>}
+        </div>
+        <div className={cn("flex items-center gap-3", !customSize && "opacity-60")}>
           {/* Width Input */}
           <div className="flex-1 flex items-center bg-zinc-100 rounded-xl px-3 py-2 transition-all dark:bg-[#252525]">
             <span className="text-zinc-400 text-xs font-medium mr-2 select-none dark:text-zinc-500">W</span>
             <input
               type="text"
               value={imageWidth || ''}
+              disabled={!customSize}
               onChange={(e) => handleWidthChange(e.target.value)}
               className="w-full bg-transparent outline-none text-right font-mono text-[13px] text-zinc-900 dark:text-white"
             />
@@ -346,6 +333,7 @@ export const ImageSettingsDropdown: React.FC<ImageSettingsDropdownProps> = ({
             <input
               type="text"
               value={imageHeight || ''}
+              disabled={!customSize}
               onChange={(e) => handleHeightChange(e.target.value)}
               className="w-full bg-transparent outline-none text-right font-mono text-[13px] text-zinc-900 dark:text-white"
             />
