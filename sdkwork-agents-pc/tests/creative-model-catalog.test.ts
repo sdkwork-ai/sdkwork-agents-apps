@@ -11,13 +11,22 @@ import {
   isCreationModel,
 } from '../packages/sdkwork-agents-pc-commons/src/creative-model-catalog/creativeModelCatalogService'
 import {
+  resolveCreativeDispatch,
+} from '../packages/sdkwork-agents-pc-commons/src/creative-model-catalog/creativeDispatch'
+import {
   clampDurationSeconds,
   generationOperationType,
+  modelParameterSummary,
+  preferredReferencePrice,
+  referencePriceLabel,
   resolveVideoGenerationMode,
   supportedImageAspectRatios,
   supportedVideoResolutions,
   supportedVideoSettingsModes,
   vendorDefaultParameters,
+  vendorDisplayName,
+  videoCapabilityChips,
+  videoParametersFromProfiles,
   wireAspectRatio,
 } from '../packages/sdkwork-agents-pc-commons/src/creative-model-catalog/creativeModelParameters'
 import type {
@@ -307,6 +316,25 @@ describe('creative parameter support', () => {
     assert.equal(generationOperationType('video_extend'), 'video_extend')
   })
 
+  it('routes the submit and the estimate through the same operation', () => {
+    assert.equal(
+      resolveCreativeDispatch('video', { generationMode: 'start_end_frame' })?.operationType,
+      'image_to_video',
+    )
+    assert.equal(
+      resolveCreativeDispatch('video', { generationMode: 'text_to_video' })?.operationType,
+      'text_to_video',
+    )
+    assert.equal(
+      resolveCreativeDispatch('video', { hasReferenceImages: true })?.operationType,
+      'image_to_video',
+    )
+    assert.equal(resolveCreativeDispatch('image')?.modality, 'image')
+    // Agent mode keeps its assisted-image pricing behavior.
+    assert.equal(resolveCreativeDispatch('agent')?.modality, 'image')
+    assert.equal(resolveCreativeDispatch('unknown'), null)
+  })
+
   it('lists only the composer modes a video model can dispatch', () => {
     const t2vOnly = {
       generationModes: ['text_to_video'],
@@ -369,5 +397,153 @@ describe('vendor parameter defaults', () => {
     assert.equal(vendorDefaultParameters('image', ''), undefined)
     assert.equal(vendorDefaultParameters('digital_human', 'kling'), undefined)
     assert.equal(vendorDefaultParameters('action', 'kling'), undefined)
+  })
+})
+
+describe('runtime catalog video profiles', () => {
+  const profiles = [
+    {
+      generationMode: 'text_to_video',
+      resolution: '720p',
+      aspectRatios: ['16:9', '9:16'],
+      minDurationSeconds: 2,
+      maxDurationSeconds: 12,
+      durationStepSeconds: 1,
+      outputAudio: true,
+      isDefault: true,
+    },
+    {
+      generationMode: 'image_to_video',
+      resolution: '1080p',
+      aspectRatios: ['16:9'],
+      minDurationSeconds: 2,
+      maxDurationSeconds: 12,
+      durationStepSeconds: 1,
+      outputAudio: true,
+    },
+    // Avatar belongs to the digital-human creation type, not the video picker.
+    { generationMode: 'avatar', resolution: '720p', aspectRatios: [] },
+  ]
+
+  it('aggregates modes, resolution tiers, ratios and duration', () => {
+    const video = videoParametersFromProfiles('bytedance', profiles)
+    assert.deepEqual(video?.generationModes, ['text_to_video', 'image_to_video'])
+    assert.deepEqual(video?.resolutions, ['720p', '1080p'])
+    assert.deepEqual(video?.aspectRatios, ['16:9', '9:16'])
+    assert.equal(video?.duration?.minSeconds, 2)
+    assert.equal(video?.duration?.maxSeconds, 12)
+    assert.equal(video?.duration?.stepSeconds, 1)
+    assert.equal(video?.outputAudio, true)
+  })
+
+  it('keeps discrete durations and rejects vendors the adapter cannot dispatch', () => {
+    const fixed = videoParametersFromProfiles('vidu', [
+      { generationMode: 'text_to_video', resolution: '720p', durationSeconds: 5, isDefault: true },
+      { generationMode: 'start_end_frame', resolution: '720p', durationSeconds: 10 },
+    ])
+    assert.deepEqual(fixed?.duration?.values, [5, 10])
+    assert.equal(fixed?.duration?.defaultSeconds, 5)
+    assert.equal(videoParametersFromProfiles('runway', profiles), undefined)
+    assert.equal(videoParametersFromProfiles('bytedance', []), undefined)
+  })
+})
+
+describe('reference price labels', () => {
+  const price = (
+    meterCode: string,
+    unitPrice: string,
+    currency = 'CNY',
+    regionCode = 'cn',
+  ) => ({ meterCode, unitPrice, currency, regionCode })
+
+  it('prefers the China region and the media meter over the per-request meter', () => {
+    const chosen = preferredReferencePrice([
+      price('api_result', '1'),
+      price('video_output_second', '0.5'),
+      price('video_output_second', '0.9', 'CNY', 'global'),
+    ])
+    assert.equal(chosen?.meterCode, 'video_output_second')
+    assert.equal(chosen?.regionCode, 'cn')
+    assert.equal(referencePriceLabel([price('api_result', '1'), price('video_output_second', '0.5')]), '¥0.5/秒')
+  })
+
+  it('formats image and non-CNY prices with their unit and symbol', () => {
+    assert.equal(referencePriceLabel([price('image_result', '0.2', 'USD', 'global')]), '$0.2/张')
+    assert.equal(referencePriceLabel([price('tts_input_character', '0.01')]), '¥0.01/字符')
+  })
+
+  it('returns no label without a positive price', () => {
+    assert.equal(referencePriceLabel([]), undefined)
+    assert.equal(referencePriceLabel(undefined), undefined)
+    assert.equal(referencePriceLabel([price('video_output_second', '0')]), undefined)
+  })
+})
+
+describe('model card presentation helpers', () => {
+  it('names each catalog vendor and falls back to the code', () => {
+    assert.equal(vendorDisplayName('bytedance'), 'ByteDance')
+    assert.equal(vendorDisplayName('kuaishou'), 'Kuaishou')
+    assert.equal(vendorDisplayName(' OPENAI '), 'OpenAI')
+    assert.equal(vendorDisplayName('runway'), 'runway')
+    assert.equal(vendorDisplayName(undefined), '')
+  })
+
+  it('summarizes video capabilities as chips', () => {
+    const chips = videoCapabilityChips({
+      generationModes: ['text_to_video', 'reference_to_video', 'start_end_frame'],
+      aspectRatios: ['16:9'],
+      resolutions: ['720p'],
+      duration: { minSeconds: 5, maxSeconds: 5, stepSeconds: 5, values: [5], defaultSeconds: 5 },
+      outputAudio: true,
+    })
+    assert.deepEqual(chips, ['含音频', '首尾帧', '多参考', '固定时长'])
+    assert.deepEqual(videoCapabilityChips(undefined), [])
+    assert.deepEqual(
+      videoCapabilityChips({
+        generationModes: ['text_to_video'],
+        aspectRatios: [],
+        resolutions: [],
+        duration: null,
+        outputAudio: false,
+      }),
+      [],
+    )
+  })
+
+  it('summarizes the numeric capabilities per creation type', () => {
+    assert.equal(
+      modelParameterSummary({
+        video: {
+          generationModes: ['text_to_video', 'image_to_video'],
+          aspectRatios: ['16:9'],
+          resolutions: ['480p', '720p', '1080p', '4k'],
+          duration: { minSeconds: 2, maxSeconds: 12, stepSeconds: 1, values: [], defaultSeconds: 2 },
+          outputAudio: true,
+        },
+      }, 'video'),
+      '480P–4K · 2–12s',
+    )
+    assert.equal(
+      modelParameterSummary({
+        image: { aspectRatios: ['1:1'], resolutions: ['1K', '2K', '4K'], customSize: true, maxCount: 4 },
+      }, 'image'),
+      '1K–4K · 4 张',
+    )
+    assert.equal(
+      modelParameterSummary({
+        voice: { voices: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }] },
+      }, 'voice'),
+      '2 个音色',
+    )
+    assert.equal(
+      modelParameterSummary({
+        sound_effects: {
+          duration: { minSeconds: 0.5, maxSeconds: 22, stepSeconds: 0.5, values: [], defaultSeconds: 4 },
+          supportsLoop: true,
+        },
+      }, 'sound_effects'),
+      '0.5–22s',
+    )
+    assert.equal(modelParameterSummary(undefined, 'video'), undefined)
   })
 })

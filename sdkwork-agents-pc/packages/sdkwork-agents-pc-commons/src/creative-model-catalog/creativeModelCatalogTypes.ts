@@ -130,6 +130,18 @@ export interface CreativeModelParameters {
   sound_effects?: CreativeModelSfxParameters;
 }
 
+/** One public reference price row of a model. */
+export interface CreativeModelReferencePrice {
+  /** Catalog billing region (`cn`, `global`). */
+  regionCode: string
+  /** Billing meter code (`video_output_second`, `image_result`, ...). */
+  meterCode: string
+  /** Price the meter unit costs, as a decimal string. */
+  unitPrice: string
+  /** Currency code (`CNY`, `USD`). */
+  currency: string
+}
+
 export interface CreativeModelDefinition {
   /** Stable model id submitted with generation commands. */
   id: string;
@@ -155,6 +167,8 @@ export interface CreativeModelDefinition {
   vendorCode?: string | null;
   /** Per-model parameter support the picker must constrain itself to. */
   parameters?: CreativeModelParameters;
+  /** Public official reference prices the catalog publishes for this model. */
+  referencePrices?: readonly CreativeModelReferencePrice[];
   source: CreativeModelSource;
   /** Display order hint; static entries keep catalog order, remote entries follow server order. */
   order: number;
@@ -201,6 +215,15 @@ export interface RemoteCreativeModelItem {
   outputModalities?: string[];
   /** Capability codes the catalog declares (`video`, `image`, `chat`, ...). */
   capabilities?: string[];
+  /** Public official reference prices (absent on older responses). */
+  officialReferencePrices?: {
+    regionCode: string;
+    billingMeter: string;
+    unitPrice: string;
+    currency: string;
+  }[];
+  /** Whether a public reference price exists for this model. */
+  priceAvailability?: { status: string; reason?: string | null };
   releaseStage: number | null;
   shelfState: number | null;
   routingState: number | null;

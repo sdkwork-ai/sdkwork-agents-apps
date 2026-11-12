@@ -1355,3 +1355,16 @@ export const VENDOR_VIDEO_GENERATION_MODES: Readonly<Record<string, readonly str
   vidu: ['text_to_video', 'image_to_video'],
   bytedance: ['text_to_video', 'image_to_video']
 };
+
+/**
+ * Full composer generation modes the adapter dispatches per video vendor.
+ * Runtime catalog profiles are intersected with this set, the same way these
+ * static profiles were generated.
+ */
+export const VENDOR_VIDEO_ADAPTER_MODES: Readonly<Record<string, readonly string[]>> = {
+  openai: ['text_to_video', 'image_to_video'],
+  google: ['text_to_video'],
+  kuaishou: ['text_to_video', 'image_to_video', 'start_end_frame'],
+  vidu: ['text_to_video', 'image_to_video', 'reference_to_video', 'start_end_frame'],
+  bytedance: ['text_to_video', 'image_to_video', 'reference_to_video', 'start_end_frame']
+};

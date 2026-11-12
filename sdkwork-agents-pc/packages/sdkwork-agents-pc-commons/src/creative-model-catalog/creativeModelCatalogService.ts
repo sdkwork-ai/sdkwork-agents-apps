@@ -4,13 +4,15 @@ import type {
   CreativeModelDefinition,
   CreativeModelLifecycle,
   CreativeModelModality,
+  CreativeModelReferencePrice,
   RemoteCreativeModelItem,
 } from './creativeModelCatalogTypes';
 import {
   CREATIVE_MODEL_RELEASE_STAGE,
   CREATIVE_MODEL_SHELF_STATE,
 } from './creativeModelCatalogTypes';
-import { vendorDefaultParameters } from './creativeModelParameters';
+import { videoParametersFromProfiles, vendorDefaultParameters } from './creativeModelParameters';
+import type { CatalogVideoProfile } from './creativeModelParameters';
 import {
   CREATIVE_MODEL_SELECTION_PROFILES,
   REMOTE_SYNC_MODALITIES,
@@ -18,7 +20,7 @@ import {
   STATIC_DEFAULT_MODEL_IDS,
 } from './staticCreativeModelCatalog';
 
-const REMOTE_LAYER_STORAGE_KEY = 'sdkwork_creative_model_catalog_remote_v3';
+const REMOTE_LAYER_STORAGE_KEY = 'sdkwork_creative_model_catalog_remote_v4';
 const SELECTED_MODELS_STORAGE_KEY = 'sdkwork_creative_selected_models_v1';
 const SYNC_TTL_MS = 5 * 60 * 1000;
 const REMOTE_PAGE_SIZE = 100;
@@ -26,7 +28,7 @@ const MAX_REMOTE_PAGES = 10;
 const MAX_REPLACEMENT_HOPS = 5;
 
 /** Persisted remote layer version; a version bump discards an older layer. */
-const REMOTE_LAYER_VERSION = 2;
+const REMOTE_LAYER_VERSION = 4;
 
 /**
  * Remote-managed layer persisted between sessions. Remote entries are the
@@ -130,6 +132,22 @@ function isPersistedDefinitionAllowed(
   return vendor !== '' && profile.vendorCodes.includes(vendor);
 }
 
+/** Map the wire reference price rows onto the picker's price shape. */
+function mapReferencePrices(
+  prices: RemoteCreativeModelItem['officialReferencePrices'],
+): CreativeModelReferencePrice[] | undefined {
+  if (!prices || prices.length === 0) return undefined
+  const mapped = prices
+    .filter((price) => price.billingMeter.trim() !== '' && Number.isFinite(Number(price.unitPrice)))
+    .map((price) => ({
+      regionCode: price.regionCode,
+      meterCode: price.billingMeter,
+      unitPrice: price.unitPrice,
+      currency: price.currency,
+    }))
+  return mapped.length > 0 ? mapped : undefined
+}
+
 function toRemoteDefinition(
   item: RemoteCreativeModelItem,
   modality: CreativeModelModality,
@@ -142,6 +160,7 @@ function toRemoteDefinition(
   const parameters = knownStaticIds.has(item.model)
     ? undefined
     : vendorDefaultParameters(modality, item.vendorCode);
+  const referencePrices = mapReferencePrices(item.officialReferencePrices);
   return {
     id: item.model,
     modality,
@@ -151,6 +170,7 @@ function toRemoteDefinition(
     replacementModelId: item.replacementModel || null,
     vendorCode: item.vendorCode,
     ...(parameters === undefined ? {} : { parameters }),
+    ...(referencePrices === undefined ? {} : { referencePrices }),
     source: 'remote',
     order: index,
   };
@@ -190,6 +210,8 @@ export class CreativeModelCatalogService {
   private mergedCache = new Map<CreativeModelModality, CreativeModelDefinition[]>();
   private visibleCache = new Map<CreativeModelModality, CreativeModelDefinition[]>();
   private indexCache = new Map<CreativeModelModality, Map<string, CreativeModelDefinition>>();
+  /** Runtime catalog video profiles keyed by model catalog key (`vendor/modelId`). */
+  private videoProfilesByKey = new Map<string, CatalogVideoProfile[]>();
 
   private static loadRemoteLayer(): PersistedRemoteLayer {
     const persisted = readJsonStorage<PersistedRemoteLayer>(REMOTE_LAYER_STORAGE_KEY);
@@ -291,6 +313,11 @@ export class CreativeModelCatalogService {
       if (existing) {
         existing.lifecycle = remote.lifecycle;
         existing.replacementModelId = remote.replacementModelId ?? null;
+        // The catalog's published reference price is a live attribute: keep it
+        // on the curated static entry rather than duplicating the row.
+        if (remote.referencePrices !== undefined) {
+          existing.referencePrices = remote.referencePrices;
+        }
         continue;
       }
       // Two catalog regions can publish the same model id; the picker states
@@ -299,6 +326,16 @@ export class CreativeModelCatalogService {
       seen.add(remote.id);
       merged.push({ ...remote, order });
       order += 1;
+    }
+    if (modality === 'video' && this.videoProfilesByKey.size > 0) {
+      for (const definition of merged) {
+        const catalogKey = `${(definition.vendorCode ?? '').trim().toLowerCase()}/${definition.id}`;
+        const profiles = this.videoProfilesByKey.get(catalogKey);
+        if (!profiles) continue;
+        const video = videoParametersFromProfiles(definition.vendorCode, profiles);
+        if (video === undefined) continue;
+        definition.parameters = { ...definition.parameters, video };
+      }
     }
     return merged;
   }
@@ -425,6 +462,7 @@ export class CreativeModelCatalogService {
     };
     const nextEntries: Partial<Record<CreativeModelModality, CreativeModelDefinition[]>> = {};
     const failures: string[] = [];
+    let failedModalities = 0;
     // One creation type's failing query must not blank the other creation
     // types' lists: a failed modality keeps its previous entries and reports
     // its error, and the sync only fails when every modality failed.
@@ -438,12 +476,22 @@ export class CreativeModelCatalogService {
         stats.removedModelIds.push(...applied.removedModelIds);
         stats.deprecatedModelIds.push(...applied.deprecatedModelIds);
       } catch (error) {
+        failedModalities += 1;
         failures.push(`${modality}: ${error instanceof Error ? error.message : String(error)}`);
         const previous = this.remoteLayer.entries[modality];
         if (previous !== undefined) nextEntries[modality] = previous;
       }
     }
-    if (failures.length === REMOTE_SYNC_MODALITIES.length && REMOTE_SYNC_MODALITIES.length > 0) {
+    // The runtime video profiles are an enhancement over each model's known
+    // baseline: a profile fetch failure keeps the static/fallback parameters
+    // instead of blanking the video list.
+    try {
+      this.videoProfilesByKey = await this.fetchVideoProfiles();
+    } catch (error) {
+      this.videoProfilesByKey = new Map();
+      failures.push(`video_profiles: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    if (failedModalities === REMOTE_SYNC_MODALITIES.length && REMOTE_SYNC_MODALITIES.length > 0) {
       this.syncState = {
         ...this.syncState,
         status: 'error',
@@ -497,6 +545,59 @@ export class CreativeModelCatalogService {
       if (!response.pageInfo?.hasMore) break;
     }
     return items;
+  }
+
+  /**
+   * Load the catalog's authoritative video generation profiles.
+   *
+   * Profiles are keyed by model catalog key (`vendor/modelId`); the app API
+   * returns each profile with its full catalog key (`vendor/model/profile`),
+   * so the last segment is dropped. The response type mirrors the shared page
+   * envelope rather than a generated profile type, hence the structural read.
+   */
+  private async fetchVideoProfiles(): Promise<Map<string, CatalogVideoProfile[]>> {
+    const { getModelsAppSdkClientWithSession } = await import('@sdkwork/agents-pc-core/sdk/modelsAppSdkClient');
+    const client = getModelsAppSdkClientWithSession();
+    const response = await client.ai.videoProfiles.list({});
+    const items = (response as unknown as { items?: unknown }).items;
+    if (!Array.isArray(items)) return new Map();
+    const byKey = new Map<string, CatalogVideoProfile[]>();
+    for (const raw of items) {
+      if (raw === null || typeof raw !== 'object') continue;
+      const profile = raw as {
+        catalogKey?: unknown;
+        generationMode?: unknown;
+        aspectRatios?: unknown;
+        resolution?: unknown;
+        outputAudio?: unknown;
+        minDurationSeconds?: unknown;
+        maxDurationSeconds?: unknown;
+        durationStepSeconds?: unknown;
+        durationSeconds?: unknown;
+        isDefault?: unknown;
+      };
+      if (typeof profile.catalogKey !== 'string' || typeof profile.generationMode !== 'string') continue;
+      const segments = profile.catalogKey.split('/');
+      if (segments.length < 3) continue;
+      const modelKey = `${segments[0]}/${segments[1]}`.toLowerCase();
+      const entry: CatalogVideoProfile = {
+        generationMode: profile.generationMode,
+        aspectRatios: Array.isArray(profile.aspectRatios)
+          ? profile.aspectRatios.filter((value): value is string => typeof value === 'string')
+          : [],
+        resolution: typeof profile.resolution === 'string' ? profile.resolution : null,
+        outputAudio: typeof profile.outputAudio === 'boolean' ? profile.outputAudio : null,
+        minDurationSeconds: typeof profile.minDurationSeconds === 'number' ? profile.minDurationSeconds : null,
+        maxDurationSeconds: typeof profile.maxDurationSeconds === 'number' ? profile.maxDurationSeconds : null,
+        durationStepSeconds: typeof profile.durationStepSeconds === 'number' ? profile.durationStepSeconds : null,
+        durationSeconds: typeof profile.durationSeconds === 'number' ? profile.durationSeconds : null,
+        isDefault: profile.isDefault === true,
+      };
+      const list = byKey.get(modelKey) ?? [];
+      list.push(entry);
+      byKey.set(modelKey, list);
+    }
+    return byKey;
   }
 
   /**
@@ -562,6 +663,7 @@ export class CreativeModelCatalogService {
   /** Clear the remote layer and persisted selections (settings/test reset). */
   reset(): void {
     this.remoteLayer = { version: REMOTE_LAYER_VERSION, syncedAt: '', entries: {} };
+    this.videoProfilesByKey = new Map();
     this.selectedIds = {};
     try {
       window.localStorage.removeItem(REMOTE_LAYER_STORAGE_KEY);

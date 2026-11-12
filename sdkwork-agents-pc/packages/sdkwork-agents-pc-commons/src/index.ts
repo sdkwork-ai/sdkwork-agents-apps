@@ -10,6 +10,7 @@ export {
   STATIC_DEFAULT_MODEL_IDS,
   clampDurationSeconds,
   generationOperationType,
+  resolveCreativeDispatch,
   resolveVideoGenerationMode,
   supportedImageAspectRatios,
   supportedVideoAspectRatios,

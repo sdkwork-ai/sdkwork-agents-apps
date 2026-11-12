@@ -361,12 +361,14 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
           : (isSfx ? sfxDuration : undefined)),
       videoMode: isVideo ? videoSettingsMode : undefined,
       audio: isVideo ? videoAudio : undefined,
+      loop: isSfx ? sfxLoop : undefined,
       imageWidth: isImage ? imageWidth : undefined,
       imageHeight: isImage ? imageHeight : undefined,
       count: isImage ? imageCount : undefined,
     },
     prompt: input,
     hasReferenceImages: uploadedImages.length > 0,
+    generationMode: isVideo ? videoGenerationMode : undefined,
     musicSmartDuration,
   });
 

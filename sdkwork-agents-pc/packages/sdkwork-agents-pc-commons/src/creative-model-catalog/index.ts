@@ -8,6 +8,7 @@ export type {
   CreativeModelModality,
   CreativeModelMusicParameters,
   CreativeModelParameters,
+  CreativeModelReferencePrice,
   CreativeModelSelectionProfile,
   CreativeModelSfxParameters,
   CreativeModelSource,
@@ -23,15 +24,30 @@ export {
 export {
   clampDurationSeconds,
   generationOperationType,
+  modelParameterSummary,
+  preferredReferencePrice,
+  referencePriceLabel,
   resolveVideoGenerationMode,
   supportedImageAspectRatios,
   supportedVideoAspectRatios,
   supportedVideoResolutions,
   supportedVideoSettingsModes,
   vendorDefaultParameters,
+  vendorDisplayName,
+  videoCapabilityChips,
+  videoParametersFromProfiles,
   VIDEO_SETTINGS_MODE_GENERATION_MODES,
   wireAspectRatio,
 } from './creativeModelParameters';
+export type {
+  CatalogVideoProfile,
+} from './creativeModelParameters';
+export {
+  resolveCreativeDispatch,
+} from './creativeDispatch';
+export type {
+  CreativeDispatchOptions,
+} from './creativeDispatch';
 export type {
   CreativeVideoSettingsMode,
 } from './creativeModelParameters';

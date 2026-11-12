@@ -680,6 +680,13 @@ export const VENDOR_SFX_PARAMETERS: Readonly<Record<string, CreativeModelSfxPara
 
 /** Conservative generation modes for an unprofiled model of each video vendor. */
 export const VENDOR_VIDEO_GENERATION_MODES: Readonly<Record<string, readonly string[]>> = ${jsValue(VENDOR_VIDEO_FALLBACK_MODES, '')};
+
+/**
+ * Full composer generation modes the adapter dispatches per video vendor.
+ * Runtime catalog profiles are intersected with this set, the same way these
+ * static profiles were generated.
+ */
+export const VENDOR_VIDEO_ADAPTER_MODES: Readonly<Record<string, readonly string[]>> = ${jsValue(ADAPTER_VIDEO_MODES, '')};
 `
 }
 

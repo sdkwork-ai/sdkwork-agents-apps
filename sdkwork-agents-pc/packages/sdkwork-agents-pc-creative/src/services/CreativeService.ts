@@ -4,9 +4,8 @@ import type {
 } from '@sdkwork/agents-pc-core/sdk/generationsService';
 import {
   resolveCreativeCreationType,
-  resolveCreativeGenerationDispatch,
 } from '@sdkwork/agents-pc-core/sdk/creationTypes';
-import { creativeModelCatalogService, generationOperationType } from '@sdkwork/agents-pc-commons';
+import { creativeModelCatalogService, resolveCreativeDispatch } from '@sdkwork/agents-pc-commons';
 import {
   readAccountScopedItem,
   removeAccountScopedItem,
@@ -372,16 +371,13 @@ export class CreativeService {
     // `agent` is deliberately left on its previous assisted-image behaviour: it
     // is not a generation modality, and re-pointing it is a separate product
     // decision from the modality-collapse fix.
-    const baseDispatch = resolveCreativeGenerationDispatch(mode, options)
-      ?? (mode === 'agent' ? resolveCreativeGenerationDispatch('image') : null);
-    // A video generation mode names the precise operation a model profile
-    // supports; the app API only routes text_to_video / image_to_video /
-    // video_extend, so the mode decides which of those carries the command.
-    const dispatch = baseDispatch !== null
-      && baseDispatch.modality === 'video'
-      && options.generationMode !== undefined
-      ? { modality: 'video' as const, operationType: generationOperationType(options.generationMode) }
-      : baseDispatch;
+    //
+    // The same helper backs the credit estimate, so the priced command and the
+    // submitted command always route identically.
+    const dispatch = resolveCreativeDispatch(mode, {
+      hasReferenceImages: options.hasReferenceImages,
+      generationMode: options.generationMode,
+    });
     if (!dispatch) {
       throw new Error(
         `“${mode}” 不是内容生成类型，无法提交生成请求。`,

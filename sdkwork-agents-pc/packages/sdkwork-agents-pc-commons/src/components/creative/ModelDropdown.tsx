@@ -2,6 +2,12 @@ import React from 'react';
 import { Box, Sparkles, Check, ShieldAlert } from 'lucide-react';
 import { cn } from '../MarkdownRenderer';
 import type { CreativeModelDefinition } from '../../creative-model-catalog';
+import {
+  modelParameterSummary,
+  referencePriceLabel,
+  vendorDisplayName,
+  videoCapabilityChips,
+} from '../../creative-model-catalog';
 
 const ModelIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -143,11 +149,20 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
       ) : (
         <>
           <div className="px-4 py-2 text-zinc-500 dark:text-zinc-400 text-[12px] mb-1 shrink-0">
-            选择模型: {currentModel?.label || ''} {isDigitalHuman ? 'by OmniHuman 1.5' : isAction ? 'by DreamActor M2.0' : 'by seed'}
+            选择模型: {currentModel?.label || ''} {isDigitalHuman
+              ? 'by OmniHuman 1.5'
+              : isAction
+                ? 'by DreamActor M2.0'
+                : vendorDisplayName(currentModel?.vendorCode)
+                  ? `by ${vendorDisplayName(currentModel?.vendorCode)}`
+                  : ''}
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {currentModels.map(model => {
               const selectable = isSelectable(model);
+              const priceLabel = referencePriceLabel(model.referencePrices);
+              const chips = videoCapabilityChips(model.parameters?.video);
+              const summary = modelParameterSummary(model.parameters, model.modality);
               return (
                 <button
                   key={model.id}
@@ -197,12 +212,30 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
                           已弃用
                         </span>
                       )}
+                      {chips.map((chip) => (
+                        <span
+                          key={chip}
+                          className="border border-zinc-300/60 dark:border-zinc-600/60 text-zinc-500 dark:text-zinc-400 text-[9px] font-medium px-1 py-0.5 rounded scale-90 origin-left shrink-0"
+                        >
+                          {chip}
+                        </span>
+                      ))}
                     </div>
                     <span className="text-[12px] text-zinc-500 dark:text-zinc-400 leading-normal line-clamp-2">
                       {model.lifecycle === 'deprecated' && model.replacementModelId
                         ? `已弃用，推荐改用 ${model.replacementModelId}。${model.desc}`
                         : model.desc}
                     </span>
+                    {summary && (
+                      <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 mt-1">
+                        {summary}
+                      </span>
+                    )}
+                    {priceLabel && (
+                      <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 mt-0.5">
+                        官方参考价 {priceLabel}
+                      </span>
+                    )}
                   </div>
                   {selectedModelId === model.id && <Check size={16} className="text-zinc-900 dark:text-white shrink-0 self-center" />}
                 </button>

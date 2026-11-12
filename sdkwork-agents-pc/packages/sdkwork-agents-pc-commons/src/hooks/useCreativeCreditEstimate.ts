@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { agentsGenerationsService } from '@sdkwork/agents-pc-core/sdk/generationsService';
-import {
-  resolveCreativeGenerationDispatch,
-  type CreativeGenerationModality,
+import type {
+  CreativeGenerationModality,
 } from '@sdkwork/agents-pc-core/sdk/creationTypes';
 import type { GenerationPricingEstimate } from '@sdkwork/agents-pc-core/sdk/generationsAppSdkClient';
 
-import { creativeModelCatalogService } from '../creative-model-catalog';
+import {
+  creativeModelCatalogService,
+  resolveCreativeDispatch,
+  wireAspectRatio,
+} from '../creative-model-catalog';
 import type { CreativeInputSettings } from './useCreativeInputBox';
 
 export interface CreativeCreditEstimateInput {
@@ -20,6 +23,8 @@ export interface CreativeCreditEstimateInput {
   prompt?: string;
   /** Reference uploads upgrade the image/video operation, like the submit does. */
   hasReferenceImages?: boolean;
+  /** Precise catalog generation mode the submit will carry. */
+  generationMode?: string;
   /** Smart duration keeps the music length model-decided: no declared quantity. */
   musicSmartDuration?: boolean;
 }
@@ -81,11 +86,12 @@ export function useCreativeCreditEstimate(
     settings,
     prompt,
     hasReferenceImages,
+    generationMode,
     musicSmartDuration,
   } = input;
 
   useEffect(() => {
-    const dispatch = resolveCreativeGenerationDispatch(mode, { hasReferenceImages });
+    const dispatch = resolveCreativeDispatch(mode, { hasReferenceImages, generationMode });
     if (!dispatch) {
       requestSequence.current += 1;
       setState({ status: 'idle', pointsLabel: '—', detail: '', estimate: null });
@@ -103,11 +109,13 @@ export function useCreativeCreditEstimate(
       : settings.duration;
     const generationConfig = Object.fromEntries(
       Object.entries({
-        aspectRatio: settings.ratio,
+        // `智能` lets the model choose, so it is not a wire aspect ratio.
+        aspectRatio: wireAspectRatio(settings.ratio),
         resolution: settings.resolution,
         durationSeconds,
         imageCount: settings.count,
-        videoMode: settings.videoMode,
+        audio: settings.audio,
+        loop: settings.loop,
         size: settings.imageWidth && settings.imageHeight
           ? `${settings.imageWidth}x${settings.imageHeight}`
           : undefined,
@@ -115,6 +123,9 @@ export function useCreativeCreditEstimate(
     );
     const parameters = {
       ...(vendorCode ? { vendor: vendorCode } : {}),
+      // Precise mode: the pricing catalog selects the video tier from the
+      // generation mode's profile, not from the routed operation alone.
+      ...(generationMode ? { generationMode } : {}),
       ...(Object.keys(generationConfig).length > 0 ? { generationConfig } : {}),
     };
 
@@ -181,12 +192,14 @@ export function useCreativeCreditEstimate(
   }, [
     mode,
     hasReferenceImages,
+    generationMode,
     modelId,
     settings.ratio,
     settings.resolution,
     settings.duration,
     settings.count,
-    settings.videoMode,
+    settings.audio,
+    settings.loop,
     settings.imageWidth,
     settings.imageHeight,
     prompt,
