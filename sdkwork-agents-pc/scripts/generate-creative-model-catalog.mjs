@@ -334,22 +334,41 @@ function videoParameters(vendorCode, profiles) {
   )
   if (generationModes.length === 0) return undefined
 
+  // Only profiles the picker can actually dispatch describe its knobs: an
+  // avatar/motion-control profile declares its own stream duration (2–300s) and
+  // must not widen the video generation control.
+  const dispatchable = profiles.filter((profile) => generationModes.includes(profile.generationMode))
   const aspectRatios = orderedUnique(
-    profiles.flatMap((profile) => profile.aspectRatios ?? []),
+    dispatchable.flatMap((profile) => profile.aspectRatios ?? []),
     ASPECT_RATIO_ORDER,
   )
   const resolutions = sortedResolutions(
-    profiles.map((profile) => profile.resolution).filter(Boolean),
+    dispatchable.map((profile) => profile.resolution).filter(Boolean),
   )
 
-  const ranges = profiles.filter((profile) => (
-    Number.isFinite(profile.minDurationSeconds) && Number.isFinite(profile.maxDurationSeconds)
+  const options = [...new Set(
+    dispatchable.flatMap((profile) => profile.durationOptions ?? []).filter((value) => Number.isFinite(value)),
+  )].sort((left, right) => left - right)
+  const ranges = dispatchable.filter((profile) => (
+    profile.durationPolicy === 'range'
+    && Number.isFinite(profile.minDurationSeconds)
+    && Number.isFinite(profile.maxDurationSeconds)
   ))
-  const fixed = profiles
+  const fixed = dispatchable
     .map((profile) => profile.durationSeconds)
     .filter((value) => Number.isFinite(value))
   let duration
-  if (ranges.length > 0) {
+  if (options.length > 0) {
+    // Discrete duration controls (Sora 4/8/12, Veo 4/6/8) must offer exactly the
+    // vendor-accepted values, never a continuous slider across them.
+    duration = {
+      minSeconds: options[0],
+      maxSeconds: options[options.length - 1],
+      stepSeconds: options.length > 1 ? options[1] - options[0] : 1,
+      values: options,
+      defaultSeconds: options[0],
+    }
+  } else if (ranges.length > 0) {
     const minSeconds = Math.min(...ranges.map((profile) => profile.minDurationSeconds))
     const maxSeconds = Math.max(...ranges.map((profile) => profile.maxDurationSeconds))
     const stepSeconds = Math.max(1, Math.min(...ranges.map((profile) => profile.durationStepSeconds ?? 1)))
@@ -377,7 +396,7 @@ function videoParameters(vendorCode, profiles) {
     aspectRatios,
     resolutions,
     duration,
-    outputAudio: profiles.some((profile) => profile.outputAudio === true),
+    outputAudio: dispatchable.some((profile) => profile.outputAudio === true),
   }
 }
 

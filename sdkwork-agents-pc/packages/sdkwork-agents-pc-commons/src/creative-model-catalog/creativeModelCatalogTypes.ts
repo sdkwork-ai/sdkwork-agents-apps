@@ -169,6 +169,12 @@ export interface CreativeModelDefinition {
   parameters?: CreativeModelParameters;
   /** Public official reference prices the catalog publishes for this model. */
   referencePrices?: readonly CreativeModelReferencePrice[];
+  /** Catalog family code (`seedance`, `kling`, ...). */
+  familyCode?: string;
+  /** Brand color token (hex) the catalog publishes for the model. */
+  colorToken?: string;
+  /** Vendor documentation URL for the model. */
+  docsUrl?: string;
   source: CreativeModelSource;
   /** Display order hint; static entries keep catalog order, remote entries follow server order. */
   order: number;
@@ -224,6 +230,16 @@ export interface RemoteCreativeModelItem {
   }[];
   /** Whether a public reference price exists for this model. */
   priceAvailability?: { status: string; reason?: string | null };
+  /** Catalog model family code (`seedance`, `kling`, ...). */
+  familyCode?: string | null;
+  /** Brand color token (hex) the catalog publishes for the model. */
+  colorToken?: string | null;
+  /** Vendor documentation URL for the model. */
+  docsUrl?: string | null;
+  /** Number of catalog video generation profiles the model declares. */
+  videoProfileCount?: number;
+  /** Number of voice bindings the model declares. */
+  voiceBindingCount?: number;
   releaseStage: number | null;
   shelfState: number | null;
   routingState: number | null;

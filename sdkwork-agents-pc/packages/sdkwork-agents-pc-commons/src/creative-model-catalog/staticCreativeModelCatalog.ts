@@ -464,8 +464,8 @@ export const STATIC_VIDEO_MODELS: CreativeModelDefinition[] = [
           aspectRatios: ['16:9', '1:1', '9:16'],
           resolutions: ['720p', '1080p', '4k'],
           duration: {
-            minSeconds: 2,
-            maxSeconds: 300,
+            minSeconds: 3,
+            maxSeconds: 15,
             stepSeconds: 1,
             values: [],
             defaultSeconds: 3
@@ -614,11 +614,11 @@ export const STATIC_VIDEO_MODELS: CreativeModelDefinition[] = [
           aspectRatios: ['16:9', '1:1', '9:16'],
           resolutions: ['480p', '720p', '1080p'],
           duration: {
-            minSeconds: 2,
-            maxSeconds: 12,
+            minSeconds: 4,
+            maxSeconds: 30,
             stepSeconds: 1,
             values: [],
-            defaultSeconds: 2
+            defaultSeconds: 4
           },
           outputAudio: true
         }
@@ -714,11 +714,11 @@ export const STATIC_VIDEO_MODELS: CreativeModelDefinition[] = [
           aspectRatios: ['16:9', '1:1', '9:16'],
           resolutions: ['480p', '720p', '1080p'],
           duration: {
-            minSeconds: 2,
-            maxSeconds: 12,
+            minSeconds: 4,
+            maxSeconds: 30,
             stepSeconds: 1,
             values: [],
-            defaultSeconds: 2
+            defaultSeconds: 4
           },
           outputAudio: true
         }

@@ -6,6 +6,7 @@
  * input-box hook, the command builder and the specs share one implementation.
  */
 import type {
+  CreativeModelDefinition,
   CreativeModelDuration,
   CreativeModelImageParameters,
   CreativeModelModality,
@@ -28,6 +29,8 @@ export interface CatalogVideoProfile {
   aspectRatios?: readonly string[] | null
   resolution?: string | null
   outputAudio?: boolean | null
+  durationPolicy?: string | null
+  durationOptions?: readonly number[] | null
   minDurationSeconds?: number | null
   maxDurationSeconds?: number | null
   durationStepSeconds?: number | null
@@ -95,25 +98,44 @@ export function videoParametersFromProfiles(
   )
   if (generationModes.length === 0) return undefined
 
+  // Only the dispatchable profiles describe the picker's knobs: avatar / motion
+  // control profiles declare their own stream duration and must not widen the
+  // video generation control.
+  const dispatchable = profiles.filter((profile) => generationModes.includes(profile.generationMode))
   const aspectRatios = orderedUnique(
-    profiles.flatMap((profile) => profile.aspectRatios ?? []),
+    dispatchable.flatMap((profile) => profile.aspectRatios ?? []),
     ASPECT_RATIO_ORDER,
   )
   const resolutions = [...new Set(
-    profiles
+    dispatchable
       .map((profile) => profile.resolution)
       .filter((value): value is string => typeof value === 'string' && value.trim() !== '')
       .map((value) => value.toLowerCase()),
   )].sort((left, right) => (RESOLUTION_RANK[left] ?? 99) - (RESOLUTION_RANK[right] ?? 99))
 
-  const ranges = profiles.filter((profile) => (
-    Number.isFinite(profile.minDurationSeconds) && Number.isFinite(profile.maxDurationSeconds)
+  const options = [...new Set(
+    dispatchable.flatMap((profile) => profile.durationOptions ?? []).filter((value) => Number.isFinite(value)),
+  )].sort((left, right) => left - right)
+  const ranges = dispatchable.filter((profile) => (
+    profile.durationPolicy !== 'discrete'
+    && Number.isFinite(profile.minDurationSeconds)
+    && Number.isFinite(profile.maxDurationSeconds)
   ))
-  const fixed = profiles
+  const fixed = dispatchable
     .map((profile) => profile.durationSeconds)
     .filter((value): value is number => Number.isFinite(value))
   let duration: CreativeModelDuration | null = null
-  if (ranges.length > 0) {
+  if (options.length > 0) {
+    // A discrete vendor vocabulary (Sora 4/8/12, Veo 4/6/8) is offered as exact
+    // values; a continuous control would let the caller pick an invalid second.
+    duration = {
+      minSeconds: options[0],
+      maxSeconds: options[options.length - 1],
+      stepSeconds: options.length > 1 ? options[1] - options[0] : 1,
+      values: options,
+      defaultSeconds: options[0],
+    }
+  } else if (ranges.length > 0) {
     const minSeconds = Math.min(...ranges.map((profile) => profile.minDurationSeconds as number))
     const maxSeconds = Math.max(...ranges.map((profile) => profile.maxDurationSeconds as number))
     const stepSeconds = Math.max(1, Math.min(...ranges.map((profile) => profile.durationStepSeconds ?? 1)))
@@ -139,7 +161,7 @@ export function videoParametersFromProfiles(
     aspectRatios,
     resolutions,
     duration,
-    outputAudio: profiles.some((profile) => profile.outputAudio === true),
+    outputAudio: dispatchable.some((profile) => profile.outputAudio === true),
   }
 }
 
@@ -236,6 +258,43 @@ export function modelParameterSummary(
   return undefined
 }
 
+/** One vendor section of a model picker list. */
+export interface CreativeModelVendorGroup {
+  vendorCode: string
+  vendorLabel: string
+  models: CreativeModelDefinition[]
+}
+
+/**
+ * Group picker rows by vendor, preserving the incoming model order.
+ *
+ * The dropdown renders one section per vendor once a creation type spans more
+ * than one vendor, so 20+ video models stay scannable.
+ *
+ * @param models - merged model definitions in display order.
+ * @returns vendor groups in first-seen order.
+ */
+export function groupModelsByVendor(
+  models: readonly CreativeModelDefinition[],
+): CreativeModelVendorGroup[] {
+  const groups = new Map<string, CreativeModelVendorGroup>()
+  for (const model of models) {
+    const vendorCode = (model.vendorCode ?? '').trim().toLowerCase()
+    const key = vendorCode === '' ? '__unknown__' : vendorCode
+    const existing = groups.get(key)
+    if (existing) {
+      existing.models.push(model)
+      continue
+    }
+    groups.set(key, {
+      vendorCode: key,
+      vendorLabel: vendorCode === '' ? '其他' : vendorDisplayName(vendorCode),
+      models: [model],
+    })
+  }
+  return [...groups.values()]
+}
+
 /** Meter code → the unit label shown next to a reference price. */
 const METER_UNIT_LABELS: Record<string, string> = {
   video_output_second: '/秒',
@@ -303,6 +362,25 @@ export function referencePriceLabel(
   if (!price) return undefined
   const unit = METER_UNIT_LABELS[price.meterCode] ?? '/次'
   return `${currencySymbol(price.currency)}${price.unitPrice}${unit}`
+}
+
+/**
+ * Tooltip detail for a model's reference price.
+ *
+ * The row shows the compact label; the tooltip names the meter, region and
+ * note that the value is the official reference rather than the customer's
+ * final debit.
+ *
+ * @param prices - public reference prices of the model.
+ * @returns the tooltip text, or `undefined` when no price is published.
+ */
+export function referencePriceTooltip(
+  prices: readonly CreativeModelReferencePrice[] | undefined,
+): string | undefined {
+  const price = preferredReferencePrice(prices)
+  if (!price) return undefined
+  const unit = METER_UNIT_LABELS[price.meterCode] ?? '/次'
+  return `官方参考价 ${currencySymbol(price.currency)}${price.unitPrice}${unit} · 计量 ${price.meterCode} · 区域 ${price.regionCode}（实际扣费按积分结算）`
 }
 
 /**

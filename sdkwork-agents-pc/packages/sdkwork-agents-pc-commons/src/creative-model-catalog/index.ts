@@ -24,9 +24,11 @@ export {
 export {
   clampDurationSeconds,
   generationOperationType,
+  groupModelsByVendor,
   modelParameterSummary,
   preferredReferencePrice,
   referencePriceLabel,
+  referencePriceTooltip,
   resolveVideoGenerationMode,
   supportedImageAspectRatios,
   supportedVideoAspectRatios,
@@ -41,6 +43,7 @@ export {
 } from './creativeModelParameters';
 export type {
   CatalogVideoProfile,
+  CreativeModelVendorGroup,
 } from './creativeModelParameters';
 export {
   resolveCreativeDispatch,

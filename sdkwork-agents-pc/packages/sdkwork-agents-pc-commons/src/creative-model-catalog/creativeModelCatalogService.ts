@@ -132,6 +132,12 @@ function isPersistedDefinitionAllowed(
   return vendor !== '' && profile.vendorCodes.includes(vendor);
 }
 
+function optionalTrimmed(value: string | null | undefined): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed === '' ? undefined : trimmed;
+}
+
 /** Map the wire reference price rows onto the picker's price shape. */
 function mapReferencePrices(
   prices: RemoteCreativeModelItem['officialReferencePrices'],
@@ -161,6 +167,9 @@ function toRemoteDefinition(
     ? undefined
     : vendorDefaultParameters(modality, item.vendorCode);
   const referencePrices = mapReferencePrices(item.officialReferencePrices);
+  const familyCode = optionalTrimmed(item.familyCode);
+  const colorToken = optionalTrimmed(item.colorToken);
+  const docsUrl = optionalTrimmed(item.docsUrl);
   return {
     id: item.model,
     modality,
@@ -171,6 +180,9 @@ function toRemoteDefinition(
     vendorCode: item.vendorCode,
     ...(parameters === undefined ? {} : { parameters }),
     ...(referencePrices === undefined ? {} : { referencePrices }),
+    ...(familyCode === undefined ? {} : { familyCode }),
+    ...(colorToken === undefined ? {} : { colorToken }),
+    ...(docsUrl === undefined ? {} : { docsUrl }),
     source: 'remote',
     order: index,
   };
@@ -318,6 +330,9 @@ export class CreativeModelCatalogService {
         if (remote.referencePrices !== undefined) {
           existing.referencePrices = remote.referencePrices;
         }
+        if (remote.familyCode !== undefined) existing.familyCode = remote.familyCode;
+        if (remote.colorToken !== undefined) existing.colorToken = remote.colorToken;
+        if (remote.docsUrl !== undefined) existing.docsUrl = remote.docsUrl;
         continue;
       }
       // Two catalog regions can publish the same model id; the picker states
@@ -570,6 +585,8 @@ export class CreativeModelCatalogService {
         aspectRatios?: unknown;
         resolution?: unknown;
         outputAudio?: unknown;
+        durationPolicy?: unknown;
+        durationOptions?: unknown;
         minDurationSeconds?: unknown;
         maxDurationSeconds?: unknown;
         durationStepSeconds?: unknown;
@@ -587,6 +604,10 @@ export class CreativeModelCatalogService {
           : [],
         resolution: typeof profile.resolution === 'string' ? profile.resolution : null,
         outputAudio: typeof profile.outputAudio === 'boolean' ? profile.outputAudio : null,
+        durationPolicy: typeof profile.durationPolicy === 'string' ? profile.durationPolicy : null,
+        durationOptions: Array.isArray(profile.durationOptions)
+          ? profile.durationOptions.filter((value): value is number => typeof value === 'number')
+          : [],
         minDurationSeconds: typeof profile.minDurationSeconds === 'number' ? profile.minDurationSeconds : null,
         maxDurationSeconds: typeof profile.maxDurationSeconds === 'number' ? profile.maxDurationSeconds : null,
         durationStepSeconds: typeof profile.durationStepSeconds === 'number' ? profile.durationStepSeconds : null,

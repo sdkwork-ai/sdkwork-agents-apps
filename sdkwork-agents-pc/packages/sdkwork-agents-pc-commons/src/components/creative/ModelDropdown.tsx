@@ -3,8 +3,10 @@ import { Box, Sparkles, Check, ShieldAlert } from 'lucide-react';
 import { cn } from '../MarkdownRenderer';
 import type { CreativeModelDefinition } from '../../creative-model-catalog';
 import {
+  groupModelsByVendor,
   modelParameterSummary,
   referencePriceLabel,
+  referencePriceTooltip,
   vendorDisplayName,
   videoCapabilityChips,
 } from '../../creative-model-catalog';
@@ -60,6 +62,7 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
   isAction = false
 }) => {
   const agentTabModels = agentModelTab === 'image' ? agentImageModels : agentVideoModels;
+  const modelGroups = groupModelsByVendor(currentModels);
   return (
     <div
       ref={dropdownRef}
@@ -156,11 +159,29 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
                 : vendorDisplayName(currentModel?.vendorCode)
                   ? `by ${vendorDisplayName(currentModel?.vendorCode)}`
                   : ''}
+            {currentModel?.docsUrl && (
+              <a
+                href={currentModel.docsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="ml-1.5 underline underline-offset-2 hover:text-zinc-700 dark:hover:text-zinc-200"
+              >
+                官方文档
+              </a>
+            )}
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
-            {currentModels.map(model => {
+            {modelGroups.map((group) => (
+              <div key={group.vendorCode}>
+                {modelGroups.length > 1 && (
+                  <div className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                    {group.vendorLabel}
+                  </div>
+                )}
+                {group.models.map(model => {
               const selectable = isSelectable(model);
               const priceLabel = referencePriceLabel(model.referencePrices);
+              const priceTooltip = referencePriceTooltip(model.referencePrices);
               const chips = videoCapabilityChips(model.parameters?.video);
               const summary = modelParameterSummary(model.parameters, model.modality);
               return (
@@ -197,6 +218,13 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
 
                   <div className="flex flex-col flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                      {model.colorToken && (
+                        <span
+                          aria-hidden="true"
+                          className="w-1.5 h-1.5 rounded-full shrink-0"
+                          style={{ backgroundColor: model.colorToken }}
+                        />
+                      )}
                       <span className={cn("text-[14px] font-semibold", selectedModelId === model.id ? "text-zinc-900 dark:text-white" : "text-zinc-800 dark:text-zinc-200")}>
                         {model.label}
                       </span>
@@ -232,7 +260,10 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
                       </span>
                     )}
                     {priceLabel && (
-                      <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 mt-0.5">
+                      <span
+                        title={priceTooltip}
+                        className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 mt-0.5"
+                      >
                         官方参考价 {priceLabel}
                       </span>
                     )}
@@ -240,7 +271,9 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
                   {selectedModelId === model.id && <Check size={16} className="text-zinc-900 dark:text-white shrink-0 self-center" />}
                 </button>
               );
-            })}
+                })}
+              </div>
+            ))}
           </div>
         </>
       )}

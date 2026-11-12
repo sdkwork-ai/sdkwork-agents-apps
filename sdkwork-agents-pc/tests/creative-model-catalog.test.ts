@@ -16,9 +16,11 @@ import {
 import {
   clampDurationSeconds,
   generationOperationType,
+  groupModelsByVendor,
   modelParameterSummary,
   preferredReferencePrice,
   referencePriceLabel,
+  referencePriceTooltip,
   resolveVideoGenerationMode,
   supportedImageAspectRatios,
   supportedVideoResolutions,
@@ -30,6 +32,7 @@ import {
   wireAspectRatio,
 } from '../packages/sdkwork-agents-pc-commons/src/creative-model-catalog/creativeModelParameters'
 import type {
+  CreativeModelDefinition,
   CreativeModelDuration,
   CreativeModelModality,
   RemoteCreativeModelItem,
@@ -446,6 +449,53 @@ describe('runtime catalog video profiles', () => {
     assert.equal(videoParametersFromProfiles('runway', profiles), undefined)
     assert.equal(videoParametersFromProfiles('bytedance', []), undefined)
   })
+
+  it('offers discrete vendor durations as exact values, not a continuous range', () => {
+    const discrete = videoParametersFromProfiles('openai', [
+      {
+        generationMode: 'text_to_video',
+        resolution: '1080p',
+        aspectRatios: ['16:9', '9:16'],
+        durationPolicy: 'discrete',
+        durationOptions: [4, 8, 12],
+        minDurationSeconds: 4,
+        maxDurationSeconds: 12,
+      },
+    ])
+    assert.deepEqual(discrete?.duration?.values, [4, 8, 12])
+    assert.equal(discrete?.duration?.minSeconds, 4)
+    assert.equal(discrete?.duration?.maxSeconds, 12)
+    assert.equal(discrete?.duration?.defaultSeconds, 4)
+  })
+
+  it('ignores knobs from profiles the video picker cannot dispatch', () => {    const video = videoParametersFromProfiles('kuaishou', [
+      {
+        generationMode: 'text_to_video',
+        resolution: '1080p',
+        aspectRatios: ['16:9'],
+        durationPolicy: 'range',
+        minDurationSeconds: 3,
+        maxDurationSeconds: 15,
+        durationStepSeconds: 1,
+        outputAudio: true,
+      },
+      {
+        generationMode: 'avatar',
+        resolution: '720p',
+        aspectRatios: ['1:1'],
+        durationPolicy: 'continuous',
+        minDurationSeconds: 2,
+        maxDurationSeconds: 300,
+        outputAudio: false,
+      },
+    ])
+    assert.deepEqual(video?.generationModes, ['text_to_video'])
+    assert.deepEqual(video?.aspectRatios, ['16:9'])
+    assert.deepEqual(video?.resolutions, ['1080p'])
+    assert.equal(video?.duration?.minSeconds, 3)
+    assert.equal(video?.duration?.maxSeconds, 15)
+    assert.equal(video?.outputAudio, true)
+  })
 })
 
 describe('reference price labels', () => {
@@ -476,6 +526,15 @@ describe('reference price labels', () => {
     assert.equal(referencePriceLabel([]), undefined)
     assert.equal(referencePriceLabel(undefined), undefined)
     assert.equal(referencePriceLabel([price('video_output_second', '0')]), undefined)
+  })
+
+  it('explains the reference price meter, unit and region in the tooltip', () => {
+    const tooltip = referencePriceTooltip([price('video_output_second', '0.5')])
+    assert.ok(tooltip?.includes('¥0.5/秒'))
+    assert.ok(tooltip?.includes('video_output_second'))
+    assert.ok(tooltip?.includes('cn'))
+    assert.equal(referencePriceTooltip([]), undefined)
+    assert.equal(referencePriceTooltip(undefined), undefined)
   })
 })
 
@@ -545,5 +604,34 @@ describe('model card presentation helpers', () => {
       '0.5–22s',
     )
     assert.equal(modelParameterSummary(undefined, 'video'), undefined)
+  })
+
+  it('groups picker models by vendor in first-seen order', () => {
+    const model = (
+      id: string,
+      vendorCode: string | undefined,
+      order: number,
+    ): CreativeModelDefinition => ({
+      id,
+      modality: 'video',
+      label: id,
+      desc: id,
+      lifecycle: 'active',
+      ...(vendorCode === undefined ? {} : { vendorCode }),
+      source: 'static',
+      order,
+    })
+    const groups = groupModelsByVendor([
+      model('a', 'vidu', 0),
+      model('b', 'kuaishou', 1),
+      model('c', 'vidu', 2),
+      model('d', undefined, 3),
+    ])
+    assert.deepEqual(groups.map((group) => group.vendorCode), ['vidu', 'kuaishou', '__unknown__'])
+    assert.equal(groups[0].vendorLabel, 'Vidu')
+    assert.equal(groups[1].vendorLabel, 'Kuaishou')
+    assert.equal(groups[2].vendorLabel, '其他')
+    assert.deepEqual(groups[0].models.map((entry) => entry.id), ['a', 'c'])
+    assert.deepEqual(groups[2].models.map((entry) => entry.id), ['d'])
   })
 })
