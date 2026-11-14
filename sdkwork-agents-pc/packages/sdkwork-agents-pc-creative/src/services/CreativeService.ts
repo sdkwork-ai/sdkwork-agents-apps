@@ -124,6 +124,12 @@ export interface CreativeGenerationOptions {
   previewImageUrl?: string;
   /** Conversation grouping key of the active creative session. */
   conversationId?: string;
+  /** Agent-mode orchestration model id (`parameters.agentModel`). */
+  agentLlmModel?: string;
+  /** Media models the agent may use for image generation. */
+  agentImageModels?: string[];
+  /** Media models the agent may use for video generation. */
+  agentVideoModels?: string[];
 }
 
 /** Drop blank entries so absent settings never widen the command payload. */
@@ -401,6 +407,18 @@ export class CreativeService {
       : undefined;
     const commandParameters = compactCreativeCommandParameters({
       ...(resolvedVendorCode ? { vendor: resolvedVendorCode } : {}),
+      // Agent mode carries its orchestration model and the media models it may
+      // call. The dispatch currently stays on the assisted-image path, so these
+      // ride the free-form parameters object for the agent runtime to consume.
+      ...(mode === 'agent' && options.agentLlmModel
+        ? { agentModel: options.agentLlmModel }
+        : {}),
+      ...(mode === 'agent' && options.agentImageModels?.length
+        ? { agentImageModels: options.agentImageModels }
+        : {}),
+      ...(mode === 'agent' && options.agentVideoModels?.length
+        ? { agentVideoModels: options.agentVideoModels }
+        : {}),
       ...options.commandParameters,
     });
     const pendingMessage: CreativeMessage = {

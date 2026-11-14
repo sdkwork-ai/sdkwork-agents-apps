@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mic, Search, Play, Pause, Check } from 'lucide-react';
 import { cn } from '../MarkdownRenderer';
+import { useAdaptiveDropdown } from '../../hooks/useAdaptiveDropdown';
 
 export const VOICE_CATEGORIES = [
   { id: 'all', label: '全部' },
@@ -65,14 +66,17 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
     return matchesCategory && matchesSearch;
   });
 
+  const { placement, maxHeight } = useAdaptiveDropdown(dropdownRef, voiceSettingsPlacement, 360);
+
   if (offersVendorVoices) {
     return (
       <div
         ref={dropdownRef}
         className={cn(
-          "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[380px] max-w-[380px] bg-white rounded-2xl z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col max-h-[360px] dark:bg-[#222222]",
-          voiceSettingsPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
+          "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[380px] max-w-[380px] bg-white rounded-2xl z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col overflow-y-auto custom-scrollbar dark:bg-[#222222]",
+          placement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
         )}
+        style={{ maxHeight: maxHeight === null ? '360px' : `${maxHeight}px` }}
       >
         <div className="p-3 pb-2 shrink-0 flex items-center justify-between px-4">
           <span className="text-[14px] font-medium text-zinc-800 dark:text-zinc-200">选择音色</span>
@@ -118,9 +122,10 @@ export const VoiceSettingsDropdown: React.FC<VoiceSettingsDropdownProps> = ({
     <div
       ref={dropdownRef}
       className={cn(
-        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[420px] max-w-[420px] bg-white rounded-2xl z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col max-h-[450px] dark:bg-[#222222]",
-        voiceSettingsPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
+        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[420px] max-w-[420px] bg-white rounded-2xl z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col overflow-y-auto custom-scrollbar dark:bg-[#222222]",
+        placement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
       )}
+      style={{ maxHeight: maxHeight === null ? '450px' : `${maxHeight}px` }}
     >
       {/* Header & Categories */}
       <div className="p-3 pb-2 shrink-0">

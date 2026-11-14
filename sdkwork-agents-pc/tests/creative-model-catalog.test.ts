@@ -17,11 +17,13 @@ import {
   clampDurationSeconds,
   generationOperationType,
   groupModelsByVendor,
+  modelMatchesSearch,
   modelParameterSummary,
   preferredReferencePrice,
   referencePriceLabel,
   referencePriceTooltip,
   resolveVideoGenerationMode,
+  sortModelsByRecency,
   supportedImageAspectRatios,
   supportedVideoResolutions,
   supportedVideoSettingsModes,
@@ -37,6 +39,7 @@ import type {
   CreativeModelModality,
   RemoteCreativeModelItem,
 } from '../packages/sdkwork-agents-pc-commons/src/creative-model-catalog/creativeModelCatalogTypes'
+import { toAgentLlmModels } from '../packages/sdkwork-agents-pc-commons/src/creative-model-catalog/agentLlmModels'
 
 /**
  * Regression coverage for the creative model picker lists.
@@ -517,6 +520,12 @@ describe('reference price labels', () => {
     assert.equal(referencePriceLabel([price('api_result', '1'), price('video_output_second', '0.5')]), '¥0.5/秒')
   })
 
+  it('trims trailing price decimals for compact rows', () => {
+    assert.equal(referencePriceLabel([price('image_result', '0.100000')]), '¥0.1/张')
+    assert.equal(referencePriceLabel([price('video_output_second', '1.000000')]), '¥1/秒')
+    assert.equal(referencePriceLabel([price('image_result', '0.000000')]), undefined)
+  })
+
   it('formats image and non-CNY prices with their unit and symbol', () => {
     assert.equal(referencePriceLabel([price('image_result', '0.2', 'USD', 'global')]), '$0.2/张')
     assert.equal(referencePriceLabel([price('tts_input_character', '0.01')]), '¥0.01/字符')
@@ -633,5 +642,108 @@ describe('model card presentation helpers', () => {
     assert.equal(groups[2].vendorLabel, '其他')
     assert.deepEqual(groups[0].models.map((entry) => entry.id), ['a', 'c'])
     assert.deepEqual(groups[2].models.map((entry) => entry.id), ['d'])
+  })
+
+  it('filters picker models by label, vendor, family and description', () => {
+    const model: CreativeModelDefinition = {
+      id: 'doubao-seedance-2-0-260128',
+      modality: 'video',
+      label: 'Doubao Seedance 2.0',
+      desc: '字节跳动视频生成模型',
+      familyCode: 'seedance',
+      vendorCode: 'bytedance',
+      lifecycle: 'active',
+      source: 'static',
+      order: 0,
+    }
+    assert.equal(modelMatchesSearch(model, ''), true)
+    assert.equal(modelMatchesSearch(model, '  '), true)
+    assert.equal(modelMatchesSearch(model, 'seedance'), true)
+    assert.equal(modelMatchesSearch(model, 'DOUBAO'), true)
+    assert.equal(modelMatchesSearch(model, '字节'), true)
+    assert.equal(modelMatchesSearch(model, 'ByteDance'), true)
+    assert.equal(modelMatchesSearch(model, 'bytedance 2.0'), true)
+    assert.equal(modelMatchesSearch(model, 'bytedance 2.5'), false)
+    assert.equal(modelMatchesSearch(model, 'kling'), false)
+  })
+
+  it('sorts catalog rows newest version first', () => {
+    const row = (
+      id: string,
+      lifecycle: CreativeModelDefinition['lifecycle'] = 'active',
+    ): CreativeModelDefinition => ({
+      id,
+      modality: 'video',
+      label: id,
+      desc: '',
+      lifecycle,
+      source: 'static',
+      order: 0,
+    })
+    const order = (models: CreativeModelDefinition[]) =>
+      sortModelsByRecency(models).map((model) => model.id)
+
+    assert.deepEqual(
+      order([row('kling-v2-6'), row('kling-v3'), row('kling-4.0')]),
+      ['kling-4.0', 'kling-v3', 'kling-v2-6'],
+    )
+    assert.deepEqual(
+      order([row('viduq3-pro'), row('viduq4-preview')]),
+      ['viduq4-preview', 'viduq3-pro'],
+    )
+    assert.deepEqual(
+      order([row('doubao-seedance-2-0-260128'), row('doubao-seedance-2-5-260628')]),
+      ['doubao-seedance-2-5-260628', 'doubao-seedance-2-0-260128'],
+    )
+    assert.deepEqual(order([row('gpt-5'), row('gpt-5.5')]), ['gpt-5.5', 'gpt-5'])
+    // Lifecycle dominates: a retired/newer build still sorts below an active one.
+    assert.deepEqual(
+      order([row('kling-v9', 'deprecated'), row('kling-v1')]),
+      ['kling-v1', 'kling-v9'],
+    )
+    // Same version, different rebuild date: newer date first.
+    assert.deepEqual(
+      order([row('doubao-seedance-2-5-260623'), row('doubao-seedance-2-5-260628')]),
+      ['doubao-seedance-2-5-260628', 'doubao-seedance-2-5-260623'],
+    )
+    // Equal versions keep the incoming order (stable sort).
+    assert.deepEqual(
+      order([row('viduq3-pro'), row('viduq3-turbo')]),
+      ['viduq3-pro', 'viduq3-turbo'],
+    )
+  })
+
+  it('normalizes agent language-model options from the app catalog', () => {
+    const item = (overrides: Partial<RemoteCreativeModelItem>): RemoteCreativeModelItem => ({
+      model: 'model',
+      displayName: 'Model',
+      vendorCode: 'openai',
+      description: null,
+      capabilityIntro: null,
+      modalities: ['text'],
+      outputModalities: ['text'],
+      capabilities: ['chat'],
+      releaseStage: 1,
+      shelfState: 1,
+      routingState: 1,
+      replacementModel: null,
+      ...overrides,
+    })
+    const models = toAgentLlmModels([
+      item({ model: 'gpt-5.5', displayName: 'GPT-5.5', description: 'flagship' }),
+      item({ model: 'gpt-5.5', displayName: 'GPT-5.5 duplicate' }),
+      item({ model: 'gemini-3.6-flash', displayName: 'Gemini 3.6 Flash', vendorCode: 'google' }),
+      item({
+        model: 'kling-image',
+        displayName: 'Kling Image',
+        vendorCode: 'kuaishou',
+        outputModalities: ['image'],
+        capabilities: ['image'],
+      }),
+    ])
+    assert.deepEqual(models.map((model) => model.id), ['gemini-3.6-flash', 'gpt-5.5'])
+    assert.equal(models[0].vendorLabel, 'Google')
+    assert.equal(models[1].vendorLabel, 'OpenAI')
+    assert.equal(models[1].desc, 'flagship')
   })
 })

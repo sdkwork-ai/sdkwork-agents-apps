@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../MarkdownRenderer';
+import { useAdaptiveDropdown } from '../../hooks/useAdaptiveDropdown';
 import type { CreativeModelDuration } from '../../creative-model-catalog';
 
 interface SoundEffectSettingsDropdownProps {
@@ -26,13 +27,15 @@ export const SoundEffectSettingsDropdown: React.FC<SoundEffectSettingsDropdownPr
   supportsLoop = false
 }) => {
   const range = durationRange ?? null;
+  const { placement, maxHeight } = useAdaptiveDropdown(dropdownRef, sfxSettingsPlacement, 300);
   return (
     <div
       ref={dropdownRef}
       className={cn(
-        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[360px] max-w-[360px] bg-white rounded-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-4 dark:bg-[#222222]",
-        sfxSettingsPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
+        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[360px] max-w-[360px] bg-white rounded-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-4 overflow-y-auto custom-scrollbar dark:bg-[#222222]",
+        placement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
       )}
+      style={{ maxHeight: maxHeight === null ? '50vh' : `${maxHeight}px` }}
     >
       <div className="flex items-center justify-between">
         <span className="text-[14px] text-zinc-700 dark:text-zinc-300 font-medium">音效时长</span>

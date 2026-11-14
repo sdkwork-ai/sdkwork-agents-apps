@@ -23,9 +23,12 @@ export {
 } from './creativeModelCatalogTypes';
 export {
   clampDurationSeconds,
+  compareModelRecency,
   generationOperationType,
   groupModelsByVendor,
+  modelMatchesSearch,
   modelParameterSummary,
+  modelVersionRank,
   preferredReferencePrice,
   referencePriceLabel,
   referencePriceTooltip,
@@ -34,6 +37,7 @@ export {
   supportedVideoAspectRatios,
   supportedVideoResolutions,
   supportedVideoSettingsModes,
+  sortModelsByRecency,
   vendorDefaultParameters,
   vendorDisplayName,
   videoCapabilityChips,
@@ -44,10 +48,13 @@ export {
 export type {
   CatalogVideoProfile,
   CreativeModelVendorGroup,
+  ModelVersionRank,
 } from './creativeModelParameters';
 export {
   resolveCreativeDispatch,
 } from './creativeDispatch';
+export { loadAgentLlmModels, resetAgentLlmModelsCache, toAgentLlmModels } from './agentLlmModels';
+export type { AgentLlmModel } from './agentLlmModels';
 export type {
   CreativeDispatchOptions,
 } from './creativeDispatch';

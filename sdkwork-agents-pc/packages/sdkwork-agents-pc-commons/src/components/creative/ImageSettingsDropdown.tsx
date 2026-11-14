@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link2, Link2Off } from 'lucide-react';
 import { cn } from '../MarkdownRenderer';
+import { useAdaptiveDropdown } from '../../hooks/useAdaptiveDropdown';
 import {
   IMAGE_RATIO_OPTIONS,
   IMAGE_RESOLUTION_OPTIONS,
@@ -168,13 +169,16 @@ export const ImageSettingsDropdown: React.FC<ImageSettingsDropdownProps> = ({
     }
   };
 
+  const { placement, maxHeight } = useAdaptiveDropdown(dropdownRef, imageSettingsPlacement, 440);
+
   return (
     <div
       ref={dropdownRef}
       className={cn(
-        "absolute left-0 sm:left-[110px] w-[calc(100vw-32px)] sm:w-[410px] max-w-[410px] bg-white rounded-2xl p-5 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-5 max-h-[60vh] overflow-y-auto custom-scrollbar select-none dark:bg-[#1e1e1e]",
-        imageSettingsPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
+        "absolute left-0 sm:left-[110px] w-[calc(100vw-32px)] sm:w-[410px] max-w-[410px] bg-white rounded-2xl p-5 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-5 overflow-y-auto custom-scrollbar select-none dark:bg-[#1e1e1e]",
+        placement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
       )}
+      style={{ maxHeight: maxHeight === null ? '60vh' : `${maxHeight}px` }}
     >
       {/* Aspect Ratio Section */}
       <div className="flex flex-col gap-4">

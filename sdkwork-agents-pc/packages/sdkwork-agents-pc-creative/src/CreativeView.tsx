@@ -472,6 +472,17 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
         hasReferenceImages: Array.isArray(settings?.refImages) && settings.refImages.length > 0,
         // Precise generation mode chosen by the model profile + composer mode.
         ...(typeof settings?.generationMode === 'string' ? { generationMode: settings.generationMode } : {}),
+        // Agent mode: the orchestration model plus the media models the agent
+        // may call, carried to the command parameters.
+        ...(mode === 'agent' && typeof settings?.agentLlmModel === 'string'
+          ? { agentLlmModel: settings.agentLlmModel }
+          : {}),
+        ...(mode === 'agent' && Array.isArray(settings?.agentImageModels) && settings.agentImageModels.length > 0
+          ? { agentImageModels: settings.agentImageModels }
+          : {}),
+        ...(mode === 'agent' && Array.isArray(settings?.agentVideoModels) && settings.agentVideoModels.length > 0
+          ? { agentVideoModels: settings.agentVideoModels }
+          : {}),
         ...buildCreativeCommandOptions(text, mode, settings),
         // The first upload previews on the pending card while the command runs.
         previewImageUrl: (Array.isArray(settings?.mediaResources) ? settings.mediaResources : [])

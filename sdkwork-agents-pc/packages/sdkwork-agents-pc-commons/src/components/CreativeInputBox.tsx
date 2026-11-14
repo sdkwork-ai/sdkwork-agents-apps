@@ -130,6 +130,8 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
     agentModelTab, setAgentModelTab,
     agentAutoMatch, setAgentAutoMatch,
     agentSelectedModels, setAgentSelectedModels,
+    agentLlmModels, agentLlmModelsLoading,
+    agentLlmModelId, setAgentLlmModelId,
     textareaRef,
     creationWrapperRef,
     modelWrapperRef,
@@ -309,6 +311,13 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
         ],
         characterImage: characterImageResource?.uri,
         selectedTemplate,
+        // Agent mode: the orchestration model plus the media models the agent
+        // may call, split by the catalogs they belong to.
+        ...(isAgent ? {
+          agentLlmModel: agentLlmModelId,
+          agentImageModels: agentSelectedModels.filter((id) => imageModels.some((model) => model.id === id)),
+          agentVideoModels: agentSelectedModels.filter((id) => videoModels.some((model) => model.id === id)),
+        } : {}),
         uploadedMotionVideo: uploadedMotionVideo ? {
           name: uploadedMotionVideo.name,
           uri: uploadedMotionVideo.resource.uri,
@@ -1134,6 +1143,10 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
             setAgentModelTab={setAgentModelTab}
             agentSelectedModels={agentSelectedModels}
             setAgentSelectedModels={setAgentSelectedModels}
+            agentLlmModels={agentLlmModels}
+            agentLlmModelsLoading={agentLlmModelsLoading}
+            agentLlmModelId={agentLlmModelId}
+            onSelectAgentLlmModel={setAgentLlmModelId}
             agentImageModels={imageModels}
             agentVideoModels={videoModels}
             selectedModelId={selectedModelId}

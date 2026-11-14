@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../MarkdownRenderer';
+import { useAdaptiveDropdown } from '../../hooks/useAdaptiveDropdown';
 import type { CreativeModelDuration } from '../../creative-model-catalog';
 
 interface MusicSettingsDropdownProps {
@@ -42,13 +43,15 @@ export const MusicSettingsDropdown: React.FC<MusicSettingsDropdownProps> = ({
 }) => {
   const range = durationRange ?? null;
   const ticks = range ? durationTicks(range) : [];
+  const { placement, maxHeight } = useAdaptiveDropdown(dropdownRef, musicSettingsPlacement, 300);
   return (
     <div
       ref={dropdownRef}
       className={cn(
-        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[380px] max-w-[380px] bg-white rounded-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-4 dark:bg-[#222222]",
-        musicSettingsPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
+        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[380px] max-w-[380px] bg-white rounded-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-4 overflow-y-auto custom-scrollbar dark:bg-[#222222]",
+        placement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
       )}
+      style={{ maxHeight: maxHeight === null ? '50vh' : `${maxHeight}px` }}
     >
       <div className="flex items-center justify-between">
         <span className="text-[14px] text-zinc-700 dark:text-zinc-300 font-medium">选择音乐生成时长</span>

@@ -295,6 +295,114 @@ export function groupModelsByVendor(
   return [...groups.values()]
 }
 
+/**
+ * Whether a picker row matches a free-text search query.
+ *
+ * Matches the model label, id, vendor display name, family code and
+ * description; whitespace-separated tokens must all match so `vidu 1080p`
+ * narrows instead of widening.
+ *
+ * @param model - the row to test.
+ * @param query - raw search text.
+ * @returns `true` when the row should stay visible.
+ */
+export function modelMatchesSearch(
+  model: CreativeModelDefinition,
+  query: string,
+): boolean {
+  const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  if (tokens.length === 0) return true
+  const haystack = [
+    model.label,
+    model.id,
+    model.familyCode ?? '',
+    model.desc,
+    model.vendorCode ? vendorDisplayName(model.vendorCode) : '',
+  ].join(' ').toLowerCase()
+  return tokens.every((token) => haystack.includes(token))
+}
+
+/** Lifecycle precedence for recency sorting (higher stays above). */
+const LIFECYCLE_RANK: Record<string, number> = {
+  active: 2,
+  preview: 2,
+  deprecated: 1,
+  retired: 0,
+}
+
+/** Recency signals parsed from one catalog model row. */
+export interface ModelVersionRank {
+  /** Lifecycle precedence: active/preview > deprecated > retired. */
+  stage: number
+  /** Numeric version tuple parsed from the id (`4.0`, `v3`, `q4`, `2-5`). */
+  version: number[]
+  /** Release date parsed from a `YYMMDD` / `YYYYMMDD` id suffix, or 0. */
+  released: number
+}
+
+/**
+ * Parse the version/date signals a catalog model id encodes.
+ *
+ * The catalog has no dedicated release-date field, but the ids carry the
+ * vendor's version vocabulary (`kling-v3`, `kling-4.0`, `viduq4-preview`,
+ * `doubao-seedance-2-5-260628`, `gpt-5.5`). Newest-first ordering needs at
+ * least a comparable tuple, otherwise a rank-based order hides the current
+ * generation below older builds.
+ *
+ * @param model - catalog row to rank.
+ * @returns the parsed rank signals.
+ */
+export function modelVersionRank(model: CreativeModelDefinition): ModelVersionRank {
+  const id = model.id.toLowerCase()
+  const stage = LIFECYCLE_RANK[model.lifecycle] ?? 0
+  const versionMatch = id.match(/v(\d+)(?:[-.](\d+))?/)
+    ?? id.match(/q(\d+)(?:[-.](\d+))?/)
+    ?? id.match(/(\d+)\.(\d+)/)
+    ?? id.match(/[-_](\d+)[-_](\d+)(?=[-_]|$)/)
+    ?? id.match(/(?:^|[-_])(\d+)(?:[-_]|$)/)
+  const version = versionMatch
+    ? [Number(versionMatch[1]), versionMatch[2] === undefined ? 0 : Number(versionMatch[2])]
+    : []
+  const dateMatch = id.match(/(?:^|[-_])(\d{8})(?:$|[-_])/) ?? id.match(/(?:^|[-_])(\d{6})(?:$|[-_])/)
+  const released = dateMatch ? Number(dateMatch[1]) : 0
+  return { stage, version, released }
+}
+
+/**
+ * Newest-first comparator for catalog rows.
+ *
+ * Lifecycle stage dominates (a retired v9 stays below an active v1), then the
+ * version tuple, then the release date for same-version rebuilds.
+ *
+ * @returns negative when `left` should be shown before `right`.
+ */
+export function compareModelRecency(
+  left: CreativeModelDefinition,
+  right: CreativeModelDefinition,
+): number {
+  const a = modelVersionRank(left)
+  const b = modelVersionRank(right)
+  if (a.stage !== b.stage) return b.stage - a.stage
+  const length = Math.max(a.version.length, b.version.length)
+  for (let index = 0; index < length; index += 1) {
+    const delta = (b.version[index] ?? 0) - (a.version[index] ?? 0)
+    if (delta !== 0) return delta
+  }
+  if (a.released !== b.released) return b.released - a.released
+  return 0
+}
+
+/**
+ * Sort catalog rows newest version first, keeping the input order for ties.
+ * @param models - merged catalog rows.
+ * @returns a new array in display order.
+ */
+export function sortModelsByRecency(
+  models: readonly CreativeModelDefinition[],
+): CreativeModelDefinition[] {
+  return [...models].sort(compareModelRecency)
+}
+
 /** Meter code → the unit label shown next to a reference price. */
 const METER_UNIT_LABELS: Record<string, string> = {
   video_output_second: '/秒',
@@ -350,6 +458,14 @@ export function preferredReferencePrice(
   ))[0]
 }
 
+/** Trim a decimal price string's trailing zeros (`0.100000` → `0.1`). */
+function trimPriceDecimals(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed.includes('.')) return trimmed
+  const compact = trimmed.replace(/0+$/, '').replace(/\.$/, '')
+  return compact === '' || compact === '-' ? '0' : compact
+}
+
 /**
  * Compact price label for a model row (`¥0.5/秒`).
  * @param prices - public reference prices of the model.
@@ -361,7 +477,7 @@ export function referencePriceLabel(
   const price = preferredReferencePrice(prices)
   if (!price) return undefined
   const unit = METER_UNIT_LABELS[price.meterCode] ?? '/次'
-  return `${currencySymbol(price.currency)}${price.unitPrice}${unit}`
+  return `${currencySymbol(price.currency)}${trimPriceDecimals(price.unitPrice)}${unit}`
 }
 
 /**
@@ -380,7 +496,7 @@ export function referencePriceTooltip(
   const price = preferredReferencePrice(prices)
   if (!price) return undefined
   const unit = METER_UNIT_LABELS[price.meterCode] ?? '/次'
-  return `官方参考价 ${currencySymbol(price.currency)}${price.unitPrice}${unit} · 计量 ${price.meterCode} · 区域 ${price.regionCode}（实际扣费按积分结算）`
+  return `官方参考价 ${currencySymbol(price.currency)}${trimPriceDecimals(price.unitPrice)}${unit} · 计量 ${price.meterCode} · 区域 ${price.regionCode}（实际扣费按积分结算）`
 }
 
 /**

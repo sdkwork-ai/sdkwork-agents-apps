@@ -11,7 +11,7 @@ import {
   CREATIVE_MODEL_RELEASE_STAGE,
   CREATIVE_MODEL_SHELF_STATE,
 } from './creativeModelCatalogTypes';
-import { videoParametersFromProfiles, vendorDefaultParameters } from './creativeModelParameters';
+import { sortModelsByRecency, videoParametersFromProfiles, vendorDefaultParameters } from './creativeModelParameters';
 import type { CatalogVideoProfile } from './creativeModelParameters';
 import {
   CREATIVE_MODEL_SELECTION_PROFILES,
@@ -352,7 +352,9 @@ export class CreativeModelCatalogService {
         definition.parameters = { ...definition.parameters, video };
       }
     }
-    return merged;
+    // Newest catalog version first: the catalog's static order and the remote
+    // API order are rank-based, which hides a newer build below older ones.
+    return sortModelsByRecency(merged);
   }
 
   // --------------------------------------------------------------- selection

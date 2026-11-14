@@ -16,10 +16,15 @@ import {
   useCreativeModelCatalog,
   type CreativeVideoSettingsMode,
 } from '../creative-model-catalog';
+import { useAgentLlmModels } from './useAgentLlmModels';
 import { imageDimensionsFor } from '../components/creative/imageDimensions';
 
 /** Account-scoped draft key (see `@sdkwork/agents-pc-core/session`). */
 const CREATIVE_INPUT_DRAFT_KEY = 'creative_input_draft';
+/** Account-scoped agent orchestration model key. */
+const AGENT_LLM_MODEL_KEY = 'creative_agent_llm_model';
+/** Preferred agent model when the catalog publishes it. */
+const PREFERRED_AGENT_LLM_MODEL_ID = 'gemini-3.6-flash';
 
 export interface CreativeInputSettings {
   model?: string;
@@ -29,6 +34,12 @@ export interface CreativeInputSettings {
   videoMode?: 'all_around' | 'first_last' | 'smart_multi';
   /** Precise generation mode submitted as `parameters.generationMode`. */
   generationMode?: string;
+  /** Agent-mode orchestration model (`parameters.agentModel`). */
+  agentLlmModel?: string;
+  /** Media models the agent may use for image generation. */
+  agentImageModels?: string[];
+  /** Media models the agent may use for video generation. */
+  agentVideoModels?: string[];
   /** Selected vendor voice id for speech synthesis. */
   voiceId?: string;
   /** Seamless looping for sound effects. */
@@ -197,7 +208,7 @@ export function useCreativeInputBox(
     };
   }, []);
 
-  const [agentModelTab, setAgentModelTab] = useState<'image' | 'video'>('image');
+  const [agentModelTab, setAgentModelTab] = useState<'llm' | 'image' | 'video'>('image');
   const [agentAutoMatch, setAgentAutoMatch] = useState(true);
   const [agentSelectedModels, setAgentSelectedModels] = useState<string[]>(['img_5_lite', 'img_4_7']);
 
@@ -298,6 +309,31 @@ export function useCreativeInputBox(
   const isSfx = creationType === 'sfx';
   const isDigitalHuman = creationType === 'digital_human';
   const isAction = creationType === 'action';
+
+  // Agent mode: the orchestration (LLM) model is configured next to the media
+  // models the agent may call. The selection persists per account and rides
+  // the agent command as `parameters.agentModel`.
+  const { models: agentLlmModels, loading: agentLlmModelsLoading } = useAgentLlmModels(isAgent);
+  const [agentLlmModelId, setAgentLlmModelIdState] = useState<string | undefined>(() => {
+    const stored = readAccountScopedItem(AGENT_LLM_MODEL_KEY)?.trim();
+    return stored ? stored : undefined;
+  });
+  const setAgentLlmModelId = (modelId: string) => {
+    if (!modelId.trim()) return;
+    setAgentLlmModelIdState(modelId);
+    writeAccountScopedItem(AGENT_LLM_MODEL_KEY, modelId);
+  };
+  useEffect(() => {
+    if (!isAgent || agentLlmModels.length === 0) return;
+    // Keep a stored selection only while the catalog still publishes it.
+    if (agentLlmModelId !== undefined && agentLlmModels.some((model) => model.id === agentLlmModelId)) {
+      return;
+    }
+    const fallback = agentLlmModels.find((model) => model.id === PREFERRED_AGENT_LLM_MODEL_ID)
+      ?? agentLlmModels[0];
+    setAgentLlmModelIdState(fallback.id);
+    writeAccountScopedItem(AGENT_LLM_MODEL_KEY, fallback.id);
+  }, [isAgent, agentLlmModelId, agentLlmModels]);
 
   const selectedModelId = isSfx ? selectedSfxModel : isDigitalHuman ? selectedAvatarModel : isAction ? selectedActionModel : isVoice ? selectedVoiceModel : isMusic ? selectedMusicModel : isVideo ? selectedVideoModel : selectedImageModel;
 
@@ -579,6 +615,8 @@ export function useCreativeInputBox(
     agentModelTab, setAgentModelTab,
     agentAutoMatch, setAgentAutoMatch,
     agentSelectedModels, setAgentSelectedModels,
+    agentLlmModels, agentLlmModelsLoading,
+    agentLlmModelId, setAgentLlmModelId,
     textareaRef,
     creationWrapperRef,
     modelWrapperRef,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { PenTool, LayoutTemplate, Scan, Sparkles, Volume2 } from 'lucide-react';
 import { cn } from '../MarkdownRenderer';
+import { useAdaptiveDropdown } from '../../hooks/useAdaptiveDropdown';
 import type { CreativeModelDuration } from '../../creative-model-catalog';
 
 // Ratio Icon
@@ -89,14 +90,16 @@ export const VideoSettingsDropdown: React.FC<VideoSettingsDropdownProps> = ({
     : ['720P', '1080P'];
   const discreteDurations = durationRange?.values ?? [];
   const hasDurationKnob = durationRange !== null && durationRange !== undefined;
+  const { placement, maxHeight } = useAdaptiveDropdown(dropdownRef, videoSettingsPlacement, 420);
 
   return (
     <div
       ref={dropdownRef}
       className={cn(
-        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[420px] max-w-[420px] bg-white rounded-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-5 max-h-[60vh] overflow-y-auto custom-scrollbar dark:bg-[#222222]",
-        videoSettingsPlacement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
+        "absolute left-0 sm:left-[80px] w-[calc(100vw-32px)] sm:w-[420px] max-w-[420px] bg-white rounded-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-4 overflow-y-auto custom-scrollbar dark:bg-[#222222]",
+        placement === 'top' ? "bottom-full mb-2" : "top-full mt-2"
       )}
+      style={{ maxHeight: maxHeight === null ? '60vh' : `${maxHeight}px` }}
     >
       <div className="flex bg-zinc-100 rounded-xl p-1 dark:bg-[#2a2a2a]">
         {modes.map((mode) => (
