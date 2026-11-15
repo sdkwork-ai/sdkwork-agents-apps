@@ -1,6 +1,16 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState, type FormEvent, type ReactNode } from 'react';
 
 import { isBlank, trim } from '@sdkwork/utils';
+import {
+  DEFAULT_LOCAL_AGENT_ENGINE_ID,
+  buildConversationRuntime,
+  buildLocalArchiveDistribution,
+  buildLocalExecutionRuntime,
+  isAgentArchiveDistribution,
+  isAgentKind,
+  type AgentArchiveDistribution,
+  type AgentKind,
+} from '@sdkwork/agents-pc-core/domain/agentRuntimeCatalog';
 import type {
   AgentCategoryRecord,
   AgentRecord,
@@ -15,9 +25,30 @@ import {
   updateManagedAgentStatus,
 } from './agentsAdminService.ts';
 import { useAgentAdminCopy, type AgentAdminCopy } from './agentAdminCopy.ts';
+import { AgentCategorySelect } from './components/AgentCategorySelect.tsx';
+import { AgentPackageField } from './components/AgentPackageField.tsx';
+import { RoleMultiSelect } from './components/RoleMultiSelect.tsx';
+import { SurfaceDrawer } from './components/SurfaceOverlay.tsx';
 
 const STATUS_OPTIONS = ['draft', 'active', 'disabled', 'archived'] as const;
 const VISIBILITY_OPTIONS = ['private', 'organization', 'tenant', 'public'] as const;
+
+const INPUT_CLASS =
+  'w-full rounded-md border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-60';
+const LABEL_TEXT_CLASS = 'text-xs font-medium text-zinc-400';
+const SECONDARY_BUTTON_CLASS =
+  'rounded-md border border-zinc-700 bg-zinc-800/60 px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-700/60 disabled:opacity-60';
+const PRIMARY_BUTTON_CLASS =
+  'rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60';
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="grid gap-1.5 text-sm">
+      <span className={LABEL_TEXT_CLASS}>{label}</span>
+      {children}
+    </label>
+  );
+}
 
 type AgentStatusOption = (typeof STATUS_OPTIONS)[number];
 type StatusTransitionAction = 'activate' | 'archive' | 'disable' | 'restore';
@@ -276,9 +307,11 @@ export function AgentsAdminPage() {
       </div>
 
       {createOpen ? (
-        <CreateAgentModal
+        <AgentEditorDrawer
+          mode="create"
+          categories={categories}
           onClose={() => setCreateOpen(false)}
-          onCreate={async (body) => {
+          onSubmit={async (body) => {
             const succeeded = await runAction(
               () => createManagedAgent(body),
               copy.notices.created,
@@ -290,13 +323,14 @@ export function AgentsAdminPage() {
         />
       ) : null}
       {editTarget ? (
-        <EditAgentModal
+        <AgentEditorDrawer
+          mode="edit"
           categories={categories}
           record={editTarget}
           onClose={() => setEditTarget(null)}
-          onUpdate={async (agentId, body) => {
+          onSubmit={async (body) => {
             const succeeded = await runAction(
-              () => updateManagedAgent(agentId, body),
+              () => updateManagedAgent(editTarget.agentId, body),
               copy.notices.updated(editTarget.displayName),
             );
             if (succeeded) {
@@ -306,6 +340,314 @@ export function AgentsAdminPage() {
         />
       ) : null}
     </section>
+  );
+}
+
+type AgentEditorDrawerProps =
+  | {
+      mode: 'create';
+      categories: AgentCategoryRecord[];
+      onClose: () => void;
+      onSubmit: (body: Parameters<typeof createManagedAgent>[0]) => Promise<unknown>;
+    }
+  | {
+      mode: 'edit';
+      categories: AgentCategoryRecord[];
+      record: AgentRecord;
+      onClose: () => void;
+      onSubmit: (body: Parameters<typeof updateManagedAgent>[1]) => Promise<unknown>;
+    };
+
+/**
+ * Create/edit drawer for managed agents.
+ *
+ * Category and role editing use the same single-row modal pickers as the
+ * Skills/Plugins admin surfaces. The package section follows the existing
+ * Agents distribution model: hosted conversation agents have no package, while
+ * local-execution agents carry a zip archive in `manifest.distribution`.
+ */
+function AgentEditorDrawer(props: AgentEditorDrawerProps) {
+  const copy = useAgentAdminCopy();
+  const isEdit = props.mode === 'edit';
+  const record = isEdit ? props.record : null;
+  const formId = useId();
+  const initialManifest = (record?.manifest ?? {}) as Record<string, unknown>;
+  const initialKind: AgentKind = isAgentKind(initialManifest.agent_kind)
+    ? initialManifest.agent_kind
+    : 'conversation';
+  const initialRuntime = initialManifest.runtime;
+  const initialEngineId =
+    initialRuntime && typeof initialRuntime === 'object'
+      && typeof (initialRuntime as { engine?: unknown }).engine === 'string'
+      ? (initialRuntime as { engine: string }).engine
+      : DEFAULT_LOCAL_AGENT_ENGINE_ID;
+  const initialDistribution = isAgentArchiveDistribution(initialManifest.distribution)
+    ? (initialManifest.distribution as AgentArchiveDistribution)
+    : initialKind === 'local-execution'
+      ? buildLocalArchiveDistribution(initialEngineId)
+      : null;
+  const initialCategory =
+    record?.managementProfile?.categoryId
+    ?? (typeof initialManifest.category_code === 'string' ? initialManifest.category_code : '');
+
+  const [agentId, setAgentId] = useState(record?.agentId ?? '');
+  const [code, setCode] = useState(record?.code ?? '');
+  const [displayName, setDisplayName] = useState(record?.displayName ?? '');
+  const [description, setDescription] = useState(record?.description ?? '');
+  const [visibility, setVisibility] = useState<(typeof VISIBILITY_OPTIONS)[number]>(
+    (VISIBILITY_OPTIONS as readonly string[]).includes(record?.visibility ?? '')
+      ? (record?.visibility as (typeof VISIBILITY_OPTIONS)[number])
+      : 'organization',
+  );
+  const [implementationType, setImplementationType] = useState('sdkwork-native');
+  const [manifestText, setManifestText] = useState(
+    JSON.stringify(record?.manifest ?? {}, null, 2),
+  );
+  const [tags, setTags] = useState(record?.tags.join(', ') ?? '');
+  const [categoryCode, setCategoryCode] = useState(initialCategory);
+  const [allowedRoleCodes, setAllowedRoleCodes] = useState<string[]>(
+    record?.allowedRoleCodes ?? [],
+  );
+  const [agentKind, setAgentKind] = useState<AgentKind>(initialKind);
+  const [engineId, setEngineId] = useState(initialEngineId);
+  const [distribution, setDistribution] = useState<AgentArchiveDistribution | null>(
+    initialDistribution,
+  );
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const manifestResult = parseJsonRecord(manifestText);
+    if (!manifestResult.ok) {
+      setFormError(copy.errors.manifest[manifestResult.error]);
+      return;
+    }
+    setSubmitting(true);
+    setFormError(null);
+
+    const runtime =
+      agentKind === 'local-execution'
+        ? buildLocalExecutionRuntime(engineId)
+        : buildConversationRuntime();
+    const mergedManifest: Record<string, unknown> = {
+      ...manifestResult.manifest,
+      agent_kind: agentKind,
+      runtime,
+    };
+    if (categoryCode) {
+      mergedManifest.category_code = categoryCode;
+    } else {
+      delete mergedManifest.category_code;
+    }
+    if (agentKind === 'local-execution' && distribution) {
+      mergedManifest.distribution = distribution;
+    } else {
+      delete mergedManifest.distribution;
+    }
+
+    const managementProfile = categoryCode
+      ? { ...(record?.managementProfile ?? {}), categoryId: categoryCode }
+      : record?.managementProfile ?? undefined;
+    const implementationKind = runtime.implementation_kind as
+      | Parameters<typeof createManagedAgent>[0]['implementationKind']
+      | undefined;
+    const createImplementationType = agentKind === 'local-execution'
+      ? 'custom'
+      : implementationType;
+    const delivery = agentKind === 'local-execution'
+      ? {
+          implementationKind,
+          implementationProviderId: runtime.provider_id,
+        }
+      : {};
+
+    const action = props.mode === 'create'
+      ? props.onSubmit({
+          agentId: trim(agentId),
+          code: trim(code),
+          displayName: trim(displayName),
+          description: isBlank(description) ? null : description,
+          manifest: mergedManifest,
+          ...(managementProfile ? { managementProfile } : {}),
+          implementationType: createImplementationType as Parameters<typeof createManagedAgent>[0]['implementationType'],
+          visibility,
+          tags: parseTags(tags),
+          allowedRoleCodes,
+          ...delivery,
+        })
+      : props.onSubmit({
+          displayName: trim(displayName),
+          description: isBlank(description) ? null : description,
+          manifest: mergedManifest,
+          ...(managementProfile ? { managementProfile } : {}),
+          visibility,
+          tags: parseTags(tags),
+          allowedRoleCodes,
+          ...delivery,
+        });
+
+    void action
+      .catch((cause: unknown) => {
+        setFormError(
+          copy.errors.requestFailed(cause instanceof Error ? cause.message : String(cause)),
+        );
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
+  };
+
+  return (
+    <SurfaceDrawer
+      open
+      title={
+        isEdit && record ? copy.edit.title(record.displayName) : copy.create.title
+      }
+      description={
+        isEdit && record
+          ? copy.edit.meta(record.agentId, String(record.version))
+          : copy.description
+      }
+      onClose={() => {
+        if (!submitting) props.onClose();
+      }}
+      footer={
+        <div className="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            className={SECONDARY_BUTTON_CLASS}
+            onClick={props.onClose}
+            disabled={submitting}
+          >
+            {isEdit ? copy.edit.cancel : copy.create.cancel}
+          </button>
+          <button
+            type="submit"
+            form={formId}
+            className={PRIMARY_BUTTON_CLASS}
+            disabled={submitting}
+          >
+            {isEdit ? copy.edit.submit : copy.create.submit}
+          </button>
+        </div>
+      }
+    >
+      <form id={formId} onSubmit={submit} className="grid gap-4">
+        {formError ? (
+          <p role="alert" className="text-sm text-red-400">
+            {formError}
+          </p>
+        ) : null}
+        {!isEdit ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label={copy.create.fields.agentId}>
+              <input
+                className={INPUT_CLASS}
+                value={agentId}
+                onChange={(event) => setAgentId(event.target.value)}
+                placeholder="agent.example.assistant"
+                required
+              />
+            </Field>
+            <Field label={copy.create.fields.code}>
+              <input
+                className={INPUT_CLASS}
+                value={code}
+                onChange={(event) => setCode(event.target.value)}
+                required
+              />
+            </Field>
+          </div>
+        ) : null}
+        <Field label={copy.create.fields.displayName}>
+          <input
+            className={INPUT_CLASS}
+            value={displayName}
+            onChange={(event) => setDisplayName(event.target.value)}
+            required
+          />
+        </Field>
+        <Field label={copy.create.fields.description}>
+          <textarea
+            className={`${INPUT_CLASS} min-h-20`}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            rows={3}
+          />
+        </Field>
+        <AgentCategorySelect
+          categories={props.categories}
+          value={categoryCode}
+          onChange={setCategoryCode}
+          disabled={submitting}
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label={copy.create.fields.visibility}>
+            <select
+              className={INPUT_CLASS}
+              value={visibility}
+              onChange={(event) => {
+                const next = event.target.value;
+                if ((VISIBILITY_OPTIONS as readonly string[]).includes(next)) {
+                  setVisibility(next as (typeof VISIBILITY_OPTIONS)[number]);
+                }
+              }}
+            >
+              {VISIBILITY_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {copy.visibility[option]}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {!isEdit ? (
+            <Field label={copy.create.fields.implementation}>
+              <select
+                className={INPUT_CLASS}
+                value={implementationType}
+                onChange={(event) => setImplementationType(event.target.value)}
+              >
+                <option value="sdkwork-native">sdkwork-native</option>
+                <option value="rig-rust">rig-rust</option>
+                <option value="openai-agents">openai-agents</option>
+                <option value="custom">custom</option>
+              </select>
+            </Field>
+          ) : null}
+        </div>
+        <Field label={copy.edit.fields.tags}>
+          <input
+            className={INPUT_CLASS}
+            value={tags}
+            onChange={(event) => setTags(event.target.value)}
+          />
+        </Field>
+        <RoleMultiSelect
+          value={allowedRoleCodes}
+          onChange={setAllowedRoleCodes}
+          disabled={submitting}
+        />
+        <AgentPackageField
+          agentKind={agentKind}
+          engineId={engineId}
+          distribution={distribution}
+          agentId={agentId}
+          disabled={submitting}
+          onAgentKindChange={setAgentKind}
+          onEngineChange={setEngineId}
+          onDistributionChange={setDistribution}
+        />
+        <Field label={copy.create.fields.manifest}>
+          <textarea
+            className={`${INPUT_CLASS} min-h-40 font-mono text-xs`}
+            value={manifestText}
+            onChange={(event) => setManifestText(event.target.value)}
+            rows={8}
+          />
+        </Field>
+      </form>
+    </SurfaceDrawer>
   );
 }
 

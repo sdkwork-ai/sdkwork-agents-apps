@@ -20,6 +20,8 @@
     "./sdk/communityAppSdkClient": "./src/sdk/communityAppSdkClient.ts",
     "./sdk/driveAppSdkClient": "./src/sdk/driveAppSdkClient.ts",
     "./sdk/driveUploadService": "./src/sdk/driveUploadService.ts",
+    "./sdk/uploadDeclaration": "./src/sdk/uploadDeclaration.ts",
+    "./domain/agentRuntimeCatalog": "./src/domain/agentRuntimeCatalog.ts",
     "./sdk/generationsAppSdkClient": "./src/sdk/generationsAppSdkClient.ts",
     "./sdk/generationsService": "./src/sdk/generationsService.ts",
     "./sdk/knowledgebaseAppSdkClient": "./src/sdk/knowledgebaseAppSdkClient.ts",
