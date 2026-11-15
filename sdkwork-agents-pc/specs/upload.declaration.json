@@ -73,6 +73,15 @@
       "uploadProfileCode": "video",
       "retention": "long_term",
       "purpose": "Reference or generated video uploaded into the agent creative workspace."
+    },
+    {
+      "appResourceType": "agent.package_archive",
+      "appResourceIdKind": "entity",
+      "scene": "agent-package",
+      "source": "sdkwork-agents-pc",
+      "uploadProfileCode": "attachment",
+      "retention": "long_term",
+      "purpose": "Local-execution agent installation archive (zip) uploaded during agent creation so the Harness runtime can install it on the user's machine."
     }
   ]
 }

@@ -6,6 +6,7 @@ import {
   CreateAgentView,
   type CreateAgentCapability,
 } from '../pages/CreateAgentView';
+import { AgentCreationFlow } from '../editor/AgentCreationFlow';
 import type { AgentConfig } from '../services/AgentService';
 import {
   DEFAULT_AGENTS_CONSOLE_MODULE_ID,
@@ -75,6 +76,9 @@ export function AgentsConsoleEmbed({
     moduleId: moduleId ?? DEFAULT_AGENTS_CONSOLE_MODULE_ID,
     agentId,
   });
+  /* Bumped after a local agent is created so the list refetches the record. */
+  const [catalogRevision, setCatalogRevision] = useState(0);
+  const [creationOpen, setCreationOpen] = useState(false);
 
   const target: AgentsConsoleNavigationTarget = onNavigate
     ? { moduleId: moduleId ?? DEFAULT_AGENTS_CONSOLE_MODULE_ID, agentId }
@@ -118,6 +122,19 @@ export function AgentsConsoleEmbed({
     [navigate],
   );
   const openManager = useCallback(() => navigate({ moduleId: 'manage' }), [navigate]);
+
+  const handleCreationCompleted = useCallback(() => {
+    setCreationOpen(false);
+    setCatalogRevision((revision) => revision + 1);
+  }, []);
+
+  const handleCreationContinueToEditor = useCallback(
+    (agent: AgentConfig) => {
+      setCreationOpen(false);
+      openEditor(agent.id);
+    },
+    [openEditor],
+  );
 
   const editorHiddenCapabilities = useMemo(
     () => hiddenCapabilities ?? [],
@@ -183,11 +200,18 @@ export function AgentsConsoleEmbed({
           <AgentsHomePage
             hideConversation
             initialScope="mine"
-            onCreateRequest={() => openEditor()}
+            key={catalogRevision}
+            onCreateRequest={() => setCreationOpen(true)}
             onEditRequest={(agent: AgentConfig) => openEditor(agent.id)}
           />
         )}
       </div>
+      <AgentCreationFlow
+        onClose={() => setCreationOpen(false)}
+        onCompleted={handleCreationCompleted}
+        onContinueToEditor={handleCreationContinueToEditor}
+        open={creationOpen}
+      />
       </div>
   );
 }

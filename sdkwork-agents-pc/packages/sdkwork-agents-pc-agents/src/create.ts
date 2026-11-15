@@ -10,6 +10,9 @@
  * the creation surface and the knowledge-selection binding it configures.
  */
 export { CreateAgentModal } from "./components/CreateAgentModal";
+export { AgentCreationFlow } from "./editor/AgentCreationFlow";
+export { AgentBasicInfoDialog } from "./editor/AgentBasicInfoDialog";
+export { AgentPackageUpload } from "./editor/AgentPackageUpload";
 export { CreateAgentView } from "./pages/CreateAgentView";
 export type {
   CreateAgentCapability,

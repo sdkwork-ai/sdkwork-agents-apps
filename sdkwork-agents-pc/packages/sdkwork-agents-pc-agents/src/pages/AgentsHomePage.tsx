@@ -15,7 +15,12 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { DEFAULT_AGENT_CONFIG } from '../components/AgentDefaults';
 import { ToastContainer } from '../components/Toast';
+import { AgentCreationFlow } from '../editor/AgentCreationFlow';
+import { agentKindLabel } from '../editor/agentCreationModel';
 import { agentService, type AgentConfig } from '../services/AgentService';
+import { agentCategoryLabel } from '../services/agentTaxonomy';
+import type { AgentKind } from '../services/agentRuntimeCatalog';
+import { CreateAgentView } from './CreateAgentView';
 
 import {
   AGENT_MARKET_CATEGORIES,
@@ -44,6 +49,12 @@ const AGENT_ACCENTS = [
   'from-violet-400 to-fuchsia-600',
   'from-emerald-400 to-teal-600',
   'from-amber-400 to-orange-600',
+] as const;
+
+const KIND_FILTERS = [
+  { id: 'all', label: '全部类型' },
+  { id: 'conversation', label: '对话类智能体' },
+  { id: 'local-execution', label: '本地执行智能体' },
 ] as const;
 
 interface AgentCreateDialogProps {
@@ -208,8 +219,10 @@ export function AgentsHomePage({
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string>();
-  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState<AgentConfig>();
+  const [creationOpen, setCreationOpen] = useState(false);
+  const [inlineEditorAgentId, setInlineEditorAgentId] = useState<string>();
+  const [kindFilter, setKindFilter] = useState<'all' | AgentKind>('all');
   const [chatAgent, setChatAgent] = useState<AgentConfig>();
 
   useEffect(() => {
@@ -267,7 +280,9 @@ export function AgentsHomePage({
       onCreateRequest();
       return;
     }
-    setCreateModalOpen(true);
+    // Creation starts with basic information; the flow then routes a local
+    // agent to its archive upload and a conversation agent to this editor.
+    setCreationOpen(true);
   }, [onCreateRequest]);
 
   const editAgent = useCallback((agent: AgentConfig) => {
@@ -278,9 +293,24 @@ export function AgentsHomePage({
     setEditingAgent(agent);
   }, [onEditRequest]);
 
-  const visibleAgents = scope === 'market'
-    ? filterMarketAgents(catalog.items, marketCategory)
-    : catalog.items;
+  /**
+   * Leaves the inline editor and refetches the list.
+   *
+   * Memoized because the editor's load effect depends on `onBack`; an inline
+   * arrow would give it a new identity on every render and re-trigger the load.
+   */
+  const closeInlineEditor = useCallback(() => {
+    setInlineEditorAgentId(undefined);
+    void loadPage(1, false);
+  }, [loadPage]);
+
+  const visibleAgents = (
+    scope === 'market'
+      ? filterMarketAgents(catalog.items, marketCategory)
+      : catalog.items
+  ).filter(
+    (agent) => kindFilter === 'all' || (agent.agentKind ?? 'conversation') === kindFilter,
+  );
 
   if (!hideConversation && chatAgent?.id) {
     return (
@@ -289,6 +319,15 @@ export function AgentsHomePage({
         agentName={chatAgent.name}
         welcomeMessage={chatAgent.welcomeMessage}
         onBack={() => setChatAgent(undefined)}
+      />
+    );
+  }
+
+  if (!onCreateRequest && inlineEditorAgentId) {
+    return (
+      <CreateAgentView
+        initialAgentId={inlineEditorAgentId}
+        onBack={closeInlineEditor}
       />
     );
   }
@@ -375,6 +414,20 @@ export function AgentsHomePage({
             </div>
           )}
 
+          <div aria-label="Agent 类型" className="mb-6 flex gap-2 overflow-x-auto pb-1" role="group">
+            {KIND_FILTERS.map((filter) => (
+              <button
+                aria-pressed={kindFilter === filter.id}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition ${kindFilter === filter.id ? 'bg-[#00B42A]/[0.12] text-[#00A32A] dark:text-[#3ddc6b]' : 'bg-slate-900/[0.025] dark:bg-white/[0.025] text-slate-500 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-300'}`}
+                key={filter.id}
+                onClick={() => setKindFilter(filter.id)}
+                type="button"
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+
           {error && (
             <div className="mb-5 flex flex-col items-start justify-between gap-2 rounded-xl bg-rose-500/10 px-4 py-3 text-sm text-rose-200 sm:flex-row sm:items-center">
               <span>{error}</span>
@@ -414,12 +467,27 @@ export function AgentsHomePage({
                     )}
                   </div>
                   <h3 className="mt-4 truncate font-semibold text-slate-900 dark:text-zinc-100">{agent.name}</h3>
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
+                    <span className={`rounded-full px-2 py-0.5 ${agent.agentKind === 'local-execution' ? 'bg-[#00B42A]/[0.12] text-[#00A32A] dark:text-[#3ddc6b]' : 'bg-[#4080FF]/[0.10] text-[#4080FF]'}`}>
+                      {agentKindLabel(agent.agentKind)}
+                    </span>
+                    {agent.categoryId ? (
+                      <span className="rounded-full bg-slate-900/[0.05] dark:bg-white/[0.06] px-2 py-0.5 text-slate-500 dark:text-zinc-400">
+                        {agentCategoryLabel(agent.categoryId)}
+                      </span>
+                    ) : null}
+                    {agent.agentKind === 'local-execution' && agent.runtimeEngine ? (
+                      <span className="rounded-full bg-slate-900/[0.05] dark:bg-white/[0.06] px-2 py-0.5 text-slate-500 dark:text-zinc-400">
+                        {agent.runtimeEngine} · zip
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-slate-500 dark:text-zinc-500">{agent.description || '尚未添加描述'}</p>
                     <div className="mt-4 flex items-center justify-between pt-4 text-xs text-slate-400 dark:text-zinc-600">
                     <span className="flex items-center gap-1.5"><Users size={13} /> {agent.users || '0'}</span>
                     {agent.id ? (
                       <div className="flex items-center gap-3">
-                        {!hideConversation && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => setChatAgent(agent)} type="button">对话 <ChevronRight size={13} /></button>}
+                        {!hideConversation && agent.agentKind !== 'local-execution' && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => setChatAgent(agent)} type="button">对话 <ChevronRight size={13} /></button>}
                         {scope === 'mine' && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => editAgent(agent)} type="button">配置 <ChevronRight size={13} /></button>}
                       </div>
                     ) : (
@@ -443,17 +511,31 @@ export function AgentsHomePage({
 
       <AgentCreateDialog
         agent={editingAgent}
-        open={createModalOpen || Boolean(editingAgent)}
+        open={Boolean(editingAgent)}
         onClose={() => {
-          setCreateModalOpen(false);
           setEditingAgent(undefined);
         }}
         onSaved={() => {
-          setCreateModalOpen(false);
           setEditingAgent(undefined);
           setScope('mine');
           void loadPage(1, false);
         }}
+      />
+
+      <AgentCreationFlow
+        onClose={() => setCreationOpen(false)}
+        onCompleted={() => {
+          setCreationOpen(false);
+          setScope('mine');
+          void loadPage(1, false);
+        }}
+        onContinueToEditor={(agent) => {
+          setCreationOpen(false);
+          if (agent.id) {
+            setInlineEditorAgentId(agent.id);
+          }
+        }}
+        open={creationOpen}
       />
     </div>
   );

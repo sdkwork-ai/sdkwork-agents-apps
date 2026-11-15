@@ -115,8 +115,18 @@ export const AGENTS_CREATIVE_VIDEO_UPLOAD = {
   uploadProfileCode: "video",
 } as const satisfies AgentsUploadDeclarationEntry;
 
-/** Every declared upload purpose for this application. */
-export const AGENTS_UPLOAD_DECLARATIONS: readonly AgentsUploadDeclarationEntry[] = [
+export const AGENTS_AGENT_PACKAGE_UPLOAD = {
+  appResourceIdKind: AGENTS_APP_RESOURCE_ID_KIND,
+  appResourceType: "agent.package_archive",
+  purpose:
+    "Local-execution agent installation archive (zip) uploaded during agent creation so the Harness runtime can install it on the user's machine.",
+  retention: AGENTS_RETENTION,
+  scene: "agent-package",
+  source: AGENTS_UPLOAD_SOURCE,
+  uploadProfileCode: "attachment",
+} as const satisfies AgentsUploadDeclarationEntry;
+
+/** Every declared upload purpose for this application. */export const AGENTS_UPLOAD_DECLARATIONS: readonly AgentsUploadDeclarationEntry[] = [
   AGENTS_AVATAR_UPLOAD,
   AGENTS_SESSION_ATTACHMENT_UPLOAD,
   AGENTS_SESSION_IMAGE_UPLOAD,
@@ -125,4 +135,5 @@ export const AGENTS_UPLOAD_DECLARATIONS: readonly AgentsUploadDeclarationEntry[]
   AGENTS_CREATIVE_IMAGE_UPLOAD,
   AGENTS_CREATIVE_AUDIO_UPLOAD,
   AGENTS_CREATIVE_VIDEO_UPLOAD,
+  AGENTS_AGENT_PACKAGE_UPLOAD,
 ];

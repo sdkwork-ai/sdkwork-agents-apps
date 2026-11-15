@@ -14,6 +14,18 @@ import { AGENT_MEMORY_SLOT_ID, syncAgentCompositionSlots } from './CompositionSl
 import { resolveAgentMemorySlotDirective } from './agentMemoryModel';
 import { createAgentBusinessId, createAgentExecutionId } from './businessIdentifiers';
 import {
+  buildConversationRuntime,
+  buildLocalExecutionRuntime,
+  findLocalAgentEngine,
+  HARNESS_RUNTIME_PROVIDER_ID,
+  isAgentArchiveDistribution,
+  isAgentKind,
+  type AgentDistribution,
+  type AgentKind,
+  type AgentRuntimeDescriptor,
+} from './agentRuntimeCatalog';
+import { isAgentCategoryCode } from './agentTaxonomy';
+import {
   DEFAULT_LIST_PAGE_SIZE,
   syncAllOffsetPages,
   toOffsetPageInfo,
@@ -32,11 +44,31 @@ export interface AgentConfig {
   users?: string;
   color?: string;
   iconName?: string;
+  /**
+   * Professional leaf category code (`ai_agent_category.category_code`).
+   *
+   * Persisted in the management profile and mirrored into the manifest as
+   * `category_code`, which the owning module projects into an indexed column.
+   */
   categoryId?: string;
   welcomeMessage?: string;
   debugMode?: boolean;
   jsonMode?: boolean;
   memoryEnabled?: boolean;
+  /**
+   * Delivery shape. `conversation` agents run in the managed runtime;
+   * `local-execution` agents install from a zip archive into the local Harness
+   * runtime. Manifest authority: `manifest.agent_kind`.
+   */
+  agentKind?: AgentKind;
+  /** Runtime family (`rig` for hosted agents, `harness` for local agents). */
+  runtimeFamily?: string;
+  /** Concrete runtime engine (for example `rig`, `openclaw`, `workbuddy`). */
+  runtimeEngine?: string;
+  /** Harness runtime protocol version declared by a local agent. */
+  runtimeProtocol?: string;
+  /** Archive distribution descriptor of a locally installed agent. */
+  distribution?: AgentDistribution;
   /**
    * Memory space attached to this agent (synced to the `slotKind: memory`
    * composition slot).
@@ -337,6 +369,64 @@ function normalizeManifest(value: unknown): RecordLike {
   return isRecord(value) ? value : {};
 }
 
+function normalizeAgentRuntime(manifest: RecordLike): AgentRuntimeDescriptor | undefined {
+  const runtime = manifest.runtime;
+  if (!isRecord(runtime)) {
+    return undefined;
+  }
+  const family = asString(runtime.family);
+  const engine = asString(runtime.engine);
+  if (!family || !engine) {
+    return undefined;
+  }
+  return {
+    family,
+    engine,
+    protocol: asString(runtime.protocol),
+    implementation_kind: asString(runtime.implementation_kind),
+    implementation_type: asString(runtime.implementation_type),
+    provider_id: asString(runtime.provider_id),
+    capabilities: asStringArray(runtime.capabilities),
+  };
+}
+
+function normalizeAgentDistribution(value: unknown): AgentDistribution {
+  if (isAgentArchiveDistribution(value)) {
+    const distribution = value as AgentRecordLikeDistribution;
+    return {
+      kind: 'archive',
+      format: 'zip',
+      archiveRef: asString(distribution.archiveRef),
+      version: asString(distribution.version),
+      entrypoint: asString(distribution.entrypoint),
+      installMode: distribution.installMode === 'extract' ? 'extract' : undefined,
+      driveUri: asString(distribution.driveUri),
+      fileName: asString(distribution.fileName),
+      sizeBytes: asString(distribution.sizeBytes),
+      checksum: asOptionalString(distribution.checksum),
+    };
+  }
+  if (isRecord(value) && value.kind === 'manifest') {
+    return { kind: 'manifest' };
+  }
+  return null;
+}
+
+type AgentRecordLikeDistribution = {
+  archiveRef?: unknown;
+  version?: unknown;
+  entrypoint?: unknown;
+  installMode?: unknown;
+  driveUri?: unknown;
+  fileName?: unknown;
+  sizeBytes?: unknown;
+  checksum?: unknown;
+};
+
+function normalizeAgentKind(value: unknown): AgentKind | undefined {
+  return isAgentKind(value) ? value : undefined;
+}
+
 function parseAgentUiConfigFromIntent(value: unknown): Partial<AgentConfig> {
   if (!isRecord(value) || !Array.isArray(value.constraints)) {
     return {};
@@ -395,7 +485,12 @@ function normalizeAgentFromAgentRecord(record: AgentRecord): AgentConfig {
   );
   const profileConfig = normalizeAgentManagementProfile(record.managementProfile);
   const uiConfig = { ...definedAgentConfig(legacyConfig), ...definedAgentConfig(profileConfig) };
-  const categoryId = asString(uiConfig.categoryId) ?? (Array.isArray(record.tags) ? record.tags[0] : undefined);
+  const runtime = normalizeAgentRuntime(manifest);
+  const manifestCategory = asString(manifest.category_code);
+  const categoryId =
+    (isAgentCategoryCode(manifestCategory) ? manifestCategory : undefined) ??
+    asString(uiConfig.categoryId) ??
+    (Array.isArray(record.tags) ? record.tags[0] : undefined);
   return {
     id: record.agentId,
     name: record.displayName,
@@ -409,6 +504,11 @@ function normalizeAgentFromAgentRecord(record: AgentRecord): AgentConfig {
     color: asString(uiConfig.color),
     iconName: asString(uiConfig.iconName),
     categoryId,
+    agentKind: normalizeAgentKind(manifest.agent_kind) ?? 'conversation',
+    runtimeFamily: runtime?.family,
+    runtimeEngine: runtime?.engine,
+    runtimeProtocol: runtime?.protocol,
+    distribution: normalizeAgentDistribution(manifest.distribution),
     welcomeMessage: asOptionalString(uiConfig.welcomeMessage),
     debugMode: asBoolean(uiConfig.debugMode),
     jsonMode: asBoolean(uiConfig.jsonMode),
@@ -424,6 +524,16 @@ function normalizeAgentFromAgentRecord(record: AgentRecord): AgentConfig {
 }
 
 function buildAgentManifest(config: Partial<AgentConfig>, agentId: string): Record<string, unknown> {
+  const agentKind: AgentKind = config.agentKind ?? 'conversation';
+  const runtime =
+    agentKind === 'local-execution'
+      ? buildLocalExecutionRuntime(config.runtimeEngine)
+      : buildConversationRuntime();
+  const distribution =
+    agentKind === 'local-execution' && isAgentArchiveDistribution(config.distribution)
+      ? config.distribution
+      : undefined;
+  const categoryCode = asString(config.categoryId);
   return {
     schema_version: '1.0.0',
     manifest_type: 'agent',
@@ -432,7 +542,11 @@ function buildAgentManifest(config: Partial<AgentConfig>, agentId: string): Reco
     display_name: config.name ?? agentId,
     description: config.systemPrompt ?? config.description ?? '',
     version: '0.1.0',
-    domain: 'intelligence',
+    domain: categoryCode ?? 'intelligence',
+    agent_kind: agentKind,
+    ...(categoryCode ? { category_code: categoryCode } : {}),
+    runtime,
+    ...(distribution ? { distribution } : {}),
     required_capabilities: [{ capability_id: 'model.chat' }],
     optional_capabilities: [
       { capability_id: 'tool.invoke' },
@@ -442,6 +556,34 @@ function buildAgentManifest(config: Partial<AgentConfig>, agentId: string): Reco
     event_families: ['agent.lifecycle'],
     owner: { name: config.author ?? 'sdkwork-agents-pc' },
     status: 'active',
+  };
+}
+
+/**
+ * Implementation binding that matches the agent delivery shape.
+ *
+ * Hosted agents default to the Rig Rust provider (T3 framework integration);
+ * local agents use the Harness process/protocol adapter of their engine. The
+ * pair is written to both the agent record and its first version so a rollback
+ * or audit sees the same binding.
+ */
+function resolveAgentImplementation(config: Partial<AgentConfig>): {
+  providerId: string;
+  kind: 'typed-local-provider' | 'process-adapter' | 'protocol-adapter';
+  type: 'rig-rust' | 'custom';
+} {
+  if (config.agentKind === 'local-execution') {
+    const engine = findLocalAgentEngine(config.runtimeEngine);
+    return {
+      providerId: HARNESS_RUNTIME_PROVIDER_ID,
+      kind: engine.implementationKind,
+      type: 'custom',
+    };
+  }
+  return {
+    providerId: 'provider.rig.rust',
+    kind: 'typed-local-provider',
+    type: 'rig-rust',
   };
 }
 
@@ -487,6 +629,7 @@ function buildCreateAgentRequest(
   agentId: string,
 ): CreateAgentRequest {
   const categoryId = asString(config.categoryId);
+  const implementation = resolveAgentImplementation(config);
   return {
     agentId,
     code: agentId,
@@ -495,8 +638,9 @@ function buildCreateAgentRequest(
     manifest: buildAgentManifest(config, agentId),
     defaultCodeTaskIntent: buildAgentDefaultCodeTaskIntent(config),
     managementProfile: buildAgentManagementProfile(config),
-    implementationProviderId: null,
-    implementationKind: 'manifest-only',
+    implementationProviderId: implementation.providerId,
+    implementationKind: implementation.kind,
+    implementationType: implementation.type,
     visibility: 'private',
     tags: categoryId ? [categoryId] : [],
     allowedRoleCodes: normalizeAllowedRoleCodes(config.allowedRoleCodes) ?? [],
@@ -506,6 +650,7 @@ function buildCreateAgentRequest(
 
 function buildUpdateAgentRequest(id: string, config: Partial<AgentConfig>): UpdateAgentRequest {
   const categoryId = asString(config.categoryId);
+  const implementation = resolveAgentImplementation(config);
   return {
     ...(typeof config.name === 'string' ? { displayName: config.name } : {}),
     ...(typeof config.description === 'string' ? { description: config.description } : {}),
@@ -516,6 +661,9 @@ function buildUpdateAgentRequest(id: string, config: Partial<AgentConfig>): Upda
     manifest: buildAgentManifest({ ...config, id }, id),
     defaultCodeTaskIntent: buildAgentDefaultCodeTaskIntent(config),
     managementProfile: buildAgentManagementProfile(config),
+    implementationProviderId: implementation.providerId,
+    implementationKind: implementation.kind,
+    implementationType: implementation.type,
     requestedAt: new Date().toISOString(),
   };
 }

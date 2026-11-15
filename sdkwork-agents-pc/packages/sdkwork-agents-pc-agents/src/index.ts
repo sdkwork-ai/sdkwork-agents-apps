@@ -12,6 +12,25 @@ export type {
   CreateAgentViewProps,
 } from "./pages/CreateAgentView";
 export { CreateAgentModal } from "./components/CreateAgentModal";
+export { AgentCreationFlow, type AgentCreationFlowProps } from "./editor/AgentCreationFlow";
+export { AgentBasicInfoDialog } from "./editor/AgentBasicInfoDialog";
+export { AgentPackageUpload } from "./editor/AgentPackageUpload";
+export type {
+  AgentAvatarSubmission,
+  AgentBasicsDraft,
+  AgentCreationServices,
+} from "./editor/agentCreationModel";
+export {
+  AGENT_CATEGORY_TAXONOMY,
+  agentCategoryLabel,
+  listAgentCategoryLeaves,
+  type AgentCategoryNode,
+} from "./services/agentTaxonomy";
+export {
+  LOCAL_AGENT_ENGINES,
+  type AgentKind,
+} from "./services/agentRuntimeCatalog";
+export { agentKindLabel } from "./editor/agentCreationModel";
 export { ToastContainer, toast } from "./components/Toast";
 export { agentService, configureAgentService, createSdkworkAgentService, parseAgentCatalogSnapshot } from "./services/AgentService";
 export { agentChatService, AgentChatService } from "./services/AgentChatService";
