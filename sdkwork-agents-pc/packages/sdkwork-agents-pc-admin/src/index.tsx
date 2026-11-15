@@ -14,14 +14,20 @@ import {
   updateManagedAgent,
   updateManagedAgentStatus,
 } from './agentsAdminService.ts';
+import { useAgentAdminCopy, type AgentAdminCopy } from './agentAdminCopy.ts';
 
 const STATUS_OPTIONS = ['draft', 'active', 'disabled', 'archived'] as const;
 const VISIBILITY_OPTIONS = ['private', 'organization', 'tenant', 'public'] as const;
 
 type AgentStatusOption = (typeof STATUS_OPTIONS)[number];
+type StatusTransitionAction = 'activate' | 'archive' | 'disable' | 'restore';
 
 type StatusTransition = {
-  label: string;
+  /**
+   * Stable transition identifier: the React list key and the
+   * `copy.transitions` lookup key. The rendered label is localized.
+   */
+  label: StatusTransitionAction;
   /** Restores a soft-deleted agent instead of transitioning a live one. */
   restore?: boolean;
   targetStatus: AgentStatusOption;
@@ -29,20 +35,32 @@ type StatusTransition = {
 
 const STATUS_TRANSITIONS: Record<string, readonly StatusTransition[]> = {
   draft: [
-    { label: 'Activate', targetStatus: 'active' },
-    { label: 'Archive', targetStatus: 'archived' },
+    { label: 'activate', targetStatus: 'active' },
+    { label: 'archive', targetStatus: 'archived' },
   ],
   active: [
-    { label: 'Disable', targetStatus: 'disabled' },
-    { label: 'Archive', targetStatus: 'archived' },
+    { label: 'disable', targetStatus: 'disabled' },
+    { label: 'archive', targetStatus: 'archived' },
   ],
   disabled: [
-    { label: 'Activate', targetStatus: 'active' },
-    { label: 'Archive', targetStatus: 'archived' },
+    { label: 'activate', targetStatus: 'active' },
+    { label: 'archive', targetStatus: 'archived' },
   ],
-  archived: [{ label: 'Activate', targetStatus: 'active' }],
-  deleted: [{ label: 'Restore record', restore: true, targetStatus: 'active' }],
+  archived: [{ label: 'activate', targetStatus: 'active' }],
+  deleted: [{ label: 'restore', restore: true, targetStatus: 'active' }],
 };
+
+/** Localized label for a status wire value, falling back to the wire value. */
+function agentStatusLabel(copy: AgentAdminCopy, status: AgentRecord['status']): string {
+  const labels: Record<string, string> = copy.status;
+  return labels[status] ?? status;
+}
+
+/** Localized label for a visibility wire value, falling back to the wire value. */
+function agentVisibilityLabel(copy: AgentAdminCopy, visibility: AgentRecord['visibility']): string {
+  const labels: Record<string, string> = copy.visibility;
+  return labels[visibility] ?? visibility;
+}
 
 /**
  * Cloud Router admin-console surface for managed agents, owned by
@@ -53,6 +71,7 @@ const STATUS_TRANSITIONS: Record<string, readonly StatusTransition[]> = {
  * before this page renders; the block never constructs transport itself.
  */
 export function AgentsAdminPage() {
+  const copy = useAgentAdminCopy();
   const [records, setRecords] = useState<AgentRecord[]>([]);
   const [categories, setCategories] = useState<AgentCategoryRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,23 +150,21 @@ export function AgentsAdminPage() {
     <section className="embedded-fill-page">
       <header className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900 dark:text-zinc-100">Agent Management</h1>
-          <p className="text-sm text-slate-500 dark:text-zinc-400">
-            Managed agents served through the backend administration API.
-          </p>
+          <h1 className="text-lg font-semibold text-slate-900 dark:text-zinc-100">{copy.title}</h1>
+          <p className="text-sm text-slate-500 dark:text-zinc-400">{copy.description}</p>
         </div>
         <button
           type="button"
           className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500"
           onClick={() => setCreateOpen(true)}
         >
-          New agent
+          {copy.actions.newAgent}
         </button>
       </header>
 
       {error ? (
         <div className="mb-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
-          {error}
+          {copy.errors.requestFailed(error)}
         </div>
       ) : null}
       {notice ? (
@@ -159,22 +176,22 @@ export function AgentsAdminPage() {
       <div className="data-surface">
         <div className="table-frame">
           {loading ? (
-            <p className="text-sm text-slate-500 dark:text-zinc-400">Loading agents…</p>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">{copy.table.loading}</p>
           ) : records.length === 0 ? (
-            <p className="text-sm text-slate-500 dark:text-zinc-400">No managed agents yet</p>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">{copy.table.empty}</p>
           ) : (
             <table className="w-full text-left text-sm">
               <thead className="text-xs uppercase tracking-wide text-slate-500 dark:text-zinc-400">
                 <tr>
-                  <th className="px-3 py-2">Agent</th>
-                  <th className="px-3 py-2">Code</th>
-                  <th className="px-3 py-2">Implementation</th>
-                  <th className="px-3 py-2">Category</th>
-                  <th className="px-3 py-2">Visibility</th>
-                  <th className="px-3 py-2">Status</th>
-                  <th className="px-3 py-2">Version</th>
-                  <th className="px-3 py-2">Updated</th>
-                  <th className="px-3 py-2">Actions</th>
+                  <th className="px-3 py-2">{copy.table.agent}</th>
+                  <th className="px-3 py-2">{copy.table.code}</th>
+                  <th className="px-3 py-2">{copy.table.implementation}</th>
+                  <th className="px-3 py-2">{copy.table.category}</th>
+                  <th className="px-3 py-2">{copy.table.visibility}</th>
+                  <th className="px-3 py-2">{copy.table.status}</th>
+                  <th className="px-3 py-2">{copy.table.version}</th>
+                  <th className="px-3 py-2">{copy.table.updated}</th>
+                  <th className="px-3 py-2">{copy.table.actions}</th>
                 </tr>
               </thead>
               <tbody>
@@ -192,7 +209,7 @@ export function AgentsAdminPage() {
                         if (!categoryId) {
                           return (
                             <span className="text-xs italic text-slate-400 dark:text-zinc-600">
-                              Uncategorized
+                              {copy.table.uncategorized}
                             </span>
                           );
                         }
@@ -203,8 +220,12 @@ export function AgentsAdminPage() {
                         );
                       })()}
                     </td>
-                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{record.visibility}</td>
-                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{record.status}</td>
+                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">
+                      {agentVisibilityLabel(copy, record.visibility)}
+                    </td>
+                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">
+                      {agentStatusLabel(copy, record.status)}
+                    </td>
                     <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{String(record.version)}</td>
                     <td className="px-3 py-2 text-xs text-slate-500 dark:text-zinc-400">{record.updatedAt}</td>
                     <td className="px-3 py-2">
@@ -214,7 +235,7 @@ export function AgentsAdminPage() {
                           className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
                           onClick={() => setEditTarget(record)}
                         >
-                          Edit
+                          {copy.table.edit}
                         </button>
                         {(STATUS_TRANSITIONS[record.status] ?? []).map((transition) => (
                           <button
@@ -225,7 +246,7 @@ export function AgentsAdminPage() {
                               void (transition.restore
                                 ? runAction(
                                     () => restoreManagedAgent(record.agentId, String(record.version)),
-                                    `Agent ${record.displayName} restored`,
+                                    copy.notices.restored(record.displayName),
                                   )
                                 : runAction(
                                     () =>
@@ -234,11 +255,14 @@ export function AgentsAdminPage() {
                                         transition.targetStatus,
                                         String(record.version),
                                       ),
-                                    `Agent ${record.displayName} is now ${transition.targetStatus}`,
+                                    copy.notices.statusChanged(
+                                      record.displayName,
+                                      agentStatusLabel(copy, transition.targetStatus),
+                                    ),
                                   ))
                             }
                           >
-                            {transition.label}
+                            {copy.transitions[transition.label]}
                           </button>
                         ))}
                       </div>
@@ -255,7 +279,10 @@ export function AgentsAdminPage() {
         <CreateAgentModal
           onClose={() => setCreateOpen(false)}
           onCreate={async (body) => {
-            const succeeded = await runAction(() => createManagedAgent(body), 'Agent created');
+            const succeeded = await runAction(
+              () => createManagedAgent(body),
+              copy.notices.created,
+            );
             if (succeeded) {
               setCreateOpen(false);
             }
@@ -270,7 +297,7 @@ export function AgentsAdminPage() {
           onUpdate={async (agentId, body) => {
             const succeeded = await runAction(
               () => updateManagedAgent(agentId, body),
-              `Agent ${editTarget.displayName} updated`,
+              copy.notices.updated(editTarget.displayName),
             );
             if (succeeded) {
               setEditTarget(null);
@@ -289,19 +316,26 @@ function parseTags(value: string): string[] {
     .filter((tag) => tag.length > 0);
 }
 
-function parseJsonRecord(value: string): Record<string, unknown> | string {
+type ManifestParseFailure = 'invalidJson' | 'notObject';
+
+type ManifestParseResult =
+  | { ok: true; manifest: Record<string, unknown> }
+  | { ok: false; error: ManifestParseFailure };
+
+function parseJsonRecord(value: string): ManifestParseResult {
   if (isBlank(value)) {
-    return {};
+    return { ok: true, manifest: {} };
   }
+  let parsed: unknown;
   try {
-    const parsed: unknown = JSON.parse(value);
-    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return 'Manifest must be a JSON object';
-    }
-    return parsed as Record<string, unknown>;
+    parsed = JSON.parse(value);
   } catch {
-    return 'Manifest is not valid JSON';
+    return { ok: false, error: 'invalidJson' };
   }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return { ok: false, error: 'notObject' };
+  }
+  return { ok: true, manifest: parsed as Record<string, unknown> };
 }
 
 type CreateAgentModalProps = {
@@ -310,6 +344,7 @@ type CreateAgentModalProps = {
 };
 
 function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
+  const copy = useAgentAdminCopy();
   const [agentId, setAgentId] = useState('');
   const [code, setCode] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -322,9 +357,9 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    const parsedManifest = parseJsonRecord(manifest);
-    if (typeof parsedManifest === 'string') {
-      setFormError(parsedManifest);
+    const manifestResult = parseJsonRecord(manifest);
+    if (!manifestResult.ok) {
+      setFormError(copy.errors.manifest[manifestResult.error]);
       return;
     }
     setSubmitting(true);
@@ -334,14 +369,16 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
       code: trim(code),
       displayName: trim(displayName),
       description: isBlank(description) ? null : description,
-      manifest: parsedManifest,
+      manifest: manifestResult.manifest,
       implementationType: implementationType as Parameters<typeof createManagedAgent>[0]['implementationType'],
       visibility,
       tags: parseTags(''),
       allowedRoleCodes: [],
     })
       .catch((cause: unknown) => {
-        setFormError(cause instanceof Error ? cause.message : String(cause));
+        setFormError(
+          copy.errors.requestFailed(cause instanceof Error ? cause.message : String(cause)),
+        );
       })
       .finally(() => {
         setSubmitting(false);
@@ -354,10 +391,12 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
         className="w-full max-w-lg rounded-lg bg-white p-5 shadow-xl dark:bg-zinc-900"
         onSubmit={submit}
       >
-        <h2 className="mb-4 text-base font-semibold text-slate-900 dark:text-zinc-100">Create agent</h2>
+        <h2 className="mb-4 text-base font-semibold text-slate-900 dark:text-zinc-100">
+          {copy.create.title}
+        </h2>
         <div className="grid gap-3">
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Agent ID</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.create.fields.agentId}</span>
             <input
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               value={agentId}
@@ -366,7 +405,7 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
             />
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Code</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.create.fields.code}</span>
             <input
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               value={code}
@@ -375,7 +414,7 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
             />
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Display name</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.create.fields.displayName}</span>
             <input
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               value={displayName}
@@ -384,7 +423,7 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
             />
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Description</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.create.fields.description}</span>
             <textarea
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               value={description}
@@ -394,7 +433,7 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="grid gap-1 text-sm">
-              <span className="text-slate-600 dark:text-zinc-300">Visibility</span>
+              <span className="text-slate-600 dark:text-zinc-300">{copy.create.fields.visibility}</span>
               <select
                 className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
                 value={visibility}
@@ -402,13 +441,15 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
               >
                 {VISIBILITY_OPTIONS.map((option) => (
                   <option key={option} value={option}>
-                    {option}
+                    {copy.visibility[option]}
                   </option>
                 ))}
               </select>
             </label>
             <label className="grid gap-1 text-sm">
-              <span className="text-slate-600 dark:text-zinc-300">Implementation</span>
+              <span className="text-slate-600 dark:text-zinc-300">
+                {copy.create.fields.implementation}
+              </span>
               <input
                 className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
                 value={implementationType}
@@ -417,7 +458,7 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
             </label>
           </div>
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Manifest (JSON object)</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.create.fields.manifest}</span>
             <textarea
               className="rounded border border-slate-300 px-2 py-1 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-800"
               value={manifest}
@@ -435,14 +476,14 @@ function CreateAgentModal({ onClose, onCreate }: CreateAgentModalProps) {
             className="rounded border border-slate-300 px-3 py-1.5 text-sm dark:border-zinc-700"
             onClick={onClose}
           >
-            Cancel
+            {copy.create.cancel}
           </button>
           <button
             type="submit"
             className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
             disabled={submitting}
           >
-            Create
+            {copy.create.submit}
           </button>
         </div>
       </form>
@@ -461,6 +502,7 @@ type EditAgentModalProps = {
 };
 
 function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModalProps) {
+  const copy = useAgentAdminCopy();
   const [displayName, setDisplayName] = useState(record.displayName);
   const [description, setDescription] = useState(record.description ?? '');
   const [categoryId, setCategoryId] = useState(record.managementProfile?.categoryId ?? '');
@@ -485,9 +527,9 @@ function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModa
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    const parsedManifest = parseJsonRecord(manifest);
-    if (typeof parsedManifest === 'string') {
-      setFormError(parsedManifest);
+    const manifestResult = parseJsonRecord(manifest);
+    if (!manifestResult.ok) {
+      setFormError(copy.errors.manifest[manifestResult.error]);
       return;
     }
     const managementProfile = { ...(record.managementProfile ?? {}) };
@@ -503,12 +545,14 @@ function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModa
       description: isBlank(description) ? null : description,
       visibility,
       tags: parseTags(tags),
-      manifest: parsedManifest,
+      manifest: manifestResult.manifest,
       managementProfile,
       expectedVersion: String(record.version),
     })
       .catch((cause: unknown) => {
-        setFormError(cause instanceof Error ? cause.message : String(cause));
+        setFormError(
+          copy.errors.requestFailed(cause instanceof Error ? cause.message : String(cause)),
+        );
       })
       .finally(() => {
         setSubmitting(false);
@@ -522,14 +566,14 @@ function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModa
         onSubmit={submit}
       >
         <h2 className="mb-1 text-base font-semibold text-slate-900 dark:text-zinc-100">
-          Edit agent {record.displayName}
+          {copy.edit.title(record.displayName)}
         </h2>
         <p className="mb-4 text-xs text-slate-500 dark:text-zinc-400">
-          {record.agentId} · version {String(record.version)}
+          {copy.edit.meta(record.agentId, String(record.version))}
         </p>
         <div className="grid gap-3">
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Display name</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.edit.fields.displayName}</span>
             <input
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               value={displayName}
@@ -538,7 +582,7 @@ function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModa
             />
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Description</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.edit.fields.description}</span>
             <textarea
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               value={description}
@@ -547,7 +591,7 @@ function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModa
             />
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Visibility</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.edit.fields.visibility}</span>
             <select
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               value={visibility}
@@ -555,34 +599,34 @@ function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModa
             >
               {VISIBILITY_OPTIONS.map((option) => (
                 <option key={option} value={option}>
-                  {option}
+                  {copy.visibility[option]}
                 </option>
               ))}
             </select>
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Category</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.edit.fields.category}</span>
             <select
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               value={categoryId}
               onChange={(event) => setCategoryId(event.target.value)}
             >
-              <option value="">Uncategorized</option>
+              <option value="">{copy.edit.categoryNone}</option>
               {categoryOptions.map((category) => (
                 <option key={category.id} value={category.categoryCode}>
-                  {category.name} ({category.categoryCode})
+                  {copy.edit.categoryOption(category.name, category.categoryCode)}
                 </option>
               ))}
               {categoryId && !currentCategory ? (
-                <option value={categoryId}>{categoryId} (inactive)</option>
+                <option value={categoryId}>{copy.edit.inactiveCategory(categoryId)}</option>
               ) : null}
             </select>
             <span className="text-xs text-slate-500 dark:text-zinc-400">
-              Category taxonomy is curated in Agent categories.
+              {copy.edit.categoryHint}
             </span>
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Tags (comma separated)</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.edit.fields.tags}</span>
             <input
               className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               value={tags}
@@ -590,7 +634,7 @@ function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModa
             />
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600 dark:text-zinc-300">Manifest (JSON object)</span>
+            <span className="text-slate-600 dark:text-zinc-300">{copy.edit.fields.manifest}</span>
             <textarea
               className="rounded border border-slate-300 px-2 py-1 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-800"
               value={manifest}
@@ -608,14 +652,14 @@ function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModa
             className="rounded border border-slate-300 px-3 py-1.5 text-sm dark:border-zinc-700"
             onClick={onClose}
           >
-            Cancel
+            {copy.edit.cancel}
           </button>
           <button
             type="submit"
             className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
             disabled={submitting}
           >
-            Save
+            {copy.edit.submit}
           </button>
         </div>
       </form>
@@ -624,3 +668,9 @@ function EditAgentModal({ record, categories, onClose, onUpdate }: EditAgentModa
 }
 
 export { AgentCategoriesPage } from './agentCategoriesPage.tsx';
+export {
+  AGENT_ADMIN_COPY,
+  useAgentAdminCopy,
+  useAgentAdminLocale,
+  type AgentAdminCopy,
+} from './agentAdminCopy.ts';
