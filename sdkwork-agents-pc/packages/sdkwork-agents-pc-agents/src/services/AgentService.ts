@@ -67,6 +67,11 @@ export interface AgentConfig {
   runtimeEngine?: string;
   /** Harness runtime protocol version declared by a local agent. */
   runtimeProtocol?: string;
+  /**
+   * Default execution target of the agent. Hosted agents leave it unset (the
+   * deployment default applies); local-execution agents resolve to `host`.
+   */
+  executionRoute?: 'in_process' | 'cloud' | 'host';
   /** Archive distribution descriptor of a locally installed agent. */
   distribution?: AgentDistribution;
   /**
@@ -365,6 +370,13 @@ function asOptionalAgentType(value: unknown): AgentConfig['type'] | undefined {
   return undefined;
 }
 
+function asExecutionRoute(value: unknown): AgentConfig['executionRoute'] {
+  if (value === 'in_process' || value === 'cloud' || value === 'host') {
+    return value;
+  }
+  return undefined;
+}
+
 function normalizeManifest(value: unknown): RecordLike {
   return isRecord(value) ? value : {};
 }
@@ -455,6 +467,7 @@ function normalizeAgentManagementProfile(value: unknown): Partial<AgentConfig> {
     categoryId: asString(value.categoryId),
     color: asString(value.color),
     debugMode: asBoolean(value.debugMode),
+    executionRoute: asExecutionRoute(value.executionRoute),
     iconName: asString(value.iconName),
     jsonMode: asBoolean(value.jsonMode),
     knowledgeBaseIds: asStringArray(value.knowledgeBaseIds),
@@ -486,6 +499,7 @@ function normalizeAgentFromAgentRecord(record: AgentRecord): AgentConfig {
   const profileConfig = normalizeAgentManagementProfile(record.managementProfile);
   const uiConfig = { ...definedAgentConfig(legacyConfig), ...definedAgentConfig(profileConfig) };
   const runtime = normalizeAgentRuntime(manifest);
+  const agentKind = normalizeAgentKind(manifest.agent_kind) ?? 'conversation';
   const manifestCategory = asString(manifest.category_code);
   const categoryId =
     (isAgentCategoryCode(manifestCategory) ? manifestCategory : undefined) ??
@@ -504,7 +518,10 @@ function normalizeAgentFromAgentRecord(record: AgentRecord): AgentConfig {
     color: asString(uiConfig.color),
     iconName: asString(uiConfig.iconName),
     categoryId,
-    agentKind: normalizeAgentKind(manifest.agent_kind) ?? 'conversation',
+    agentKind,
+    executionRoute:
+      asExecutionRoute(uiConfig.executionRoute)
+      ?? (agentKind === 'local-execution' ? 'host' : undefined),
     runtimeFamily: runtime?.family,
     runtimeEngine: runtime?.engine,
     runtimeProtocol: runtime?.protocol,
@@ -595,6 +612,7 @@ function buildAgentManagementProfile(config: Partial<AgentConfig>): AgentManagem
     categoryId: config.categoryId,
     color: config.color,
     debugMode: config.debugMode,
+    executionRoute: config.executionRoute,
     iconName: config.iconName,
     knowledgeBaseIds: cleanStringArray(config.knowledgeBaseIds),
     jsonMode: config.jsonMode,

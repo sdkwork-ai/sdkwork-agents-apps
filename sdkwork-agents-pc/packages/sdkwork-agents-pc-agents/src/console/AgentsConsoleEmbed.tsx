@@ -76,9 +76,10 @@ export function AgentsConsoleEmbed({
     moduleId: moduleId ?? DEFAULT_AGENTS_CONSOLE_MODULE_ID,
     agentId,
   });
-  /* Bumped after a local agent is created so the list refetches the record. */
+  /* Bumped after a local agent is created or reconfigured so the list refetches. */
   const [catalogRevision, setCatalogRevision] = useState(0);
   const [creationOpen, setCreationOpen] = useState(false);
+  const [flowAgent, setFlowAgent] = useState<AgentConfig | undefined>(undefined);
 
   const target: AgentsConsoleNavigationTarget = onNavigate
     ? { moduleId: moduleId ?? DEFAULT_AGENTS_CONSOLE_MODULE_ID, agentId }
@@ -125,12 +126,41 @@ export function AgentsConsoleEmbed({
 
   const handleCreationCompleted = useCallback(() => {
     setCreationOpen(false);
+    setFlowAgent(undefined);
     setCatalogRevision((revision) => revision + 1);
   }, []);
+
+  const handleCreationClose = useCallback(() => {
+    setCreationOpen(false);
+    setFlowAgent(undefined);
+  }, []);
+
+  const handleCreateRequest = useCallback(() => {
+    setFlowAgent(undefined);
+    setCreationOpen(true);
+  }, []);
+
+  /**
+   * Local-execution agents are reconfigured through the package flow, not the
+   * conversation editor: their definition is the archive, and prompt/model
+   * panels do not apply.
+   */
+  const handleEditRequest = useCallback(
+    (agent: AgentConfig) => {
+      if (agent.agentKind === 'local-execution') {
+        setFlowAgent(agent);
+        setCreationOpen(true);
+        return;
+      }
+      openEditor(agent.id);
+    },
+    [openEditor],
+  );
 
   const handleCreationContinueToEditor = useCallback(
     (agent: AgentConfig) => {
       setCreationOpen(false);
+      setFlowAgent(undefined);
       openEditor(agent.id);
     },
     [openEditor],
@@ -201,13 +231,15 @@ export function AgentsConsoleEmbed({
             hideConversation
             initialScope="mine"
             key={catalogRevision}
-            onCreateRequest={() => setCreationOpen(true)}
-            onEditRequest={(agent: AgentConfig) => openEditor(agent.id)}
+            onCreateRequest={handleCreateRequest}
+            onEditRequest={handleEditRequest}
           />
         )}
       </div>
       <AgentCreationFlow
-        onClose={() => setCreationOpen(false)}
+        existingAgent={flowAgent}
+        key={flowAgent?.id ?? 'create'}
+        onClose={handleCreationClose}
         onCompleted={handleCreationCompleted}
         onContinueToEditor={handleCreationContinueToEditor}
         open={creationOpen}

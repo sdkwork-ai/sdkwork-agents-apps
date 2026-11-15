@@ -123,7 +123,7 @@ export const AGENTS_AGENT_PACKAGE_UPLOAD = {
   retention: AGENTS_RETENTION,
   scene: "agent-package",
   source: AGENTS_UPLOAD_SOURCE,
-  uploadProfileCode: "attachment",
+  uploadProfileCode: "archive",
 } as const satisfies AgentsUploadDeclarationEntry;
 
 /** Every declared upload purpose for this application. */export const AGENTS_UPLOAD_DECLARATIONS: readonly AgentsUploadDeclarationEntry[] = [

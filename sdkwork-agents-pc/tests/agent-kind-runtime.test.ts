@@ -21,6 +21,10 @@ import {
   buildAgentConfigFromBasics,
   requiresPackageUpload,
 } from '../packages/sdkwork-agents-pc-agents/src/editor/agentCreationModel';
+import {
+  AGENT_CATEGORY_TREE as SEEDED_CATEGORY_TREE,
+  LOCAL_EXECUTION_AGENTS as SEEDED_LOCAL_AGENTS,
+} from '../../../scripts/agent-catalog/catalog.mjs';
 
 const APP_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PACKAGE_ROOT = resolve(APP_ROOT, 'packages/sdkwork-agents-pc-agents');
@@ -93,6 +97,7 @@ describe('creation flow model', () => {
     });
     assert.equal(config.agentKind, 'local-execution');
     assert.equal(config.categoryId, 'local-execution');
+    assert.equal(config.executionRoute, 'host');
     assert.equal(config.runtimeEngine, 'workbuddy');
     assert.equal(config.distribution?.kind, 'archive');
     assert.equal(requiresPackageUpload({ agentKind: 'local-execution' }), true);
@@ -109,6 +114,67 @@ describe('creation flow model', () => {
     assert.equal(config.categoryId, 'legal');
     assert.equal(config.agentKind, 'conversation');
     assert.equal(config.distribution, undefined);
+  });
+
+  it('does not reset an existing local archive when basics are re-saved', () => {
+    const patch = buildAgentConfigFromBasics(
+      {
+        name: '更新后的本地助手',
+        description: '新描述',
+        categoryId: 'local-execution',
+        agentKind: 'local-execution',
+        runtimeEngine: 'openclaw',
+      },
+      { type: 'normal' },
+      { includeLocalArchive: false },
+    );
+    assert.equal(patch.distribution, undefined);
+    assert.equal(patch.agentKind, 'local-execution');
+  });
+});
+
+describe('client taxonomy mirrors the seeded catalog', () => {
+  it('keeps every category code, parent, and label in sync', () => {
+    const seeded = (SEEDED_CATEGORY_TREE as Array<{
+      code: string;
+      children: Array<{ code: string; zhName: string }>;
+    }>)
+      .flatMap((parent) =>
+        parent.children.map((child) => ({
+          code: child.code,
+          label: child.zhName,
+          parentCode: parent.code,
+        })),
+      )
+      .sort((left, right) => left.code.localeCompare(right.code));
+    const client = listAgentCategoryLeaves()
+      .map((leaf) => ({
+        code: leaf.code,
+        label: leaf.label,
+        parentCode: leaf.parentCode,
+      }))
+      .sort((left, right) => left.code.localeCompare(right.code));
+    assert.deepEqual(client, seeded);
+  });
+
+  it('keeps every local engine, archive reference, and entrypoint in sync', () => {
+    const seeded = (SEEDED_LOCAL_AGENTS as Array<{
+      slug: string;
+      engine: string;
+      distribution: { archiveRef: string; entrypoint: string };
+    }>)
+      .map((agent) => ({
+        engine: agent.engine,
+        archiveRef: agent.distribution.archiveRef,
+        entrypoint: agent.distribution.entrypoint,
+      }))
+      .sort((left, right) => left.engine.localeCompare(right.engine));
+    const client = LOCAL_AGENT_ENGINES.map((engine) => ({
+      engine: engine.id,
+      archiveRef: engine.archiveRef,
+      entrypoint: engine.entrypoint,
+    })).sort((left, right) => left.engine.localeCompare(right.engine));
+    assert.deepEqual(client, seeded);
   });
 });
 

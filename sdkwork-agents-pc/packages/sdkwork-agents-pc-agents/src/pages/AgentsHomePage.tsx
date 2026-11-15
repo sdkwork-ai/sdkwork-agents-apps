@@ -12,7 +12,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DEFAULT_AGENT_CONFIG } from '../components/AgentDefaults';
 import { ToastContainer } from '../components/Toast';
 import { AgentCreationFlow } from '../editor/AgentCreationFlow';
@@ -221,6 +221,7 @@ export function AgentsHomePage({
   const [error, setError] = useState<string>();
   const [editingAgent, setEditingAgent] = useState<AgentConfig>();
   const [creationOpen, setCreationOpen] = useState(false);
+  const [flowAgent, setFlowAgent] = useState<AgentConfig>();
   const [inlineEditorAgentId, setInlineEditorAgentId] = useState<string>();
   const [kindFilter, setKindFilter] = useState<'all' | AgentKind>('all');
   const [chatAgent, setChatAgent] = useState<AgentConfig>();
@@ -258,6 +259,65 @@ export function AgentsHomePage({
     void loadPage(1, false);
   }, [loadPage]);
 
+  /**
+   * Kind and category filtering happen on the client, so a filter must see the
+   * whole catalog rather than only the pages loaded so far. When a filter is
+   * active we page through the remaining results once (`hasMore` drives the
+   * loop and the cap prevents an unbounded scan); clearing the filter keeps the
+   * already-loaded superset, so no refetch is needed.
+   */
+  const loadAllForFilterRef = useRef(false);
+  useEffect(() => {
+    loadAllForFilterRef.current = false;
+  }, [debouncedQuery, scope]);
+  useEffect(() => {
+    const filtering = kindFilter !== 'all' || marketCategory !== 'all';
+    if (
+      !filtering ||
+      !catalog.hasMore ||
+      loading ||
+      loadingMore ||
+      loadAllForFilterRef.current
+    ) {
+      return;
+    }
+    loadAllForFilterRef.current = true;
+    setLoadingMore(true);
+    void (async () => {
+      let page = catalog.page;
+      let hasMore = true;
+      for (let round = 0; round < 50 && hasMore; round += 1) {
+        page += 1;
+        const result = await agentService.listAgentsPage({
+          page,
+          pageSize: 20,
+          scope,
+          ...(debouncedQuery ? { q: debouncedQuery } : {}),
+        });
+        setCatalog((current) => ({
+          hasMore: result.pageInfo.hasMore,
+          items: [...current.items, ...result.items],
+          page,
+        }));
+        hasMore = result.pageInfo.hasMore;
+      }
+    })()
+      .catch((loadError) => {
+        console.error('Failed to load the full agent catalog for filtering.', loadError);
+        setError('筛选需要加载完整列表，当前只显示了已加载的 Agent。');
+      })
+      .finally(() => setLoadingMore(false));
+  }, [
+    catalog.hasMore,
+    catalog.page,
+    debouncedQuery,
+    kindFilter,
+    loading,
+    loadingMore,
+    marketCategory,
+    scope,
+  ]);
+
   const handleDelete = async (agent: AgentConfig) => {
     if (!agent.id || !window.confirm(`确定删除 Agent「${agent.name}」吗？`)) {
       return;
@@ -282,12 +342,20 @@ export function AgentsHomePage({
     }
     // Creation starts with basic information; the flow then routes a local
     // agent to its archive upload and a conversation agent to this editor.
+    setFlowAgent(undefined);
     setCreationOpen(true);
   }, [onCreateRequest]);
 
   const editAgent = useCallback((agent: AgentConfig) => {
     if (onEditRequest) {
       onEditRequest(agent);
+      return;
+    }
+    // A local agent's definition is its archive: it is reconfigured by the
+    // package flow instead of the prompt/model editor.
+    if (agent.agentKind === 'local-execution') {
+      setFlowAgent(agent);
+      setCreationOpen(true);
       return;
     }
     setEditingAgent(agent);
@@ -488,7 +556,7 @@ export function AgentsHomePage({
                     {agent.id ? (
                       <div className="flex items-center gap-3">
                         {!hideConversation && agent.agentKind !== 'local-execution' && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => setChatAgent(agent)} type="button">对话 <ChevronRight size={13} /></button>}
-                        {scope === 'mine' && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => editAgent(agent)} type="button">配置 <ChevronRight size={13} /></button>}
+                        {scope === 'mine' && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => editAgent(agent)} type="button">{agent.agentKind === 'local-execution' ? '更新安装包' : '配置'} <ChevronRight size={13} /></button>}
                       </div>
                     ) : (
                       <span>{agent.author || 'SDKWork'}</span>
@@ -523,14 +591,21 @@ export function AgentsHomePage({
       />
 
       <AgentCreationFlow
-        onClose={() => setCreationOpen(false)}
+        existingAgent={flowAgent}
+        key={flowAgent?.id ?? 'create'}
+        onClose={() => {
+          setCreationOpen(false);
+          setFlowAgent(undefined);
+        }}
         onCompleted={() => {
           setCreationOpen(false);
+          setFlowAgent(undefined);
           setScope('mine');
           void loadPage(1, false);
         }}
         onContinueToEditor={(agent) => {
           setCreationOpen(false);
+          setFlowAgent(undefined);
           if (agent.id) {
             setInlineEditorAgentId(agent.id);
           }

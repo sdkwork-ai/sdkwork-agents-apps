@@ -79,7 +79,7 @@
       "appResourceIdKind": "entity",
       "scene": "agent-package",
       "source": "sdkwork-agents-pc",
-      "uploadProfileCode": "attachment",
+      "uploadProfileCode": "archive",
       "retention": "long_term",
       "purpose": "Local-execution agent installation archive (zip) uploaded during agent creation so the Harness runtime can install it on the user's machine."
     }

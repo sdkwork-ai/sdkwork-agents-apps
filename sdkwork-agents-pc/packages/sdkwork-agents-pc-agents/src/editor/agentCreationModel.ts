@@ -62,6 +62,15 @@ export interface AgentCreationBaseConfig {
   suggestedPrompts?: string[];
 }
 
+export interface BuildAgentConfigOptions {
+  /**
+   * When editing an existing local agent, keep its current archive descriptor
+   * instead of resetting it to the catalog reference. Defaults to `true` for
+   * creation.
+   */
+  includeLocalArchive?: boolean;
+}
+
 /**
  * Builds the persisted agent configuration from step-one values.
  *
@@ -69,13 +78,16 @@ export interface AgentCreationBaseConfig {
  * a conversation agent keeps the hosted defaults the editor then refines.
  * `distribution` starts as the catalog archive reference for local agents so
  * the record is valid even before the archive upload lands; the upload replaces
- * it with the Drive locator and checksum.
+ * it with the Drive locator and checksum. Editing an existing local agent
+ * passes `includeLocalArchive: false` so its uploaded archive is not reset.
  */
 export function buildAgentConfigFromBasics(
   draft: AgentBasicsDraft,
   base: AgentCreationBaseConfig = { type: 'normal' },
+  options: BuildAgentConfigOptions = {},
 ): AgentConfig {
   const agentKind = draft.agentKind;
+  const includeLocalArchive = options.includeLocalArchive ?? true;
   const runtimeEngine =
     agentKind === 'local-execution'
       ? draft.runtimeEngine ?? DEFAULT_LOCAL_AGENT_ENGINE_ID
@@ -91,7 +103,12 @@ export function buildAgentConfigFromBasics(
     ...(agentKind === 'local-execution'
       ? {
           type: 'normal' as const,
-          distribution: buildLocalArchiveDistribution(runtimeEngine),
+          // Local agents execute on the host; the managed in-process route
+          // would place them where their archive does not exist.
+          executionRoute: 'host' as const,
+          ...(includeLocalArchive
+            ? { distribution: buildLocalArchiveDistribution(runtimeEngine) }
+            : {}),
         }
       : { type: base.type }),
   };

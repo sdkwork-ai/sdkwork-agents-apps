@@ -24,7 +24,7 @@ import {
 export interface AgentCreationFlowProps {
   open: boolean;
   onClose(): void;
-  /** Called when a local agent finished package upload, or as the fallback. */
+  /** Called when the flow finished (local upload or conversation handoff fallback). */
   onCompleted?(agent: AgentConfig): void;
   /**
    * Called for a conversation agent after its basic record exists. The console
@@ -32,6 +32,12 @@ export interface AgentCreationFlowProps {
    * omit it and receive `onCompleted` instead.
    */
   onContinueToEditor?(agent: AgentConfig): void;
+  /**
+   * Existing agent to reconfigure. Only local-execution agents use this flow for
+   * editing: basic information is persisted, then the package can be replaced
+   * or kept. Conversation agents are edited by the detail editor.
+   */
+  existingAgent?: AgentConfig;
   initialDraft?: Partial<AgentBasicsDraft>;
   categories?: readonly AgentCategoryNode[];
   localEngines?: readonly LocalAgentEngine[];
@@ -41,9 +47,19 @@ export interface AgentCreationFlowProps {
   title?: string;
 }
 
-type CreationStep = 'basics' | 'package';
+type FlowStep = 'basics' | 'package';
 
 const DEFAULT_BASE_CONFIG: AgentCreationBaseConfig = { type: 'normal' };
+
+const MEBIBYTE = 1024 * 1024;
+
+function formatPackageSize(sizeBytes: string | undefined): string {
+  const bytes = Number(sizeBytes);
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return '';
+  }
+  return bytes >= MEBIBYTE ? `${(bytes / MEBIBYTE).toFixed(1)} MiB` : `${Math.round(bytes / 1024)} KiB`;
+}
 
 function createDefaultServices(): AgentCreationServices {
   return {
@@ -72,11 +88,22 @@ function createDefaultServices(): AgentCreationServices {
   };
 }
 
+function draftFromExistingAgent(agent: AgentConfig): AgentBasicsDraft {
+  return {
+    name: agent.name,
+    description: agent.description,
+    categoryId: agent.categoryId ?? '',
+    agentKind: agent.agentKind ?? 'conversation',
+    runtimeEngine: agent.runtimeEngine,
+  };
+}
+
 /**
- * Reusable agent creation flow: basic information first, then the step that
- * matches the delivery shape.
+ * Reusable agent creation and local-agent reconfigure flow.
  *
- * - `local-execution`: upload the zip installation archive in place; no editor.
+ * - `local-execution`: basic information, then the zip installation archive.
+ *   With `existingAgent`, the basics are updated and the package can be
+ *   replaced or kept; the conversation editor is never opened.
  * - `conversation`: hand the created record to the host's editor page.
  *
  * The component owns the steps and persistence order, and takes its transport
@@ -88,29 +115,35 @@ export function AgentCreationFlow({
   onClose,
   onCompleted,
   onContinueToEditor,
+  existingAgent,
   initialDraft,
   categories,
   localEngines,
   services,
   baseConfig = DEFAULT_BASE_CONFIG,
-  title = '创建智能体',
+  title,
 }: AgentCreationFlowProps) {
-  const [step, setStep] = useState<CreationStep>('basics');
+  const [step, setStep] = useState<FlowStep>('basics');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [createdAgent, setCreatedAgent] = useState<AgentConfig | null>(null);
+  const [agentRecord, setAgentRecord] = useState<AgentConfig | null>(null);
   const [draft, setDraft] = useState<AgentBasicsDraft | null>(null);
 
+  const editingId = existingAgent?.id;
   const resolvedServices = useMemo<AgentCreationServices>(
     () => ({ ...createDefaultServices(), ...services }),
     [services],
   );
+  const dialogDraft = useMemo<Partial<AgentBasicsDraft> | undefined>(() => {
+    const base = existingAgent ? draftFromExistingAgent(existingAgent) : undefined;
+    return base || initialDraft ? { ...base, ...initialDraft } : undefined;
+  }, [existingAgent, initialDraft]);
 
   const reset = (): void => {
     setStep('basics');
     setBusy(false);
     setError('');
-    setCreatedAgent(null);
+    setAgentRecord(null);
     setDraft(null);
   };
 
@@ -123,9 +156,9 @@ export function AgentCreationFlow({
     reset();
     if (onCompleted) {
       onCompleted(agent);
-    } else {
-      toast(`智能体「${agent.name}」创建成功`, 'success');
+      return;
     }
+    toast(`智能体「${agent.name}」已保存`, 'success');
   };
 
   const handleBasicsSubmit = async (
@@ -135,35 +168,53 @@ export function AgentCreationFlow({
     setBusy(true);
     setError('');
     try {
-      const created = await resolvedServices.createAgent(
-        buildAgentConfigFromBasics(nextDraft, baseConfig),
-      );
-      if (!created.id) {
-        throw new Error('Created agent id is required');
+      let agent: AgentConfig;
+      if (editingId) {
+        agent = await resolvedServices.updateAgent(
+          editingId,
+          buildAgentConfigFromBasics(nextDraft, baseConfig, {
+            // Reconfiguring a local agent must not reset an uploaded archive to
+            // the catalog reference; step two decides whether to replace it.
+            includeLocalArchive: false,
+          }),
+        );
+      } else {
+        const created = await resolvedServices.createAgent(
+          buildAgentConfigFromBasics(nextDraft, baseConfig),
+        );
+        if (!created.id) {
+          throw new Error('Created agent id is required');
+        }
+        agent = created;
       }
-      let agent = created;
+      if (!agent.id) {
+        throw new Error('Agent id is required');
+      }
       if (avatar.hasPending) {
-        const avatarUri = await avatar.uploadPending(created.id);
+        const avatarUri = await avatar.uploadPending(agent.id);
         if (avatarUri) {
-          agent = await resolvedServices.updateAgent(created.id, { avatar: avatarUri });
+          agent = await resolvedServices.updateAgent(agent.id, { avatar: avatarUri });
         }
       }
       if (requiresPackageUpload(nextDraft)) {
         setDraft(nextDraft);
-        setCreatedAgent(agent);
+        setAgentRecord(agent);
         setStep('package');
         return;
       }
-      const continueToEditor = onContinueToEditor;
-      if (continueToEditor) {
+      if (onContinueToEditor) {
         reset();
-        continueToEditor(agent);
+        onContinueToEditor(agent);
         return;
       }
       finish(agent);
     } catch (submitError) {
-      console.error('Agent creation failed', submitError);
-      setError('创建智能体失败，请检查服务连接后重试');
+      console.error('Agent save failed', submitError);
+      setError(
+        editingId
+          ? '保存智能体失败，请检查服务连接后重试'
+          : '创建智能体失败，请检查服务连接后重试',
+      );
     } finally {
       setBusy(false);
     }
@@ -172,18 +223,18 @@ export function AgentCreationFlow({
   const handleArchiveUploaded = async (
     distribution: AgentArchiveDistribution,
   ): Promise<void> => {
-    if (!createdAgent?.id) {
+    if (!agentRecord?.id) {
       return;
     }
     setBusy(true);
     setError('');
     try {
-      const engine = draft?.runtimeEngine;
+      const engine = draft?.runtimeEngine ?? agentRecord.runtimeEngine;
       // Keep the catalog archive identity and entrypoint of the chosen engine;
       // the upload only contributes the stable Drive locator and integrity
       // evidence.
       const base = buildLocalArchiveDistribution(engine);
-      const updated = await resolvedServices.updateAgent(createdAgent.id, {
+      const updated = await resolvedServices.updateAgent(agentRecord.id, {
         distribution: {
           ...base,
           driveUri: distribution.driveUri,
@@ -206,12 +257,20 @@ export function AgentCreationFlow({
   }
 
   if (step === 'package') {
+    const distribution =
+      agentRecord?.distribution?.kind === 'archive' ? agentRecord.distribution : null;
+    const packageLabel = distribution?.fileName
+      ?? distribution?.archiveRef
+      ?? '目录安装包';
+    const packageSize = formatPackageSize(distribution?.sizeBytes);
+    const isUploaded = Boolean(distribution?.driveUri);
+    const driveUri = distribution?.driveUri ?? '';
     return (
       <>
         <ModalWrapper
           isOpen={open}
           onClose={close}
-          title={`上传「${createdAgent?.name ?? draft?.name ?? ''}」安装包`}
+          title={`${editingId ? '更新' : '上传'}「${agentRecord?.name ?? draft?.name ?? ''}」安装包`}
           width="w-[520px]"
           footer={null}
         >
@@ -220,29 +279,86 @@ export function AgentCreationFlow({
               本地执行智能体以 zip 安装包分发。上传后平台会登记 Drive 定位与 SHA-256
               校验和，Harness 运行时安装时据此校验完整性。
             </p>
+
+            {distribution ? (
+              <div className="rounded-lg bg-slate-900/[0.04] dark:bg-white/[0.04] p-3 text-[12px] leading-relaxed text-slate-600 dark:text-gray-300">
+                <div className="font-medium text-slate-800 dark:text-gray-100">当前安装包</div>
+                <div className="mt-1 break-all">
+                  {packageLabel}
+                  {packageSize ? ` · ${packageSize}` : ''}
+                  {isUploaded ? ' · 已上传' : ' · 目录引用（未上传）'}
+                </div>
+                {distribution.checksum ? (
+                  <div className="mt-1 font-mono text-[10px] text-slate-500 dark:text-gray-500 break-all">
+                    sha256:{distribution.checksum}
+                  </div>
+                ) : null}
+                {driveUri ? (
+                  <button
+                    className="mt-2 text-[11px] font-medium text-[#165DFF] hover:text-[#4080FF] dark:text-[#6ea8ff]"
+                    onClick={() => {
+                      void agentsDriveUploadService
+                        .resolvePreviewUrl(driveUri)
+                        .then((url) => window.open(url, '_blank', 'noopener,noreferrer'))
+                        .catch((downloadError) => {
+                          console.error('Failed to resolve the agent package download URL', downloadError);
+                          toast('安装包下载地址获取失败，请稍后重试', 'error');
+                        });
+                    }}
+                    type="button"
+                  >
+                    下载当前安装包
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+
             <AgentPackageUpload
               disabled={busy}
-              onUploaded={(distribution) => void handleArchiveUploaded(distribution)}
+              onUploaded={(next) => void handleArchiveUploaded(next)}
+              submitLabel={editingId ? '上传并更新' : '上传并完成创建'}
               upload={(file, onProgress) =>
                 resolvedServices.uploadPackage({
                   file,
-                  agentId: createdAgent?.id ?? '',
+                  agentId: agentRecord?.id ?? '',
                   onProgress,
                 })
               }
             />
+
             {error ? (
               <div className="rounded bg-amber-500/5 p-2.5 text-[12px] leading-relaxed text-amber-600 dark:text-amber-400">
                 {error}
               </div>
             ) : null}
-            <button
-              className="text-[12px] text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200"
-              onClick={close}
-              type="button"
-            >
-              稍后上传，保留为草稿
-            </button>
+
+            <div className="flex items-center justify-between gap-3">
+              {editingId && distribution ? (
+                <button
+                  className="text-[12px] text-[#165DFF] hover:text-[#4080FF] dark:text-[#6ea8ff]"
+                  disabled={busy}
+                  onClick={() => {
+                    if (agentRecord) {
+                      finish(agentRecord);
+                    }
+                  }}
+                  type="button"
+                >
+                  保留当前安装包，完成
+                </button>
+              ) : (
+                <span />
+              )}
+              {editingId ? null : (
+                <button
+                  className="text-[12px] text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  onClick={close}
+                  type="button"
+                >
+                  稍后上传，保留为草稿
+                </button>
+              )}
+            </div>
           </div>
         </ModalWrapper>
         <ToastContainer />
@@ -255,14 +371,14 @@ export function AgentCreationFlow({
       <AgentBasicInfoDialog
         categories={categories}
         errorMessage={error}
+        initialDraft={dialogDraft}
         localEngines={localEngines}
         onClose={close}
         onSubmit={(nextDraft, avatar) => void handleBasicsSubmit(nextDraft, avatar)}
         open={open}
         submitLabel="下一步"
         submitting={busy}
-        title={title}
-        initialDraft={initialDraft}
+        title={title ?? (editingId ? '更新本地智能体' : '创建智能体')}
       />
       <ToastContainer />
     </>

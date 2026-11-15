@@ -164,7 +164,7 @@ const UPLOAD_POLICIES: Record<AgentsDriveUploadPurpose, UploadPolicy> = {
     appResourceType: AGENTS_AGENT_PACKAGE_UPLOAD.appResourceType,
     kind: "archive",
     maxBytes: 512 * MEBIBYTE,
-    profile: "attachment",
+    profile: "archive",
     scene: AGENTS_AGENT_PACKAGE_UPLOAD.scene,
   },
 };

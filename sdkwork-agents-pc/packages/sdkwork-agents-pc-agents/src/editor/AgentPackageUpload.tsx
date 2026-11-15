@@ -6,6 +6,8 @@ import type { AgentArchiveDistribution } from '../services/agentRuntimeCatalog';
 export interface AgentPackageUploadProps {
   /** Disables interaction while a parent transition is in flight. */
   disabled?: boolean;
+  /** Action label on the upload button; hosts pass a create or update verb. */
+  submitLabel?: string;
   /** Persists the archive for the created agent and returns its descriptor. */
   upload(file: File, onProgress: (ratio: number) => void): Promise<AgentArchiveDistribution>;
   onUploaded(distribution: AgentArchiveDistribution): void;
@@ -43,7 +45,12 @@ async function sha256Hex(file: File): Promise<string | null> {
  * composition is edited here. The component validates the format and size,
  * hashes the file, reports progress, and hands the descriptor to the flow.
  */
-export function AgentPackageUpload({ disabled = false, upload, onUploaded }: AgentPackageUploadProps) {
+export function AgentPackageUpload({
+  disabled = false,
+  submitLabel = '上传并完成创建',
+  upload,
+  onUploaded,
+}: AgentPackageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
@@ -147,7 +154,7 @@ export function AgentPackageUpload({ disabled = false, upload, onUploaded }: Age
         onClick={() => void start()}
         type="button"
       >
-        {busy || progress > 0 ? `上传中 ${Math.round(progress * 100)}%` : '上传并完成创建'}
+        {busy || progress > 0 ? `上传中 ${Math.round(progress * 100)}%` : submitLabel}
       </button>
     </div>
   );
