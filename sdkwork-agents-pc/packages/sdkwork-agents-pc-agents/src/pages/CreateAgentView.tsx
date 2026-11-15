@@ -1492,3 +1492,13 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
     </motion.div>
   );
 };
+
+/**
+ * Canonical name for the single agent detail editor.
+ *
+ * `CreateAgentView` is kept as the legacy alias because hosts already import
+ * it; both names render the same editor, used for creation and reconfiguration
+ * of conversation agents.
+ */
+export const AgentEditorView = CreateAgentView;
+export type AgentEditorViewProps = CreateAgentViewProps;

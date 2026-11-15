@@ -6,10 +6,11 @@ export {
   type AgentMarketCategoryId,
 } from "./pages/agentCatalog";
 export { AgentChatView } from "./pages/AgentChatView";
-export { CreateAgentView } from "./pages/CreateAgentView";
+export { CreateAgentView, AgentEditorView } from "./pages/CreateAgentView";
 export type {
   CreateAgentCapability,
   CreateAgentViewProps,
+  AgentEditorViewProps,
 } from "./pages/CreateAgentView";
 export { CreateAgentModal } from "./components/CreateAgentModal";
 export { AgentCreationFlow, type AgentCreationFlowProps } from "./editor/AgentCreationFlow";

@@ -265,6 +265,12 @@ export function AgentCreationFlow({
     const packageSize = formatPackageSize(distribution?.sizeBytes);
     const isUploaded = Boolean(distribution?.driveUri);
     const driveUri = distribution?.driveUri ?? '';
+    const engineChanged = Boolean(
+      editingId
+      && existingAgent?.runtimeEngine
+      && agentRecord?.runtimeEngine
+      && existingAgent.runtimeEngine !== agentRecord.runtimeEngine,
+    );
     return (
       <>
         <ModalWrapper
@@ -278,6 +284,9 @@ export function AgentCreationFlow({
             <p className="text-[12px] leading-relaxed text-slate-500 dark:text-gray-400">
               本地执行智能体以 zip 安装包分发。上传后平台会登记 Drive 定位与 SHA-256
               校验和，Harness 运行时安装时据此校验完整性。
+              {editingId
+                ? ''
+                : '创建后保持草稿状态，安装与启用由本地 Harness 客户端完成。'}
             </p>
 
             {distribution ? (
@@ -326,6 +335,12 @@ export function AgentCreationFlow({
               }
             />
 
+            {engineChanged ? (
+              <div className="rounded bg-amber-500/5 p-2.5 text-[12px] leading-relaxed text-amber-600 dark:text-amber-400">
+                运行引擎已变更，请上传与新引擎匹配的安装包；当前安装包不能继续沿用。
+              </div>
+            ) : null}
+
             {error ? (
               <div className="rounded bg-amber-500/5 p-2.5 text-[12px] leading-relaxed text-amber-600 dark:text-amber-400">
                 {error}
@@ -333,7 +348,7 @@ export function AgentCreationFlow({
             ) : null}
 
             <div className="flex items-center justify-between gap-3">
-              {editingId && distribution ? (
+              {editingId && distribution && !engineChanged ? (
                 <button
                   className="text-[12px] text-[#165DFF] hover:text-[#4080FF] dark:text-[#6ea8ff]"
                   disabled={busy}
@@ -371,6 +386,7 @@ export function AgentCreationFlow({
       <AgentBasicInfoDialog
         categories={categories}
         errorMessage={error}
+        initialAvatar={existingAgent?.avatar}
         initialDraft={dialogDraft}
         localEngines={localEngines}
         onClose={close}

@@ -45,8 +45,9 @@ export {
   type AgentRuntimeDescriptor,
   type LocalAgentEngine,
 } from '../services/agentRuntimeCatalog';
-export { CreateAgentView } from '../pages/CreateAgentView';
+export { CreateAgentView, AgentEditorView } from '../pages/CreateAgentView';
 export type {
   CreateAgentCapability,
   CreateAgentViewProps,
+  AgentEditorViewProps,
 } from '../pages/CreateAgentView';

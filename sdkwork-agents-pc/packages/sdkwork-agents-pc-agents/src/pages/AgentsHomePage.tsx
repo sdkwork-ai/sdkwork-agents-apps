@@ -10,10 +10,8 @@ import {
   Sparkles,
   Trash2,
   Users,
-  X,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DEFAULT_AGENT_CONFIG } from '../components/AgentDefaults';
 import { ToastContainer } from '../components/Toast';
 import { AgentCreationFlow } from '../editor/AgentCreationFlow';
 import { agentKindLabel } from '../editor/agentCreationModel';
@@ -57,115 +55,13 @@ const KIND_FILTERS = [
   { id: 'local-execution', label: '本地执行智能体' },
 ] as const;
 
-interface AgentCreateDialogProps {
-  agent?: AgentConfig;
-  onClose: () => void;
-  onSaved: () => void;
-  open: boolean;
-}
-
-function AgentCreateDialog({ agent, onClose, onSaved, open }: AgentCreateDialogProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [type, setType] = useState<AgentConfig['type']>('normal');
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState<string>();
-
-  useEffect(() => {
-    setName(agent?.name ?? '');
-    setDescription(agent?.description ?? '');
-    setType(agent?.type ?? 'normal');
-    setError(undefined);
-  }, [agent, open]);
-
-  if (!open) {
-    return null;
-  }
-
-  const saveAgent = async () => {
-    if (!name.trim()) {
-      return;
-    }
-
-    setCreating(true);
-    setError(undefined);
-    try {
-      if (agent?.id) {
-        await agentService.updateAgent(agent.id, {
-          description: description.trim(),
-          name: name.trim(),
-          type,
-        });
-      } else {
-        await agentService.createAgent({
-          ...DEFAULT_AGENT_CONFIG,
-          description: description.trim(),
-          name: name.trim(),
-          type,
-        });
-      }
-      onSaved();
-    } catch (saveError) {
-      console.error('Failed to save agent.', saveError);
-      setError('保存 Agent 失败，请检查服务连接后重试。');
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
-      <div aria-labelledby="create-agent-title" aria-modal="true" className="w-full max-w-lg overflow-hidden rounded-2xl bg-white dark:bg-[#1b1b1e]" onMouseDown={(event) => event.stopPropagation()} role="dialog">
-        <div className="flex items-center justify-between px-6 py-5">
-          <div>
-            <h2 className="font-semibold text-slate-900 dark:text-zinc-100" id="create-agent-title">{agent ? '编辑 Agent' : '创建 Agent'}</h2>
-            <p className="mt-1 text-xs text-slate-500 dark:text-zinc-500">{agent ? '更新 Agent 的基础配置。' : '建立可复用的 Agent 基础配置。'}</p>
-          </div>
-          <button aria-label="关闭" className="rounded-lg p-2 text-slate-500 dark:text-zinc-500 transition hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white" onClick={onClose} type="button">
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="space-y-5 px-6 py-6">
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-zinc-300">名称</span>
-              <input autoFocus className="w-full rounded-xl bg-slate-100 dark:bg-black/20 px-4 py-3 text-sm text-slate-900 dark:text-zinc-100 outline-none placeholder:text-slate-400 dark:placeholder:text-zinc-700" onChange={(event) => setName(event.target.value)} placeholder="例如：产品研究助手" value={name} />
-          </label>
-
-          <div>
-            <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-zinc-300">运行类型</span>
-            <div className="grid grid-cols-2 gap-3">
-              {([
-                { id: 'normal', icon: Bot, label: '普通 Agent', description: '在当前工作区中运行' },
-                { id: 'independent', icon: Server, label: '独立 Agent', description: '使用独立运行环境' },
-              ] as const).map(({ id, icon: Icon, label, description: typeDescription }) => (
-                <button className={`rounded-xl p-4 text-left transition ${type === id ? 'bg-[#4080FF]/[0.08]' : 'bg-black/10'}`} key={id} onClick={() => setType(id)} type="button">
-                  <Icon className={type === id ? 'text-[#4080FF]' : 'text-slate-500 dark:text-zinc-500'} size={19} />
-                  <span className="mt-3 block text-sm font-medium text-slate-800 dark:text-zinc-200">{label}</span>
-                  <span className="mt-1 block text-xs text-slate-400 dark:text-zinc-600">{typeDescription}</span>
-                </button>
-              ))}
-            </div>
-            </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-zinc-300">简介</span>
-              <textarea className="h-24 w-full resize-none rounded-xl bg-slate-100 dark:bg-black/20 px-4 py-3 text-sm text-slate-900 dark:text-zinc-100 outline-none placeholder:text-slate-400 dark:placeholder:text-zinc-700" onChange={(event) => setDescription(event.target.value)} placeholder="描述这个 Agent 擅长解决的问题" value={description} />
-          </label>
-
-          {error && <p className="text-sm text-rose-300">{error}</p>}
-        </div>
-
-          <div className="flex justify-end gap-3 bg-black/10 px-6 py-4">
-          <button className="rounded-xl px-4 py-2.5 text-sm text-slate-500 dark:text-zinc-400 transition hover:bg-slate-900/[0.05] dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-white" onClick={onClose} type="button">取消</button>
-            <button className="rounded-xl bg-[#165DFF] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#4080FF] active:bg-[#0E42D2] disabled:cursor-not-allowed disabled:opacity-50" disabled={!name.trim() || creating} onClick={() => void saveAgent()} type="button">
-            {creating ? '保存中…' : '保存'}
-          </button>
-        </div>
-        </div>
-        </div>
-  );
-}
+const AGENT_STATUS_LABELS: Record<string, string> = {
+  draft: '草稿',
+  active: '已启用',
+  disabled: '已停用',
+  archived: '已归档',
+  deleted: '已删除',
+};
 
 function AgentAvatar({ agent, index }: { agent: AgentConfig; index: number }) {
   if (agent.avatar) {
@@ -219,7 +115,6 @@ export function AgentsHomePage({
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string>();
-  const [editingAgent, setEditingAgent] = useState<AgentConfig>();
   const [creationOpen, setCreationOpen] = useState(false);
   const [flowAgent, setFlowAgent] = useState<AgentConfig>();
   const [inlineEditorAgentId, setInlineEditorAgentId] = useState<string>();
@@ -352,13 +247,16 @@ export function AgentsHomePage({
       return;
     }
     // A local agent's definition is its archive: it is reconfigured by the
-    // package flow instead of the prompt/model editor.
+    // package flow instead of the prompt/model editor. Conversation agents open
+    // the same editor page the console uses.
     if (agent.agentKind === 'local-execution') {
       setFlowAgent(agent);
       setCreationOpen(true);
       return;
     }
-    setEditingAgent(agent);
+    if (agent.id) {
+      setInlineEditorAgentId(agent.id);
+    }
   }, [onEditRequest]);
 
   /**
@@ -549,6 +447,11 @@ export function AgentsHomePage({
                         {agent.runtimeEngine} · zip
                       </span>
                     ) : null}
+                    {agent.status && agent.status !== 'active' ? (
+                      <span className="rounded-full bg-amber-500/[0.14] px-2 py-0.5 text-amber-600 dark:text-amber-400">
+                        {AGENT_STATUS_LABELS[agent.status] ?? agent.status}
+                      </span>
+                    ) : null}
                   </div>
                   <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-slate-500 dark:text-zinc-500">{agent.description || '尚未添加描述'}</p>
                     <div className="mt-4 flex items-center justify-between pt-4 text-xs text-slate-400 dark:text-zinc-600">
@@ -576,19 +479,6 @@ export function AgentsHomePage({
           )}
         </main>
       </div>
-
-      <AgentCreateDialog
-        agent={editingAgent}
-        open={Boolean(editingAgent)}
-        onClose={() => {
-          setEditingAgent(undefined);
-        }}
-        onSaved={() => {
-          setEditingAgent(undefined);
-          setScope('mine');
-          void loadPage(1, false);
-        }}
-      />
 
       <AgentCreationFlow
         existingAgent={flowAgent}

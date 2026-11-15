@@ -61,6 +61,12 @@ export interface AgentConfig {
    * runtime. Manifest authority: `manifest.agent_kind`.
    */
   agentKind?: AgentKind;
+  /** Server lifecycle status (`draft`, `active`, `disabled`, `archived`). */
+  status?: string;
+  /** Server implementation type (`rig-rust`, `sdkwork-native`, `custom`, ...). */
+  implementationType?: string;
+  /** Server implementation kind (`typed-local-provider`, `process-adapter`, ...). */
+  implementationKind?: string;
   /** Runtime family (`rig` for hosted agents, `harness` for local agents). */
   runtimeFamily?: string;
   /** Concrete runtime engine (for example `rig`, `openclaw`, `workbuddy`). */
@@ -519,6 +525,9 @@ function normalizeAgentFromAgentRecord(record: AgentRecord): AgentConfig {
     iconName: asString(uiConfig.iconName),
     categoryId,
     agentKind,
+    status: asString(record.status),
+    implementationType: asString(record.implementationType),
+    implementationKind: asString(record.implementationKind),
     executionRoute:
       asExecutionRoute(uiConfig.executionRoute)
       ?? (agentKind === 'local-execution' ? 'host' : undefined),
@@ -700,19 +709,61 @@ function mergeAgentConfig(
   };
 }
 
-function buildDefaultProviderBindingRequest(): CreateAgentProviderBindingRequest {
+interface ProviderBindingIdentity {
+  bindingId: string;
+  providerId: string;
+  implementationKind: 'typed-local-provider' | 'process-adapter' | 'protocol-adapter' | 'manifest-only';
+  configurationProfileId: string;
+}
+
+/**
+ * Picks the provider binding that matches the agent's implementation.
+ *
+ * A Rig agent must not be published with the legacy manifest-only provider:
+ * binding identity and implementation evidence would disagree, which breaks
+ * runtime resolution and audit. Local agents bind to the Harness provider.
+ */
+function resolveProviderBindingIdentity(config: AgentConfig): ProviderBindingIdentity {
+  if (config.agentKind === 'local-execution') {
+    const engine = findLocalAgentEngine(config.runtimeEngine);
+    return {
+      bindingId: 'binding.harness.default',
+      providerId: HARNESS_RUNTIME_PROVIDER_ID,
+      implementationKind: engine.implementationKind,
+      configurationProfileId: 'profile.harness.default',
+    };
+  }
+  if (config.implementationType === 'rig-rust') {
+    return {
+      bindingId: 'binding.rig.default',
+      providerId: 'provider.rig.rust',
+      implementationKind: 'typed-local-provider',
+      configurationProfileId: 'profile.rig.default',
+    };
+  }
   return {
     bindingId: DEFAULT_AGENT_BINDING_ID,
     providerId: DEFAULT_AGENT_PROVIDER_ID,
     implementationKind: 'manifest-only',
     configurationProfileId: DEFAULT_AGENT_CONFIGURATION_PROFILE_ID,
+  };
+}
+
+function buildProviderBindingRequest(
+  identity: ProviderBindingIdentity,
+): CreateAgentProviderBindingRequest {
+  return {
+    bindingId: identity.bindingId,
+    providerId: identity.providerId,
+    implementationKind: identity.implementationKind,
+    configurationProfileId: identity.configurationProfileId,
     capabilities: [...DEFAULT_AGENT_PROVIDER_CAPABILITIES],
     makeDefault: true,
     requestedAt: new Date().toISOString(),
   };
 }
 
-function isExistingProviderBindingConflict(error: unknown): boolean {
+function isExistingProviderBindingConflict(error: unknown, bindingId: string): boolean {
   if (!isRecord(error)) {
     return false;
   }
@@ -744,7 +795,7 @@ function isExistingProviderBindingConflict(error: unknown): boolean {
   const referencesProviderBinding =
     normalizedText.includes('provider binding') ||
     normalizedText.includes('provider_binding') ||
-    normalizedText.includes(DEFAULT_AGENT_BINDING_ID);
+    normalizedText.includes(bindingId);
 
   if (referencesProviderBinding && (normalizedText.includes('already exists') || normalizedText.includes('cannot be created again'))) {
     return true;
@@ -988,13 +1039,18 @@ class SdkworkAgentService implements AgentService {
   }
 
   async publishAgent(id: string): Promise<void> {
+    const agent = await this.getAgent(id);
+    if (!agent) {
+      throw new Error(`Agent ${id} is not available for publishing`);
+    }
+    const identity = resolveProviderBindingIdentity(agent);
     try {
       await this.getAgentClient().ai.agents.providerBindings.create(
         id,
-        buildDefaultProviderBindingRequest(),
+        buildProviderBindingRequest(identity),
       );
     } catch (error) {
-      if (!isExistingProviderBindingConflict(error)) {
+      if (!isExistingProviderBindingConflict(error, identity.bindingId)) {
         throw error;
       }
     }

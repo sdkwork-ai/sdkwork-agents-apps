@@ -199,6 +199,9 @@ describe('creation surface ownership', () => {
     assert.match(service, /category_code/);
     assert.match(service, /provider\.rig\.rust/);
     assert.match(service, /HARNESS_RUNTIME_PROVIDER_ID/);
+    assert.match(service, /binding\.rig\.default/);
+    assert.match(service, /binding\.harness\.default/);
+    assert.match(service, /resolveProviderBindingIdentity/);
     assert.match(service, /distribution/);
   });
 

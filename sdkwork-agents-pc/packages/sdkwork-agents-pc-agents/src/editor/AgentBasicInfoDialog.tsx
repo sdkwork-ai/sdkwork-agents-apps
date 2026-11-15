@@ -1,11 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Bot, Package } from 'lucide-react';
 import {
   DriveUploadImage,
   useDriveUploadImageController,
   useDriveUploadImageSnapshot,
 } from 'sdkwork-drive-pc-upload-image';
-import { createAgentAvatarUploadImageService } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
+import type { DriveUploadImageValue } from '@sdkwork/drive-upload-image-core';
+import {
+  agentsDriveUploadService,
+  createAgentAvatarUploadImageService,
+} from '@sdkwork/agents-pc-core/sdk/driveUploadService';
 
 import { ModalWrapper } from '../components/ModalWrapper';
 import {
@@ -37,6 +41,8 @@ export interface AgentBasicInfoDialogProps {
   onClose(): void;
   /** Pre-fills the dialog; used when a host reopens creation. */
   initialDraft?: Partial<AgentBasicsDraft>;
+  /** Persisted avatar of the agent being reconfigured (`drive://` or legacy URL). */
+  initialAvatar?: string;
   /** Professional category tree; defaults to the seeded taxonomy. */
   categories?: readonly AgentCategoryNode[];
   /** Local harness engines; defaults to the platform engine catalog. */
@@ -59,6 +65,7 @@ export function AgentBasicInfoDialog({
   open,
   onClose,
   initialDraft,
+  initialAvatar = '',
   categories = AGENT_CATEGORY_TAXONOMY,
   localEngines = LOCAL_AGENT_ENGINES,
   title = '创建智能体',
@@ -73,6 +80,9 @@ export function AgentBasicInfoDialog({
   const [agentKind, setAgentKind] = useState<AgentBasicsDraft['agentKind']>('conversation');
   const [runtimeEngine, setRuntimeEngine] = useState<string>(DEFAULT_LOCAL_AGENT_ENGINE_ID);
   const [validationError, setValidationError] = useState('');
+  const [avatarValue, setAvatarValue] = useState<DriveUploadImageValue | null>(null);
+  /** A preview resolution must never overwrite a pick the user just made. */
+  const avatarTouchedRef = useRef(false);
 
   const avatarService = useMemo(() => createAgentAvatarUploadImageService(), []);
   const avatarController = useDriveUploadImageController({
@@ -94,11 +104,44 @@ export function AgentBasicInfoDialog({
     setAgentKind(next.agentKind);
     setRuntimeEngine(next.runtimeEngine ?? DEFAULT_LOCAL_AGENT_ENGINE_ID);
     setValidationError('');
+    avatarTouchedRef.current = false;
     avatarController.clear();
     // The avatar controller is stable for the dialog lifetime; re-running on
     // open is what discards a previous session's pending pick.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, initialAvatar]);
+
+  /**
+   * `drive://` avatars are locators, not image URLs. Resolve a short-lived
+   * preview for the picker; the persisted value stays untouched because the
+   * dialog only writes an avatar that the user picks in this session.
+   */
+  useEffect(() => {
+    if (!open || !initialAvatar) {
+      setAvatarValue(null);
+      return undefined;
+    }
+    if (!initialAvatar.startsWith('drive://')) {
+      setAvatarValue({ uri: initialAvatar, source: 'external' });
+      return undefined;
+    }
+    let cancelled = false;
+    void agentsDriveUploadService
+      .resolvePreviewUrl(initialAvatar)
+      .then((url) => {
+        if (!cancelled && !avatarTouchedRef.current) {
+          setAvatarValue({ uri: url, source: 'external' });
+        }
+      })
+      .catch(() => {
+        if (!cancelled && !avatarTouchedRef.current) {
+          setAvatarValue(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, initialAvatar]);
 
   if (!open) {
     return null;
@@ -126,7 +169,7 @@ export function AgentBasicInfoDialog({
         runtimeEngine: isLocal ? runtimeEngine : undefined,
       },
       {
-        uri: '',
+        uri: avatarValue?.uri ?? '',
         hasPending: avatarSnapshot.hasPending,
         uploadPending: async (agentId: string) => {
           const values = await avatarController.uploadPending({ appResourceId: agentId });
@@ -167,9 +210,14 @@ export function AgentBasicInfoDialog({
           <DriveUploadImage
             controller={avatarController}
             copy={AVATAR_UPLOAD_COPY}
+            onChange={(value) => {
+              avatarTouchedRef.current = true;
+              setAvatarValue(value);
+            }}
             service={avatarService}
             shape="circle"
             sizePx={76}
+            value={avatarValue}
           />
         </div>
 
