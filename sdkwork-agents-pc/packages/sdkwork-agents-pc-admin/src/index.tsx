@@ -23,6 +23,7 @@ import {
   restoreManagedAgent,
   updateManagedAgent,
   updateManagedAgentStatus,
+  type AgentListFilters,
 } from './agentsAdminService.ts';
 import { useAgentAdminCopy, type AgentAdminCopy } from './agentAdminCopy.ts';
 import { AgentCategorySelect } from './components/AgentCategorySelect.tsx';
@@ -93,6 +94,21 @@ function agentVisibilityLabel(copy: AgentAdminCopy, visibility: AgentRecord['vis
   return labels[visibility] ?? visibility;
 }
 
+/** Data-scope selector of the catalog list; `mine` = the operator's roles. */
+type RoleScope = 'all' | 'mine';
+
+export interface AgentsAdminPageProps {
+  /**
+   * IAM role codes of the signed-in operator, supplied by the composing host.
+   *
+   * The page offers the catalog's role-scope switch with them: `All data`
+   * lists the whole tenant catalog, `My roles` keeps the agents this operator
+   * can reach. Without role codes the switch stays on `All data`, because a
+   * scope the host cannot name would silently empty the table.
+   */
+  roleCodes?: readonly string[];
+}
+
 /**
  * Cloud Router admin-console surface for managed agents, owned by
  * sdkwork-agents and consumed cross-repo through the backend-api surface
@@ -101,7 +117,7 @@ function agentVisibilityLabel(copy: AgentAdminCopy, visibility: AgentRecord['vis
  * The host must bind `configureAgentsAdminRuntime({ getBackendSdkClient })`
  * before this page renders; the block never constructs transport itself.
  */
-export function AgentsAdminPage() {
+export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
   const copy = useAgentAdminCopy();
   const [records, setRecords] = useState<AgentRecord[]>([]);
   const [categories, setCategories] = useState<AgentCategoryRecord[]>([]);
@@ -111,6 +127,23 @@ export function AgentsAdminPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<AgentRecord | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const [keyword, setKeyword] = useState('');
+  const [categoryCode, setCategoryCode] = useState('');
+  const [roleScope, setRoleScope] = useState<RoleScope>('all');
+
+  const usableRoleCodes = useMemo(
+    () => roleCodes.map((code) => trim(code)).filter((code) => !isBlank(code)),
+    [roleCodes],
+  );
+  const roleScopeCodes = roleScope === 'mine' ? [...usableRoleCodes].sort().join(',') : '';
+  const listFilters = useMemo<AgentListFilters>(
+    () => ({
+      ...(isBlank(trim(keyword)) ? {} : { q: trim(keyword) }),
+      ...(isBlank(trim(categoryCode)) ? {} : { categoryCode: trim(categoryCode) }),
+      ...(isBlank(roleScopeCodes) ? {} : { roleCodes: roleScopeCodes }),
+    }),
+    [keyword, categoryCode, roleScopeCodes],
+  );
 
   const reload = useCallback(() => {
     setReloadToken((token) => token + 1);
@@ -119,7 +152,7 @@ export function AgentsAdminPage() {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    listManagedAgents()
+    listManagedAgents(listFilters)
       .then((page) => {
         if (!active) return;
         setRecords(page.items);
@@ -135,7 +168,7 @@ export function AgentsAdminPage() {
     return () => {
       active = false;
     };
-  }, [reloadToken]);
+  }, [reloadToken, listFilters]);
 
   useEffect(() => {
     let active = true;
@@ -203,6 +236,71 @@ export function AgentsAdminPage() {
           {notice}
         </div>
       ) : null}
+
+      {/* Catalog filters: keyword, category, and the operator's role scope.
+          They narrow the list endpoint itself, so the totals and the visible
+          rows agree, and the four AI-foundation catalogs read consistently. */}
+      <div className="mb-4 flex flex-wrap items-end gap-4">
+        <label className="grid max-w-xs gap-1 text-sm">
+          <span className={LABEL_TEXT_CLASS}>{copy.filters.keywordLabel}</span>
+          <input
+            className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            placeholder={copy.filters.keywordPlaceholder}
+          />
+        </label>
+        <label className="grid gap-1 text-sm">
+          <span className={LABEL_TEXT_CLASS}>{copy.filters.categoryLabel}</span>
+          <select
+            className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+            value={categoryCode}
+            onChange={(event) => setCategoryCode(event.target.value)}
+          >
+            <option value="">{copy.filters.allCategories}</option>
+            {categories
+              .filter((category) => category.lifecycleStatus === 'active')
+              .slice()
+              .sort((left, right) => left.sortOrder - right.sortOrder)
+              .map((category) => (
+                <option key={category.categoryCode} value={category.categoryCode}>
+                  {category.name}
+                </option>
+              ))}
+          </select>
+        </label>
+        <div className="grid gap-1 text-sm">
+          <span className={LABEL_TEXT_CLASS}>{copy.filters.roleScopeLabel}</span>
+          <div
+            className="inline-flex overflow-hidden rounded border border-slate-300 dark:border-zinc-700"
+            role="group"
+            aria-label={copy.filters.roleScopeLabel}
+          >
+            {(['all', 'mine'] as const).map((scope) => {
+              const disabled = scope === 'mine' && usableRoleCodes.length === 0;
+              return (
+                <button
+                  key={scope}
+                  type="button"
+                  className={
+                    roleScope === scope
+                      ? 'bg-blue-600 px-3 py-1 text-xs font-medium text-white'
+                      : 'px-3 py-1 text-xs text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                  }
+                  aria-pressed={roleScope === scope}
+                  disabled={disabled}
+                  title={disabled ? copy.filters.roleScopeUnavailable : undefined}
+                  onClick={() => setRoleScope(scope)}
+                >
+                  {scope === 'all'
+                    ? copy.filters.roleScopeAll
+                    : copy.filters.roleScopeMine}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
       <div className="data-surface">
         <div className="table-frame">

@@ -19,6 +19,20 @@ export type AgentsAdminListParams = Parameters<
   SdkworkBackendClient['ai']['agents']['list']
 >[0];
 
+/**
+ * Catalog filters of the managed-agent list page.
+ *
+ * The three filters narrow the `ai.agents.list` request itself — keyword →
+ * `q`, category → `categoryCode`, role scope → `roleCodes` (a sorted,
+ * comma-joined list of the operator's own IAM role codes). Nothing is filtered
+ * client-side after the page loads, so the visible rows and the endpoint's page
+ * metadata always describe the same set.
+ *
+ * The generated client spells the two scope fields `categoryCode` / `roleCodes`
+ * and serializes them as the `category_code` / `role_codes` query parameters.
+ */
+export type AgentListFilters = NonNullable<AgentsAdminListParams>;
+
 /** List query parameters of the managed category catalog. */
 export type AgentCategoriesAdminListParams = Parameters<
   SdkworkBackendClient['ai']['agentCategories']['list']

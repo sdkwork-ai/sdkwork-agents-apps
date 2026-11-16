@@ -58,6 +58,16 @@ const en = {
   actions: {
     newAgent: 'New agent',
   },
+  filters: {
+    keywordLabel: 'Search agents',
+    keywordPlaceholder: 'name, code, category',
+    categoryLabel: 'Category',
+    allCategories: 'All categories',
+    roleScopeLabel: 'Data scope',
+    roleScopeAll: 'All data',
+    roleScopeMine: 'My roles',
+    roleScopeUnavailable: 'The host did not supply the operator role codes.',
+  },
   table: {
     agent: 'Agent',
     code: 'Code',
@@ -202,6 +212,16 @@ const zh: AgentAdminCopy = {
   },
   actions: {
     newAgent: '新建 Agent',
+  },
+  filters: {
+    keywordLabel: '搜索 Agent',
+    keywordPlaceholder: '名称、编码、分类',
+    categoryLabel: '分类',
+    allCategories: '全部分类',
+    roleScopeLabel: '数据范围',
+    roleScopeAll: '全部数据',
+    roleScopeMine: '我的角色',
+    roleScopeUnavailable: '宿主未提供当前操作者的角色编码。',
   },
   table: {
     agent: 'Agent',
