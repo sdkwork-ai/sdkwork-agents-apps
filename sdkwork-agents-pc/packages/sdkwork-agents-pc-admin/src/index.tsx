@@ -97,6 +97,29 @@ function agentVisibilityLabel(copy: AgentAdminCopy, visibility: AgentRecord['vis
 /** Data-scope selector of the catalog list; `mine` = the operator's roles. */
 type RoleScope = 'all' | 'mine';
 
+/**
+ * Active category options for the filter select.
+ *
+ * A category can be archived after it was selected; retaining the selected
+ * value as an option keeps the select from rendering blank while the agent
+ * list stays filtered by that code.
+ */
+function activeCategoryOptions(
+  categories: readonly AgentCategoryRecord[],
+  selected: string,
+): { value: string; label: string }[] {
+  const options = categories
+    .filter((category) => category.lifecycleStatus === 'active')
+    .slice()
+    .sort((left, right) => left.sortOrder - right.sortOrder)
+    .map((category) => ({ value: category.categoryCode, label: category.name }));
+  if (selected.length > 0 && !options.some((option) => option.value === selected)) {
+    const retained = categories.find((category) => category.categoryCode === selected);
+    options.push({ value: selected, label: retained?.name ?? selected });
+  }
+  return options;
+}
+
 export interface AgentsAdminPageProps {
   /**
    * IAM role codes of the signed-in operator, supplied by the composing host.
@@ -138,6 +161,10 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
   const roleScopeCodes = roleScope === 'mine' ? [...usableRoleCodes].sort().join(',') : '';
   const listFilters = useMemo<AgentListFilters>(
     () => ({
+      // The table renders the whole filtered list, so the request asks for the
+      // maximum page the backend serves (`MAX_LIST_PAGE_SIZE`); without it the
+      // default window would silently hide everything past the first 20 rows.
+      pageSize: 200,
       ...(isBlank(trim(keyword)) ? {} : { q: trim(keyword) }),
       ...(isBlank(trim(categoryCode)) ? {} : { categoryCode: trim(categoryCode) }),
       ...(isBlank(roleScopeCodes) ? {} : { roleCodes: roleScopeCodes }),
@@ -258,15 +285,11 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
             onChange={(event) => setCategoryCode(event.target.value)}
           >
             <option value="">{copy.filters.allCategories}</option>
-            {categories
-              .filter((category) => category.lifecycleStatus === 'active')
-              .slice()
-              .sort((left, right) => left.sortOrder - right.sortOrder)
-              .map((category) => (
-                <option key={category.categoryCode} value={category.categoryCode}>
-                  {category.name}
-                </option>
-              ))}
+            {activeCategoryOptions(categories, categoryCode).map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </label>
         <div className="grid gap-1 text-sm">
