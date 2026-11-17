@@ -567,9 +567,17 @@ function AgentEditorDrawer(props: AgentEditorDrawerProps) {
       delete mergedManifest.distribution;
     }
 
+    // Sending a profile object without `categoryId` is what tells the backend
+    // "the operator cleared the category". Keeping the stored profile (or
+    // omitting the profile entirely) would read as "leave the category alone",
+    // so a cleared selector would silently snap back to the previous value.
+    const baseProfile = record?.managementProfile;
     const managementProfile = categoryCode
-      ? { ...(record?.managementProfile ?? {}), categoryId: categoryCode }
-      : record?.managementProfile ?? undefined;
+      ? { ...(baseProfile ?? {}), categoryId: categoryCode }
+      : (() => {
+          const { categoryId: _cleared, ...rest } = baseProfile ?? {};
+          return rest;
+        })();
     const implementationKind = runtime.implementation_kind as
       | Parameters<typeof createManagedAgent>[0]['implementationKind']
       | undefined;
