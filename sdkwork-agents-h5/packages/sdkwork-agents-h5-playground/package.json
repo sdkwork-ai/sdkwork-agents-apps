@@ -15,5 +15,8 @@
     "@sdkwork/agents-h5-agents": "workspace:*",
     "@sdkwork/agents-h5-conversation": "workspace:*",
     "react": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:"
   }
 }
