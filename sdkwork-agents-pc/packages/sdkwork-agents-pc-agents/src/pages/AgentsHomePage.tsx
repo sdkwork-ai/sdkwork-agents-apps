@@ -10,12 +10,15 @@ import {
   Sparkles,
   Trash2,
   Users,
-  X,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { DEFAULT_AGENT_CONFIG } from '../components/AgentDefaults';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ToastContainer } from '../components/Toast';
+import { AgentCreationFlow } from '../editor/AgentCreationFlow';
+import { agentKindLabel } from '../editor/agentCreationModel';
 import { agentService, type AgentConfig } from '../services/AgentService';
+import { agentCategoryLabel } from '../services/agentTaxonomy';
+import type { AgentKind } from '../services/agentRuntimeCatalog';
+import { CreateAgentView } from './CreateAgentView';
 
 import {
   AGENT_MARKET_CATEGORIES,
@@ -46,115 +49,19 @@ const AGENT_ACCENTS = [
   'from-amber-400 to-orange-600',
 ] as const;
 
-interface AgentCreateDialogProps {
-  agent?: AgentConfig;
-  onClose: () => void;
-  onSaved: () => void;
-  open: boolean;
-}
+const KIND_FILTERS = [
+  { id: 'all', label: '全部类型' },
+  { id: 'conversation', label: '对话类智能体' },
+  { id: 'local-execution', label: '本地执行智能体' },
+] as const;
 
-function AgentCreateDialog({ agent, onClose, onSaved, open }: AgentCreateDialogProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [type, setType] = useState<AgentConfig['type']>('normal');
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState<string>();
-
-  useEffect(() => {
-    setName(agent?.name ?? '');
-    setDescription(agent?.description ?? '');
-    setType(agent?.type ?? 'normal');
-    setError(undefined);
-  }, [agent, open]);
-
-  if (!open) {
-    return null;
-  }
-
-  const saveAgent = async () => {
-    if (!name.trim()) {
-      return;
-    }
-
-    setCreating(true);
-    setError(undefined);
-    try {
-      if (agent?.id) {
-        await agentService.updateAgent(agent.id, {
-          description: description.trim(),
-          name: name.trim(),
-          type,
-        });
-      } else {
-        await agentService.createAgent({
-          ...DEFAULT_AGENT_CONFIG,
-          description: description.trim(),
-          name: name.trim(),
-          type,
-        });
-      }
-      onSaved();
-    } catch (saveError) {
-      console.error('Failed to save agent.', saveError);
-      setError('保存 Agent 失败，请检查服务连接后重试。');
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
-      <div aria-labelledby="create-agent-title" aria-modal="true" className="w-full max-w-lg overflow-hidden rounded-2xl bg-white dark:bg-[#1b1b1e]" onMouseDown={(event) => event.stopPropagation()} role="dialog">
-        <div className="flex items-center justify-between px-6 py-5">
-          <div>
-            <h2 className="font-semibold text-slate-900 dark:text-zinc-100" id="create-agent-title">{agent ? '编辑 Agent' : '创建 Agent'}</h2>
-            <p className="mt-1 text-xs text-slate-500 dark:text-zinc-500">{agent ? '更新 Agent 的基础配置。' : '建立可复用的 Agent 基础配置。'}</p>
-          </div>
-          <button aria-label="关闭" className="rounded-lg p-2 text-slate-500 dark:text-zinc-500 transition hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white" onClick={onClose} type="button">
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="space-y-5 px-6 py-6">
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-zinc-300">名称</span>
-              <input autoFocus className="w-full rounded-xl bg-slate-100 dark:bg-black/20 px-4 py-3 text-sm text-slate-900 dark:text-zinc-100 outline-none placeholder:text-slate-400 dark:placeholder:text-zinc-700" onChange={(event) => setName(event.target.value)} placeholder="例如：产品研究助手" value={name} />
-          </label>
-
-          <div>
-            <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-zinc-300">运行类型</span>
-            <div className="grid grid-cols-2 gap-3">
-              {([
-                { id: 'normal', icon: Bot, label: '普通 Agent', description: '在当前工作区中运行' },
-                { id: 'independent', icon: Server, label: '独立 Agent', description: '使用独立运行环境' },
-              ] as const).map(({ id, icon: Icon, label, description: typeDescription }) => (
-                <button className={`rounded-xl p-4 text-left transition ${type === id ? 'bg-[#4080FF]/[0.08]' : 'bg-black/10'}`} key={id} onClick={() => setType(id)} type="button">
-                  <Icon className={type === id ? 'text-[#4080FF]' : 'text-slate-500 dark:text-zinc-500'} size={19} />
-                  <span className="mt-3 block text-sm font-medium text-slate-800 dark:text-zinc-200">{label}</span>
-                  <span className="mt-1 block text-xs text-slate-400 dark:text-zinc-600">{typeDescription}</span>
-                </button>
-              ))}
-            </div>
-            </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-zinc-300">简介</span>
-              <textarea className="h-24 w-full resize-none rounded-xl bg-slate-100 dark:bg-black/20 px-4 py-3 text-sm text-slate-900 dark:text-zinc-100 outline-none placeholder:text-slate-400 dark:placeholder:text-zinc-700" onChange={(event) => setDescription(event.target.value)} placeholder="描述这个 Agent 擅长解决的问题" value={description} />
-          </label>
-
-          {error && <p className="text-sm text-rose-300">{error}</p>}
-        </div>
-
-          <div className="flex justify-end gap-3 bg-black/10 px-6 py-4">
-          <button className="rounded-xl px-4 py-2.5 text-sm text-slate-500 dark:text-zinc-400 transition hover:bg-slate-900/[0.05] dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-white" onClick={onClose} type="button">取消</button>
-            <button className="rounded-xl bg-[#165DFF] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#4080FF] active:bg-[#0E42D2] disabled:cursor-not-allowed disabled:opacity-50" disabled={!name.trim() || creating} onClick={() => void saveAgent()} type="button">
-            {creating ? '保存中…' : '保存'}
-          </button>
-        </div>
-        </div>
-        </div>
-  );
-}
+const AGENT_STATUS_LABELS: Record<string, string> = {
+  draft: '草稿',
+  active: '已启用',
+  disabled: '已停用',
+  archived: '已归档',
+  deleted: '已删除',
+};
 
 function AgentAvatar({ agent, index }: { agent: AgentConfig; index: number }) {
   if (agent.avatar) {
@@ -208,8 +115,10 @@ export function AgentsHomePage({
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string>();
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [editingAgent, setEditingAgent] = useState<AgentConfig>();
+  const [creationOpen, setCreationOpen] = useState(false);
+  const [flowAgent, setFlowAgent] = useState<AgentConfig>();
+  const [inlineEditorAgentId, setInlineEditorAgentId] = useState<string>();
+  const [kindFilter, setKindFilter] = useState<'all' | AgentKind>('all');
   const [chatAgent, setChatAgent] = useState<AgentConfig>();
 
   useEffect(() => {
@@ -245,6 +154,65 @@ export function AgentsHomePage({
     void loadPage(1, false);
   }, [loadPage]);
 
+  /**
+   * Kind and category filtering happen on the client, so a filter must see the
+   * whole catalog rather than only the pages loaded so far. When a filter is
+   * active we page through the remaining results once (`hasMore` drives the
+   * loop and the cap prevents an unbounded scan); clearing the filter keeps the
+   * already-loaded superset, so no refetch is needed.
+   */
+  const loadAllForFilterRef = useRef(false);
+  useEffect(() => {
+    loadAllForFilterRef.current = false;
+  }, [debouncedQuery, scope]);
+  useEffect(() => {
+    const filtering = kindFilter !== 'all' || marketCategory !== 'all';
+    if (
+      !filtering ||
+      !catalog.hasMore ||
+      loading ||
+      loadingMore ||
+      loadAllForFilterRef.current
+    ) {
+      return;
+    }
+    loadAllForFilterRef.current = true;
+    setLoadingMore(true);
+    void (async () => {
+      let page = catalog.page;
+      let hasMore = true;
+      for (let round = 0; round < 50 && hasMore; round += 1) {
+        page += 1;
+        const result = await agentService.listAgentsPage({
+          page,
+          pageSize: 20,
+          scope,
+          ...(debouncedQuery ? { q: debouncedQuery } : {}),
+        });
+        setCatalog((current) => ({
+          hasMore: result.pageInfo.hasMore,
+          items: [...current.items, ...result.items],
+          page,
+        }));
+        hasMore = result.pageInfo.hasMore;
+      }
+    })()
+      .catch((loadError) => {
+        console.error('Failed to load the full agent catalog for filtering.', loadError);
+        setError('筛选需要加载完整列表，当前只显示了已加载的 Agent。');
+      })
+      .finally(() => setLoadingMore(false));
+  }, [
+    catalog.hasMore,
+    catalog.page,
+    debouncedQuery,
+    kindFilter,
+    loading,
+    loadingMore,
+    marketCategory,
+    scope,
+  ]);
+
   const handleDelete = async (agent: AgentConfig) => {
     if (!agent.id || !window.confirm(`确定删除 Agent「${agent.name}」吗？`)) {
       return;
@@ -267,7 +235,10 @@ export function AgentsHomePage({
       onCreateRequest();
       return;
     }
-    setCreateModalOpen(true);
+    // Creation starts with basic information; the flow then routes a local
+    // agent to its archive upload and a conversation agent to this editor.
+    setFlowAgent(undefined);
+    setCreationOpen(true);
   }, [onCreateRequest]);
 
   const editAgent = useCallback((agent: AgentConfig) => {
@@ -275,12 +246,37 @@ export function AgentsHomePage({
       onEditRequest(agent);
       return;
     }
-    setEditingAgent(agent);
+    // A local agent's definition is its archive: it is reconfigured by the
+    // package flow instead of the prompt/model editor. Conversation agents open
+    // the same editor page the console uses.
+    if (agent.agentKind === 'local-execution') {
+      setFlowAgent(agent);
+      setCreationOpen(true);
+      return;
+    }
+    if (agent.id) {
+      setInlineEditorAgentId(agent.id);
+    }
   }, [onEditRequest]);
 
-  const visibleAgents = scope === 'market'
-    ? filterMarketAgents(catalog.items, marketCategory)
-    : catalog.items;
+  /**
+   * Leaves the inline editor and refetches the list.
+   *
+   * Memoized because the editor's load effect depends on `onBack`; an inline
+   * arrow would give it a new identity on every render and re-trigger the load.
+   */
+  const closeInlineEditor = useCallback(() => {
+    setInlineEditorAgentId(undefined);
+    void loadPage(1, false);
+  }, [loadPage]);
+
+  const visibleAgents = (
+    scope === 'market'
+      ? filterMarketAgents(catalog.items, marketCategory)
+      : catalog.items
+  ).filter(
+    (agent) => kindFilter === 'all' || (agent.agentKind ?? 'conversation') === kindFilter,
+  );
 
   if (!hideConversation && chatAgent?.id) {
     return (
@@ -289,6 +285,15 @@ export function AgentsHomePage({
         agentName={chatAgent.name}
         welcomeMessage={chatAgent.welcomeMessage}
         onBack={() => setChatAgent(undefined)}
+      />
+    );
+  }
+
+  if (!onCreateRequest && inlineEditorAgentId) {
+    return (
+      <CreateAgentView
+        initialAgentId={inlineEditorAgentId}
+        onBack={closeInlineEditor}
       />
     );
   }
@@ -375,6 +380,20 @@ export function AgentsHomePage({
             </div>
           )}
 
+          <div aria-label="Agent 类型" className="mb-6 flex gap-2 overflow-x-auto pb-1" role="group">
+            {KIND_FILTERS.map((filter) => (
+              <button
+                aria-pressed={kindFilter === filter.id}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition ${kindFilter === filter.id ? 'bg-[#00B42A]/[0.12] text-[#00A32A] dark:text-[#3ddc6b]' : 'bg-slate-900/[0.025] dark:bg-white/[0.025] text-slate-500 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-300'}`}
+                key={filter.id}
+                onClick={() => setKindFilter(filter.id)}
+                type="button"
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+
           {error && (
             <div className="mb-5 flex flex-col items-start justify-between gap-2 rounded-xl bg-rose-500/10 px-4 py-3 text-sm text-rose-200 sm:flex-row sm:items-center">
               <span>{error}</span>
@@ -414,13 +433,33 @@ export function AgentsHomePage({
                     )}
                   </div>
                   <h3 className="mt-4 truncate font-semibold text-slate-900 dark:text-zinc-100">{agent.name}</h3>
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
+                    <span className={`rounded-full px-2 py-0.5 ${agent.agentKind === 'local-execution' ? 'bg-[#00B42A]/[0.12] text-[#00A32A] dark:text-[#3ddc6b]' : 'bg-[#4080FF]/[0.10] text-[#4080FF]'}`}>
+                      {agentKindLabel(agent.agentKind)}
+                    </span>
+                    {agent.categoryId ? (
+                      <span className="rounded-full bg-slate-900/[0.05] dark:bg-white/[0.06] px-2 py-0.5 text-slate-500 dark:text-zinc-400">
+                        {agentCategoryLabel(agent.categoryId)}
+                      </span>
+                    ) : null}
+                    {agent.agentKind === 'local-execution' && agent.runtimeEngine ? (
+                      <span className="rounded-full bg-slate-900/[0.05] dark:bg-white/[0.06] px-2 py-0.5 text-slate-500 dark:text-zinc-400">
+                        {agent.runtimeEngine} · zip
+                      </span>
+                    ) : null}
+                    {agent.status && agent.status !== 'active' ? (
+                      <span className="rounded-full bg-amber-500/[0.14] px-2 py-0.5 text-amber-600 dark:text-amber-400">
+                        {AGENT_STATUS_LABELS[agent.status] ?? agent.status}
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-slate-500 dark:text-zinc-500">{agent.description || '尚未添加描述'}</p>
                     <div className="mt-4 flex items-center justify-between pt-4 text-xs text-slate-400 dark:text-zinc-600">
                     <span className="flex items-center gap-1.5"><Users size={13} /> {agent.users || '0'}</span>
                     {agent.id ? (
                       <div className="flex items-center gap-3">
-                        {!hideConversation && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => setChatAgent(agent)} type="button">对话 <ChevronRight size={13} /></button>}
-                        {scope === 'mine' && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => editAgent(agent)} type="button">配置 <ChevronRight size={13} /></button>}
+                        {!hideConversation && agent.agentKind !== 'local-execution' && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => setChatAgent(agent)} type="button">对话 <ChevronRight size={13} /></button>}
+                        {scope === 'mine' && <button className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-[#4080FF]" onClick={() => editAgent(agent)} type="button">{agent.agentKind === 'local-execution' ? '更新安装包' : '配置'} <ChevronRight size={13} /></button>}
                       </div>
                     ) : (
                       <span>{agent.author || 'SDKWork'}</span>
@@ -441,19 +480,27 @@ export function AgentsHomePage({
         </main>
       </div>
 
-      <AgentCreateDialog
-        agent={editingAgent}
-        open={createModalOpen || Boolean(editingAgent)}
+      <AgentCreationFlow
+        existingAgent={flowAgent}
+        key={flowAgent?.id ?? 'create'}
         onClose={() => {
-          setCreateModalOpen(false);
-          setEditingAgent(undefined);
+          setCreationOpen(false);
+          setFlowAgent(undefined);
         }}
-        onSaved={() => {
-          setCreateModalOpen(false);
-          setEditingAgent(undefined);
+        onCompleted={() => {
+          setCreationOpen(false);
+          setFlowAgent(undefined);
           setScope('mine');
           void loadPage(1, false);
         }}
+        onContinueToEditor={(agent) => {
+          setCreationOpen(false);
+          setFlowAgent(undefined);
+          if (agent.id) {
+            setInlineEditorAgentId(agent.id);
+          }
+        }}
+        open={creationOpen}
       />
     </div>
   );

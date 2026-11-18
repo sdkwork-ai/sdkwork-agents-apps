@@ -98,6 +98,9 @@ test('pc keeps IAM configurable while standalone development uses one applicatio
   assert.doesNotMatch(env, /VITE_SDKWORK_AGENTS_PLATFORM_API_GATEWAY_HTTP_URL/);
   assert.match(vite, /'\/app\/v3\/api': 'http:\/\/127\.0\.0\.1:8095'/);
   assert.match(vite, /__SDKWORK_CREDENTIAL_ENTRY_BOOTSTRAP_ACCESS_TOKEN__/);
-  assert.match(vite, /transformIndexHtml/);
-  assert.match(vite, /apply: 'serve'/);
+  // The credential-entry HTML injection lives in the shared IAM Vite plugin
+  // (IAM_CREDENTIAL_ENTRY_SPEC section 2/4/5); applications must not fork the
+  // serialization with an inline `transformIndexHtml` hook.
+  assert.match(vite, /createSdkworkCredentialEntryBootstrapVitePlugin\(/);
+  assert.match(vite, /credentialEntryBootstrapAccessToken/);
 });

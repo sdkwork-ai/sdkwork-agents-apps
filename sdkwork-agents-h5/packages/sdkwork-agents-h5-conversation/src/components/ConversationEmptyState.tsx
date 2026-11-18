@@ -5,6 +5,8 @@ import { cn } from "@sdkwork/agents-h5-commons";
 import { translateAgentsConversationText } from "../i18n";
 
 export interface ConversationEmptyStateProps {
+  /** Optional greeting shown above the welcome message. */
+  welcomeTitle?: string;
   /** Optional agent welcome message shown under the greeting. */
   welcomeMessage?: string;
   className?: string;
@@ -18,6 +20,7 @@ export interface ConversationEmptyStateProps {
  * subpackages and Flutter bundles would each have to ship separately.
  */
 export function ConversationEmptyState({
+  welcomeTitle,
   welcomeMessage,
   className,
 }: ConversationEmptyStateProps) {
@@ -41,7 +44,8 @@ export function ConversationEmptyState({
         />
       </div>
       <p className="text-[26px] font-semibold leading-9 text-[var(--color-text-main,#0A1B3D)]">
-        {translateAgentsConversationText("agents.conversation.empty.greeting")}
+        {welcomeTitle?.trim() ||
+          translateAgentsConversationText("agents.conversation.empty.greeting")}
       </p>
       <p className="text-[13px] leading-6 text-[var(--color-text-sub,#5B6B88)]">
         {welcomeMessage?.trim() ||

@@ -497,6 +497,13 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
           onBack();
           return;
         }
+        if (agent.agentKind === 'local-execution') {
+          // A local agent's definition is its archive; the prompt/model editor
+          // would rewrite a manifest whose host surfaces never apply.
+          toast('本地执行智能体请通过安装包流程更新', 'error');
+          onBack();
+          return;
+        }
         setDraftId(agent.id);
         setName(agent.name);
         setDesc(agent.description || '');
@@ -1485,3 +1492,13 @@ export const CreateAgentView: React.FC<CreateAgentViewProps> = ({ onBack, hidden
     </motion.div>
   );
 };
+
+/**
+ * Canonical name for the single agent detail editor.
+ *
+ * `CreateAgentView` is kept as the legacy alias because hosts already import
+ * it; both names render the same editor, used for creation and reconfiguration
+ * of conversation agents.
+ */
+export const AgentEditorView = CreateAgentView;
+export type AgentEditorViewProps = CreateAgentViewProps;

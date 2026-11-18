@@ -35,6 +35,11 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
+      // Workspace packages ship TypeScript sources; a compiled `.js` sibling in
+      // `src/` is a stale build artifact (gitignored), never the authority.
+      // Vite's default order would pick that `.js` over the `.ts` source and
+      // silently run an older implementation, so TypeScript wins here.
+      extensions: ['.mts', '.ts', '.tsx', '.mjs', '.js', '.jsx', '.json'],
       dedupe: ['react', 'react-dom'],
     },
     build: {

@@ -30,6 +30,13 @@ const EXPECTED_PACKAGES = [
   'sdkwork-agents-pc-presentation',
 ];
 
+// Admin surfaces follow the SDKWork `pc-admin-react` convention (no
+// `specs/component.spec.json`, `sdkwork.surface: admin`) used by the other PC
+// apps; they are members of the canonical family but not app components.
+const EXPECTED_ADMIN_PACKAGES = [
+  'sdkwork-agents-pc-admin',
+];
+
 function activeFiles(root) {
   return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
     if (entry.isDirectory() && EXCLUDED_DIRECTORIES.has(entry.name)) {
@@ -49,9 +56,12 @@ test('all PC packages use the canonical agents package family', () => {
     .map((entry) => entry.name)
     .sort();
 
-  assert.deepEqual(packageDirectories, EXPECTED_PACKAGES);
+  assert.deepEqual(
+    packageDirectories,
+    [...EXPECTED_PACKAGES, ...EXPECTED_ADMIN_PACKAGES].sort(),
+  );
 
-  for (const directory of packageDirectories) {
+  for (const directory of EXPECTED_PACKAGES) {
     const manifest = JSON.parse(readFileSync(path.join(packagesRoot, directory, 'package.json'), 'utf8'));
     const componentSpec = JSON.parse(readFileSync(path.join(packagesRoot, directory, 'specs', 'component.spec.json'), 'utf8'));
     const expectedPackageName = `@sdkwork/${directory.slice('sdkwork-'.length)}`;
@@ -61,6 +71,14 @@ test('all PC packages use the canonical agents package family', () => {
     assert.match(manifest.sdkwork.architecture, /^pc-(?:react|desktop)$/, `${directory} architecture`);
     assert.equal(componentSpec.component.name, directory, `${directory} component name`);
     assert.equal(componentSpec.component.root, `apps/sdkwork-agents-pc/packages/${directory}`, `${directory} component root`);
+  }
+
+  for (const directory of EXPECTED_ADMIN_PACKAGES) {
+    const manifest = JSON.parse(readFileSync(path.join(packagesRoot, directory, 'package.json'), 'utf8'));
+    assert.equal(manifest.name, `@sdkwork/${directory.slice('sdkwork-'.length)}`, `${directory} npm name`);
+    assert.equal(manifest.sdkwork.workspace, 'sdkwork-agents', `${directory} workspace`);
+    assert.equal(manifest.sdkwork.surface, 'admin', `${directory} surface`);
+    assert.match(manifest.sdkwork.architecture, /^pc-(?:react|admin-react)$/, `${directory} architecture`);
   }
 });
 

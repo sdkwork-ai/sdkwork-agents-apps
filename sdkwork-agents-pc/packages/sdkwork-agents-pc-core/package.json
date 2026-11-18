@@ -14,11 +14,14 @@
       "default": "./src/index.ts"
     },
     "./sdk": "./src/sdk/index.ts",
+    "./sdk/agentsBackendSdkClient": "./src/sdk/agentsBackendSdkClient.ts",
     "./sdk/agentsAppSdkClient": "./src/sdk/agentsAppSdkClient.ts",
     "./sdk/assetsAppSdkClient": "./src/sdk/assetsAppSdkClient.ts",
     "./sdk/communityAppSdkClient": "./src/sdk/communityAppSdkClient.ts",
     "./sdk/driveAppSdkClient": "./src/sdk/driveAppSdkClient.ts",
     "./sdk/driveUploadService": "./src/sdk/driveUploadService.ts",
+    "./sdk/uploadDeclaration": "./src/sdk/uploadDeclaration.ts",
+    "./domain/agentRuntimeCatalog": "./src/domain/agentRuntimeCatalog.ts",
     "./sdk/generationsAppSdkClient": "./src/sdk/generationsAppSdkClient.ts",
     "./sdk/generationsService": "./src/sdk/generationsService.ts",
     "./sdk/knowledgebaseAppSdkClient": "./src/sdk/knowledgebaseAppSdkClient.ts",
@@ -37,6 +40,7 @@
   },
   "dependencies": {
     "@sdkwork/agents-app-sdk": "workspace:*",
+    "@sdkwork/agents-backend-sdk": "workspace:*",
     "@sdkwork/assets-app-sdk": "workspace:*",
     "@sdkwork/community-app-sdk": "workspace:*",
     "@sdkwork/drive-app-sdk": "workspace:*",

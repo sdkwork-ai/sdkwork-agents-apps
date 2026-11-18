@@ -1,4 +1,9 @@
-export { agentService, parseAgentCatalogSnapshot } from './AgentService';
+export {
+  agentService,
+  configureAgentService,
+  createSdkworkAgentService,
+  parseAgentCatalogSnapshot,
+} from './AgentService';
 export {
   AgentMemoryError,
   AgentMemoryService,

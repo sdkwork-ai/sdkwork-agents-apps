@@ -10,10 +10,14 @@
  * the creation surface and the knowledge-selection binding it configures.
  */
 export { CreateAgentModal } from "./components/CreateAgentModal";
-export { CreateAgentView } from "./pages/CreateAgentView";
+export { AgentCreationFlow } from "./editor/AgentCreationFlow";
+export { AgentBasicInfoDialog } from "./editor/AgentBasicInfoDialog";
+export { AgentPackageUpload } from "./editor/AgentPackageUpload";
+export { CreateAgentView, AgentEditorView } from "./pages/CreateAgentView";
 export type {
   CreateAgentCapability,
   CreateAgentViewProps,
+  AgentEditorViewProps,
 } from "./pages/CreateAgentView";
 export { configureKnowledgeSelectionAdapter } from "./services/knowledgeSelectionAdapter";
 export { createKnowledgebaseSelectionAdapter } from "./services/createKnowledgebaseSelectionAdapter";

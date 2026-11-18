@@ -2,6 +2,12 @@ import { readBootstrapAccessTokenFromProcessEnv } from '@sdkwork/iam-credential-
 import type { IamAppContext } from '@sdkwork/iam-contracts';
 import type { AuthTokenManager, AuthTokens, Interceptors, RequestConfig } from '@sdkwork/sdk-common';
 import {
+  AGENTS_SESSION_STORAGE_KEY,
+  clearActiveAccountScopedStorage,
+  syncAgentsAccountScope,
+  type AgentsAccountScope,
+} from './accountStorage';
+import {
   clearDesktopSecureSessionRawValue,
   isDesktopSecureSessionStorageEnabled,
   readDesktopSecureSessionRawValue,
@@ -49,8 +55,8 @@ export interface SdkworkChatSessionChangedDetail {
 
 export type SdkworkChatRequestContext = Partial<SdkworkChatAppContext>;
 
-const SDKWORK_AGENTS_PC_SESSION_KEY = 'sdkwork-agents-pc:session:v1';
-const SDKWORK_AGENTS_PC_LEGACY_SESSION_STORAGE_KEY = 'sdkwork-agents-pc:session:v1';
+const SDKWORK_AGENTS_PC_SESSION_KEY = AGENTS_SESSION_STORAGE_KEY;
+const SDKWORK_AGENTS_PC_LEGACY_SESSION_STORAGE_KEY = AGENTS_SESSION_STORAGE_KEY;
 export const SDKWORK_AGENTS_PC_SESSION_CHANGED_EVENT = 'sdkwork-agents-pc:auth-session-changed';
 
 let sdkworkChatGlobalTokenManager: AuthTokenManager | null = null;
@@ -124,20 +130,22 @@ export async function hydrateAppSdkSessionFromSecureStorage(): Promise<void> {
   if (secureValue) {
     persistedSessionRawValueCache = secureValue;
     removePersistedSessionRawValueFromWebStorageOnly();
-    return;
+  } else {
+    const legacyValue = getSessionStorage()?.getItem(SDKWORK_AGENTS_PC_SESSION_KEY)
+      ?? getLocalStorage()?.getItem(SDKWORK_AGENTS_PC_LEGACY_SESSION_STORAGE_KEY)
+      ?? null;
+    if (legacyValue) {
+      persistedSessionRawValueCache = legacyValue;
+      await writeDesktopSecureSessionRawValue(legacyValue);
+      removePersistedSessionRawValueFromWebStorageOnly();
+    } else {
+      persistedSessionRawValueCache = null;
+    }
   }
 
-  const legacyValue = getSessionStorage()?.getItem(SDKWORK_AGENTS_PC_SESSION_KEY)
-    ?? getLocalStorage()?.getItem(SDKWORK_AGENTS_PC_LEGACY_SESSION_STORAGE_KEY)
-    ?? null;
-  if (!legacyValue) {
-    persistedSessionRawValueCache = null;
-    return;
-  }
-
-  persistedSessionRawValueCache = legacyValue;
-  await writeDesktopSecureSessionRawValue(legacyValue);
-  removePersistedSessionRawValueFromWebStorageOnly();
+  // Desktop secure storage is invisible to `accountStorage`, so hand it the
+  // identity its scope must follow.
+  syncAgentsAccountScope(toAgentsAccountScope(readAppSdkSessionTokens()));
 }
 
 function removePersistedSessionRawValueFromWebStorageOnly(): void {
@@ -391,6 +399,9 @@ export function persistAppSdkSessionTokens(session: SdkworkChatSession): Sdkwork
     throw new Error('Sdkwork IM session requires authToken and accessToken.');
   }
 
+  // Scope first: the previous account's scoped values are dropped while the old
+  // session is still readable, so an account switch cannot inherit them.
+  syncAgentsAccountScope(toAgentsAccountScope(normalizedSession));
   writePersistedSessionRawValue(JSON.stringify(normalizedSession));
   syncSdkworkChatGlobalTokenManager(normalizedSession);
   dispatchAppSdkSessionChanged(normalizedSession);
@@ -402,6 +413,9 @@ export function applyAppSdkSessionTokens(session: SdkworkChatSession): SdkworkCh
 }
 
 export function clearAppSdkSessionTokens(): void {
+  // Clear account data before the session disappears: the fallback scope comes
+  // from the persisted session when nothing was synced during this page life.
+  clearActiveAccountScopedStorage();
   removePersistedSessionRawValue();
   syncSdkworkChatGlobalTokenManager(null);
   dispatchAppSdkSessionChanged(null);
@@ -439,6 +453,32 @@ export function resolveAppSdkUserId(session = readAppSdkSessionTokens()): string
     session?.user?.userId,
     session?.user?.id,
   );
+}
+
+/**
+ * Display name owned by the IAM session. Profile surfaces read this instead of
+ * keeping a local copy of the account's identity.
+ */
+export function resolveAppSdkDisplayName(session = readAppSdkSessionTokens()): string | undefined {
+  return pickClaimString(
+    session,
+    ['displayName', 'display_name', 'name', 'nickname', 'preferred_username', 'username'],
+    session?.user?.displayName,
+    session?.user?.name,
+    session?.user?.nickname,
+    session?.user?.username,
+  );
+}
+
+/** Email owned by the IAM session. */
+export function resolveAppSdkUserEmail(session = readAppSdkSessionTokens()): string | undefined {
+  return pickClaimString(session, ['email', 'mail'], session?.user?.email);
+}
+
+function toAgentsAccountScope(session: SdkworkChatSession | null): AgentsAccountScope | null {
+  const tenantId = session ? resolveAppSdkTenantId(session) : undefined;
+  const userId = session ? resolveAppSdkUserId(session) : undefined;
+  return tenantId && userId ? { tenantId, userId } : null;
 }
 
 export function resolveAppSdkSessionId(session = readAppSdkSessionTokens()): string | undefined {

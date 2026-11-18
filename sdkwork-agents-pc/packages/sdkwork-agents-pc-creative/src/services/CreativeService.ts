@@ -4,9 +4,13 @@ import type {
 } from '@sdkwork/agents-pc-core/sdk/generationsService';
 import {
   resolveCreativeCreationType,
-  resolveCreativeGenerationDispatch,
 } from '@sdkwork/agents-pc-core/sdk/creationTypes';
-import { creativeModelCatalogService } from '@sdkwork/agents-pc-commons';
+import { creativeModelCatalogService, resolveCreativeDispatch } from '@sdkwork/agents-pc-commons';
+import {
+  readAccountScopedItem,
+  removeAccountScopedItem,
+  writeAccountScopedItem,
+} from '@sdkwork/agents-pc-core/session';
 import { uuid } from '@sdkwork/utils';
 
 import type { CreativeMessage, CreativeSession } from '../types';
@@ -108,11 +112,24 @@ function toAssistantMessage(
  */
 export interface CreativeGenerationOptions {
   hasReferenceImages?: boolean;
+  /**
+   * Precise generation mode resolved from the selected model's catalog profile
+   * (`reference_to_video`, `start_end_frame`, ...). The app API routes by
+   * operation, so this rides `parameters.generationMode` and lets the vendor
+   * adapter pick the matching surface.
+   */
+  generationMode?: string;
   commandParameters?: Record<string, unknown>;
   commandInputAssetIds?: string[];
   previewImageUrl?: string;
   /** Conversation grouping key of the active creative session. */
   conversationId?: string;
+  /** Agent-mode orchestration model id (`parameters.agentModel`). */
+  agentLlmModel?: string;
+  /** Media models the agent may use for image generation. */
+  agentImageModels?: string[];
+  /** Media models the agent may use for video generation. */
+  agentVideoModels?: string[];
 }
 
 /** Drop blank entries so absent settings never widen the command payload. */
@@ -143,7 +160,8 @@ interface AgentsGenerationsServiceLike {
 /**
  * The backend groups records into conversations through `conversationId`;
  * session titles, pins and deletions are presentation-only state and live in
- * localStorage keyed by that conversation id, so a reload keeps them.
+ * account-scoped storage keyed by that conversation id, so a reload keeps them
+ * and another account never sees them.
  */
 const SESSION_TITLE_PREFIX = 'creative_session_title:';
 const SESSION_PINNED_PREFIX = 'creative_session_pinned:';
@@ -153,36 +171,20 @@ const HIDDEN_RECORD_IDS_KEY = 'creative_hidden_record_ids';
 const GET_SESSIONS_MAX_PAGES = 5;
 
 function readLocalFlag(key: string): boolean {
-  try {
-    return localStorage.getItem(key) === '1';
-  } catch {
-    return false;
-  }
+  return readAccountScopedItem(key) === '1';
 }
 
 function writeLocalFlag(key: string, value: boolean): void {
-  try {
-    if (value) localStorage.setItem(key, '1');
-    else localStorage.removeItem(key);
-  } catch {
-    // ignore
-  }
+  if (value) writeAccountScopedItem(key, '1');
+  else removeAccountScopedItem(key);
 }
 
 export const CreativeSessionStore = {
   title(conversationId: string): string | null {
-    try {
-      return localStorage.getItem(SESSION_TITLE_PREFIX + conversationId);
-    } catch {
-      return null;
-    }
+    return readAccountScopedItem(SESSION_TITLE_PREFIX + conversationId);
   },
   rename(conversationId: string, title: string): void {
-    try {
-      localStorage.setItem(SESSION_TITLE_PREFIX + conversationId, title);
-    } catch {
-      // ignore
-    }
+    writeAccountScopedItem(SESSION_TITLE_PREFIX + conversationId, title);
   },
   isPinned(conversationId: string): boolean {
     return readLocalFlag(SESSION_PINNED_PREFIX + conversationId);
@@ -203,7 +205,7 @@ export const CreativeSessionStore = {
    */
   hiddenRecordIds(): Set<string> {
     try {
-      const raw = localStorage.getItem(HIDDEN_RECORD_IDS_KEY);
+      const raw = readAccountScopedItem(HIDDEN_RECORD_IDS_KEY);
       const parsed: unknown = raw ? JSON.parse(raw) : [];
       return new Set(Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []);
     } catch {
@@ -213,11 +215,7 @@ export const CreativeSessionStore = {
   hideRecord(recordId: string): void {
     const ids = CreativeSessionStore.hiddenRecordIds();
     ids.add(recordId);
-    try {
-      localStorage.setItem(HIDDEN_RECORD_IDS_KEY, JSON.stringify([...ids]));
-    } catch {
-      // ignore
-    }
+    writeAccountScopedItem(HIDDEN_RECORD_IDS_KEY, JSON.stringify([...ids]));
   },
 };
 
@@ -379,8 +377,13 @@ export class CreativeService {
     // `agent` is deliberately left on its previous assisted-image behaviour: it
     // is not a generation modality, and re-pointing it is a separate product
     // decision from the modality-collapse fix.
-    const dispatch = resolveCreativeGenerationDispatch(mode, options)
-      ?? (mode === 'agent' ? resolveCreativeGenerationDispatch('image') : null);
+    //
+    // The same helper backs the credit estimate, so the priced command and the
+    // submitted command always route identically.
+    const dispatch = resolveCreativeDispatch(mode, {
+      hasReferenceImages: options.hasReferenceImages,
+      generationMode: options.generationMode,
+    });
     if (!dispatch) {
       throw new Error(
         `“${mode}” 不是内容生成类型，无法提交生成请求。`,
@@ -404,6 +407,18 @@ export class CreativeService {
       : undefined;
     const commandParameters = compactCreativeCommandParameters({
       ...(resolvedVendorCode ? { vendor: resolvedVendorCode } : {}),
+      // Agent mode carries its orchestration model and the media models it may
+      // call. The dispatch currently stays on the assisted-image path, so these
+      // ride the free-form parameters object for the agent runtime to consume.
+      ...(mode === 'agent' && options.agentLlmModel
+        ? { agentModel: options.agentLlmModel }
+        : {}),
+      ...(mode === 'agent' && options.agentImageModels?.length
+        ? { agentImageModels: options.agentImageModels }
+        : {}),
+      ...(mode === 'agent' && options.agentVideoModels?.length
+        ? { agentVideoModels: options.agentVideoModels }
+        : {}),
       ...options.commandParameters,
     });
     const pendingMessage: CreativeMessage = {

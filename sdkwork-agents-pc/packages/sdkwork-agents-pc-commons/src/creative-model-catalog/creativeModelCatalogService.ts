@@ -4,25 +4,31 @@ import type {
   CreativeModelDefinition,
   CreativeModelLifecycle,
   CreativeModelModality,
+  CreativeModelReferencePrice,
   RemoteCreativeModelItem,
 } from './creativeModelCatalogTypes';
 import {
   CREATIVE_MODEL_RELEASE_STAGE,
   CREATIVE_MODEL_SHELF_STATE,
 } from './creativeModelCatalogTypes';
+import { sortModelsByRecency, videoParametersFromProfiles, vendorDefaultParameters } from './creativeModelParameters';
+import type { CatalogVideoProfile } from './creativeModelParameters';
 import {
-  REMOTE_MODALITY_QUERY,
+  CREATIVE_MODEL_SELECTION_PROFILES,
   REMOTE_SYNC_MODALITIES,
   STATIC_CREATIVE_MODELS,
   STATIC_DEFAULT_MODEL_IDS,
 } from './staticCreativeModelCatalog';
 
-const REMOTE_LAYER_STORAGE_KEY = 'sdkwork_creative_model_catalog_remote_v1';
+const REMOTE_LAYER_STORAGE_KEY = 'sdkwork_creative_model_catalog_remote_v4';
 const SELECTED_MODELS_STORAGE_KEY = 'sdkwork_creative_selected_models_v1';
 const SYNC_TTL_MS = 5 * 60 * 1000;
 const REMOTE_PAGE_SIZE = 100;
 const MAX_REMOTE_PAGES = 10;
 const MAX_REPLACEMENT_HOPS = 5;
+
+/** Persisted remote layer version; a version bump discards an older layer. */
+const REMOTE_LAYER_VERSION = 4;
 
 /**
  * Remote-managed layer persisted between sessions. Remote entries are the
@@ -31,7 +37,7 @@ const MAX_REPLACEMENT_HOPS = 5;
  * a replacement are migrated.
  */
 interface PersistedRemoteLayer {
-  version: 1;
+  version: typeof REMOTE_LAYER_VERSION;
   syncedAt: string;
   entries: Partial<Record<CreativeModelModality, CreativeModelDefinition[]>>;
 }
@@ -68,7 +74,102 @@ function toLifecycle(releaseStage: number | null, shelfState: number | null): Cr
   return 'active';
 }
 
-function toRemoteDefinition(item: RemoteCreativeModelItem, modality: CreativeModelModality, index: number): CreativeModelDefinition {
+function normalizeVendorCode(value: string | null | undefined): string {
+  return (value ?? '').trim().toLowerCase();
+}
+
+/**
+ * Whether one catalog row belongs in a creation type's picker.
+ *
+ * The catalog's `modalities` field unions input and output modalities, so a
+ * plain modality query also returns models that merely *accept* the media it
+ * is asked about (a chat model that reads video input listed under video
+ * generation). The picker therefore requires the model to produce the
+ * creation type's output modality and to declare the matching capability, and
+ * keeps only vendors the generations provider adapter can dispatch.
+ *
+ * @param modality - creative creation type being listed.
+ * @param item - one row of the app models catalog.
+ * @returns whether the row is a dispatchable model of this creation type.
+ */
+export function isCreationModel(modality: CreativeModelModality, item: RemoteCreativeModelItem): boolean {
+  const profile = CREATIVE_MODEL_SELECTION_PROFILES[modality];
+  if (!profile) return false;
+  if (!profile.vendorCodes.includes(normalizeVendorCode(item.vendorCode))) return false;
+  const modelId = item.model.trim().toLowerCase();
+  if (profile.excludedModelIdTokens.some((token) => modelId.includes(token))) return false;
+
+  const outputModalities = (item.outputModalities ?? [])
+    .map((value) => value.trim().toLowerCase())
+    .filter((value) => value !== '');
+  // Older app API responses carry no `outputModalities`; `modalities` is the
+  // union, so it is only a conservative fallback.
+  const produced = outputModalities.length > 0
+    ? outputModalities
+    : (item.modalities ?? []).map((value) => value.trim().toLowerCase());
+  if (!produced.some((value) => profile.outputModalities.includes(value))) return false;
+
+  const required = profile.capability;
+  if (required === null) return true;
+  const declared = (item.capabilities ?? []).map((value) => value.trim().toLowerCase());
+  return declared.length === 0 || declared.includes(required);
+}
+
+/**
+ * Whether a definition already persisted in the remote layer may stay.
+ *
+ * The vendor allowlist heals a layer written by an older build: a persisted
+ * entry whose vendor no creation type can dispatch is dropped on load instead
+ * of surviving until the next successful sync.
+ */
+function isPersistedDefinitionAllowed(
+  modality: CreativeModelModality,
+  definition: CreativeModelDefinition,
+): boolean {
+  const profile = CREATIVE_MODEL_SELECTION_PROFILES[modality];
+  if (!profile) return false;
+  const vendor = normalizeVendorCode(definition.vendorCode);
+  return vendor !== '' && profile.vendorCodes.includes(vendor);
+}
+
+function optionalTrimmed(value: string | null | undefined): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed === '' ? undefined : trimmed;
+}
+
+/** Map the wire reference price rows onto the picker's price shape. */
+function mapReferencePrices(
+  prices: RemoteCreativeModelItem['officialReferencePrices'],
+): CreativeModelReferencePrice[] | undefined {
+  if (!prices || prices.length === 0) return undefined
+  const mapped = prices
+    .filter((price) => price.billingMeter.trim() !== '' && Number.isFinite(Number(price.unitPrice)))
+    .map((price) => ({
+      regionCode: price.regionCode,
+      meterCode: price.billingMeter,
+      unitPrice: price.unitPrice,
+      currency: price.currency,
+    }))
+  return mapped.length > 0 ? mapped : undefined
+}
+
+function toRemoteDefinition(
+  item: RemoteCreativeModelItem,
+  modality: CreativeModelModality,
+  index: number,
+  knownStaticIds: ReadonlySet<string>,
+): CreativeModelDefinition {
+  // A model the static baseline already carries keeps its per-model catalog
+  // profile; a newly published model gets the vendor surface defaults so the
+  // picker still constrains itself instead of offering every knob.
+  const parameters = knownStaticIds.has(item.model)
+    ? undefined
+    : vendorDefaultParameters(modality, item.vendorCode);
+  const referencePrices = mapReferencePrices(item.officialReferencePrices);
+  const familyCode = optionalTrimmed(item.familyCode);
+  const colorToken = optionalTrimmed(item.colorToken);
+  const docsUrl = optionalTrimmed(item.docsUrl);
   return {
     id: item.model,
     modality,
@@ -77,6 +178,11 @@ function toRemoteDefinition(item: RemoteCreativeModelItem, modality: CreativeMod
     lifecycle: toLifecycle(item.releaseStage, item.shelfState),
     replacementModelId: item.replacementModel || null,
     vendorCode: item.vendorCode,
+    ...(parameters === undefined ? {} : { parameters }),
+    ...(referencePrices === undefined ? {} : { referencePrices }),
+    ...(familyCode === undefined ? {} : { familyCode }),
+    ...(colorToken === undefined ? {} : { colorToken }),
+    ...(docsUrl === undefined ? {} : { docsUrl }),
     source: 'remote',
     order: index,
   };
@@ -116,13 +222,26 @@ export class CreativeModelCatalogService {
   private mergedCache = new Map<CreativeModelModality, CreativeModelDefinition[]>();
   private visibleCache = new Map<CreativeModelModality, CreativeModelDefinition[]>();
   private indexCache = new Map<CreativeModelModality, Map<string, CreativeModelDefinition>>();
+  /** Runtime catalog video profiles keyed by model catalog key (`vendor/modelId`). */
+  private videoProfilesByKey = new Map<string, CatalogVideoProfile[]>();
 
   private static loadRemoteLayer(): PersistedRemoteLayer {
     const persisted = readJsonStorage<PersistedRemoteLayer>(REMOTE_LAYER_STORAGE_KEY);
-    if (persisted && persisted.version === 1 && persisted.entries) {
-      return persisted;
+    if (!persisted || persisted.version !== REMOTE_LAYER_VERSION || !persisted.entries) {
+      return { version: REMOTE_LAYER_VERSION, syncedAt: '', entries: {} };
     }
-    return { version: 1, syncedAt: '', entries: {} };
+    // Drop every persisted entry no creation type can dispatch, so a layer
+    // written before the per-creation-type filter heals on the first load.
+    const entries: Partial<Record<CreativeModelModality, CreativeModelDefinition[]>> = {};
+    for (const [rawModality, definitions] of Object.entries(persisted.entries)) {
+      if (!isCreativeModelModality(rawModality) || !Array.isArray(definitions)) continue;
+      const modality: CreativeModelModality = rawModality;
+      const allowed = definitions.filter((definition) => (
+        isPersistedDefinitionAllowed(modality, definition)
+      ));
+      if (allowed.length > 0) entries[modality] = allowed;
+    }
+    return { version: REMOTE_LAYER_VERSION, syncedAt: persisted.syncedAt ?? '', entries };
   }
 
   // ---------------------------------------------------------------- listeners
@@ -199,18 +318,43 @@ export class CreativeModelCatalogService {
     const staticIndex = new Map(staticDefinitions.map((definition) => [definition.id, definition]));
     const remoteEntries = this.remoteLayer.entries[modality] ?? [];
     const merged: CreativeModelDefinition[] = staticDefinitions;
+    const seen = new Set(staticDefinitions.map((definition) => definition.id));
     let order = staticDefinitions.length;
     for (const remote of remoteEntries) {
       const existing = staticIndex.get(remote.id);
       if (existing) {
         existing.lifecycle = remote.lifecycle;
         existing.replacementModelId = remote.replacementModelId ?? null;
+        // The catalog's published reference price is a live attribute: keep it
+        // on the curated static entry rather than duplicating the row.
+        if (remote.referencePrices !== undefined) {
+          existing.referencePrices = remote.referencePrices;
+        }
+        if (remote.familyCode !== undefined) existing.familyCode = remote.familyCode;
+        if (remote.colorToken !== undefined) existing.colorToken = remote.colorToken;
+        if (remote.docsUrl !== undefined) existing.docsUrl = remote.docsUrl;
         continue;
       }
+      // Two catalog regions can publish the same model id; the picker states
+      // one entry per model, so keep the first (server-ordered) occurrence.
+      if (seen.has(remote.id)) continue;
+      seen.add(remote.id);
       merged.push({ ...remote, order });
       order += 1;
     }
-    return merged;
+    if (modality === 'video' && this.videoProfilesByKey.size > 0) {
+      for (const definition of merged) {
+        const catalogKey = `${(definition.vendorCode ?? '').trim().toLowerCase()}/${definition.id}`;
+        const profiles = this.videoProfilesByKey.get(catalogKey);
+        if (!profiles) continue;
+        const video = videoParametersFromProfiles(definition.vendorCode, profiles);
+        if (video === undefined) continue;
+        definition.parameters = { ...definition.parameters, video };
+      }
+    }
+    // Newest catalog version first: the catalog's static order and the remote
+    // API order are rank-based, which hides a newer build below older ones.
+    return sortModelsByRecency(merged);
   }
 
   // --------------------------------------------------------------- selection
@@ -334,8 +478,13 @@ export class CreativeModelCatalogService {
       catalogSize: 0,
     };
     const nextEntries: Partial<Record<CreativeModelModality, CreativeModelDefinition[]>> = {};
-    try {
-      for (const modality of REMOTE_SYNC_MODALITIES) {
+    const failures: string[] = [];
+    let failedModalities = 0;
+    // One creation type's failing query must not blank the other creation
+    // types' lists: a failed modality keeps its previous entries and reports
+    // its error, and the sync only fails when every modality failed.
+    for (const modality of REMOTE_SYNC_MODALITIES) {
+      try {
         const snapshot = await this.fetchRemoteModality(modality);
         const applied = this.applyRemoteSnapshot(modality, snapshot);
         nextEntries[modality] = applied.entries;
@@ -343,48 +492,135 @@ export class CreativeModelCatalogService {
         stats.updatedModelIds.push(...applied.updatedModelIds);
         stats.removedModelIds.push(...applied.removedModelIds);
         stats.deprecatedModelIds.push(...applied.deprecatedModelIds);
+      } catch (error) {
+        failedModalities += 1;
+        failures.push(`${modality}: ${error instanceof Error ? error.message : String(error)}`);
+        const previous = this.remoteLayer.entries[modality];
+        if (previous !== undefined) nextEntries[modality] = previous;
       }
-      this.remoteLayer = {
-        version: 1,
-        syncedAt: stats.fetchedAt,
-        entries: nextEntries,
-      };
-      writeJsonStorage(REMOTE_LAYER_STORAGE_KEY, this.remoteLayer);
-      stats.catalogSize = REMOTE_SYNC_MODALITIES.reduce(
-        (total, modality) => total + this.getModels(modality).length,
-        0,
-      );
-      this.syncState = {
-        status: 'ready',
-        lastSyncedAt: stats.fetchedAt,
-        lastError: null,
-        lastStats: stats,
-      };
-      this.notify();
-      return stats;
+    }
+    // The runtime video profiles are an enhancement over each model's known
+    // baseline: a profile fetch failure keeps the static/fallback parameters
+    // instead of blanking the video list.
+    try {
+      this.videoProfilesByKey = await this.fetchVideoProfiles();
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      this.videoProfilesByKey = new Map();
+      failures.push(`video_profiles: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    if (failedModalities === REMOTE_SYNC_MODALITIES.length && REMOTE_SYNC_MODALITIES.length > 0) {
       this.syncState = {
         ...this.syncState,
         status: 'error',
-        lastError: message,
+        lastError: failures.join('; '),
       };
       this.notify();
-      throw error;
+      throw new Error(`creative model catalog sync failed: ${failures.join('; ')}`);
     }
+    this.remoteLayer = {
+      version: REMOTE_LAYER_VERSION,
+      syncedAt: stats.fetchedAt,
+      entries: nextEntries,
+    };
+    writeJsonStorage(REMOTE_LAYER_STORAGE_KEY, this.remoteLayer);
+    stats.catalogSize = REMOTE_SYNC_MODALITIES.reduce(
+      (total, modality) => total + this.getModels(modality).length,
+      0,
+    );
+    this.syncState = {
+      status: 'ready',
+      lastSyncedAt: stats.fetchedAt,
+      lastError: failures.length > 0 ? failures.join('; ') : null,
+      lastStats: stats,
+    };
+    this.notify();
+    return stats;
   }
 
   private async fetchRemoteModality(modality: CreativeModelModality): Promise<RemoteCreativeModelItem[]> {
+    const profile = CREATIVE_MODEL_SELECTION_PROFILES[modality];
+    if (!profile) return [];
     const { getModelsAppSdkClientWithSession } = await import('@sdkwork/agents-pc-core/sdk/modelsAppSdkClient');
     const client = getModelsAppSdkClientWithSession();
-    const modalities = [...REMOTE_MODALITY_QUERY[modality]];
+    // Ask the catalog for models that *produce* this creation type. The
+    // capability filter is the primary scope (the catalog's own `modalities`
+    // field unions input and output modalities, so a modality-only query also
+    // returns chat models that merely read this media); the output-modality
+    // query narrows further and `isCreationModel` drops anything the server
+    // could not scope.
+    const modalities = [...profile.outputModalities];
+    const capabilities = [...profile.queryCapabilities];
     const items: RemoteCreativeModelItem[] = [];
     for (let page = 1; page <= MAX_REMOTE_PAGES; page += 1) {
-      const response = await client.ai.models.list({ modalities, page, pageSize: REMOTE_PAGE_SIZE });
+      const response = await client.ai.models.list({
+        ...(modalities.length > 0 ? { modalities } : {}),
+        ...(capabilities.length > 0 ? { capabilities } : {}),
+        page,
+        pageSize: REMOTE_PAGE_SIZE,
+      });
       items.push(...response.items);
       if (!response.pageInfo?.hasMore) break;
     }
     return items;
+  }
+
+  /**
+   * Load the catalog's authoritative video generation profiles.
+   *
+   * Profiles are keyed by model catalog key (`vendor/modelId`); the app API
+   * returns each profile with its full catalog key (`vendor/model/profile`),
+   * so the last segment is dropped. The response type mirrors the shared page
+   * envelope rather than a generated profile type, hence the structural read.
+   */
+  private async fetchVideoProfiles(): Promise<Map<string, CatalogVideoProfile[]>> {
+    const { getModelsAppSdkClientWithSession } = await import('@sdkwork/agents-pc-core/sdk/modelsAppSdkClient');
+    const client = getModelsAppSdkClientWithSession();
+    const response = await client.ai.videoProfiles.list({});
+    const items = (response as unknown as { items?: unknown }).items;
+    if (!Array.isArray(items)) return new Map();
+    const byKey = new Map<string, CatalogVideoProfile[]>();
+    for (const raw of items) {
+      if (raw === null || typeof raw !== 'object') continue;
+      const profile = raw as {
+        catalogKey?: unknown;
+        generationMode?: unknown;
+        aspectRatios?: unknown;
+        resolution?: unknown;
+        outputAudio?: unknown;
+        durationPolicy?: unknown;
+        durationOptions?: unknown;
+        minDurationSeconds?: unknown;
+        maxDurationSeconds?: unknown;
+        durationStepSeconds?: unknown;
+        durationSeconds?: unknown;
+        isDefault?: unknown;
+      };
+      if (typeof profile.catalogKey !== 'string' || typeof profile.generationMode !== 'string') continue;
+      const segments = profile.catalogKey.split('/');
+      if (segments.length < 3) continue;
+      const modelKey = `${segments[0]}/${segments[1]}`.toLowerCase();
+      const entry: CatalogVideoProfile = {
+        generationMode: profile.generationMode,
+        aspectRatios: Array.isArray(profile.aspectRatios)
+          ? profile.aspectRatios.filter((value): value is string => typeof value === 'string')
+          : [],
+        resolution: typeof profile.resolution === 'string' ? profile.resolution : null,
+        outputAudio: typeof profile.outputAudio === 'boolean' ? profile.outputAudio : null,
+        durationPolicy: typeof profile.durationPolicy === 'string' ? profile.durationPolicy : null,
+        durationOptions: Array.isArray(profile.durationOptions)
+          ? profile.durationOptions.filter((value): value is number => typeof value === 'number')
+          : [],
+        minDurationSeconds: typeof profile.minDurationSeconds === 'number' ? profile.minDurationSeconds : null,
+        maxDurationSeconds: typeof profile.maxDurationSeconds === 'number' ? profile.maxDurationSeconds : null,
+        durationStepSeconds: typeof profile.durationStepSeconds === 'number' ? profile.durationStepSeconds : null,
+        durationSeconds: typeof profile.durationSeconds === 'number' ? profile.durationSeconds : null,
+        isDefault: profile.isDefault === true,
+      };
+      const list = byKey.get(modelKey) ?? [];
+      list.push(entry);
+      byKey.set(modelKey, list);
+    }
+    return byKey;
   }
 
   /**
@@ -415,11 +651,14 @@ export class CreativeModelCatalogService {
     const removedModelIds: string[] = [];
     const deprecatedModelIds: string[] = [];
 
-    snapshot.forEach((item, index) => {
+    snapshot.forEach((item) => {
       // Hidden models are dropped from the catalog entirely; archived
       // entries stay as retired so stale selections can be migrated.
       if (item.shelfState === CREATIVE_MODEL_SHELF_STATE.HIDDEN) return;
-      const definition = toRemoteDefinition(item, modality, entries.length);
+      // A row that does not belong to this creation type never enters the
+      // layer: it would render in the picker and then fail at dispatch.
+      if (!isCreationModel(modality, item)) return;
+      const definition = toRemoteDefinition(item, modality, entries.length, staticIds);
       snapshotById.set(definition.id, definition);
 
       const before = previousById.get(definition.id);
@@ -446,7 +685,8 @@ export class CreativeModelCatalogService {
 
   /** Clear the remote layer and persisted selections (settings/test reset). */
   reset(): void {
-    this.remoteLayer = { version: 1, syncedAt: '', entries: {} };
+    this.remoteLayer = { version: REMOTE_LAYER_VERSION, syncedAt: '', entries: {} };
+    this.videoProfilesByKey = new Map();
     this.selectedIds = {};
     try {
       window.localStorage.removeItem(REMOTE_LAYER_STORAGE_KEY);

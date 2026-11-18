@@ -5,6 +5,16 @@ import {
   Laptop, Smartphone, CreditCard, ChevronRight, Activity, Copy, Sparkles
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import {
+  readProfileAvatarIndex,
+  readProfileBio,
+  writeProfileAvatarIndex,
+  writeProfileBio,
+} from '@sdkwork/agents-pc-commons';
+import {
+  resolveAppSdkDisplayName,
+  resolveAppSdkUserEmail,
+} from '@sdkwork/agents-pc-core/session';
 import { ProfileTab } from './profile/ProfileTab';
 import { BillingTab } from './profile/BillingTab';
 import { UsageTab } from './profile/UsageTab';
@@ -39,13 +49,17 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose, ini
   const { t } = useTranslation('settings');
   const { t: tCommon } = useTranslation('common');
 
-  // Load from locale-storage or default
-  const [username, setUsername] = useState(() => localStorage.getItem('profile_username') || tCommon('mockUserName'));
-  // Email is owned by the IAM identity; the default stays empty until a
-  // profile record exists.
-  const [email, setEmail] = useState(() => localStorage.getItem('profile_email') || '');
-  const [bio, setBio] = useState(() => localStorage.getItem('profile_bio') || t('defaultBio'));
-  const [avatarIndex, setAvatarIndex] = useState(() => parseInt(localStorage.getItem('profile_avatar_index') || '0', 10));
+  // Identity is owned by the IAM session; the editable presentation fields
+  // (bio, avatar style) are account-scoped, so a different account never sees
+  // the previous account's profile and nothing is duplicated locally.
+  const [username, setUsername] = useState(
+    () => resolveAppSdkDisplayName() ?? tCommon('mockUserName'),
+  );
+  const [email, setEmail] = useState(() => resolveAppSdkUserEmail() ?? '');
+  const [bio, setBio] = useState(() => readProfileBio() || t('defaultBio'));
+  const [avatarIndex, setAvatarIndex] = useState(
+    () => readProfileAvatarIndex(AVATAR_COLOR_TEMPLATES.length),
+  );
 
   const [activeTab, setActiveTab] = useState<'profile' | 'billing' | 'usage' | 'security' | 'developer'>(initialTab);
   const [isToastVisible, setIsToastVisible] = useState(false);
@@ -72,10 +86,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose, ini
   const handleSaveProfile = () => {
     setIsSaving(true);
     setTimeout(() => {
-      localStorage.setItem('profile_username', username);
-      localStorage.setItem('profile_email', email);
-      localStorage.setItem('profile_bio', bio);
-      localStorage.setItem('profile_avatar_index', avatarIndex.toString());
+      // Only the fields without an IAM projection are persisted, and they are
+      // account-scoped. Display name and email stay owned by the session.
+      writeProfileBio(bio);
+      writeProfileAvatarIndex(avatarIndex);
+      setUsername(resolveAppSdkDisplayName() ?? tCommon('mockUserName'));
+      setEmail(resolveAppSdkUserEmail() ?? '');
       setIsSaving(false);
       triggerToast(t('saveProfile') + ' - ' + tCommon('copied').replace('!', ''));
     }, 600);

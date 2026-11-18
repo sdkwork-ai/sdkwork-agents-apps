@@ -20,6 +20,11 @@ import {
   type AgentsDriveMediaResource,
   type AgentsDriveUploadPurpose,
 } from "@sdkwork/agents-pc-core/sdk/driveUploadService";
+import {
+  readAccountScopedItem,
+  removeAccountScopedItem,
+  writeAccountScopedItem,
+} from "@sdkwork/agents-pc-core/session";
 import { uuid } from "@sdkwork/utils";
 import { trimSessionTitle } from './utils/sessionTitleUtils';
 import { classifyChatFailure } from './utils/chatFailure';
@@ -52,6 +57,9 @@ import type { ModelsPickerGroup } from "@sdkwork/models-pc-picker/model-picker-t
 import type { AppliedCustomProvider } from "./components/CustomProviderDialog";
 
 const chatModelPickerFallback = createChatModelPickerFallback();
+
+/** Account-scoped (see `@sdkwork/agents-pc-core/session` account storage). */
+const CHAT_DRAFT_STORAGE_KEY = 'chat_input_draft';
 
 function resolveChatUploadPurpose(file: File): AgentsDriveUploadPurpose {
   if (file.type.startsWith('image/')) return 'agent-chat-image';
@@ -101,13 +109,9 @@ export const ChatView = ({
   const [activeProjectSettings, setActiveProjectSettings] = useState<
     ChatProject | null
   >(null);
-  const [input, setInput] = useState(() => {
-    try {
-      return localStorage.getItem("chat_input_draft") || "";
-    } catch {
-      return "";
-    }
-  });
+  const [input, setInput] = useState(
+    () => readAccountScopedItem(CHAT_DRAFT_STORAGE_KEY) ?? "",
+  );
 
   const [selectedModel, setSelectedModel] = useState(() =>
     resolveAgentChatSelectedModelId(agentId, agentModelId),
@@ -243,10 +247,10 @@ export const ChatView = ({
   const streamCompletionRef = useRef(0);
 
   useEffect(() => {
-    try {
-      localStorage.setItem("chat_input_draft", input);
-    } catch {
-      // ignore
+    if (input) {
+      writeAccountScopedItem(CHAT_DRAFT_STORAGE_KEY, input);
+    } else {
+      removeAccountScopedItem(CHAT_DRAFT_STORAGE_KEY);
     }
   }, [input]);
 

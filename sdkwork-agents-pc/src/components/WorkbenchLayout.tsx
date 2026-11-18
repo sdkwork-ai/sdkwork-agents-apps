@@ -5,6 +5,11 @@ import {
   AGENTS_OPEN_TOKEN_PLAN_EVENT,
   AGENTS_TOKEN_PLAN_CLOSED_EVENT,
 } from '@sdkwork/agents-pc-chat';
+import {
+  SDKWORK_AGENTS_PC_SESSION_CHANGED_EVENT,
+  resolveAppSdkDisplayName,
+} from '@sdkwork/agents-pc-core/session';
+import { readProfileAvatarIndex } from '@sdkwork/agents-pc-commons';
 import { GlobalSidebar } from './GlobalSidebar';
 import { AgentStatusIndicator } from './AgentStatusIndicator';
 import { DEFAULT_WORKBENCH_TAB, isWorkbenchTab, type WorkbenchTab } from './workbenchTabs';
@@ -78,8 +83,13 @@ export const WorkbenchLayout = ({
   const { t: tCommon } = useTranslation('common');
   const initializeTokenPlanRuntime = useTokenPlanRuntime();
 
-  const [username, setUsername] = useState(() => localStorage.getItem('profile_username') || tCommon('mockUserName'));
-  const [avatarIndex, setAvatarIndex] = useState(() => parseInt(localStorage.getItem('profile_avatar_index') || '0', 10));
+  // IAM owns the identity; only the avatar style is an account-scoped choice.
+  const [username, setUsername] = useState(
+    () => resolveAppSdkDisplayName() ?? tCommon('mockUserName'),
+  );
+  const [avatarIndex, setAvatarIndex] = useState(
+    () => readProfileAvatarIndex(AVATAR_COLOR_TEMPLATES.length),
+  );
 
   const closeTokenPlanOverlay = useCallback(() => {
     setIsTokenPlanOverlayOpen(false);
@@ -89,9 +99,9 @@ export const WorkbenchLayout = ({
   }, []);
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      setUsername(localStorage.getItem('profile_username') || tCommon('mockUserName'));
-      setAvatarIndex(parseInt(localStorage.getItem('profile_avatar_index') || '0', 10));
+    const syncProfile = () => {
+      setUsername(resolveAppSdkDisplayName() ?? tCommon('mockUserName'));
+      setAvatarIndex(readProfileAvatarIndex(AVATAR_COLOR_TEMPLATES.length));
     };
     const handleSwitchTab = (e: Event) => {
       const customEvent = e as CustomEvent<{ tab?: unknown }>;
@@ -104,15 +114,15 @@ export const WorkbenchLayout = ({
       initializeTokenPlanRuntime();
       setIsTokenPlanOverlayOpen(true);
     };
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener(SDKWORK_AGENTS_PC_SESSION_CHANGED_EVENT, syncProfile);
+    window.addEventListener('storage', syncProfile);
     window.addEventListener('switch-tab', handleSwitchTab);
     window.addEventListener(AGENTS_OPEN_TOKEN_PLAN_EVENT, handleOpenTokenPlanOverlay);
-    const interval = setInterval(handleStorageChange, 800);
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener(SDKWORK_AGENTS_PC_SESSION_CHANGED_EVENT, syncProfile);
+      window.removeEventListener('storage', syncProfile);
       window.removeEventListener('switch-tab', handleSwitchTab);
       window.removeEventListener(AGENTS_OPEN_TOKEN_PLAN_EVENT, handleOpenTokenPlanOverlay);
-      clearInterval(interval);
     };
   }, [tCommon, initializeTokenPlanRuntime]);
 

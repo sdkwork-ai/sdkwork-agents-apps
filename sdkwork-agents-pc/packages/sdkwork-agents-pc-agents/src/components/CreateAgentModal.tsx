@@ -1,174 +1,24 @@
-import React, { useMemo, useState } from 'react';
-import { Bot, Server } from 'lucide-react';
-import {
-  DriveUploadImage,
-  useDriveUploadImageController,
-  useDriveUploadImageSnapshot,
-} from 'sdkwork-drive-pc-upload-image';
-import { toast } from './Toast';
-import { agentService } from '../services/AgentService';
-import { createAgentAvatarUploadImageService } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
-import { ModalWrapper } from './ModalWrapper';
-import { DEFAULT_AGENT_CONFIG } from './AgentDefaults';
+import React from 'react';
 
-const AVATAR_UPLOAD_COPY = {
-  pickImage: '上传头像',
-  replaceImage: '更换头像',
-  removeImage: '移除',
-  retryUpload: '重试',
-  uploading: '上传中',
-  uploadFailed: '上传失败',
-} as const;
+import { AgentCreationFlow } from '../editor/AgentCreationFlow';
 
-export const CreateAgentModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (agentId?: string) => void }> = ({ isOpen, onClose, onSuccess }) => {
-  const [name, setName] = useState('');
-  const [desc, setDesc] = useState('');
-  const [type, setType] = useState<'normal' | 'independent'>('normal');
-  const [creating, setCreating] = useState(false);
-
-  // Shared Drive image-upload service for the avatar field, from the declared
-  // `agent.avatar` upload intent (DRIVE_SPEC.md section 18).
-  const avatarUploadImageService = useMemo(() => createAgentAvatarUploadImageService(), []);
-  // The agent does not exist until 下一步 persists it, so every pick stays
-  // pending here and uploads with the created agent id (persist-first,
-  // section 18.3).
-  const avatarController = useDriveUploadImageController({
-    service: avatarUploadImageService,
-    resolveAppResourceId: () => null,
-    onFailed: (failure) => {
-      console.error('Avatar Drive upload failed', failure.error);
-      toast('头像上传失败，请检查登录状态和 Drive 服务', 'error');
-    },
-  });
-  const avatarSnapshot = useDriveUploadImageSnapshot(avatarController);
-
-  // Reset state when modal opens/closes
-  React.useEffect(() => {
-    if (!isOpen) {
-      setName('');
-      setDesc('');
-      setType('normal');
-      avatarController.clear();
-    }
-  }, [isOpen, avatarController]);
-
-  return (
-    <ModalWrapper
-      isOpen={isOpen}
-      onClose={onClose}
-      title="创建智能体"
-      width="w-[520px]"
-      footer={
-        <>
-          <button onClick={onClose} className="px-4 py-2 rounded bg-slate-900/5 dark:bg-white/5 text-slate-700 dark:text-gray-300 hover:bg-slate-900/10 dark:hover:bg-white/10 transition-colors text-sm">取消</button>
-          <button
-            disabled={!name.trim() || creating}
-            className={`px-4 py-2 rounded text-white transition-colors text-sm flex items-center gap-1 ${name.trim() && !creating ? 'bg-[#165DFF] hover:bg-[#4080FF] active:bg-[#0E42D2]' : 'bg-[#165DFF]/50 cursor-not-allowed'}`}
-            onClick={async () => {
-              setCreating(true);
-              try {
-                const createdAgent = await agentService.createAgent({
-                  ...DEFAULT_AGENT_CONFIG,
-                  name,
-                  description: desc,
-                  type,
-                });
-                if (createdAgent.id && avatarSnapshot.hasPending) {
-                  // Persist first, upload second, then attach the stable
-                  // drive uri to the created agent (section 18.3).
-                  const values = await avatarController.uploadPending({
-                    appResourceId: createdAgent.id,
-                  });
-                  const avatarUri = values[values.length - 1]?.uri;
-                  if (avatarUri) {
-                    await agentService.updateAgent(createdAgent.id, { avatar: avatarUri });
-                  }
-                  }
-                toast(`智能体 "${name}" 创建成功`, 'success');
-                onSuccess(createdAgent.id);
-              } catch (error) {
-                toast('创建智能体失败', 'error');
-              } finally {
-                setCreating(false);
-              }
-            }}
-          >
-            {creating ? '创建中...' : '下一步'}
-          </button>
-        </>
-      }
-    >
-      <div className="space-y-6">
-        {/* Avatar Upload */}
-        <div className="flex flex-col items-center justify-center">
-          <DriveUploadImage
-            service={avatarUploadImageService}
-            controller={avatarController}
-            shape="circle"
-            sizePx={80}
-            copy={AVATAR_UPLOAD_COPY}
-          />
-        </div>
-
-        {/* Name */}
-        <div>
-          <label className="block text-sm text-slate-500 dark:text-gray-400 mb-1.5">智能体名称 <span className="text-red-500">*</span></label>
-          <input
-            type="text"
-            placeholder="例如：代码助手、翻译专家"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-[#181818] rounded-lg py-2.5 px-3 text-sm text-slate-800 dark:text-gray-200 outline-none transition-colors"
-          />
-        </div>
-
-        {/* Type Selection */}
-        <div>
-          <label className="block text-sm text-slate-500 dark:text-gray-400 mb-1.5">智能体类型</label>
-          <div className="grid grid-cols-2 gap-3">
-            <div
-              onClick={() => setType('normal')}
-              className={`p-3 rounded-lg cursor-pointer transition-all flex items-start gap-3 ${
-                type === 'normal' ? 'bg-[#00b42a]/10' : 'bg-slate-50 dark:bg-[#181818]'
-              }`}
-            >
-              <div className={`mt-0.5 ${type === 'normal' ? 'text-[#00b42a]' : 'text-slate-500 dark:text-gray-500'}`}>
-                <Bot size={18} />
-              </div>
-              <div>
-                <div className={`text-sm font-medium mb-0.5 ${type === 'normal' ? 'text-[#00b42a]' : 'text-slate-800 dark:text-gray-200'}`}>普通智能体</div>
-                <div className="text-[11px] text-slate-500 dark:text-gray-500 leading-tight">在当前工作空间内运行，共享资源</div>
-              </div>
-              </div>
-
-            <div
-              onClick={() => setType('independent')}
-              className={`p-3 rounded-lg cursor-pointer transition-all flex items-start gap-3 ${
-                type === 'independent' ? 'bg-[#00b42a]/10' : 'bg-slate-50 dark:bg-[#181818]'
-              }`}
-            >
-              <div className={`mt-0.5 ${type === 'independent' ? 'text-[#00b42a]' : 'text-slate-500 dark:text-gray-500'}`}>
-                <Server size={18} />
-              </div>
-              <div>
-                <div className={`text-sm font-medium mb-0.5 ${type === 'independent' ? 'text-[#00b42a]' : 'text-slate-800 dark:text-gray-200'}`}>独立部署智能体</div>
-                <div className="text-[11px] text-slate-500 dark:text-gray-500 leading-tight">拥有独立的运行环境和专属资源</div>
-              </div>
-              </div>
-              </div>
-              </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-sm text-slate-500 dark:text-gray-400 mb-1.5">简介</label>
-          <textarea
-            placeholder="一句话描述它的作用"
-            value={desc}
-            onChange={e => setDesc(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-[#181818] rounded-lg py-2.5 px-3 text-sm text-slate-800 dark:text-gray-200 outline-none h-20 resize-none custom-scrollbar transition-colors"
-          />
-        </div>
-        </div>
-    </ModalWrapper>
-  );
-};
+/**
+ * Compatibility wrapper for hosts that only mount the basic creation dialog.
+ *
+ * The whole flow lives in `AgentCreationFlow`: basic information first, then a
+ * zip upload for local agents or the host's editor page for conversation
+ * agents. `onSuccess` receives the created agent id in both cases, which is the
+ * one thing callers ever needed from this dialog.
+ */
+export const CreateAgentModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: (agentId?: string) => void;
+}> = ({ isOpen, onClose, onSuccess }) => (
+  <AgentCreationFlow
+    onClose={onClose}
+    onCompleted={(agent) => onSuccess(agent.id)}
+    onContinueToEditor={(agent) => onSuccess(agent.id)}
+    open={isOpen}
+  />
+);

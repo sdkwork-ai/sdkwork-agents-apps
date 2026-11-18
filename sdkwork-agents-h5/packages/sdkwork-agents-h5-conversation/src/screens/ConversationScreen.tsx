@@ -20,12 +20,22 @@ export interface ConversationScreenProps {
   model?: string;
   /** Greeting shown in the empty state instead of the default hint. */
   welcomeMessage?: string;
+  /** Empty-state heading override (host branding). */
+  welcomeTitle?: string;
   /** Session to open first; defaults to the most recent one. */
   initialSessionId?: string;
   /** Optional voice input port. */
   voice?: ConversationVoicePort | null;
   /** Notified after the session list changes. */
   onSessionsChanged?: (sessions: ConversationSession[]) => void;
+  /**
+   * Fill the host content area instead of the full visual viewport.
+   *
+   * Embedded hosts (for example the Cloud Router H5 Playground tab) already
+   * reserve a header and tab bar, so the window viewport height would push the
+   * composer under the tab bar. A full-screen host keeps the default.
+   */
+  fillHost?: boolean;
   className?: string;
 }
 
@@ -40,9 +50,11 @@ export function ConversationScreen({
   scope,
   model,
   welcomeMessage,
+  welcomeTitle,
   initialSessionId,
   voice = null,
   onSessionsChanged,
+  fillHost = false,
   className,
 }: ConversationScreenProps) {
   const [sessionsOpen, setSessionsOpen] = useState(false);
@@ -64,9 +76,10 @@ export function ConversationScreen({
       className={cn(
         "relative flex min-h-0 flex-1 flex-col overflow-hidden",
         "bg-[var(--color-bg-color,#F4F7FC)]",
+        fillHost ? "h-full" : "",
         className,
       )}
-      style={viewportHeight ? { height: `${viewportHeight}px` } : undefined}
+      style={viewportHeight && !fillHost ? { height: `${viewportHeight}px` } : undefined}
     >
       <ConversationTopBar
         {...(activeSession ? { sessionTitle: activeSession.title } : {})}
@@ -91,7 +104,10 @@ export function ConversationScreen({
       ) : null}
 
       {controller.messages.length === 0 ? (
-        <ConversationEmptyState {...(welcomeMessage ? { welcomeMessage } : {})} />
+        <ConversationEmptyState
+          {...(welcomeTitle ? { welcomeTitle } : {})}
+          {...(welcomeMessage ? { welcomeMessage } : {})}
+        />
       ) : (
         <ConversationMessageList
           messages={controller.messages}

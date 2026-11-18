@@ -14,6 +14,7 @@ import {
   type SdkworkAgentsDriveAppClient,
 } from "./driveAppSdkClient";
 import {
+  AGENTS_AGENT_PACKAGE_UPLOAD,
   AGENTS_AVATAR_UPLOAD,
   AGENTS_CREATIVE_AUDIO_UPLOAD,
   AGENTS_CREATIVE_IMAGE_UPLOAD,
@@ -72,7 +73,8 @@ export type AgentsDriveUploadPurpose =
   | "agent-chat-voice"
   | "agent-creative-image"
   | "agent-creative-audio"
-  | "agent-creative-video";
+  | "agent-creative-video"
+  | "agent-package";
 
 export interface AgentsDriveUploadRequest {
   file: File;
@@ -158,6 +160,13 @@ const UPLOAD_POLICIES: Record<AgentsDriveUploadPurpose, UploadPolicy> = {
     profile: "video",
     scene: AGENTS_CREATIVE_VIDEO_UPLOAD.scene,
   },
+  "agent-package": {
+    appResourceType: AGENTS_AGENT_PACKAGE_UPLOAD.appResourceType,
+    kind: "archive",
+    maxBytes: 512 * MEBIBYTE,
+    profile: "archive",
+    scene: AGENTS_AGENT_PACKAGE_UPLOAD.scene,
+  },
 };
 
 function validateUpload(file: File, policy: UploadPolicy): void {
@@ -176,6 +185,23 @@ function validateUpload(file: File, policy: UploadPolicy): void {
   if ((policy.kind === "audio" || policy.kind === "voice") && !file.type.startsWith("audio/")) {
     throw new Error("The selected file is not audio.");
   }
+  if (policy.kind === "archive" && !isZipArchive(file)) {
+    throw new Error("The selected file is not a zip archive.");
+  }
+}
+
+const ZIP_MIME_TYPES = new Set([
+  "application/zip",
+  "application/x-zip",
+  "application/x-zip-compressed",
+  "application/octet-stream",
+]);
+
+function isZipArchive(file: File): boolean {
+  if (ZIP_MIME_TYPES.has(file.type)) {
+    return true;
+  }
+  return /\.zip$/iu.test(file.name);
 }
 
 export class AgentsDriveUploadService {

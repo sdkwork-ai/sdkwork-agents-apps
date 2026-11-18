@@ -8,26 +8,41 @@ import {
 } from '../packages/sdkwork-agents-pc-agents/src/pages/agentCatalog';
 
 const agents = [
-  { name: 'Developer', description: '', type: 'normal' as const, categoryId: 'tech' },
+  { name: 'Developer', description: '', type: 'normal' as const, categoryId: 'engineering' },
   { name: 'Writer', description: '', type: 'normal' as const, categoryId: 'writing' },
+  { name: 'Clinician', description: '', type: 'normal' as const, categoryId: 'healthcare' },
   { name: 'Uncategorized', description: '', type: 'normal' as const },
 ];
 
-test('preserves the complete legacy Agent market category set', () => {
+test('offers the professional domain taxonomy as market filters', () => {
   assert.deepEqual(
     AGENT_MARKET_CATEGORIES.map(({ id }) => id),
-    ['all', 'tech', 'writing', 'design', 'office', 'device'],
+    [
+      'all',
+      'technology',
+      'business',
+      'corporate',
+      'education',
+      'health',
+      'public-service',
+      'lifestyle',
+      'content',
+      'industrial',
+    ],
   );
 });
 
-test('filters only matching market agents while all preserves the page', () => {
+test('filters by domain while aggregating every specialty beneath it', () => {
   assert.deepEqual(filterMarketAgents(agents, 'all').map(({ name }) => name), [
     'Developer',
     'Writer',
+    'Clinician',
     'Uncategorized',
   ]);
-  assert.deepEqual(filterMarketAgents(agents, 'tech').map(({ name }) => name), ['Developer']);
-  assert.deepEqual(filterMarketAgents(agents, 'device'), []);
+  assert.deepEqual(filterMarketAgents(agents, 'technology').map(({ name }) => name), ['Developer']);
+  assert.deepEqual(filterMarketAgents(agents, 'content').map(({ name }) => name), ['Writer']);
+  assert.deepEqual(filterMarketAgents(agents, 'health').map(({ name }) => name), ['Clinician']);
+  assert.deepEqual(filterMarketAgents(agents, 'industrial'), []);
 });
 
 test('Agent workspace renders and applies the market category controls', () => {
