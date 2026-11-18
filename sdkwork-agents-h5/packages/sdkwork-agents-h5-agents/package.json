@@ -24,5 +24,8 @@
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "react": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:"
   }
 }
