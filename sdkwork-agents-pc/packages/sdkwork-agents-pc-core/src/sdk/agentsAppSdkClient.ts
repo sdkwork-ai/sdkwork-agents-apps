@@ -117,6 +117,7 @@ export type {
   AgentEngineCatalog,
   AgentEngineCatalogEngine,
   AgentEngineModelCatalogEntry,
+  AgentVisibility,
   CreateAgentProviderBindingRequest,
   CreateAgentRequest,
   CreateAgentSessionRuntimeBindingRequest,

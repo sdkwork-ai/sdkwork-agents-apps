@@ -40,8 +40,7 @@ function notFoundError(): Error & {
   return error;
 }
 
-function createChatAgentPort(overrides: Partial<ChatAgentPort>): ChatAgentPort {
-  const session = {
+function createChatAgentPort(overrides: Partial<ChatAgentPort>): ChatAgentPort {  const session = {
     id: 'session.1',
     title: 'Session 1',
     updatedAt: new Date().toISOString(),
@@ -290,4 +289,73 @@ test('propagates grounding citations to the completion callback', async () => {
   });
 
   assert.deepEqual(completed?.citations, citations);
+});
+
+/**
+ * The built-in assistant id is unique per tenant and shared by every member.
+ * Provisioning it as `private` made the record readable only by its creator
+ * while still occupying the id, so everybody else got 404 on retrieve and 409
+ * on create (the Playground load failure this pins).
+ */
+test('provisions the built-in assistant as a tenant-shared agent', async () => {
+  let provisioned: { id: string; visibility?: string } | undefined;
+  configureChatAgentPort(createChatAgentPort({
+    getAgent: async () => null,
+    createAgent: async (agent) => {
+      provisioned = agent;
+      return agent;
+    },
+  }));
+
+  await ChatService.loadSessions('model-a');
+
+  assert.equal(provisioned?.id, 'agent.chat.default');
+  assert.equal(provisioned?.visibility, 'tenant');
+});
+
+test('reuses the winning agent when a concurrent provisioning reports a conflict', async () => {
+  let getCalls = 0;
+  let createCalls = 0;
+  configureChatAgentPort(createChatAgentPort({
+    getAgent: async () => {
+      getCalls += 1;
+      return getCalls === 1 ? null : { model: 'model-a' };
+    },
+    createAgent: async () => {
+      createCalls += 1;
+      const error = new Error('Conflict') as Error & {
+        httpStatus: number;
+        problem: { code: number };
+      };
+      error.httpStatus = 409;
+      error.problem = { code: 40901 };
+      throw error;
+    },
+  }));
+
+  const sessions = await ChatService.loadSessions('model-a');
+
+  assert.equal(createCalls, 1);
+  assert.equal(getCalls, 2);
+  assert.deepEqual(sessions.map((session) => session.id), ['session.1']);
+});
+
+test('still surfaces a conflict when the existing built-in agent stays unreadable', async () => {
+  configureChatAgentPort(createChatAgentPort({
+    getAgent: async () => null,
+    createAgent: async () => {
+      const error = new Error('Conflict') as Error & {
+        httpStatus: number;
+        problem: { code: number };
+      };
+      error.httpStatus = 409;
+      error.problem = { code: 40901 };
+      throw error;
+    },
+  }));
+
+  await assert.rejects(
+    ChatService.loadSessions('model-a'),
+    /agent\.chat\.default could not be provisioned/u,
+  );
 });

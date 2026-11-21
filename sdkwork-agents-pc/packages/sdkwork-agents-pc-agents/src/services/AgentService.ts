@@ -6,6 +6,7 @@ import {
 import type {
   AgentManagementProfile,
   AgentRecord,
+  AgentVisibility,
   CreateAgentProviderBindingRequest,
   CreateAgentRequest,
   UpdateAgentRequest,
@@ -38,6 +39,12 @@ export interface AgentConfig {
   description: string;
   avatar?: string;
   type: 'normal' | 'independent';
+  /**
+   * Record visibility requested when creating the agent. Defaults to
+   * `private`; the built-in assistant provisions itself as `tenant` because
+   * its id is unique per tenant and shared by every member.
+   */
+  visibility?: AgentVisibility;
   systemPrompt?: string;
   knowledgeBaseIds?: string[];
   author?: string;
@@ -668,7 +675,7 @@ function buildCreateAgentRequest(
     implementationProviderId: implementation.providerId,
     implementationKind: implementation.kind,
     implementationType: implementation.type,
-    visibility: 'private',
+    visibility: config.visibility ?? 'private',
     tags: categoryId ? [categoryId] : [],
     allowedRoleCodes: normalizeAllowedRoleCodes(config.allowedRoleCodes) ?? [],
     requestedAt: new Date().toISOString(),
@@ -681,6 +688,7 @@ function buildUpdateAgentRequest(id: string, config: Partial<AgentConfig>): Upda
   return {
     ...(typeof config.name === 'string' ? { displayName: config.name } : {}),
     ...(typeof config.description === 'string' ? { description: config.description } : {}),
+    ...(config.visibility ? { visibility: config.visibility } : {}),
     ...(categoryId ? { tags: [categoryId] } : {}),
     ...(Array.isArray(config.allowedRoleCodes)
       ? { allowedRoleCodes: normalizeAllowedRoleCodes(config.allowedRoleCodes) ?? [] }

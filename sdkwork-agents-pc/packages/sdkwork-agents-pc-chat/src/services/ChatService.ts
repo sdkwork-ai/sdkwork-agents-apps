@@ -1,6 +1,7 @@
 import type { ChatCitation, ChatMessage, ChatToolCall, ChatToolStreamEvent } from '../types';
 import { trimSessionTitle } from '../utils/sessionTitleUtils';
 import type { AgentsDriveMediaResource } from '@sdkwork/agents-pc-core/sdk/driveUploadService';
+import type { AgentVisibility } from '@sdkwork/agents-pc-core/sdk';
 import { createSdkworkChatRequestContext } from '@sdkwork/agents-pc-core/session';
 
 /** Funding action attached to a self-healable problem (e.g. insufficient balance). */
@@ -95,6 +96,15 @@ export interface ChatAgentConfig {
    */
   systemPrompt?: string;
   welcomeMessage: string;
+  /**
+   * Record visibility requested when the agent has to be provisioned.
+   *
+   * The built-in assistant id is unique per tenant and shared by every member,
+   * so it is provisioned as `tenant`; a `private` record would hide it from
+   * everybody else. User-created agents keep the agent service default
+   * (`private`).
+   */
+  visibility?: AgentVisibility;
 }
 
 interface ChatAgentRecord {
@@ -238,7 +248,41 @@ function defaultAgent(model: string): ChatAgentConfig {
     type: 'normal',
     model,
     welcomeMessage: 'How can I help?',
+    // The built-in assistant id is unique per tenant and every member shares
+    // one record, so it is a tenant resource. A `private` record would be
+    // readable only by its creator while still answering 409 to everybody
+    // else's create attempt.
+    visibility: 'tenant',
   };
+}
+
+/** True when an agent create failed because the record already exists. */
+function isAgentConflictError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  // The generated SDK surfaces the HTTP status in several shapes depending on
+  // the transport path; mirror the agent service's not-found detection and
+  // accept the numeric `agents.create` conflict code too.
+  const record = error as {
+    httpStatus?: number;
+    status?: number | string;
+    code?: number | string;
+    problem?: { status?: number; code?: number | string };
+    response?: { status?: number; code?: number | string };
+    body?: { code?: number | string };
+  };
+  if (
+    record.httpStatus === 409
+    || record.status === 409
+    || record.status === '409'
+    || record.problem?.status === 409
+    || record.response?.status === 409
+  ) {
+    return true;
+  }
+  return [record.code, record.problem?.code, record.response?.code, record.body?.code]
+    .some((code) => Number(code) === 40901);
 }
 
 async function ensureChatAgent(model: string, scope: ChatAgentScope): Promise<void> {
@@ -261,9 +305,25 @@ async function ensureChatAgent(model: string, scope: ChatAgentScope): Promise<vo
   }
 
   if (!current) {
-    const created = await port.createAgent(defaultAgent(model));
+    let provisioned: ChatAgentRecord | null = null;
+    try {
+      provisioned = (await port.createAgent(defaultAgent(model))) as ChatAgentRecord | null;
+    } catch (error) {
+      if (!isAgentConflictError(error)) {
+        throw error;
+      }
+      // Another member of the tenant provisioned the shared built-in agent
+      // between the read above and this create; reuse the winner instead of
+      // failing the page. A conflict that still leaves the record unreadable
+      // is a genuine problem (the id is taken by a record this caller may not
+      // see), so it must surface instead of being swallowed.
+      provisioned = await port.getAgent(scope.agentId);
+      if (!provisioned) {
+        throw new Error(`Agent ${scope.agentId} could not be provisioned.`);
+      }
+    }
     chatAgentCacheById.set(cacheKey, {
-      agent: created as ChatAgentRecord | null,
+      agent: provisioned,
       expiresAt: now + CHAT_AGENT_CACHE_TTL_MS,
     });
     return;
