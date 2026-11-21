@@ -27,7 +27,6 @@ import {
   LayersIcon,
   PlusIcon,
   RefreshIcon,
-  SearchIcon,
   TagIcon,
   type AgentCategoryLifecycleStatus,
 } from './agentCategoryUi.tsx';
@@ -375,69 +374,6 @@ export function AgentCategoriesPage() {
         </div>
       </header>
 
-      <div className="mb-3 flex gap-1 overflow-x-auto rounded-lg bg-slate-100 p-1 dark:bg-white/[0.04]">
-        {statusTabs.map((tab) => {
-          const selected = statusFilter === tab.value;
-          return (
-            <button
-              aria-pressed={selected}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 ${
-                selected
-                  ? 'bg-white text-slate-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100'
-                  : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
-              }`}
-              key={tab.value}
-              onClick={() => setStatusFilter(tab.value)}
-              type="button"
-            >
-              {copy.tabs[tab.value]}
-              <span
-                className={`rounded-full px-1.5 py-0.5 text-[10px] tabular-nums ${
-                  selected
-                    ? 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-zinc-300'
-                    : 'bg-slate-200/70 text-slate-500 dark:bg-white/5 dark:text-zinc-500'
-                }`}
-              >
-                {tab.count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <label className="relative min-w-[14rem] flex-1 sm:max-w-sm">
-          <span className="sr-only">{copy.search.label}</span>
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            className="w-full rounded-md border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600"
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={copy.search.placeholder}
-            value={query}
-          />
-        </label>
-
-        <div className="ml-auto flex items-center gap-3 text-xs text-slate-500 dark:text-zinc-400">
-          <span className="inline-flex items-center gap-1.5">
-            <LayersIcon className="h-3.5 w-3.5" />
-            {filtersActive
-              ? copy.summary.ofTotal(filtered.length, total)
-              : copy.summary.total(total)}
-          </span>
-          <span aria-hidden="true" className="text-slate-300 dark:text-zinc-700">·</span>
-          <span>{copy.summary.active(activeCount)}</span>
-          {filtersActive ? (
-            <button
-              className="rounded px-1.5 py-0.5 font-medium text-slate-600 underline-offset-2 hover:underline dark:text-zinc-300"
-              onClick={clearFilters}
-              type="button"
-            >
-              {copy.summary.clearFilters}
-            </button>
-          ) : null}
-        </div>
-      </div>
-
       {notice ? (
         <div
           className="mb-4 flex items-start gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
@@ -475,7 +411,61 @@ export function AgentCategoriesPage() {
       ) : null}
 
       <div className="data-surface">
-        <div className="table-frame overflow-x-auto">
+        <div className="admin-list-toolbar">
+          <div className="admin-list-toolbar__filters">
+            <label className="admin-field admin-field--search">
+              <span className="admin-field__label">{copy.search.label}</span>
+              <input
+                className="admin-control"
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={copy.search.placeholder}
+                value={query}
+              />
+            </label>
+            <div className="admin-field">
+              <span className="admin-field__label">{copy.table.status}</span>
+              <div className="admin-segmented" role="group" aria-label={copy.table.status}>
+                {statusTabs.map((tab) => {
+                  const selected = statusFilter === tab.value;
+                  return (
+                    <button
+                      aria-pressed={selected}
+                      className="admin-segmented__item"
+                      key={tab.value}
+                      onClick={() => setStatusFilter(tab.value)}
+                      type="button"
+                    >
+                      {copy.tabs[tab.value]}
+                      <span className="ml-1.5 tabular-nums">{tab.count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-list-toolbar__actions text-xs text-slate-500 dark:text-zinc-400">
+            <span className="inline-flex items-center gap-1.5">
+              <LayersIcon className="h-3.5 w-3.5" />
+              {filtersActive
+                ? copy.summary.ofTotal(filtered.length, total)
+                : copy.summary.total(total)}
+            </span>
+            <span aria-hidden="true" className="text-slate-300 dark:text-zinc-700">·</span>
+            <span>{copy.summary.active(activeCount)}</span>
+            {filtersActive ? (
+              <button
+                className="admin-button admin-button--ghost"
+                onClick={clearFilters}
+                type="button"
+              >
+                {copy.summary.clearFilters}
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="table-frame">
           {loading ? (
             <CategoryTableSkeleton label={copy.table.loadingLabel} />
           ) : categories.length === 0 && error ? (
@@ -503,29 +493,26 @@ export function AgentCategoriesPage() {
               variant="noResults"
             />
           ) : (
-            <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-zinc-800">
+            <table className="admin-list-table">
               <caption className="sr-only">{copy.table.caption}</caption>
-              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:bg-zinc-800/60 dark:text-zinc-400">
+              <thead>
                 <tr>
-                  <th className="px-4 py-3 font-semibold">{copy.table.category}</th>
-                  <th className="px-4 py-3 font-semibold">{copy.table.code}</th>
-                  <th className="px-4 py-3 font-semibold">{copy.table.placement}</th>
-                  <th className="px-4 py-3 font-semibold">{copy.table.order}</th>
-                  <th className="px-4 py-3 font-semibold">{copy.table.status}</th>
-                  <th className="px-4 py-3 font-semibold">{copy.table.updated}</th>
-                  <th className="px-4 py-3 text-right font-semibold">{copy.table.actions}</th>
+                  <th>{copy.table.category}</th>
+                  <th>{copy.table.code}</th>
+                  <th>{copy.table.placement}</th>
+                  <th>{copy.table.order}</th>
+                  <th>{copy.table.status}</th>
+                  <th>{copy.table.updated}</th>
+                  <th className="text-right">{copy.table.actions}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-zinc-800">
+              <tbody>
                 {rows.map(({ record, depth }) => {
                   const parent = record.parentId ? byId.get(record.parentId) : undefined;
                   const isBusy = busyCode === record.categoryCode;
                   return (
-                    <tr
-                      className="group transition-colors hover:bg-slate-50/80 dark:hover:bg-white/[0.03]"
-                      key={record.id}
-                    >
-                      <td className="px-4 py-3 align-top">
+                    <tr key={record.id}>
+                      <td className="align-top">
                         <div
                           className="flex items-start gap-3"
                           style={{ paddingLeft: depth > 0 ? '1.25rem' : undefined }}
@@ -560,7 +547,7 @@ export function AgentCategoriesPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 align-top">
+                      <td className="align-top">
                         <div className="inline-flex items-center gap-1">
                           <span className="inline-flex items-center gap-1.5 rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600 dark:bg-white/5 dark:text-zinc-400">
                             <TagIcon className="h-3 w-3" />
@@ -589,7 +576,7 @@ export function AgentCategoriesPage() {
                           </button>
                         </div>
                       </td>
-                      <td className="px-4 py-3 align-top text-slate-600 dark:text-zinc-300">
+                      <td className="align-top text-slate-600 dark:text-zinc-300">
                         {parent ? (
                           <span className="inline-flex items-center gap-1.5">
                             <FolderIcon className="h-3.5 w-3.5 text-slate-400" />
@@ -601,19 +588,19 @@ export function AgentCategoriesPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 align-top tabular-nums text-slate-600 dark:text-zinc-300">
+                      <td className="align-top tabular-nums text-slate-600 dark:text-zinc-300">
                         {record.sortOrder}
                       </td>
-                      <td className="px-4 py-3 align-top">
+                      <td className="align-top">
                         <AgentCategoryStatusBadge status={record.lifecycleStatus} />
                       </td>
-                      <td className="px-4 py-3 align-top text-xs text-slate-500 dark:text-zinc-400">
+                      <td className="align-top text-xs text-slate-500 dark:text-zinc-400">
                         <div>{formatDate(record.updatedAt, locale)}</div>
                         <div className="mt-0.5 font-mono text-[10px] text-slate-400 dark:text-zinc-600">
                           v{record.version}
                         </div>
                       </td>
-                      <td className="px-4 py-3 align-top">
+                      <td className="align-top">
                         <div className="flex justify-end gap-2">
                           <button
                             className="inline-flex items-center gap-1 rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/5"
@@ -648,7 +635,7 @@ export function AgentCategoriesPage() {
           )}
         </div>
         {!loading && categories.length > 0 ? (
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 px-4 py-2.5 text-xs text-slate-500 dark:border-white/10 dark:text-zinc-400">
+          <div className="admin-list-footer">
             <span>{copy.footer.showing(rows.length, total, categories.length)}</span>
             <span>{copy.footer.sorted}</span>
           </div>
@@ -711,7 +698,7 @@ function CategoryEmptyState({
       </p>
       {onCreate ? (
         <button
-          className="mt-5 inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500"
+          className="admin-button admin-button--primary mt-5"
           onClick={onCreate}
           type="button"
         >
@@ -721,7 +708,7 @@ function CategoryEmptyState({
       ) : null}
       {onClear ? (
         <button
-          className="mt-5 rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/5"
+          className="admin-button admin-button--secondary mt-5"
           onClick={onClear}
           type="button"
         >

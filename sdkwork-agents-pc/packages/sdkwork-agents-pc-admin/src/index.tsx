@@ -239,123 +239,124 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
 
   return (
     <section className="embedded-fill-page">
-      <header className="mb-4 flex items-center justify-between gap-3">
+      <header className="admin-page-header">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900 dark:text-zinc-100">{copy.title}</h1>
-          <p className="text-sm text-slate-500 dark:text-zinc-400">{copy.description}</p>
+          <h1 className="admin-page-header__title">{copy.title}</h1>
+          <p className="admin-page-header__description">{copy.description}</p>
         </div>
-        <button
-          type="button"
-          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500"
-          onClick={() => setCreateOpen(true)}
-        >
-          {copy.actions.newAgent}
-        </button>
+        <div className="admin-page-header__actions">
+          <button
+            type="button"
+            className="admin-button admin-button--primary"
+            onClick={() => setCreateOpen(true)}
+          >
+            {copy.actions.newAgent}
+          </button>
+        </div>
       </header>
 
       {error ? (
-        <div className="mb-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
+        <div role="alert" className="admin-alert admin-alert--error">
           {copy.errors.requestFailed(error)}
         </div>
       ) : null}
       {notice ? (
-        <div className="mb-4 rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+        <div role="status" className="admin-alert admin-alert--success">
           {notice}
         </div>
       ) : null}
 
-      {/* Catalog filters: keyword, category, and the operator's role scope.
-          They narrow the list endpoint itself, so the totals and the visible
-          rows agree, and the four AI-foundation catalogs read consistently. */}
-      <div className="mb-4 flex flex-wrap items-end gap-4">
-        <label className="grid max-w-xs gap-1 text-sm">
-          <span className={LABEL_TEXT_CLASS}>{copy.filters.keywordLabel}</span>
-          <input
-            className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            placeholder={copy.filters.keywordPlaceholder}
-          />
-        </label>
-        <label className="grid gap-1 text-sm">
-          <span className={LABEL_TEXT_CLASS}>{copy.filters.categoryLabel}</span>
-          <select
-            className="rounded border border-slate-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-            value={categoryCode}
-            onChange={(event) => setCategoryCode(event.target.value)}
-          >
-            <option value="">{copy.filters.allCategories}</option>
-            {activeCategoryOptions(categories, categoryCode).map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="grid gap-1 text-sm">
-          <span className={LABEL_TEXT_CLASS}>{copy.filters.roleScopeLabel}</span>
-          <div
-            className="inline-flex overflow-hidden rounded border border-slate-300 dark:border-zinc-700"
-            role="group"
-            aria-label={copy.filters.roleScopeLabel}
-          >
-            {(['all', 'mine'] as const).map((scope) => {
-              const disabled = scope === 'mine' && usableRoleCodes.length === 0;
-              return (
-                <button
-                  key={scope}
-                  type="button"
-                  className={
-                    roleScope === scope
-                      ? 'bg-blue-600 px-3 py-1 text-xs font-medium text-white'
-                      : 'px-3 py-1 text-xs text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:text-zinc-300 dark:hover:bg-zinc-800'
-                  }
-                  aria-pressed={roleScope === scope}
-                  disabled={disabled}
-                  title={disabled ? copy.filters.roleScopeUnavailable : undefined}
-                  onClick={() => setRoleScope(scope)}
-                >
-                  {scope === 'all'
-                    ? copy.filters.roleScopeAll
-                    : copy.filters.roleScopeMine}
-                </button>
-              );
-            })}
+      <div className="data-surface">
+        {/* Catalog filters: keyword, category, and the operator's role scope.
+            They narrow the list endpoint itself, so the totals and the visible
+            rows agree, and the four AI-foundation catalogs read consistently.
+            They live in the table card's header band, not above the card. */}
+        <div className="admin-list-toolbar">
+          <div className="admin-list-toolbar__filters">
+            <label className="admin-field admin-field--search">
+              <span className="admin-field__label">{copy.filters.keywordLabel}</span>
+              <input
+                className="admin-control"
+                value={keyword}
+                onChange={(event) => setKeyword(event.target.value)}
+                placeholder={copy.filters.keywordPlaceholder}
+              />
+            </label>
+            <label className="admin-field admin-field--compact">
+              <span className="admin-field__label">{copy.filters.categoryLabel}</span>
+              <select
+                className="admin-control"
+                value={categoryCode}
+                onChange={(event) => setCategoryCode(event.target.value)}
+              >
+                <option value="">{copy.filters.allCategories}</option>
+                {activeCategoryOptions(categories, categoryCode).map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="admin-field">
+              <span className="admin-field__label">{copy.filters.roleScopeLabel}</span>
+              <div
+                className="admin-segmented"
+                role="group"
+                aria-label={copy.filters.roleScopeLabel}
+              >
+                {(['all', 'mine'] as const).map((scope) => {
+                  const disabled = scope === 'mine' && usableRoleCodes.length === 0;
+                  return (
+                    <button
+                      key={scope}
+                      type="button"
+                      className="admin-segmented__item"
+                      aria-pressed={roleScope === scope}
+                      disabled={disabled}
+                      title={disabled ? copy.filters.roleScopeUnavailable : undefined}
+                      onClick={() => setRoleScope(scope)}
+                    >
+                      {scope === 'all'
+                        ? copy.filters.roleScopeAll
+                        : copy.filters.roleScopeMine}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="data-surface">
         <div className="table-frame">
           {loading ? (
-            <p className="text-sm text-slate-500 dark:text-zinc-400">{copy.table.loading}</p>
+            <p className="admin-list-state">{copy.table.loading}</p>
           ) : records.length === 0 ? (
-            <p className="text-sm text-slate-500 dark:text-zinc-400">{copy.table.empty}</p>
+            <p className="admin-list-state">{copy.table.empty}</p>
           ) : (
-            <table className="w-full text-left text-sm">
-              <thead className="text-xs uppercase tracking-wide text-slate-500 dark:text-zinc-400">
+            <table className="admin-list-table">
+              <thead>
                 <tr>
-                  <th className="px-3 py-2">{copy.table.agent}</th>
-                  <th className="px-3 py-2">{copy.table.code}</th>
-                  <th className="px-3 py-2">{copy.table.implementation}</th>
-                  <th className="px-3 py-2">{copy.table.category}</th>
-                  <th className="px-3 py-2">{copy.table.visibility}</th>
-                  <th className="px-3 py-2">{copy.table.status}</th>
-                  <th className="px-3 py-2">{copy.table.version}</th>
-                  <th className="px-3 py-2">{copy.table.updated}</th>
-                  <th className="px-3 py-2">{copy.table.actions}</th>
+                  <th>{copy.table.agent}</th>
+                  <th>{copy.table.code}</th>
+                  <th>{copy.table.implementation}</th>
+                  <th>{copy.table.category}</th>
+                  <th>{copy.table.visibility}</th>
+                  <th>{copy.table.status}</th>
+                  <th>{copy.table.version}</th>
+                  <th>{copy.table.updated}</th>
+                  <th>{copy.table.actions}</th>
                 </tr>
               </thead>
               <tbody>
                 {records.map((record) => (
-                  <tr key={record.id} className="border-t border-slate-200 dark:border-zinc-800">
-                    <td className="px-3 py-2">
+                  <tr key={record.id}>
+                    <td>
                       <div className="font-medium text-slate-900 dark:text-zinc-100">{record.displayName}</div>
                       <div className="text-xs text-slate-500 dark:text-zinc-400">{record.agentId}</div>
                     </td>
-                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{record.code}</td>
-                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{record.implementationType}</td>
-                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">
+                    <td className="text-slate-700 dark:text-zinc-300">{record.code}</td>
+                    <td className="text-slate-700 dark:text-zinc-300">{record.implementationType}</td>
+                    <td className="text-slate-700 dark:text-zinc-300">
                       {(() => {
                         const categoryId = record.managementProfile?.categoryId;
                         if (!categoryId) {
@@ -372,19 +373,19 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
                         );
                       })()}
                     </td>
-                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">
+                    <td className="text-slate-700 dark:text-zinc-300">
                       {agentVisibilityLabel(copy, record.visibility)}
                     </td>
-                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">
+                    <td className="text-slate-700 dark:text-zinc-300">
                       {agentStatusLabel(copy, record.status)}
                     </td>
-                    <td className="px-3 py-2 text-slate-700 dark:text-zinc-300">{String(record.version)}</td>
-                    <td className="px-3 py-2 text-xs text-slate-500 dark:text-zinc-400">{record.updatedAt}</td>
-                    <td className="px-3 py-2">
+                    <td className="text-slate-700 dark:text-zinc-300">{String(record.version)}</td>
+                    <td className="text-xs text-slate-500 dark:text-zinc-400">{record.updatedAt}</td>
+                    <td>
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                          className="admin-button admin-button--secondary"
                           onClick={() => setEditTarget(record)}
                         >
                           {copy.table.edit}
@@ -393,7 +394,7 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
                           <button
                             key={transition.label}
                             type="button"
-                            className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                            className="admin-button admin-button--secondary"
                             onClick={() =>
                               void (transition.restore
                                 ? runAction(
