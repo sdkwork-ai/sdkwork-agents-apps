@@ -99,6 +99,17 @@ function toAssistantMessage(
     videoUrls,
     audioUrl: audioUrls[0],
     audioUrls,
+    // The record id and each result's catalog state let the completed card
+    // show "saved to assets" and offer a manual save for results the server
+    // auto-save could not persist.
+    generationId: record.id,
+    results: media.map((item) => ({
+      resultId: item.generationResult.id,
+      kind: item.kind,
+      ...(item.generationResult.assetId?.trim()
+        ? { assetId: item.generationResult.assetId.trim() }
+        : {}),
+    })),
   };
 }
 
@@ -151,6 +162,15 @@ function compactCreativeCommandParameters(
 /** The slice of the generations service the conversation builder consumes. */
 interface AgentsGenerationsServiceLike {
   listMediaResults(generationId: string): Promise<GenerationMediaResult[]>;
+}
+
+/** The slice of the generations service the asset save action consumes. */
+interface AgentsGenerationsSaveServiceLike {
+  saveToAssets(input: {
+    generationId: string;
+    resultId: string;
+    title?: string;
+  }): Promise<{ assetId?: string }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -468,5 +488,51 @@ export class CreativeService {
     const finalMessage = toAssistantMessage(record, media, pendingMessage.id);
     onUpdate(finalMessage);
     return finalMessage;
+  }
+
+  /**
+   * Save every not-yet-cataloged result of a completed turn into the caller's
+   * asset catalog. Results save one at a time (bounded concurrency) and every
+   * confirmed `assetId` is pushed to the card through `onUpdate`, so a partial
+   * failure keeps the already-saved results marked instead of rolling the
+   * whole turn back to "unsaved".
+   *
+   * @param message - the completed assistant turn.
+   * @param onUpdate - receives the card after each confirmed save.
+   * @param generationsService - generations service; defaults to the app one.
+   * @returns the card with the confirmed catalog identities.
+   */
+  static async saveToAssets(
+    message: CreativeMessage,
+    onUpdate?: (message: CreativeMessage) => void,
+    generationsService?: AgentsGenerationsSaveServiceLike,
+  ): Promise<CreativeMessage> {
+    if (!message.generationId?.trim()) {
+      throw new Error('这条生成记录缺少 id，无法保存到资产。');
+    }
+    const service = generationsService ?? await loadGenerationsService();
+    const generationId = message.generationId.trim();
+    let next = message;
+    for (const result of message.results ?? []) {
+      if (result.assetId) continue;
+      // One save in flight keeps the catalog write rate bounded.
+      const saved = await service.saveToAssets({
+        generationId,
+        resultId: result.resultId,
+        title: message.text,
+      });
+      const assetId = saved.assetId?.trim();
+      if (!assetId) {
+        throw new Error('资产服务未返回 assetId，保存结果未知，请稍后重试。');
+      }
+      next = {
+        ...next,
+        results: (next.results ?? []).map((item) => (
+          item.resultId === result.resultId ? { ...item, assetId } : item
+        )),
+      };
+      onUpdate?.(next);
+    }
+    return next;
   }
 }

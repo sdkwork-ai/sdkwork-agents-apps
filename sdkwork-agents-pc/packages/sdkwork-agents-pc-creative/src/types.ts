@@ -1,3 +1,16 @@
+export type CreativeMediaKind = 'image' | 'video' | 'audio';
+
+/**
+ * Asset-catalog state of one generation result behind an assistant turn.
+ * `assetId` is set once the result lives in the caller's `sdkwork-assets`
+ * catalog (server auto-save on completion, or the manual save action).
+ */
+export interface CreativeResultAssetState {
+  resultId: string;
+  kind: CreativeMediaKind;
+  assetId?: string;
+}
+
 export interface CreativeMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -22,6 +35,22 @@ export interface CreativeMessage {
   suggestions?: string[];
   mode?: string;
   modelInfo?: string;
+  /** Generations record behind this turn; the handle the asset actions use. */
+  generationId?: string;
+  /** Per-result asset-catalog state of a completed turn. */
+  results?: CreativeResultAssetState[];
+}
+
+/** Whether a completed turn has every result saved to the asset catalog. */
+export function isSavedToAssets(message: CreativeMessage): boolean {
+  const results = message.results ?? [];
+  return results.length > 0 && results.every((result) => Boolean(result.assetId));
+}
+
+/** Whether a completed turn still has results the user can save by hand. */
+export function hasUnsavedResults(message: CreativeMessage): boolean {
+  return Boolean(message.generationId)
+    && (message.results ?? []).some((result) => !result.assetId);
 }
 
 export interface CreativeSession {

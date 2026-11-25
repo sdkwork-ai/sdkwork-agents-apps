@@ -1,7 +1,7 @@
 import React from 'react';
-import { Sparkles, RotateCcw, LayoutGrid, Trash2 } from 'lucide-react';
+import { Sparkles, RotateCcw, LayoutGrid, Trash2, FolderCheck, Save } from 'lucide-react';
 import { cn } from '@sdkwork/agents-pc-commons';
-import { CreativeMessage } from '../types';
+import { CreativeMessage, hasUnsavedResults, isSavedToAssets } from '../types';
 import { GridLayout } from './GridLayout';
 import { MasonryLayout } from './MasonryLayout';
 import { CarouselLayout } from './CarouselLayout';
@@ -14,6 +14,8 @@ interface CreativeMessageItemProps {
   onSetCarouselIndex: (index: number) => void;
   onToggleLayout: () => void;
   onSend: (text: string, mode: string) => void;
+  /** Saves the turn's not-yet-cataloged results into the asset catalog. */
+  onSaveToAssets: (message: CreativeMessage) => Promise<void>;
   onDelete: () => void;
 }
 
@@ -25,8 +27,22 @@ export const CreativeMessageItem: React.FC<CreativeMessageItemProps> = ({
   onSetCarouselIndex,
   onToggleLayout,
   onSend,
+  onSaveToAssets,
   onDelete
 }) => {
+  const [savingAssets, setSavingAssets] = React.useState(false);
+
+  const handleSaveToAssets = async () => {
+    if (savingAssets) return;
+    setSavingAssets(true);
+    try {
+      await onSaveToAssets(m);
+    } finally {
+      // The parent reports failures (toast); the button must come back either way.
+      setSavingAssets(false);
+    }
+  };
+
   return (
     <div className="w-full flex flex-col gap-3 group pb-8 last:pb-0 animate-in fade-in duration-300">
 
@@ -130,6 +146,26 @@ export const CreativeMessageItem: React.FC<CreativeMessageItemProps> = ({
               <LayoutGrid size={13} />
               切换排版
             </button>
+            {/* Asset catalog state: the server auto-saves finished results; the
+                button only appears for results that still need a manual save. */}
+            {isSavedToAssets(m) ? (
+              <span
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-emerald-700 dark:text-emerald-400 text-xs font-medium select-none"
+                title="生成结果已保存到资产库"
+              >
+                <FolderCheck size={13} />
+                已保存到资产
+              </span>
+            ) : hasUnsavedResults(m) ? (
+              <button
+                onClick={handleSaveToAssets}
+                disabled={savingAssets}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[#165DFF] hover:text-[#0E42D2] hover:bg-[#165DFF]/5 transition-colors text-xs font-medium cursor-pointer disabled:cursor-default disabled:opacity-60 dark:text-[#4080FF] dark:hover:bg-[#4080FF]/10"
+              >
+                <Save size={13} />
+                {savingAssets ? '保存中...' : '保存到资产'}
+              </button>
+            ) : null}
             <button
               onClick={onDelete}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors text-xs font-medium cursor-pointer dark:text-rose-400 dark:hover:text-rose-300 dark:hover:bg-rose-500/5"

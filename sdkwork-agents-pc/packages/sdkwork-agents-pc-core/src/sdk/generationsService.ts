@@ -100,6 +100,19 @@ export interface WaitForGenerationOptions {
   onStatus?: (record: GenerationRecord) => void;
 }
 
+/**
+ * Manual save of one generation result into the caller's asset catalog
+ * (`sdkwork-assets`). The server auto-saves every finished result; this is the
+ * retry path for a result whose auto-save failed or that predates it.
+ */
+export interface SaveGenerationResultToAssetsInput {
+  generationId: string;
+  resultId: string;
+  collectionId?: string;
+  title?: string;
+  tags?: readonly string[];
+}
+
 type Sleep = (milliseconds: number) => Promise<void>;
 type GenerationsClientProvider = () => (
   SdkworkGenerationsAppClient | Promise<SdkworkGenerationsAppClient>
@@ -345,6 +358,35 @@ export class AgentsGenerationsService {
       record = await client.generations.retrieve(record.id);
     }
     throw new Error("Generation did not complete before the polling deadline.");
+  }
+
+  /**
+   * Save one result into the caller's asset catalog and return the updated
+   * result (carrying `assetId`). The contract requires an `Idempotency-Key`;
+   * the key is minted per call so a deliberate re-save is never swallowed by a
+   * replayed earlier response.
+   */
+  async saveToAssets(
+    input: SaveGenerationResultToAssetsInput,
+  ): Promise<GenerationResult> {
+    const generationId = input.generationId.trim();
+    const resultId = input.resultId.trim();
+    if (!generationId || !resultId) {
+      throw new Error("A generation id and a result id are required to save to assets.");
+    }
+    const client = await this.getClient();
+    return client.generations.results.saveToAssets(
+      generationId,
+      resultId,
+      {
+        ...(input.collectionId?.trim()
+          ? { collectionId: input.collectionId.trim() }
+          : {}),
+        ...(input.title?.trim() ? { title: input.title.trim() } : {}),
+        ...(input.tags?.length ? { tags: [...input.tags] } : {}),
+      },
+      { idempotencyKey: `agents-generation-save-${uuid()}` },
+    );
   }
 }
 

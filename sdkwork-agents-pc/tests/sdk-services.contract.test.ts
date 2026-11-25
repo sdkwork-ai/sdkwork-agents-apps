@@ -33,6 +33,7 @@ import {
   applyAppSdkSessionTokens,
   clearAppSdkSessionTokens,
 } from '@sdkwork/agents-pc-core/session';
+import { AgentsGenerationsService } from '@sdkwork/agents-pc-core/sdk/generationsService';
 
 import { AssetsService } from '../packages/sdkwork-agents-pc-assets/src/services/AssetsService';
 import { CanvasService } from '../packages/sdkwork-agents-pc-canvas/src/services/CanvasService';
@@ -351,4 +352,53 @@ test('active PC remote services contain no raw HTTP, manual auth, or fake media 
   assert.doesNotMatch(sources, /\bfetch\s*\(|axios|XMLHttpRequest/);
   assert.doesNotMatch(sources, /Authorization|Access-Token/);
   assert.doesNotMatch(sources, /MOCK_|picsum|unsplash|mixkit/i);
+});
+
+test('AgentsGenerationsService.saveToAssets rides the SDK save_to_assets operation with an idempotency key', async () => {
+  const calls: unknown[] = [];
+  const saveClient = {
+    generations: {
+      results: {
+        saveToAssets: async (
+          generationId: string,
+          resultId: string,
+          body: Record<string, unknown>,
+          params: { idempotencyKey: string },
+        ) => {
+          calls.push({ generationId, resultId, body, params });
+          return { id: resultId, generationId, resultType: 'image', assetId: 'asset-1', createdAt: '2026-11-25T00:00:00Z' };
+        },
+      },
+    },
+  } as unknown as SdkworkGenerationsAppClient;
+  const service = new AgentsGenerationsService(async () => saveClient);
+
+  const saved = await service.saveToAssets({
+    generationId: ' generation-1 ',
+    resultId: 'result-1',
+    title: ' 一只猫 ',
+    tags: ['creative'],
+    collectionId: '  ',
+  });
+
+  assert.equal(saved.assetId, 'asset-1');
+  assert.equal(calls.length, 1);
+  const [call] = calls as Array<{
+    generationId: string;
+    resultId: string;
+    body: Record<string, unknown>;
+    params: { idempotencyKey: string };
+  }>;
+  // Ids and copy are trimmed; a blank collection id never reaches the wire;
+  // the contract's required Idempotency-Key is minted per call.
+  assert.equal(call.generationId, 'generation-1');
+  assert.equal(call.resultId, 'result-1');
+  assert.deepEqual(call.body, { title: '一只猫', tags: ['creative'] });
+  assert.match(call.params.idempotencyKey, /^agents-generation-save-/u);
+
+  await assert.rejects(
+    () => service.saveToAssets({ generationId: 'generation-1', resultId: '   ' }),
+    /result id/u,
+  );
+  assert.equal(calls.length, 1, 'a blank id is rejected before any request');
 });

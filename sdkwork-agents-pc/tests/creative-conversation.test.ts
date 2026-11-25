@@ -7,6 +7,11 @@ import type { GenerationRecord } from '@sdkwork/agents-pc-core/sdk/generationsAp
 import {
   CreativeService,
 } from '../packages/sdkwork-agents-pc-creative/src/services/CreativeService';
+import {
+  hasUnsavedResults,
+  isSavedToAssets,
+  type CreativeMessage,
+} from '../packages/sdkwork-agents-pc-creative/src/types';
 
 /**
  * Regression tests for the creative composer's multi-turn conversation
@@ -182,4 +187,127 @@ test('a conversation longer than the sidebar page still loads fully per session'
   assert.equal(session.messages.length, 24, 'every turn contributes prompt + result');
   assert.equal(session.messages[0].text, '第1轮');
   assert.equal(session.messages.at(-1)?.text, '第12轮');
+});
+
+// ---------------------------------------------------------------------------
+// Asset catalog closed loop (`sdkwork-assets`)
+// ---------------------------------------------------------------------------
+
+function mediaResult(
+  resultId: string,
+  kind: GenerationMediaResult['kind'],
+  url: string,
+  assetId?: string,
+): GenerationMediaResult {
+  return {
+    generationResult: {
+      id: resultId,
+      generationId: 'generation-1',
+      resultType: kind,
+      createdAt: '2026-10-31T10:01:00Z',
+      ...(assetId ? { assetId } : {}),
+    } as GenerationMediaResult['generationResult'],
+    kind,
+    url,
+  };
+}
+
+test('a reloaded turn carries its record id and each result asset state', async () => {
+  const session = await CreativeService.buildConversationSession(
+    fakeMediaService({
+      'g-assets': [
+        mediaResult('res-saved', 'image', 'https://cdn.example/a.png', 'asset-1'),
+        mediaResult('res-pending', 'image', 'https://cdn.example/b.png'),
+      ],
+    }),
+    'conv-assets',
+    [record({ id: 'g-assets', conversationId: 'conv-assets', promptPreview: '两张图' })],
+  );
+  assert.ok(session);
+  const assistant = session.messages[1];
+  assert.equal(assistant.generationId, 'g-assets');
+  assert.deepEqual(assistant.results, [
+    { resultId: 'res-saved', kind: 'image', assetId: 'asset-1' },
+    { resultId: 'res-pending', kind: 'image' },
+  ]);
+  assert.equal(isSavedToAssets(assistant), false, 'one unsaved result keeps the turn unsaved');
+  assert.equal(hasUnsavedResults(assistant), true, 'the manual save is offered');
+});
+
+test('a fully cataloged turn reads as saved and offers no manual save', () => {
+  const message: CreativeMessage = {
+    id: 'm-1',
+    role: 'assistant',
+    generationId: 'g-1',
+    results: [
+      { resultId: 'r-1', kind: 'video', assetId: 'asset-1' },
+      { resultId: 'r-2', kind: 'audio', assetId: 'asset-2' },
+    ],
+  };
+  assert.equal(isSavedToAssets(message), true);
+  assert.equal(hasUnsavedResults(message), false);
+  // A turn without results (legacy or agent text) shows neither state.
+  const bare: CreativeMessage = { id: 'm-2', role: 'assistant', generationId: 'g-2' };
+  assert.equal(isSavedToAssets(bare), false);
+  assert.equal(hasUnsavedResults(bare), false);
+});
+
+test('saveToAssets saves only unsaved results and patches each confirmed assetId', async () => {
+  const saved: string[] = [];
+  const fakeSaveService = {
+    async saveToAssets(input: { generationId: string; resultId: string; title?: string }) {
+      saved.push(`${input.generationId}/${input.resultId}:${input.title ?? ''}`);
+      return { assetId: `asset-${input.resultId}` };
+    },
+  };
+  const message: CreativeMessage = {
+    id: 'm-1',
+    role: 'assistant',
+    text: '一只猫',
+    generationId: 'g-1',
+    results: [
+      { resultId: 'r-1', kind: 'image', assetId: 'asset-r-0' },
+      { resultId: 'r-2', kind: 'image' },
+      { resultId: 'r-3', kind: 'image' },
+    ],
+  };
+  const updates: CreativeMessage[] = [];
+  const finalMessage = await CreativeService.saveToAssets(
+    message,
+    (updated) => updates.push(updated),
+    fakeSaveService,
+  );
+  assert.deepEqual(saved, ['g-1/r-2:一只猫', 'g-1/r-3:一只猫'], 'already-saved results are skipped');
+  assert.deepEqual(
+    updates.map((update) => update.results?.map((result) => result.assetId)),
+    [['asset-r-0', 'asset-r-2', undefined], ['asset-r-0', 'asset-r-2', 'asset-r-3']],
+    'each confirmed save is pushed before the next one starts',
+  );
+  assert.equal(isSavedToAssets(finalMessage), true);
+});
+
+test('saveToAssets rejects a turn without a generation id before calling the service', async () => {
+  let calls = 0;
+  await assert.rejects(
+    () => CreativeService.saveToAssets(
+      { id: 'm-1', role: 'assistant', results: [{ resultId: 'r-1', kind: 'image' }] },
+      undefined,
+      { saveToAssets: async () => { calls += 1; return { assetId: 'asset-1' }; } },
+    ),
+    /缺少 id/u,
+  );
+  assert.equal(calls, 0);
+});
+
+test('saveToAssets surfaces a catalog answer without assetId instead of marking it saved', async () => {
+  const message: CreativeMessage = {
+    id: 'm-1',
+    role: 'assistant',
+    generationId: 'g-1',
+    results: [{ resultId: 'r-1', kind: 'image' }],
+  };
+  await assert.rejects(
+    () => CreativeService.saveToAssets(message, undefined, { saveToAssets: async () => ({}) }),
+    /assetId/u,
+  );
 });

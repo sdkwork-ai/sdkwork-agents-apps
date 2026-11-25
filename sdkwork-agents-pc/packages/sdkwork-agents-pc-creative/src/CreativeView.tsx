@@ -334,6 +334,25 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
     showToast("已删除该条生成内容");
   };
 
+  // Asset catalog: the server auto-saves finished results; this is the manual
+  // path for results whose auto-save did not land. Every confirmed save patches
+  // the card in place so the user sees the catalog identity without a reload.
+  const handleSaveToAssets = async (message: CreativeMessage) => {
+    try {
+      await CreativeService.saveToAssets(message, (updated) => {
+        setSessions(prev => prev.map(s => (
+          s.messages.some(m => m.id === updated.id)
+            ? { ...s, messages: s.messages.map(m => (m.id === updated.id ? updated : m)) }
+            : s
+        )));
+      });
+      showToast("已保存到资产库");
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : '未知错误';
+      showToast(`保存到资产失败：${detail}`);
+    }
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -604,6 +623,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
                     onSetCarouselIndex={(idx) => setCarouselIndices(prev => ({ ...prev, [m.id]: idx }))}
                     onToggleLayout={() => handleToggleLayout(m.id)}
                     onSend={handleSend}
+                    onSaveToAssets={handleSaveToAssets}
                     onDelete={() => handleDeleteMessage(m.id)}
                   />
                 ))}
