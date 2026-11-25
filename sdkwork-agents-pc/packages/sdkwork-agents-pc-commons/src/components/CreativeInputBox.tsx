@@ -309,6 +309,51 @@ export const CreativeInputBox: React.FC<CreativeInputBoxProps> = ({
           ...(characterImageResource ? [characterImageResource] : []),
           ...(uploadedMotionVideo ? [uploadedMotionVideo.resource] : []),
         ],
+        // `referenceAssets` carries the role of every upload, because the
+        // generations adapter derives the vendor surface from it: a
+        // `last_frame` becomes `imageTail` / the Seedance `last_frame` part, a
+        // `reference_audio` becomes the avatar driving audio, a
+        // `reference_video` becomes the motion-mimicry reference. A flat
+        // `mediaResources` list carried no role, so a first/last-frame or
+        // voice-driven submit silently degraded to a plain image prompt.
+        referenceAssets: [
+          ...uploadedImageResources.map((media) => ({
+            kind: 'image' as const,
+            role: uploadedImageResources.length > 1 && media === uploadedImageResources[uploadedImageResources.length - 1]
+              ? 'last_frame' as const
+              : 'reference_image' as const,
+            name: media.fileName,
+            mimeType: media.mimeType,
+            resource: media,
+          })),
+          ...(uploadedAudioResource
+            ? [{
+              kind: 'audio' as const,
+              role: 'reference_audio' as const,
+              name: uploadedAudioResource.fileName,
+              mimeType: uploadedAudioResource.mimeType,
+              resource: uploadedAudioResource,
+            }]
+            : []),
+          ...(characterImageResource
+            ? [{
+              kind: 'image' as const,
+              role: 'first_frame' as const,
+              name: characterImageResource.fileName,
+              mimeType: characterImageResource.mimeType,
+              resource: characterImageResource,
+            }]
+            : []),
+          ...(uploadedMotionVideo
+            ? [{
+              kind: 'video' as const,
+              role: 'reference_video' as const,
+              name: uploadedMotionVideo.name,
+              mimeType: uploadedMotionVideo.resource.mimeType,
+              resource: uploadedMotionVideo.resource,
+            }]
+            : []),
+        ],
         characterImage: characterImageResource?.uri,
         selectedTemplate,
         // Agent mode: the orchestration model plus the media models the agent

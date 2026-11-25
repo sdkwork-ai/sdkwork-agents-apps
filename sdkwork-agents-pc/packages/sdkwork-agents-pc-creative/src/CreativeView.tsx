@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CreativeInputBox, consumeCreativeHandoff, creativeModelCatalogService, wireAspectRatio } from '@sdkwork/agents-pc-commons';
+import { CreativeInputBox, consumeCreativeHandoff, creativeModelCatalogService } from '@sdkwork/agents-pc-commons';
 import { resolveCreativeCreationType } from '@sdkwork/agents-pc-core/sdk/creationTypes';
 import {
   readAccountScopedItem,
@@ -20,6 +20,7 @@ import { CreativeMessageItem } from './components/CreativeMessageItem';
 import { PromptHistoryItem } from './components/CreativeHistoryLog';
 
 import { CreativeService, CreativeSessionStore } from './services/CreativeService';
+import { buildCreativeCommandOptions } from './services/creativeCommandOptions';
 import { uuid } from '@sdkwork/utils';
 
 /** Account-scoped prompt history (see `@sdkwork/agents-pc-core/session`). */
@@ -27,97 +28,6 @@ const CREATIVE_PROMPT_HISTORY_KEY = 'creative_prompt_history_logs';
 
 function createDefaultCreativeSession(): CreativeSession {
   return { id: 'default', title: '默认创作', messages: [] };
-}
-
-/** Shape of the media resources the creative input box uploads through Drive. */
-interface CreativeMediaResourceLike {
-  id?: string;
-  uri?: string;
-  url?: string;
-  kind?: string;
-  mimeType?: string;
-  fileName?: string;
-}
-
-function compactCreativeRecord(record: Record<string, unknown>): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(record).filter(([, value]) => (
-      value !== undefined
-      && value !== null
-      && value !== ''
-      && (!(Array.isArray(value)) || value.length > 0)
-      && (!(typeof value === 'object' && !Array.isArray(value)) || Object.keys(value).length > 0)
-    )),
-  );
-}
-
-function toCreativeReference(resource: CreativeMediaResourceLike): Record<string, string> {
-  return compactCreativeRecord({
-    // Vendors fetch the presigned download URL; the Drive node id rides along
-    // for server-side asset resolution.
-    url: resource.url || resource.uri,
-    assetId: resource.id,
-    mimeType: resource.mimeType,
-    name: resource.fileName,
-  }) as Record<string, string>;
-}
-
-/**
- * Translate the creative input-box settings into generations command
- * parameters. Aspect ratio / resolution / duration / count reach the vendor
- * adapters through `parameters.generationConfig`; uploaded reference media
- * reaches them through `parameters.referenceImages` / `referenceVideos`.
- */
-function buildCreativeCommandOptions(
-  _prompt: string,
-  _mode: string,
-  settings?: Record<string, unknown>,
-): { commandParameters?: Record<string, unknown>; commandInputAssetIds?: string[] } {
-  const mediaResources = (Array.isArray(settings?.mediaResources)
-    ? settings?.mediaResources
-    : []) as CreativeMediaResourceLike[];
-  if (mediaResources.length === 0 && !settings) {
-    return {};
-  }
-  const imageResources = mediaResources.filter((resource) => (
-    (resource.kind ?? 'image') === 'image' && Boolean(resource.url || resource.uri)
-  ));
-  const videoResources = mediaResources.filter((resource) => (
-    resource.kind === 'video' && Boolean(resource.url || resource.uri)
-  ));
-  const audioResource = mediaResources.find((resource) => (
-    (resource.kind === 'audio' || resource.kind === 'voice') && Boolean(resource.url || resource.uri)
-  ));
-  const generationConfig = compactCreativeRecord({
-    // `智能` lets the model choose; the explicit pixel `size` still applies.
-    aspectRatio: wireAspectRatio(settings?.ratio as string | undefined),
-    resolution: settings?.resolution,
-    durationSeconds: settings?.duration,
-    imageCount: settings?.count,
-    loop: settings?.loop,
-    audio: settings?.audio,
-    size: settings?.imageWidth && settings?.imageHeight
-      ? `${settings.imageWidth}x${settings.imageHeight}`
-      : undefined,
-  });
-  const commandParameters = compactCreativeRecord({
-    // Precise generation mode (`reference_to_video`, `start_end_frame`, ...);
-    // the vendor adapter picks the matching surface from it.
-    generationMode: settings?.generationMode,
-    // Vendor voice id for speech synthesis.
-    voice: settings?.voiceId,
-    generationConfig,
-    referenceImages: imageResources.map(toCreativeReference),
-    referenceVideos: videoResources.map(toCreativeReference),
-    audioUrl: audioResource?.url || audioResource?.uri,
-  });
-  const commandInputAssetIds = imageResources
-    .map((resource) => resource.id)
-    .filter((id): id is string => Boolean(id?.trim()));
-  return {
-    ...(Object.keys(commandParameters).length > 0 ? { commandParameters } : {}),
-    ...(commandInputAssetIds.length > 0 ? { commandInputAssetIds } : {}),
-  };
 }
 
 export interface CreativeViewProps {
@@ -502,7 +412,7 @@ export const CreativeView = ({ defaultCreationMode = 'agent' }: CreativeViewProp
         ...(mode === 'agent' && Array.isArray(settings?.agentVideoModels) && settings.agentVideoModels.length > 0
           ? { agentVideoModels: settings.agentVideoModels }
           : {}),
-        ...buildCreativeCommandOptions(text, mode, settings),
+        ...buildCreativeCommandOptions(settings),
         // The first upload previews on the pending card while the command runs.
         previewImageUrl: (Array.isArray(settings?.mediaResources) ? settings.mediaResources : [])
           .map((resource: { url?: string; uri?: string }) => resource.url || resource.uri)

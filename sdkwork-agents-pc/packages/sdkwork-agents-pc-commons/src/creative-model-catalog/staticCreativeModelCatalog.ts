@@ -1279,6 +1279,12 @@ export const VENDOR_IMAGE_PARAMETERS: Readonly<Record<string, CreativeModelImage
     maxCount: 1
   },
   google: {
+    // The wired Gemini image surface
+    // (`/google/v1beta/models/{model}:generateImages`) accepts base64-encoded
+    // reference bytes only, while the command plane carries image URLs; the
+    // adapter rejects a reference-conditioned Gemini image command instead of
+    // silently dropping the references. The picker therefore advertises the
+    // text-only surface, not a reference-edit one.
     aspectRatios: ['1:1', '4:3', '3:4', '16:9', '9:16', '21:9'],
     resolutions: ['1K'],
     customSize: false,
@@ -1360,6 +1366,22 @@ export const VENDOR_VIDEO_GENERATION_MODES: Readonly<Record<string, readonly str
  * Full composer generation modes the adapter dispatches per video vendor.
  * Runtime catalog profiles are intersected with this set, the same way these
  * static profiles were generated.
+ *
+ * The table mirrors the `dispatch` arms of
+ * `sdkwork-generations-provider-adapter/src/video.rs` exactly. A mode listed
+ * for a vendor the adapter cannot serve makes the picker offer a combination
+ * that fails at submit time; a mode the adapter *can* serve but this table
+ * omits makes a working surface unreachable.
+ *
+ * - `openai`    → `dispatch_openai` (text / image / extend).
+ * - `google`    → `dispatch_gemini`: the reference and image surfaces need
+ *   base64-encoded frames the generation command does not carry, so only
+ *   text_to_video is dispatchable.
+ * - `kuaishou`  → `dispatch_kling`: `start_end_frame` maps onto `image_tail`.
+ * - `vidu`      → `dispatch_vidu`: reference_to_video and start_end_frame have
+ *   dedicated surfaces.
+ * - `bytedance` → `dispatch_volcengine`: content parts tagged
+ *   `first_frame` / `last_frame` / `reference_image`.
  */
 export const VENDOR_VIDEO_ADAPTER_MODES: Readonly<Record<string, readonly string[]>> = {
   openai: ['text_to_video', 'image_to_video'],
