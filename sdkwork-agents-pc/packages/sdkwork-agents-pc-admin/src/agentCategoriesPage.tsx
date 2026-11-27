@@ -30,6 +30,7 @@ import {
   TagIcon,
   type AgentCategoryLifecycleStatus,
 } from './agentCategoryUi.tsx';
+import { AdminListPagination, DEFAULT_ADMIN_LIST_PAGE_SIZE } from './components/AdminListPagination.tsx';
 
 const LIST_PAGE_SIZE = 200;
 const MAX_LIST_PAGES = 10;
@@ -90,6 +91,8 @@ export function AgentCategoriesPage() {
   const [editor, setEditor] = useState<AgentCategoryEditorState | null>(null);
   const [busyCode, setBusyCode] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_ADMIN_LIST_PAGE_SIZE);
 
   const load = useCallback(async (silent = false) => {
     if (!silent) {
@@ -99,7 +102,8 @@ export function AgentCategoriesPage() {
     try {
       // The taxonomy is small, so load every page once and filter locally.
       // The cap prevents an unbounded loop if a tenant ever accumulates an
-      // unexpectedly large catalog; the footer reports a truncated view.
+      // unexpectedly large catalog; the toolbar summary keeps reporting the
+      // server total, and the pagination bar pages the rows that loaded.
       const collected: AgentCategoryRecord[] = [];
       let pageNumber = 1;
       let reportedTotal = 0;
@@ -236,6 +240,19 @@ export function AgentCategoriesPage() {
     return treeRows;
   }, [filtered]);
 
+  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+  const pagedRows = rows.slice((page - 1) * pageSize, page * pageSize);
+
+  // The taxonomy is filtered client-side, so a filter change or a shrinking
+  // catalog can strand the active page past the last page. Clamping here keeps
+  // the footer and the rendered rows in agreement; the assignment converges,
+  // because `totalPages` is always at least 1.
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
   const filtersActive = query.trim().length > 0 || statusFilter !== 'all';
 
   const exportCsv = useCallback(() => {
@@ -289,6 +306,7 @@ export function AgentCategoriesPage() {
   const clearFilters = useCallback(() => {
     setQuery('');
     setStatusFilter('all');
+    setPage(1);
   }, []);
 
   const saveCategory = useCallback(
@@ -417,7 +435,10 @@ export function AgentCategoriesPage() {
               <span className="admin-field__label">{copy.search.label}</span>
               <input
                 className="admin-control"
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setPage(1);
+                }}
                 placeholder={copy.search.placeholder}
                 value={query}
               />
@@ -432,7 +453,10 @@ export function AgentCategoriesPage() {
                       aria-pressed={selected}
                       className="admin-segmented__item"
                       key={tab.value}
-                      onClick={() => setStatusFilter(tab.value)}
+                      onClick={() => {
+                        setStatusFilter(tab.value);
+                        setPage(1);
+                      }}
                       type="button"
                     >
                       {copy.tabs[tab.value]}
@@ -507,7 +531,7 @@ export function AgentCategoriesPage() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map(({ record, depth }) => {
+                {pagedRows.map(({ record, depth }) => {
                   const parent = record.parentId ? byId.get(record.parentId) : undefined;
                   const isBusy = busyCode === record.categoryCode;
                   return (
@@ -634,11 +658,21 @@ export function AgentCategoriesPage() {
             </table>
           )}
         </div>
-        {!loading && categories.length > 0 ? (
-          <div className="admin-list-footer">
-            <span>{copy.footer.showing(rows.length, total, categories.length)}</span>
-            <span>{copy.footer.sorted}</span>
-          </div>
+        {!loading && rows.length > 0 ? (
+          <AdminListPagination
+            copy={copy.pagination}
+            disabled={loading}
+            hasNextPage={page < totalPages}
+            itemCount={pagedRows.length}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+            page={page}
+            pageSize={pageSize}
+            totalItems={rows.length}
+          />
         ) : null}
       </div>
 

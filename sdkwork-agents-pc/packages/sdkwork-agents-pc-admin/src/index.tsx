@@ -26,6 +26,7 @@ import {
   type AgentListFilters,
 } from './agentsAdminService.ts';
 import { useAgentAdminCopy, type AgentAdminCopy } from './agentAdminCopy.ts';
+import { AdminListPagination, DEFAULT_ADMIN_LIST_PAGE_SIZE } from './components/AdminListPagination.tsx';
 import { AgentCategorySelect } from './components/AgentCategorySelect.tsx';
 import { AgentPackageField } from './components/AgentPackageField.tsx';
 import { RoleMultiSelect } from './components/RoleMultiSelect.tsx';
@@ -153,6 +154,9 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
   const [keyword, setKeyword] = useState('');
   const [categoryCode, setCategoryCode] = useState('');
   const [roleScope, setRoleScope] = useState<RoleScope>('all');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_ADMIN_LIST_PAGE_SIZE);
+  const [totalItems, setTotalItems] = useState(0);
 
   const usableRoleCodes = useMemo(
     () => roleCodes.map((code) => trim(code)).filter((code) => !isBlank(code)),
@@ -161,16 +165,17 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
   const roleScopeCodes = roleScope === 'mine' ? [...usableRoleCodes].sort().join(',') : '';
   const listFilters = useMemo<AgentListFilters>(
     () => ({
-      // The table renders the whole filtered list, so the request asks for the
-      // maximum page the backend serves (`MAX_LIST_PAGE_SIZE`); without it the
-      // default window would silently hide everything past the first 20 rows.
-      pageSize: 200,
+      // The table renders one page and the footer navigates between pages, so
+      // the request carries the active page and the selected page size.
+      page,
+      pageSize,
       ...(isBlank(trim(keyword)) ? {} : { q: trim(keyword) }),
       ...(isBlank(trim(categoryCode)) ? {} : { categoryCode: trim(categoryCode) }),
       ...(isBlank(roleScopeCodes) ? {} : { roleCodes: roleScopeCodes }),
     }),
-    [keyword, categoryCode, roleScopeCodes],
+    [page, pageSize, keyword, categoryCode, roleScopeCodes],
   );
+  const totalPages = Math.max(1, Math.ceil(totalItems / Math.max(1, pageSize)));
 
   const reload = useCallback(() => {
     setReloadToken((token) => token + 1);
@@ -180,9 +185,10 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
     let active = true;
     setLoading(true);
     listManagedAgents(listFilters)
-      .then((page) => {
+      .then((result) => {
         if (!active) return;
-        setRecords(page.items);
+        setRecords(result.items);
+        setTotalItems(Number(result.pageInfo.totalItems ?? result.items.length));
         setError(null);
       })
       .catch((cause: unknown) => {
@@ -196,6 +202,16 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
       active = false;
     };
   }, [reloadToken, listFilters]);
+
+  // A filter change or a page-size change can leave the active page past the
+  // last page the backend still serves (for example after rows are archived).
+  // Clamping here keeps the footer and the request in agreement; the assignment
+  // converges, because `totalPages` is always at least 1.
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   useEffect(() => {
     let active = true;
@@ -278,7 +294,10 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
               <input
                 className="admin-control"
                 value={keyword}
-                onChange={(event) => setKeyword(event.target.value)}
+                onChange={(event) => {
+                  setKeyword(event.target.value);
+                  setPage(1);
+                }}
                 placeholder={copy.filters.keywordPlaceholder}
               />
             </label>
@@ -287,7 +306,10 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
               <select
                 className="admin-control"
                 value={categoryCode}
-                onChange={(event) => setCategoryCode(event.target.value)}
+                onChange={(event) => {
+                  setCategoryCode(event.target.value);
+                  setPage(1);
+                }}
               >
                 <option value="">{copy.filters.allCategories}</option>
                 {activeCategoryOptions(categories, categoryCode).map((option) => (
@@ -314,7 +336,10 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
                       aria-pressed={roleScope === scope}
                       disabled={disabled}
                       title={disabled ? copy.filters.roleScopeUnavailable : undefined}
-                      onClick={() => setRoleScope(scope)}
+                      onClick={() => {
+                        setRoleScope(scope);
+                        setPage(1);
+                      }}
                     >
                       {scope === 'all'
                         ? copy.filters.roleScopeAll
@@ -426,6 +451,22 @@ export function AgentsAdminPage({ roleCodes = [] }: AgentsAdminPageProps = {}) {
             </table>
           )}
         </div>
+        {records.length > 0 ? (
+          <AdminListPagination
+            copy={copy.pagination}
+            disabled={loading}
+            hasNextPage={page < totalPages}
+            itemCount={records.length}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+            page={page}
+            pageSize={pageSize}
+            totalItems={totalItems}
+          />
+        ) : null}
       </div>
 
       {createOpen ? (

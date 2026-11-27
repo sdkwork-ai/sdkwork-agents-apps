@@ -83,6 +83,14 @@ const en = {
     loading: 'Loading agents…',
     empty: 'No managed agents yet',
   },
+  pagination: {
+    previous: 'Previous page',
+    next: 'Next page',
+    pageSize: 'Rows per page',
+    page: (page: number, totalPages: number) => `Page ${page} / ${totalPages}`,
+    showing: (start: number, end: number, total: number) =>
+      `Showing ${start} - ${end} of ${total}`,
+  },
   status: {
     draft: 'Draft',
     active: 'Active',
@@ -237,6 +245,13 @@ const zh: AgentAdminCopy = {
     edit: '编辑',
     loading: '正在加载 Agent…',
     empty: '还没有受管 Agent',
+  },
+  pagination: {
+    previous: '上一页',
+    next: '下一页',
+    pageSize: '每页行数',
+    page: (page, totalPages) => `第 ${page} / ${totalPages} 页`,
+    showing: (start, end, total) => `显示第 ${start} - ${end} 条，共 ${total} 条`,
   },
   status: {
     draft: '草稿',

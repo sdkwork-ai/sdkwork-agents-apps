@@ -61,6 +61,14 @@ const en = {
     activateTitle: 'Make this category selectable for new agent classification again.',
     loadingLabel: 'Loading agent categories',
   },
+  pagination: {
+    previous: 'Previous page',
+    next: 'Next page',
+    pageSize: 'Rows per page',
+    page: (page: number, totalPages: number) => `Page ${page} / ${totalPages}`,
+    showing: (start: number, end: number, total: number) =>
+      `Showing ${start} - ${end} of ${total}`,
+  },
   empty: {
     title: 'No agent categories yet',
     description:
@@ -254,6 +262,13 @@ const zh: AgentCategoryCopy = {
     disableTitle: '对新归类停用该分类，已有 Agent 引用仍然有效。',
     activateTitle: '重新允许该分类用于新的 Agent 归类。',
     loadingLabel: '正在加载 Agent 分类',
+  },
+  pagination: {
+    previous: '上一页',
+    next: '下一页',
+    pageSize: '每页行数',
+    page: (page, totalPages) => `第 ${page} / ${totalPages} 页`,
+    showing: (start, end, total) => `显示第 ${start} - ${end} 条，共 ${total} 条`,
   },
   empty: {
     title: '还没有 Agent 分类',
